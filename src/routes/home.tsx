@@ -266,7 +266,13 @@ function HomePage() {
           const l = likes[p.id] ?? { count: 0, mine: false };
           const cc = commentCounts[p.id] ?? 0;
           return (
-            <article key={p.id} className="relative bg-surface px-4 py-3 shadow-card">
+            <article
+              key={p.id}
+              id={`post-${p.id}`}
+              className={`relative bg-surface px-4 py-3 shadow-card transition-shadow ${
+                highlightId === p.id ? "ring-2 ring-primary" : ""
+              }`}
+            >
               {isAdmin && (
                 <button
                   onClick={() => void adminDelete(p.id)}
