@@ -163,12 +163,7 @@ function StoryViewerPage() {
   );
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex flex-col bg-black"
-      onPointerDown={() => setPaused(true)}
-      onPointerUp={() => setPaused(false)}
-      onPointerLeave={() => setPaused(false)}
-    >
+    <div className="fixed inset-0 z-50 flex flex-col bg-black">
       {/* Progress bars */}
       <div className="flex gap-1 px-2 pt-2">
         {stories.map((_, i) => (
@@ -195,46 +190,50 @@ function StoryViewerPage() {
         </button>
       </header>
 
-      {/* Image */}
-      <div className="relative flex-1">
-        <img src={s.media_url} alt="" className="h-full w-full object-contain" />
+      {/* Image — pause only while pressing the image */}
+      <div
+        className="relative flex-1"
+        onPointerDown={() => setPaused(true)}
+        onPointerUp={() => setPaused(false)}
+        onPointerLeave={() => setPaused(false)}
+        onPointerCancel={() => setPaused(false)}
+      >
+        <img src={s.media_url} alt="" className="h-full w-full object-contain" draggable={false} />
         {s.caption && (
-          <div className="absolute inset-x-0 bottom-20 px-6 text-center text-base font-medium text-white drop-shadow-lg">
+          <div className="pointer-events-none absolute inset-x-0 bottom-20 px-6 text-center text-base font-medium text-white drop-shadow-lg">
             {s.caption}
           </div>
         )}
 
         {/* Tap zones */}
         <button
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
             prev();
           }}
-          className="absolute left-0 top-0 h-full w-1/3 text-white/0"
+          className="absolute left-0 top-0 h-full w-1/3"
           aria-label="Previous"
         >
-          <ChevronLeft className="ml-2 h-6 w-6" />
+          <ChevronLeft className="ml-2 h-6 w-6 text-white/0" />
         </button>
         <button
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
             next();
           }}
-          className="absolute right-0 top-0 h-full w-1/3 text-white/0"
+          className="absolute right-0 top-0 h-full w-1/3"
           aria-label="Next"
         >
-          <ChevronRight className="ml-auto mr-2 h-6 w-6" />
+          <ChevronRight className="ml-auto mr-2 h-6 w-6 text-white/0" />
         </button>
       </div>
 
       {/* Viewers footer (owner only) */}
       {isOwner && (
         <button
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            void openViewers();
-          }}
+          onClick={() => void openViewers()}
           className="flex items-center justify-center gap-2 bg-black/60 py-3 text-sm font-medium text-white active:bg-black/80"
         >
           <Eye className="h-4 w-4" />
