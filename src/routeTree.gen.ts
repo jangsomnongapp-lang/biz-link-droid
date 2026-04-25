@@ -20,6 +20,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
+import { Route as StoryViewRouteImport } from './routes/story.view'
 import { Route as StoryNewRouteImport } from './routes/story.new'
 import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
@@ -83,6 +84,11 @@ const UsersUserIdRoute = UsersUserIdRouteImport.update({
   path: '/users/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StoryViewRoute = StoryViewRouteImport.update({
+  id: '/story/view',
+  path: '/story/view',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StoryNewRoute = StoryNewRouteImport.update({
   id: '/story/new',
   path: '/story/new',
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/story/new': typeof StoryNewRoute
+  '/story/view': typeof StoryViewRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/story/new': typeof StoryNewRoute
+  '/story/view': typeof StoryViewRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/story/new': typeof StoryNewRoute
+  '/story/view': typeof StoryViewRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/profile/edit'
     | '/profile/portfolio'
     | '/story/new'
+    | '/story/view'
     | '/users/$userId'
     | '/listings/'
     | '/messages/'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/profile/edit'
     | '/profile/portfolio'
     | '/story/new'
+    | '/story/view'
     | '/users/$userId'
     | '/listings'
     | '/messages'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/profile/edit'
     | '/profile/portfolio'
     | '/story/new'
+    | '/story/view'
     | '/users/$userId'
     | '/listings/'
     | '/messages/'
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
   StoryNewRoute: typeof StoryNewRoute
+  StoryViewRoute: typeof StoryViewRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/story/view': {
+      id: '/story/view'
+      path: '/story/view'
+      fullPath: '/story/view'
+      preLoaderRoute: typeof StoryViewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/story/new': {
       id: '/story/new'
       path: '/story/new'
@@ -420,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
   StoryNewRoute: StoryNewRoute,
+  StoryViewRoute: StoryViewRoute,
   UsersUserIdRoute: UsersUserIdRoute,
   ListingsIndexRoute: ListingsIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
