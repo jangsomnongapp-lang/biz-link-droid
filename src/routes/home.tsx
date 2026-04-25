@@ -12,6 +12,9 @@ import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X } from "lu
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/home")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    post: typeof s.post === "string" ? s.post : undefined,
+  }),
   component: () => (
     <RequireAuth>
       <AppShell>
@@ -49,6 +52,7 @@ interface StoryGroup {
 function HomePage() {
   const { t } = useI18n();
   const { user } = useAuth();
+  const { post: focusPostId } = Route.useSearch();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [stories, setStories] = useState<StoryGroup[]>([]);
@@ -57,6 +61,18 @@ function HomePage() {
   const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!focusPostId || loading) return;
+    const el = document.getElementById(`post-${focusPostId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightId(focusPostId);
+      const tid = setTimeout(() => setHighlightId(null), 2200);
+      return () => clearTimeout(tid);
+    }
+  }, [focusPostId, loading]);
 
   useEffect(() => {
     if (!user) return;
@@ -250,7 +266,13 @@ function HomePage() {
           const l = likes[p.id] ?? { count: 0, mine: false };
           const cc = commentCounts[p.id] ?? 0;
           return (
-            <article key={p.id} className="relative bg-surface px-4 py-3 shadow-card">
+            <article
+              key={p.id}
+              id={`post-${p.id}`}
+              className={`relative bg-surface px-4 py-3 shadow-card transition-shadow ${
+                highlightId === p.id ? "ring-2 ring-primary" : ""
+              }`}
+            >
               {isAdmin && (
                 <button
                   onClick={() => void adminDelete(p.id)}
