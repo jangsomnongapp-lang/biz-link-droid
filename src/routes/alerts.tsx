@@ -31,18 +31,35 @@ interface Notif {
 }
 
 function AlertsPage() {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const { user } = useAuth();
   const [items, setItems] = useState<Notif[]>([]);
 
   useEffect(() => {
     if (!user) return;
-    void supabase
-      .from("notifications")
-      .select("*, related_user:related_user_id(full_name, avatar_url)")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => setItems((data ?? []) as Notif[]));
+    void (async () => {
+      const { data } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      const rows = (data ?? []) as Notif[];
+      const userIds = Array.from(new Set(rows.map((r) => r.related_user_id).filter(Boolean) as string[]));
+      if (userIds.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, full_name, avatar_url")
+          .in("id", userIds);
+        const map = new Map((profs ?? []).map((p) => [p.id, p]));
+        for (const r of rows) {
+          if (r.related_user_id && map.has(r.related_user_id)) {
+            const p = map.get(r.related_user_id)!;
+            r.related_user = { full_name: p.full_name, avatar_url: p.avatar_url };
+          }
+        }
+      }
+      setItems(rows);
+    })();
   }, [user]);
 
   async function markAllRead() {
