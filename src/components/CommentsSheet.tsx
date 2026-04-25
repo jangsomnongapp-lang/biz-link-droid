@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { X, Send, Heart, CornerDownRight } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
