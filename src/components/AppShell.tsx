@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
-import { Home, Briefcase, Megaphone, Bell, User, Menu, Plus, Search, MessageCircle } from "lucide-react";
+import { Home, Newspaper, Megaphone, Bell, User, Menu, Plus, Search, MessageCircle } from "lucide-react";
 import type { ReactNode } from "react";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -10,7 +10,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const tabs = [
     { to: "/home", label: t("nav_home"), icon: Home },
-    { to: "/listings", label: t("nav_listings"), icon: Briefcase },
+    { to: "/listings", label: t("nav_listings"), icon: Newspaper },
     { to: "/announce", label: t("nav_announce"), icon: Megaphone },
     { to: "/alerts", label: t("nav_alerts"), icon: Bell },
     { to: "/profile", label: t("nav_profile"), icon: User },
