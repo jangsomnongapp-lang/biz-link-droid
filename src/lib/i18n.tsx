@@ -200,6 +200,9 @@ const dict: Dict = {
   viewers: { km: "អ្នកមើល", en: "Viewers" },
   no_viewers: { km: "មិនទាន់មានអ្នកមើល", en: "No viewers yet" },
   viewers_count: { km: "{n} អ្នកមើល", en: "{n} viewers" },
+  reply: { km: "ឆ្លើយតប", en: "Reply" },
+  replying_to: { km: "កំពុងឆ្លើយតបទៅ", en: "Replying to" },
+  write_reply: { km: "សរសេរការឆ្លើយតប...", en: "Write a reply..." },
 };
 
 interface I18nCtx {
