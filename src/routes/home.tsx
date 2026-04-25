@@ -52,6 +52,7 @@ interface StoryGroup {
 function HomePage() {
   const { t } = useI18n();
   const { user } = useAuth();
+  const { post: focusPostId } = Route.useSearch();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [stories, setStories] = useState<StoryGroup[]>([]);
@@ -60,6 +61,18 @@ function HomePage() {
   const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!focusPostId || loading) return;
+    const el = document.getElementById(`post-${focusPostId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightId(focusPostId);
+      const tid = setTimeout(() => setHighlightId(null), 2200);
+      return () => clearTimeout(tid);
+    }
+  }, [focusPostId, loading]);
 
   useEffect(() => {
     if (!user) return;
