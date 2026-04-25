@@ -190,6 +190,16 @@ const dict: Dict = {
   review_stories: { km: "ពិនិត្យរឿង", en: "Review stories" },
   tab_posts: { km: "ការបង្ហោះ", en: "Posts" },
   tab_stories: { km: "រឿង", en: "Stories" },
+  // social
+  liked: { km: "បានចូលចិត្ត", en: "Liked" },
+  comments: { km: "មតិយោបល់", en: "Comments" },
+  no_comments: { km: "មិនទាន់មានមតិ", en: "No comments yet" },
+  write_comment: { km: "សរសេរមតិ...", en: "Write a comment..." },
+  post_comment: { km: "ផ្ញើ", en: "Post" },
+  share_link_copied: { km: "បានចម្លងតំណ", en: "Link copied" },
+  viewers: { km: "អ្នកមើល", en: "Viewers" },
+  no_viewers: { km: "មិនទាន់មានអ្នកមើល", en: "No viewers yet" },
+  viewers_count: { km: "{n} អ្នកមើល", en: "{n} viewers" },
 };
 
 interface I18nCtx {
