@@ -244,7 +244,7 @@ function StoryViewerPage() {
       {/* Viewers sheet */}
       {showViewers && (
         <div
-          className="absolute inset-0 z-10 flex flex-col justify-end bg-black/50"
+          className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/50"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => setShowViewers(false)}
         >
