@@ -9,38 +9,226 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as AnnounceRouteImport } from './routes/announce'
+import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ListingsIndexRouteImport } from './routes/listings.index'
+import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
+import { Route as ProfileEditRouteImport } from './routes/profile.edit'
+import { Route as ListingsNewRouteImport } from './routes/listings.new'
+import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
 
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnounceRoute = AnnounceRouteImport.update({
+  id: '/announce',
+  path: '/announce',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ListingsIndexRoute = ListingsIndexRouteImport.update({
+  id: '/listings/',
+  path: '/listings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersUserIdRoute = UsersUserIdRouteImport.update({
+  id: '/users/$userId',
+  path: '/users/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileEditRoute = ProfileEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ProfileRoute,
+} as any)
+const ListingsNewRoute = ListingsNewRouteImport.update({
+  id: '/listings/new',
+  path: '/listings/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
+  id: '/listings/$listingId',
+  path: '/listings/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/announce': typeof AnnounceRoute
+  '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/listings/$listingId': typeof ListingsListingIdRoute
+  '/listings/new': typeof ListingsNewRoute
+  '/profile/edit': typeof ProfileEditRoute
+  '/users/$userId': typeof UsersUserIdRoute
+  '/listings/': typeof ListingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/announce': typeof AnnounceRoute
+  '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/listings/$listingId': typeof ListingsListingIdRoute
+  '/listings/new': typeof ListingsNewRoute
+  '/profile/edit': typeof ProfileEditRoute
+  '/users/$userId': typeof UsersUserIdRoute
+  '/listings': typeof ListingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/announce': typeof AnnounceRoute
+  '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRouteWithChildren
+  '/register': typeof RegisterRoute
+  '/listings/$listingId': typeof ListingsListingIdRoute
+  '/listings/new': typeof ListingsNewRoute
+  '/profile/edit': typeof ProfileEditRoute
+  '/users/$userId': typeof UsersUserIdRoute
+  '/listings/': typeof ListingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/alerts'
+    | '/announce'
+    | '/home'
+    | '/login'
+    | '/profile'
+    | '/register'
+    | '/listings/$listingId'
+    | '/listings/new'
+    | '/profile/edit'
+    | '/users/$userId'
+    | '/listings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/alerts'
+    | '/announce'
+    | '/home'
+    | '/login'
+    | '/profile'
+    | '/register'
+    | '/listings/$listingId'
+    | '/listings/new'
+    | '/profile/edit'
+    | '/users/$userId'
+    | '/listings'
+  id:
+    | '__root__'
+    | '/'
+    | '/alerts'
+    | '/announce'
+    | '/home'
+    | '/login'
+    | '/profile'
+    | '/register'
+    | '/listings/$listingId'
+    | '/listings/new'
+    | '/profile/edit'
+    | '/users/$userId'
+    | '/listings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlertsRoute: typeof AlertsRoute
+  AnnounceRoute: typeof AnnounceRoute
+  HomeRoute: typeof HomeRoute
+  LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRouteWithChildren
+  RegisterRoute: typeof RegisterRoute
+  ListingsListingIdRoute: typeof ListingsListingIdRoute
+  ListingsNewRoute: typeof ListingsNewRoute
+  UsersUserIdRoute: typeof UsersUserIdRoute
+  ListingsIndexRoute: typeof ListingsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/announce': {
+      id: '/announce'
+      path: '/announce'
+      fullPath: '/announce'
+      preLoaderRoute: typeof AnnounceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +236,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/listings/': {
+      id: '/listings/'
+      path: '/listings'
+      fullPath: '/listings/'
+      preLoaderRoute: typeof ListingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users/$userId': {
+      id: '/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/users/$userId'
+      preLoaderRoute: typeof UsersUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/edit': {
+      id: '/profile/edit'
+      path: '/edit'
+      fullPath: '/profile/edit'
+      preLoaderRoute: typeof ProfileEditRouteImport
+      parentRoute: typeof ProfileRoute
+    }
+    '/listings/new': {
+      id: '/listings/new'
+      path: '/listings/new'
+      fullPath: '/listings/new'
+      preLoaderRoute: typeof ListingsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listings/$listingId': {
+      id: '/listings/$listingId'
+      path: '/listings/$listingId'
+      fullPath: '/listings/$listingId'
+      preLoaderRoute: typeof ListingsListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface ProfileRouteChildren {
+  ProfileEditRoute: typeof ProfileEditRoute
+}
+
+const ProfileRouteChildren: ProfileRouteChildren = {
+  ProfileEditRoute: ProfileEditRoute,
+}
+
+const ProfileRouteWithChildren =
+  ProfileRoute._addFileChildren(ProfileRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
+  AnnounceRoute: AnnounceRoute,
+  HomeRoute: HomeRoute,
+  LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRouteWithChildren,
+  RegisterRoute: RegisterRoute,
+  ListingsListingIdRoute: ListingsListingIdRoute,
+  ListingsNewRoute: ListingsNewRoute,
+  UsersUserIdRoute: UsersUserIdRoute,
+  ListingsIndexRoute: ListingsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
