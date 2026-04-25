@@ -153,19 +153,27 @@ function AdminPostsPage() {
 
       {/* Tabs */}
       <div className="flex border-b border-border bg-surface">
-        {(["posts", "stories"] as Tab[]).map((k) => (
-          <button
-            key={k}
-            onClick={() => setTab(k)}
-            className={`flex-1 py-3 text-sm font-semibold transition-colors ${
-              tab === k
-                ? "border-b-2 border-primary text-primary"
-                : "text-muted-foreground"
-            }`}
-          >
-            {k === "posts" ? t("tab_posts") : t("tab_stories")}
-          </button>
-        ))}
+        {(["posts", "stories"] as Tab[]).map((k) => {
+          const tabCount = k === "posts" ? posts.length : stories.length;
+          return (
+            <button
+              key={k}
+              onClick={() => setTab(k)}
+              className={`flex-1 py-3 text-sm font-semibold transition-colors ${
+                tab === k
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-muted-foreground"
+              }`}
+            >
+              {k === "posts" ? t("tab_posts") : t("tab_stories")}
+              {tabCount > 0 && (
+                <span className="ml-1 rounded-pill bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
+                  {tabCount}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div className="flex-1 space-y-2 px-3 pt-3">
