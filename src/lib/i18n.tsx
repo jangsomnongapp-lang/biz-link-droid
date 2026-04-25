@@ -175,6 +175,21 @@ const dict: Dict = {
   delete_failed: { km: "លុបមិនបានជោគជ័យ", en: "Delete failed" },
   approved: { km: "អនុម័តហើយ", en: "Approved" },
   rejected: { km: "បដិសេធ", en: "Rejected" },
+  // stories
+  story_new: { km: "រឿងថ្មី", en: "New story" },
+  story_caption_ph: { km: "បន្ថែមអក្សរលើរូប... (ស្រេច​ចិត្ត)", en: "Add a caption... (optional)" },
+  story_pick_photo: { km: "ជ្រើសរូបភាព", en: "Choose a photo" },
+  story_review_notice: {
+    km: "រឿងនឹងត្រូវពិនិត្យមុនចេញផ្សាយ ហើយបាត់ក្រោយ ២៤ ម៉ោង។",
+    en: "Stories are reviewed before publishing and disappear after 24 hours.",
+  },
+  story_submit: { km: "ដាក់ស្នើរឿង", en: "Submit story" },
+  story_posted: { km: "បានដាក់ស្នើរឿង", en: "Story submitted" },
+  story_expires_in: { km: "នៅសល់ {h}ម៉ោង", en: "{h}h left" },
+  no_stories: { km: "មិនទាន់មានរឿង", en: "No stories yet" },
+  review_stories: { km: "ពិនិត្យរឿង", en: "Review stories" },
+  tab_posts: { km: "ការបង្ហោះ", en: "Posts" },
+  tab_stories: { km: "រឿង", en: "Stories" },
 };
 
 interface I18nCtx {
