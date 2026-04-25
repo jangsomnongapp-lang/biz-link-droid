@@ -105,6 +105,44 @@ const dict: Dict = {
   group_installations: { km: "ការដំឡើង", en: "INSTALLATIONS" },
   group_finishing: { km: "ការបញ្ចប់", en: "FINISHING" },
   group_other: { km: "ផ្សេងៗ", en: "OTHER" },
+  // user profile (other)
+  active_projects: { km: "ការងារកំពុងដំណើរការ", en: "Active projects" },
+  // portfolio manager
+  update_profile: { km: "បន្ទាន់សម័យប្រវត្តិរូប", en: "Update profile" },
+  add_photos: { km: "+ បន្ថែមរូបថត", en: "+ Add photos" },
+  add: { km: "បន្ថែម", en: "Add" },
+  new_project: { km: "+ ការងារថ្មី", en: "+ New project" },
+  close: { km: "បិទ", en: "Close" },
+  reopen: { km: "បើកឡើងវិញ", en: "Reopen" },
+  applicants: { km: "បេក្ខជន", en: "applicants" },
+  // messages
+  messages: { km: "សារ", en: "Messages" },
+  search_messages: { km: "ស្វែងរកសារ...", en: "Search messages..." },
+  no_more_messages: { km: "គ្មានសារទៀត", en: "No more messages" },
+  no_messages_yet: { km: "មិនទាន់មានសារ", en: "No messages yet" },
+  online: { km: "កំពុងភ្ជាប់", en: "Online" },
+  write_message: { km: "សរសេរសារ...", en: "Write a message..." },
+  today: { km: "ថ្ងៃនេះ", en: "Today" },
+  yesterday: { km: "ម្សិលមិញ", en: "Yesterday" },
+  send: { km: "ផ្ញើ", en: "Send" },
+  // notifications
+  notifications: { km: "ការជូនដំណឹង", en: "Notifications" },
+  mark_all_read: { km: "សម្គាល់ថាបានអាន", en: "Mark all read" },
+  new_section: { km: "ថ្មី", en: "New" },
+  earlier: { km: "មុននេះ", en: "Earlier" },
+  no_notifications: { km: "មិនទាន់មានការជូនដំណឹង", en: "No notifications yet" },
+  // new post
+  new_post: { km: "ការបង្ហោះថ្មី", en: "New post" },
+  share_what: { km: "តើអ្នកចង់ចែករំលែកអ្វី?", en: "What do you want to share?" },
+  write_optional: { km: "សរសេរអ្វីមួយ... (ស្រេច​ចិត្ត)", en: "Write something... (optional)" },
+  add_video_link: { km: "បន្ថែមតំណវីដេអូ", en: "Add a video link" },
+  video_link_ph: { km: "បិទភ្ជាប់តំណវីដេអូនៅទីនេះ...", en: "Paste video link here..." },
+  review_notice: {
+    km: "ការបង្ហោះរបស់អ្នកនឹងត្រូវពិនិត្យមុនចេញផ្សាយ។ ជាធម្មតាវាចំណាយពេលពីរបីម៉ោង។",
+    en: "Your post will be reviewed before publishing. This usually takes a few hours.",
+  },
+  submit_review: { km: "ដាក់ស្នើពិនិត្យ", en: "Submit for review" },
+  posted: { km: "បានបង្ហោះ", en: "Posted" },
 };
 
 interface I18nCtx {

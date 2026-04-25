@@ -87,12 +87,20 @@ function ProfilePage() {
       <div className="bg-primary px-5 pb-6 pt-5 text-primary-foreground">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold">{t("my_profile")}</h2>
-          <Link
-            to="/profile/edit"
-            className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur active:bg-white/25"
-          >
-            {t("edit")}
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/profile/portfolio"
+              className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur active:bg-white/25"
+            >
+              {t("update_profile")}
+            </Link>
+            <Link
+              to="/profile/edit"
+              className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur active:bg-white/25"
+            >
+              {t("edit")}
+            </Link>
+          </div>
         </div>
         <div className="flex flex-col items-center gap-2">
           <div className="relative">
