@@ -110,7 +110,16 @@ function HomePage() {
           </div>
         )}
         {posts.map((p) => (
-          <article key={p.id} className="bg-surface px-4 py-3 shadow-card">
+          <article key={p.id} className="relative bg-surface px-4 py-3 shadow-card">
+            {isAdmin && (
+              <button
+                onClick={() => void adminDelete(p.id)}
+                className="absolute -top-1 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-white shadow active:scale-95"
+                aria-label="Delete"
+              >
+                <X className="h-4 w-4" strokeWidth={3} />
+              </button>
+            )}
             <header className="flex items-center gap-3">
               <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
               <div className="flex-1">
