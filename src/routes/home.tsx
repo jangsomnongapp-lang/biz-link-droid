@@ -30,11 +30,27 @@ interface PostRow {
   post_photos: { photo_url: string }[];
 }
 
+interface StoryRow {
+  id: string;
+  user_id: string;
+  media_url: string;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+}
+
+interface StoryGroup {
+  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  cover: string;
+}
+
 function HomePage() {
   const { t } = useI18n();
   const { user } = useAuth();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
+  const [stories, setStories] = useState<StoryGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -59,6 +75,29 @@ function HomePage() {
       .then(({ data }) => {
         setPosts((data as PostRow[] | null) ?? []);
         setLoading(false);
+      });
+
+    void supabase
+      .from("stories")
+      .select("id, user_id, media_url, created_at, profiles(full_name, avatar_url)")
+      .eq("status", "approved")
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(50)
+      .then(({ data }) => {
+        const rows = (data as StoryRow[] | null) ?? [];
+        const map = new Map<string, StoryGroup>();
+        for (const r of rows) {
+          if (!map.has(r.user_id)) {
+            map.set(r.user_id, {
+              user_id: r.user_id,
+              full_name: r.profiles?.full_name ?? null,
+              avatar_url: r.profiles?.avatar_url ?? null,
+              cover: r.media_url,
+            });
+          }
+        }
+        setStories(Array.from(map.values()));
       });
   }, [user]);
 
