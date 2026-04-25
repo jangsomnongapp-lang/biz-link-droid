@@ -92,11 +92,11 @@ function AlertsPage() {
         <div className="bg-surface">
           {unread.length > 0 && <SectionLabel title={t("new_section")} />}
           {unread.map((n) => (
-            <NotifRow key={n.id} n={n} lang={lang} highlighted />
+            <NotifRow key={n.id} n={n} t={t} highlighted />
           ))}
           {read.length > 0 && <SectionLabel title={t("earlier")} />}
           {read.map((n) => (
-            <NotifRow key={n.id} n={n} lang={lang} />
+            <NotifRow key={n.id} n={n} t={t} />
           ))}
         </div>
       )}
@@ -112,7 +112,7 @@ function SectionLabel({ title }: { title: string }) {
   );
 }
 
-function NotifRow({ n, lang, highlighted }: { n: Notif; lang: "km" | "en"; highlighted?: boolean }) {
+function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18n>["t"]; highlighted?: boolean }) {
   const Icon =
     n.kind === "application" || n.kind === "accepted"
       ? Check
@@ -149,7 +149,7 @@ function NotifRow({ n, lang, highlighted }: { n: Notif; lang: "km" | "en"; highl
           <span className="font-semibold">{n.title}</span>
           {n.body && <span> {n.body}</span>}
         </p>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">{timeAgo(n.created_at, lang)}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{timeAgo(n.created_at, t)}</p>
       </div>
       {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
     </div>

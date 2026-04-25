@@ -139,7 +139,7 @@ function MessagesListPage() {
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <span className="text-[11px] text-muted-foreground">
-                        {timeAgo(th.last_message_at, lang)}
+                        {timeAgo(th.last_message_at, t)}
                       </span>
                       {cnt > 0 && (
                         <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
