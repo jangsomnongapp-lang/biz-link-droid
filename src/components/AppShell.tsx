@@ -18,7 +18,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Top blue bar */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-primary px-3 text-primary-foreground">
         <div className="flex items-center gap-2">
           <Link to="/settings" className="rounded-full p-2 active:bg-white/10" aria-label="Menu">
@@ -40,14 +39,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      {/* Tab strip */}
       <nav className="sticky top-14 z-20 flex border-b border-border bg-surface">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active =
-            tab.to === "/home"
-              ? path === "/home"
-              : path.startsWith(tab.to);
+            tab.to === "/home" ? path === "/home" : path.startsWith(tab.to);
           return (
             <Link
               key={tab.to}
