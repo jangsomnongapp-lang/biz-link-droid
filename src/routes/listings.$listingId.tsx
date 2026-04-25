@@ -1,0 +1,242 @@
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { RequireAuth } from "@/components/RequireAuth";
+import { Avatar } from "@/components/Avatar";
+import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { timeAgo } from "@/lib/format";
+import { ArrowLeft, MapPin, MoreHorizontal, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/listings/$listingId")({
+  component: () => (
+    <RequireAuth>
+      <ListingDetailPage />
+    </RequireAuth>
+  ),
+});
+
+interface DetailRow {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  budget: number | null;
+  location: string | null;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  listing_categories: { categories: { name_en: string; name_km: string } | null }[];
+  listing_photos: { photo_url: string }[];
+}
+
+function ListingDetailPage() {
+  const { t, lang } = useI18n();
+  const { user } = useAuth();
+  const { listingId } = useParams({ from: "/listings/$listingId" });
+  const [listing, setListing] = useState<DetailRow | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [applied, setApplied] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [postedCount, setPostedCount] = useState(0);
+
+  useEffect(() => {
+    void supabase
+      .from("listings")
+      .select(
+        "id, user_id, title, description, budget, location, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km)), listing_photos(photo_url)"
+      )
+      .eq("id", listingId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setListing(data as DetailRow | null);
+        setLoading(false);
+        if (data) {
+          void supabase
+            .from("listings")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", data.user_id)
+            .then(({ count }) => setPostedCount(count ?? 0));
+        }
+      });
+    if (user) {
+      void supabase
+        .from("applications")
+        .select("id")
+        .eq("listing_id", listingId)
+        .eq("applicant_id", user.id)
+        .maybeSingle()
+        .then(({ data }) => setApplied(!!data));
+    }
+  }, [listingId, user]);
+
+  async function confirmApply() {
+    if (!user || !listing) return;
+    setShowConfirm(false);
+    const { error } = await supabase
+      .from("applications")
+      .insert({ listing_id: listing.id, applicant_id: user.id });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setApplied(true);
+    toast.success(lang === "km" ? "បានដាក់ពាក្យ" : "Applied!");
+  }
+
+  if (loading)
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">{t("loading")}</div>;
+  if (!listing)
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Not found</div>;
+
+  const isOwn = user?.id === listing.user_id;
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
+        <Link to="/listings" className="rounded-full p-2 active:bg-white/10">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="flex-1 text-center text-base font-semibold">{t("project_detail")}</h1>
+        <button className="rounded-full p-2 active:bg-white/10">
+          <MoreHorizontal className="h-5 w-5" />
+        </button>
+      </header>
+
+      <div className="flex-1 space-y-2 pb-24">
+        {/* Author */}
+        <div className="flex items-center gap-3 bg-surface p-4 shadow-card">
+          <Avatar name={listing.profiles?.full_name} url={listing.profiles?.avatar_url} size={44} />
+          <div className="flex-1">
+            <div className="text-sm font-semibold text-foreground">{listing.profiles?.full_name ?? "User"}</div>
+            <div className="text-xs text-muted-foreground">
+              {timeAgo(listing.created_at, t)}
+              {listing.location ? ` · ${listing.location}` : ""}
+            </div>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="bg-surface p-4 shadow-card">
+          <h2 className="text-lg font-bold text-foreground">{listing.title}</h2>
+          {listing.description && <p className="mt-2 text-sm leading-relaxed text-foreground">{listing.description}</p>}
+        </div>
+
+        {/* Categories */}
+        <div className="bg-surface p-4 shadow-card">
+          <div className="text-sm font-semibold text-foreground">{t("specialty_needed")}</div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {listing.listing_categories.map((lc, i) =>
+              lc.categories ? (
+                <span
+                  key={i}
+                  className="rounded-pill bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                >
+                  {lang === "km" ? lc.categories.name_km : lc.categories.name_en}
+                </span>
+              ) : null
+            )}
+          </div>
+        </div>
+
+        {/* Loc & budget */}
+        <div className="grid grid-cols-2 gap-px bg-border">
+          <div className="bg-surface p-4">
+            <div className="text-xs font-medium text-muted-foreground">{t("location")}</div>
+            <div className="mt-1 flex items-center gap-1 text-sm font-medium text-foreground">
+              <MapPin className="h-4 w-4 text-destructive" /> {listing.location ?? "—"}
+            </div>
+          </div>
+          <div className="bg-surface p-4">
+            <div className="text-xs font-medium text-muted-foreground">{t("budget")}</div>
+            <div className="mt-1 text-sm font-bold text-success">
+              {listing.budget ? `$ ${listing.budget}` : t("to_discuss")}
+            </div>
+          </div>
+        </div>
+
+        {/* Photos */}
+        {listing.listing_photos.length > 0 && (
+          <div className="bg-surface p-4 shadow-card">
+            <div className="mb-2 text-sm font-semibold text-foreground">{t("photos")}</div>
+            <div className="no-scrollbar flex gap-2 overflow-x-auto">
+              {listing.listing_photos.map((p, i) => (
+                <img key={i} src={p.photo_url} className="h-32 w-32 shrink-0 rounded-lg object-cover" alt="" />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* About client */}
+        <div className="bg-surface p-4 shadow-card">
+          <div className="mb-3 text-sm font-semibold text-foreground">{t("about_client")}</div>
+          <Link
+            to="/users/$userId"
+            params={{ userId: listing.user_id }}
+            className="flex items-center gap-3 active:bg-muted"
+          >
+            <Avatar name={listing.profiles?.full_name} url={listing.profiles?.avatar_url} size={40} />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-primary">{listing.profiles?.full_name ?? "User"}</div>
+              <div className="text-xs text-muted-foreground">
+                {postedCount} {t("projects_posted").toLowerCase()}
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Bottom apply */}
+      {!isOwn && (
+        <div className="sticky bottom-0 flex gap-2 border-t border-border bg-surface p-3">
+          <button className="flex h-12 flex-1 items-center justify-center rounded-xl border-2 border-primary text-sm font-semibold text-primary active:scale-[0.99]">
+            {t("contact")}
+          </button>
+          <button
+            onClick={() => !applied && setShowConfirm(true)}
+            disabled={applied}
+            className={`flex h-12 flex-[2] items-center justify-center rounded-xl text-sm font-semibold active:scale-[0.99] ${
+              applied ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"
+            }`}
+          >
+            {applied ? t("applied") : t("apply")}
+          </button>
+        </div>
+      )}
+
+      {/* Confirm modal */}
+      {showConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+          onClick={() => setShowConfirm(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-t-2xl bg-surface p-6 sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-2xl">
+              ✋
+            </div>
+            <h3 className="text-center text-lg font-bold text-foreground">{t("apply_confirm_title")}</h3>
+            <p className="mt-1 text-center text-sm text-muted-foreground">{listing.title}</p>
+            <div className="mt-5 flex gap-2">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex h-11 flex-1 items-center justify-center rounded-xl border-2 border-border text-sm font-semibold text-foreground"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={confirmApply}
+                className="flex h-11 flex-1 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground"
+              >
+                {t("confirm")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
