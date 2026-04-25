@@ -7,7 +7,8 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Camera, Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon } from "lucide-react";
+import { Camera, Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/home")({
   component: () => (
@@ -35,15 +36,19 @@ function HomePage() {
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     void supabase
       .from("profiles")
-      .select("full_name, avatar_url")
+      .select("full_name, avatar_url, is_admin")
       .eq("id", user.id)
       .maybeSingle()
-      .then(({ data }) => setProfile(data));
+      .then(({ data }) => {
+        setProfile(data);
+        setIsAdmin(!!data?.is_admin);
+      });
 
     void supabase
       .from("posts")
