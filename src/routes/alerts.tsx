@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
+import { Avatar } from "@/components/Avatar";
+import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
-import { Bell } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Check, MessageCircle, Star, Info } from "lucide-react";
+import { timeAgo } from "@/lib/format";
 
 export const Route = createFileRoute("/alerts")({
   component: () => (
@@ -14,17 +19,122 @@ export const Route = createFileRoute("/alerts")({
   ),
 });
 
+interface Notif {
+  id: string;
+  kind: string;
+  title: string;
+  body: string | null;
+  related_user_id: string | null;
+  read_at: string | null;
+  created_at: string;
+  related_user?: { full_name: string | null; avatar_url: string | null } | null;
+}
+
 function AlertsPage() {
   const { t, lang } = useI18n();
+  const { user } = useAuth();
+  const [items, setItems] = useState<Notif[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    void supabase
+      .from("notifications")
+      .select("*, related_user:related_user_id(full_name, avatar_url)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setItems((data ?? []) as Notif[]));
+  }, [user]);
+
+  async function markAllRead() {
+    if (!user) return;
+    await supabase
+      .from("notifications")
+      .update({ read_at: new Date().toISOString() })
+      .eq("user_id", user.id)
+      .is("read_at", null);
+    setItems((arr) => arr.map((n) => (n.read_at ? n : { ...n, read_at: new Date().toISOString() })));
+  }
+
+  const unread = items.filter((n) => !n.read_at);
+  const read = items.filter((n) => n.read_at);
+
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-        <Bell className="h-8 w-8 text-primary" />
+    <div>
+      <header className="flex h-12 items-center justify-between bg-primary px-4 text-primary-foreground">
+        <h2 className="text-base font-semibold">{t("notifications")}</h2>
+        {unread.length > 0 && (
+          <button onClick={() => void markAllRead()} className="text-xs font-semibold">
+            {t("mark_all_read")}
+          </button>
+        )}
+      </header>
+
+      {items.length === 0 ? (
+        <div className="px-6 py-20 text-center text-sm text-muted-foreground">{t("no_notifications")}</div>
+      ) : (
+        <div className="bg-surface">
+          {unread.length > 0 && <SectionLabel title={t("new_section")} />}
+          {unread.map((n) => (
+            <NotifRow key={n.id} n={n} lang={lang} highlighted />
+          ))}
+          {read.length > 0 && <SectionLabel title={t("earlier")} />}
+          {read.map((n) => (
+            <NotifRow key={n.id} n={n} lang={lang} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SectionLabel({ title }: { title: string }) {
+  return (
+    <div className="bg-background px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+      {title}
+    </div>
+  );
+}
+
+function NotifRow({ n, lang, highlighted }: { n: Notif; lang: "km" | "en"; highlighted?: boolean }) {
+  const Icon =
+    n.kind === "application" || n.kind === "accepted"
+      ? Check
+      : n.kind === "message"
+        ? MessageCircle
+        : n.kind === "new_listing"
+          ? Star
+          : Info;
+  const iconBg =
+    n.kind === "application" || n.kind === "accepted"
+      ? "bg-primary text-primary-foreground"
+      : n.kind === "message"
+        ? "bg-success text-white"
+        : n.kind === "new_listing"
+          ? "bg-warning text-white"
+          : "bg-warning text-white";
+
+  return (
+    <div
+      className={`flex items-start gap-3 border-b border-border px-4 py-3 ${
+        highlighted ? "bg-primary/5" : ""
+      }`}
+    >
+      <div className="relative">
+        <Avatar name={n.related_user?.full_name} url={n.related_user?.avatar_url} size={40} />
+        <span
+          className={`absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-surface ${iconBg}`}
+        >
+          <Icon className="h-2.5 w-2.5" strokeWidth={3} />
+        </span>
       </div>
-      <h2 className="text-base font-semibold text-foreground">{t("nav_alerts")}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {lang === "km" ? "ការជូនដំណឹងនឹងបង្ហាញនៅទីនេះ" : "Notifications will appear here"}
-      </p>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm leading-snug text-foreground">
+          <span className="font-semibold">{n.title}</span>
+          {n.body && <span> {n.body}</span>}
+        </p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{timeAgo(n.created_at, lang)}</p>
+      </div>
+      {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
     </div>
   );
 }
