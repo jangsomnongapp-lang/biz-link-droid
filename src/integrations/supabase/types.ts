@@ -316,6 +316,7 @@ export type Database = {
           kind: string
           read_at: string | null
           related_listing_id: string | null
+          related_post_id: string | null
           related_user_id: string | null
           title: string
           user_id: string
@@ -327,6 +328,7 @@ export type Database = {
           kind: string
           read_at?: string | null
           related_listing_id?: string | null
+          related_post_id?: string | null
           related_user_id?: string | null
           title: string
           user_id: string
@@ -338,6 +340,7 @@ export type Database = {
           kind?: string
           read_at?: string | null
           related_listing_id?: string | null
+          related_post_id?: string | null
           related_user_id?: string | null
           title?: string
           user_id?: string
