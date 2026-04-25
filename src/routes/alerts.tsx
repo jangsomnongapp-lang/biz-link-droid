@@ -131,12 +131,8 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
           ? "bg-warning text-white"
           : "bg-warning text-white";
 
-  return (
-    <div
-      className={`flex items-start gap-3 border-b border-border px-4 py-3 ${
-        highlighted ? "bg-primary/5" : ""
-      }`}
-    >
+  const inner = (
+    <>
       <div className="relative">
         <Avatar name={n.related_user?.full_name} url={n.related_user?.avatar_url} size={40} />
         <span
@@ -153,6 +149,19 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
         <p className="mt-0.5 text-[11px] text-muted-foreground">{timeAgo(n.created_at, t)}</p>
       </div>
       {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
-    </div>
+    </>
   );
+
+  const cls = `flex items-start gap-3 border-b border-border px-4 py-3 ${
+    highlighted ? "bg-primary/5" : ""
+  } active:bg-muted`;
+
+  if (n.related_post_id) {
+    return (
+      <Link to="/home" search={{ post: n.related_post_id }} className={cls}>
+        {inner}
+      </Link>
+    );
+  }
+  return <div className={cls}>{inner}</div>;
 }
