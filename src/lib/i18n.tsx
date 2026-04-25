@@ -143,6 +143,38 @@ const dict: Dict = {
   },
   submit_review: { km: "ដាក់ស្នើពិនិត្យ", en: "Submit for review" },
   posted: { km: "បានបង្ហោះ", en: "Posted" },
+  // settings
+  menu: { km: "ម៉ឺនុយ", en: "Menu" },
+  my_account: { km: "គណនីរបស់ខ្ញុំ", en: "MY ACCOUNT" },
+  preferences: { km: "ចំណូលចិត្ត", en: "PREFERENCES" },
+  support: { km: "ជំនួយ", en: "SUPPORT" },
+  change_password: { km: "ប្តូរពាក្យសម្ងាត់", en: "Change password" },
+  change_phone: { km: "ប្តូរលេខទូរសព្ទ", en: "Change phone number" },
+  language: { km: "ភាសា", en: "Language" },
+  help_faq: { km: "ជំនួយ & សំណួរ", en: "Help & FAQ" },
+  report_problem: { km: "រាយការណ៍បញ្ហា", en: "Report a problem" },
+  terms: { km: "លក្ខខណ្ឌ", en: "Terms & conditions" },
+  privacy: { km: "គោលការណ៍ឯកជន", en: "Privacy policy" },
+  delete_account: { km: "លុបគណនី", en: "Delete account" },
+  admin_panel: { km: "ផ្ទាំងគ្រប់គ្រង", en: "Admin panel" },
+  // admin
+  admin: { km: "អ្នកគ្រប់គ្រង", en: "Admin" },
+  review_posts: { km: "ពិនិត្យការបង្ហោះ", en: "Review posts" },
+  pending: { km: "កំពុងរង់ចាំ", en: "Pending" },
+  pending_count: { km: "{n} រង់ចាំ", en: "{n} pending" },
+  approve: { km: "អនុម័ត", en: "Approve" },
+  reject: { km: "បដិសេធ", en: "Reject" },
+  submitted_ago: { km: "បានដាក់ស្នើ", en: "Submitted" },
+  no_pending: { km: "គ្មានការបង្ហោះរង់ចាំ", en: "No pending posts" },
+  admin_confirm: { km: "ការបញ្ជាក់របស់អ្នកគ្រប់គ្រង", en: "Admin confirmation" },
+  admin_confirm_desc: {
+    km: "បញ្ចូលលេខកូដគ្រប់គ្រងដើម្បីលុបមាតិកានេះ។ សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
+    en: "Enter your admin key to delete this content. This action cannot be undone.",
+  },
+  delete_content: { km: "លុបមាតិកា", en: "Delete content" },
+  delete_failed: { km: "លុបមិនបានជោគជ័យ", en: "Delete failed" },
+  approved: { km: "អនុម័តហើយ", en: "Approved" },
+  rejected: { km: "បដិសេធ", en: "Rejected" },
 };
 
 interface I18nCtx {

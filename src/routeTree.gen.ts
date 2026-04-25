@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
@@ -24,7 +25,13 @@ import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
 import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
+import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -100,6 +107,11 @@ const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
   path: '/listings/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPostsRoute = AdminPostsRouteImport.update({
+  id: '/admin/posts',
+  path: '/admin/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,6 +121,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRoute
+  '/admin/posts': typeof AdminPostsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -126,6 +140,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRoute
+  '/admin/posts': typeof AdminPostsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -144,6 +160,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRoute
+  '/admin/posts': typeof AdminPostsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -163,6 +181,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/settings'
+    | '/admin/posts'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -180,6 +200,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/settings'
+    | '/admin/posts'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -197,6 +219,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/settings'
+    | '/admin/posts'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -215,6 +239,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   RegisterRoute: typeof RegisterRoute
+  SettingsRoute: typeof SettingsRoute
+  AdminPostsRoute: typeof AdminPostsRoute
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
@@ -225,6 +251,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -330,6 +363,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/posts': {
+      id: '/admin/posts'
+      path: '/admin/posts'
+      fullPath: '/admin/posts'
+      preLoaderRoute: typeof AdminPostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -354,6 +394,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRouteWithChildren,
   RegisterRoute: RegisterRoute,
+  SettingsRoute: SettingsRoute,
+  AdminPostsRoute: AdminPostsRoute,
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
@@ -364,3 +406,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
