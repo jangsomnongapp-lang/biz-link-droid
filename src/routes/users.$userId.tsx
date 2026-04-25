@@ -1,0 +1,148 @@
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { RequireAuth } from "@/components/RequireAuth";
+import { Avatar } from "@/components/Avatar";
+import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
+import { ArrowLeft } from "lucide-react";
+
+export const Route = createFileRoute("/users/$userId")({
+  component: () => (
+    <RequireAuth>
+      <UserProfilePage />
+    </RequireAuth>
+  ),
+});
+
+interface Profile {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  about_me: string | null;
+  is_provider: boolean;
+  is_coordinator: boolean;
+  is_organization: boolean;
+  is_client: boolean;
+}
+
+function UserProfilePage() {
+  const { t, lang } = useI18n();
+  const { userId } = useParams({ from: "/users/$userId" });
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [cats, setCats] = useState<{ name_en: string; name_km: string }[]>([]);
+  const [posted, setPosted] = useState(0);
+  const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
+
+  useEffect(() => {
+    void supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client")
+      .eq("id", userId)
+      .maybeSingle()
+      .then(({ data }) => setProfile(data));
+    void supabase
+      .from("user_categories")
+      .select("categories(name_en, name_km)")
+      .eq("user_id", userId)
+      .then(({ data }) => {
+        setCats(((data ?? []).map((r) => r.categories).filter(Boolean) as { name_en: string; name_km: string }[]));
+      });
+    void supabase
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .then(({ count }) => setPosted(count ?? 0));
+    void supabase
+      .from("portfolio_photos")
+      .select("id, photo_url")
+      .eq("user_id", userId)
+      .then(({ data }) => setPortfolio(data ?? []));
+  }, [userId]);
+
+  if (!profile)
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">{t("loading")}</div>;
+
+  const roleLabels: string[] = [];
+  if (profile.is_provider) roleLabels.push(t("role_provider"));
+  if (profile.is_coordinator) roleLabels.push(t("role_coordinator"));
+  if (profile.is_organization) roleLabels.push(t("role_organization"));
+  if (profile.is_client) roleLabels.push(t("role_client"));
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
+        <Link to="/listings" className="rounded-full p-2 active:bg-white/10">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="flex-1 text-center text-base font-semibold">{t("nav_profile")}</h1>
+        <div className="w-9" />
+      </header>
+
+      <div className="bg-primary px-5 pb-6 pt-5 text-primary-foreground">
+        <div className="flex flex-col items-center gap-2">
+          <Avatar name={profile.full_name} url={profile.avatar_url} size={88} className="border-4 border-white" />
+          <h1 className="text-xl font-bold">{profile.full_name ?? "—"}</h1>
+          <p className="text-xs text-white/80">{roleLabels.join(" · ")}</p>
+          {cats.length > 0 && (
+            <div className="mt-1 flex flex-wrap justify-center gap-1.5">
+              {cats.slice(0, 5).map((c, i) => (
+                <span key={i} className="rounded-pill bg-white/20 px-2.5 py-0.5 text-[11px] font-medium">
+                  {lang === "km" ? c.name_km : c.name_en}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 bg-surface shadow-card">
+        <Stat n={posted} l={t("projects_posted")} />
+        <Stat n={0} l={t("applied_to")} />
+        <Stat n={0} l={t("contacts_made")} />
+      </div>
+
+      <div className="flex-1 space-y-2 pb-24">
+        <Section title={t("about_me")}>
+          <p className="text-sm text-foreground">
+            {profile.about_me || <span className="text-text-hint">—</span>}
+          </p>
+        </Section>
+
+        <Section title={`${t("portfolio")} (${portfolio.length})`}>
+          {portfolio.length === 0 ? (
+            <p className="text-sm text-text-hint">{lang === "km" ? "មិនទាន់មានរូបថត" : "No photos yet"}</p>
+          ) : (
+            <div className="grid grid-cols-3 gap-1.5">
+              {portfolio.map((p) => (
+                <img key={p.id} src={p.photo_url} className="aspect-square w-full rounded-lg object-cover" alt="" />
+              ))}
+            </div>
+          )}
+        </Section>
+      </div>
+
+      <div className="sticky bottom-0 border-t border-border bg-surface p-3">
+        <button className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]">
+          {t("contact")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ n, l }: { n: number; l: string }) {
+  return (
+    <div className="flex flex-col items-center py-4 text-center">
+      <span className="text-xl font-bold text-primary">{n}</span>
+      <span className="mt-0.5 px-1 text-[11px] text-muted-foreground">{l}</span>
+    </div>
+  );
+}
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-2 bg-surface p-4 shadow-card">
+      <h3 className="mb-2 text-sm font-bold text-foreground">{title}</h3>
+      {children}
+    </div>
+  );
+}
