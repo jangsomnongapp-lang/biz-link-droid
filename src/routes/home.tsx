@@ -62,6 +62,17 @@ function HomePage() {
       });
   }, [user]);
 
+  async function adminDelete(id: string) {
+    if (!confirm(t("admin_confirm_desc"))) return;
+    const { error } = await supabase.from("posts").delete().eq("id", id);
+    if (error) {
+      toast.error(t("delete_failed"));
+      return;
+    }
+    setPosts((p) => p.filter((x) => x.id !== id));
+    toast.success("OK");
+  }
+
   return (
     <div>
       {/* Quick post */}
