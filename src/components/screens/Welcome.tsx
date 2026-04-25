@@ -1,0 +1,63 @@
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useI18n, type Lang } from "@/lib/i18n";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/auth";
+import { Building2 } from "lucide-react";
+
+export default function Welcome() {
+  const { t, lang, setLang } = useI18n();
+  const { user, loading } = useAuth();
+  const nav = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) nav({ to: "/home" });
+  }, [user, loading, nav]);
+
+  return (
+    <div className="relative flex min-h-screen flex-col items-center justify-between bg-primary px-6 pb-10 pt-6 text-primary-foreground">
+      {/* Language switch */}
+      <div className="flex w-full justify-end">
+        <div className="flex overflow-hidden rounded-pill bg-white/95 text-xs font-semibold text-foreground shadow-card">
+          {(["km", "en"] as Lang[]).map((l) => (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 transition ${
+                lang === l ? "bg-primary text-primary-foreground" : ""
+              }`}
+            >
+              <span>{l === "km" ? "🇰🇭" : "🇬🇧"}</span>
+              <span>{l === "km" ? "ខ្មែរ" : "EN"}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center gap-4 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-card">
+          <Building2 className="h-10 w-10 text-primary" strokeWidth={2.4} />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight">{t("app_name")}</h1>
+        <p className="text-base text-white/85">{t("tagline")}</p>
+        <p className="text-xs uppercase tracking-wider text-white/55">
+          {lang === "km" ? "Find work · Find workers" : "រកការងារ · រកអ្នកជំនាញ"}
+        </p>
+      </div>
+
+      <div className="flex w-full flex-col gap-3">
+        <Link
+          to="/register"
+          className="flex h-14 items-center justify-center rounded-2xl bg-white text-base font-semibold text-primary active:scale-[0.98] transition"
+        >
+          {t("register")}
+        </Link>
+        <Link
+          to="/login"
+          className="flex h-14 items-center justify-center rounded-2xl border-2 border-white/70 text-base font-semibold text-white active:scale-[0.98] transition"
+        >
+          {t("have_account")}
+        </Link>
+      </div>
+    </div>
+  );
+}
