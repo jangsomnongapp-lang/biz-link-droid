@@ -30,11 +30,27 @@ interface PostRow {
   post_photos: { photo_url: string }[];
 }
 
+interface StoryRow {
+  id: string;
+  user_id: string;
+  media_url: string;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+}
+
+interface StoryGroup {
+  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  cover: string;
+}
+
 function HomePage() {
   const { t } = useI18n();
   const { user } = useAuth();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
+  const [stories, setStories] = useState<StoryGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -59,6 +75,29 @@ function HomePage() {
       .then(({ data }) => {
         setPosts((data as PostRow[] | null) ?? []);
         setLoading(false);
+      });
+
+    void supabase
+      .from("stories")
+      .select("id, user_id, media_url, created_at, profiles(full_name, avatar_url)")
+      .eq("status", "approved")
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(50)
+      .then(({ data }) => {
+        const rows = (data as StoryRow[] | null) ?? [];
+        const map = new Map<string, StoryGroup>();
+        for (const r of rows) {
+          if (!map.has(r.user_id)) {
+            map.set(r.user_id, {
+              user_id: r.user_id,
+              full_name: r.profiles?.full_name ?? null,
+              avatar_url: r.profiles?.avatar_url ?? null,
+              cover: r.media_url,
+            });
+          }
+        }
+        setStories(Array.from(map.values()));
       });
   }, [user]);
 
@@ -89,27 +128,40 @@ function HomePage() {
         </Link>
       </div>
 
-      {/* Stories row (placeholder) */}
-      <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto bg-surface p-3 shadow-card">
+      {/* Stories row */}
+      <div className="no-scrollbar mt-2 flex gap-3 overflow-x-auto bg-surface px-3 py-3 shadow-card">
         <Link
-          to="/announce"
-          className="relative flex h-32 w-24 shrink-0 flex-col items-center justify-end overflow-hidden rounded-xl bg-primary p-2 text-primary-foreground active:scale-[0.98]"
+          to="/story/new"
+          className="flex w-16 shrink-0 flex-col items-center gap-1.5 active:scale-[0.97]"
         >
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white p-2.5">
-            <Plus className="h-4 w-4 text-primary" strokeWidth={3} />
-          </div>
-          <span className="z-10 text-[11px] font-semibold">{t("create_story")}</span>
-        </Link>
-        {["MK", "DR", "SK"].map((i) => (
-          <div
-            key={i}
-            className="relative flex h-32 w-24 shrink-0 flex-col items-end justify-end rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2"
-          >
-            <div className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 border-primary bg-surface text-[10px] font-bold text-primary">
-              {i}
+          <div className="relative h-16 w-16">
+            <Avatar name={profile?.full_name} url={profile?.avatar_url} size={64} />
+            <div className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-surface bg-primary text-primary-foreground">
+              <Plus className="h-3.5 w-3.5" strokeWidth={3} />
             </div>
-            <span className="text-[11px] font-semibold text-foreground">User</span>
           </div>
+          <span className="line-clamp-1 text-[11px] font-medium text-foreground">{t("create_story")}</span>
+        </Link>
+        {stories.map((s) => (
+          <Link
+            key={s.user_id}
+            to="/story/view"
+            search={{ user: s.user_id }}
+            className="flex w-16 shrink-0 flex-col items-center gap-1.5 active:scale-[0.97]"
+          >
+            <div className="rounded-full bg-gradient-to-tr from-pink-500 via-orange-400 to-yellow-400 p-[2px]">
+              <div className="rounded-full border-2 border-surface">
+                <img
+                  src={s.cover}
+                  alt=""
+                  className="h-[60px] w-[60px] rounded-full object-cover"
+                />
+              </div>
+            </div>
+            <span className="line-clamp-1 w-full text-center text-[11px] font-medium text-foreground">
+              {s.full_name ?? "User"}
+            </span>
+          </Link>
         ))}
       </div>
 

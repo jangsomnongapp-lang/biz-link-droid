@@ -484,6 +484,42 @@ export type Database = {
         }
         Relationships: []
       }
+      stories: {
+        Row: {
+          caption: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          media_type: string
+          media_url: string
+          rejected_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          media_type?: string
+          media_url: string
+          rejected_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          media_type?: string
+          media_url?: string
+          rejected_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_categories: {
         Row: {
           category_id: string

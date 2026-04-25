@@ -20,6 +20,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
+import { Route as StoryViewRouteImport } from './routes/story.view'
+import { Route as StoryNewRouteImport } from './routes/story.new'
 import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
@@ -82,6 +84,16 @@ const UsersUserIdRoute = UsersUserIdRouteImport.update({
   path: '/users/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StoryViewRoute = StoryViewRouteImport.update({
+  id: '/story/view',
+  path: '/story/view',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoryNewRoute = StoryNewRouteImport.update({
+  id: '/story/new',
+  path: '/story/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfilePortfolioRoute = ProfilePortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -128,6 +140,8 @@ export interface FileRoutesByFullPath {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/story/new': typeof StoryNewRoute
+  '/story/view': typeof StoryViewRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
@@ -147,6 +161,8 @@ export interface FileRoutesByTo {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/story/new': typeof StoryNewRoute
+  '/story/view': typeof StoryViewRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
@@ -167,6 +183,8 @@ export interface FileRoutesById {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/story/new': typeof StoryNewRoute
+  '/story/view': typeof StoryViewRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
@@ -188,6 +206,8 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/story/new'
+    | '/story/view'
     | '/users/$userId'
     | '/listings/'
     | '/messages/'
@@ -207,6 +227,8 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/story/new'
+    | '/story/view'
     | '/users/$userId'
     | '/listings'
     | '/messages'
@@ -226,6 +248,8 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/story/new'
+    | '/story/view'
     | '/users/$userId'
     | '/listings/'
     | '/messages/'
@@ -244,6 +268,8 @@ export interface RootRouteChildren {
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
+  StoryNewRoute: typeof StoryNewRoute
+  StoryViewRoute: typeof StoryViewRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
@@ -328,6 +354,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/story/view': {
+      id: '/story/view'
+      path: '/story/view'
+      fullPath: '/story/view'
+      preLoaderRoute: typeof StoryViewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/story/new': {
+      id: '/story/new'
+      path: '/story/new'
+      fullPath: '/story/new'
+      preLoaderRoute: typeof StoryNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/portfolio': {
       id: '/profile/portfolio'
       path: '/portfolio'
@@ -399,6 +439,8 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
+  StoryNewRoute: StoryNewRoute,
+  StoryViewRoute: StoryViewRoute,
   UsersUserIdRoute: UsersUserIdRoute,
   ListingsIndexRoute: ListingsIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
