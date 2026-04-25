@@ -1,7 +1,13 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
 import { Home, Newspaper, Megaphone, Bell, User, Menu, Plus, Search, MessageCircle } from "lucide-react";
-// ... keep existing code
+import type { ReactNode } from "react";
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
+  const location = useLocation();
+  const path = location.pathname;
+
   const tabs = [
     { to: "/home", label: t("nav_home"), icon: Home },
     { to: "/listings", label: t("nav_listings"), icon: Newspaper },
