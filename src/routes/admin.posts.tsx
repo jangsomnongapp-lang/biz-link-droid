@@ -1,0 +1,184 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { RequireAuth } from "@/components/RequireAuth";
+import { Avatar } from "@/components/Avatar";
+import { useAuth } from "@/lib/auth";
+import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
+import { timeAgo } from "@/lib/format";
+import { ArrowLeft, Check, X, PlayCircle } from "lucide-react";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/admin/posts")({
+  component: () => (
+    <RequireAuth>
+      <AdminPostsPage />
+    </RequireAuth>
+  ),
+});
+
+interface PendingPost {
+  id: string;
+  user_id: string;
+  content: string | null;
+  video_url: string | null;
+  created_at: string;
+  status: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  post_photos: { photo_url: string }[];
+}
+
+function AdminPostsPage() {
+  const { t } = useI18n();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState<PendingPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    void supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const ok = !!data?.is_admin;
+        setIsAdmin(ok);
+        if (!ok) {
+          toast.error("Admin only");
+          navigate({ to: "/home" });
+        }
+      });
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    void load();
+  }, [isAdmin]);
+
+  async function load() {
+    setLoading(true);
+    const { data } = await supabase
+      .from("posts")
+      .select(
+        "id, user_id, content, video_url, created_at, status, profiles(full_name, avatar_url), post_photos(photo_url)",
+      )
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+    setPosts((data as PendingPost[] | null) ?? []);
+    setLoading(false);
+  }
+
+  async function decide(id: string, decision: "approved" | "rejected") {
+    const patch =
+      decision === "approved"
+        ? { status: "approved", rejected_at: null }
+        : { status: "rejected", rejected_at: new Date().toISOString() };
+    const { error } = await supabase.from("posts").update(patch).eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setPosts((p) => p.filter((x) => x.id !== id));
+    toast.success(decision === "approved" ? t("approved") : t("rejected"));
+  }
+
+  if (isAdmin === null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
+        {t("loading")}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background pb-6">
+      <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
+        <Link to="/settings" className="rounded-full p-2 active:bg-white/10" aria-label="Back">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="flex-1 text-center text-base font-semibold">
+          {t("admin")} — {t("review_posts")}
+        </h1>
+        <span className="rounded-pill bg-destructive px-2.5 py-0.5 text-[11px] font-bold">
+          {t("pending_count", { n: posts.length })}
+        </span>
+      </header>
+
+      <div className="flex-1 space-y-2 px-3 pt-3">
+        {loading && (
+          <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>
+        )}
+        {!loading && posts.length === 0 && (
+          <div className="rounded-xl bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
+            {t("no_pending")}
+          </div>
+        )}
+        {posts.map((p) => (
+          <article key={p.id} className="rounded-xl bg-surface p-3 shadow-card">
+            <header className="flex items-center gap-3">
+              <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={36} />
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-foreground">
+                  {p.profiles?.full_name ?? "User"}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t("submitted_ago")} {timeAgo(p.created_at, t)}
+                </div>
+              </div>
+              <span className="rounded-pill bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-700">
+                {t("pending")}
+              </span>
+            </header>
+
+            {p.content && (
+              <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>
+            )}
+
+            {p.post_photos.length > 0 && (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {p.post_photos.slice(0, 4).map((ph, i) => (
+                  <img
+                    key={i}
+                    src={ph.photo_url}
+                    alt=""
+                    className="aspect-video w-full rounded-lg object-cover"
+                  />
+                ))}
+              </div>
+            )}
+
+            {p.video_url && (
+              <a
+                href={p.video_url}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 flex items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground active:scale-[0.99]"
+              >
+                <PlayCircle className="h-8 w-8" />
+                <span className="truncate text-sm font-semibold">{p.video_url}</span>
+              </a>
+            )}
+
+            <footer className="mt-3 flex gap-2">
+              <button
+                onClick={() => void decide(p.id, "approved")}
+                className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-success/40 bg-success/10 text-sm font-semibold text-success active:scale-[0.99]"
+              >
+                <Check className="h-4 w-4" /> {t("approve")}
+              </button>
+              <button
+                onClick={() => void decide(p.id, "rejected")}
+                className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-destructive/40 bg-destructive/10 text-sm font-semibold text-destructive active:scale-[0.99]"
+              >
+                <X className="h-4 w-4" /> {t("reject")}
+              </button>
+            </footer>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}

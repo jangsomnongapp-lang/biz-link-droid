@@ -21,9 +21,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Top blue bar */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-primary px-3 text-primary-foreground">
         <div className="flex items-center gap-2">
-          <button className="rounded-full p-2 active:bg-white/10" aria-label="Menu">
+          <Link to="/settings" className="rounded-full p-2 active:bg-white/10" aria-label="Menu">
             <Menu className="h-6 w-6" />
-          </button>
+          </Link>
           <h1 className="text-lg font-bold">{t("app_name")}</h1>
         </div>
         <div className="flex items-center gap-1">

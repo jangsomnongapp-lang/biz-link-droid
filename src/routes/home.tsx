@@ -7,7 +7,8 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Camera, Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon } from "lucide-react";
+import { Camera, Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/home")({
   component: () => (
@@ -35,15 +36,19 @@ function HomePage() {
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     void supabase
       .from("profiles")
-      .select("full_name, avatar_url")
+      .select("full_name, avatar_url, is_admin")
       .eq("id", user.id)
       .maybeSingle()
-      .then(({ data }) => setProfile(data));
+      .then(({ data }) => {
+        setProfile(data);
+        setIsAdmin(!!data?.is_admin);
+      });
 
     void supabase
       .from("posts")
@@ -56,6 +61,17 @@ function HomePage() {
         setLoading(false);
       });
   }, [user]);
+
+  async function adminDelete(id: string) {
+    if (!confirm(t("admin_confirm_desc"))) return;
+    const { error } = await supabase.from("posts").delete().eq("id", id);
+    if (error) {
+      toast.error(t("delete_failed"));
+      return;
+    }
+    setPosts((p) => p.filter((x) => x.id !== id));
+    toast.success("OK");
+  }
 
   return (
     <div>
@@ -105,7 +121,16 @@ function HomePage() {
           </div>
         )}
         {posts.map((p) => (
-          <article key={p.id} className="bg-surface px-4 py-3 shadow-card">
+          <article key={p.id} className="relative bg-surface px-4 py-3 shadow-card">
+            {isAdmin && (
+              <button
+                onClick={() => void adminDelete(p.id)}
+                className="absolute -top-1 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-white shadow active:scale-95"
+                aria-label="Delete"
+              >
+                <X className="h-4 w-4" strokeWidth={3} />
+              </button>
+            )}
             <header className="flex items-center gap-3">
               <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
               <div className="flex-1">
