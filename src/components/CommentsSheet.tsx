@@ -140,14 +140,28 @@ export function CommentsSheet({
     const l = likes[c.id] ?? { count: 0, mine: false };
     return (
       <li key={c.id} className={`flex gap-2.5 ${isReply ? "ml-10" : ""}`}>
-        <Avatar
-          name={c.profiles?.full_name}
-          url={c.profiles?.avatar_url}
-          size={isReply ? 26 : 32}
-        />
+        <Link
+          to="/users/$userId"
+          params={{ userId: c.user_id }}
+          onClick={onClose}
+          className="active:opacity-60"
+        >
+          <Avatar
+            name={c.profiles?.full_name}
+            url={c.profiles?.avatar_url}
+            size={isReply ? 26 : 32}
+          />
+        </Link>
         <div className="min-w-0 flex-1">
           <div className="rounded-2xl bg-muted px-3 py-2">
-            <div className="text-xs font-semibold">{c.profiles?.full_name ?? "User"}</div>
+            <Link
+              to="/users/$userId"
+              params={{ userId: c.user_id }}
+              onClick={onClose}
+              className="text-xs font-semibold active:opacity-60"
+            >
+              {c.profiles?.full_name ?? "User"}
+            </Link>
             <div className="mt-0.5 text-sm leading-snug">{c.content}</div>
           </div>
           <div className="mt-1 flex items-center gap-3 pl-3 text-[11px] text-muted-foreground">
