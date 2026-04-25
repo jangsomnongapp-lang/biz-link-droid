@@ -131,37 +131,48 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
           ? "bg-warning text-white"
           : "bg-warning text-white";
 
-  const inner = (
-    <>
-      <div className="relative">
-        <Avatar name={n.related_user?.full_name} url={n.related_user?.avatar_url} size={40} />
-        <span
-          className={`absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-surface ${iconBg}`}
-        >
-          <Icon className="h-2.5 w-2.5" strokeWidth={3} />
-        </span>
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm leading-snug text-foreground">
-          <span className="font-semibold">{n.title}</span>
-          {n.body && <span> {n.body}</span>}
-        </p>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">{timeAgo(n.created_at, t)}</p>
-      </div>
-      {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
-    </>
+  const avatar = (
+    <div className="relative">
+      <Avatar name={n.related_user?.full_name} url={n.related_user?.avatar_url} size={40} />
+      <span
+        className={`absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-surface ${iconBg}`}
+      >
+        <Icon className="h-2.5 w-2.5" strokeWidth={3} />
+      </span>
+    </div>
+  );
+
+  const body = (
+    <div className="min-w-0 flex-1">
+      <p className="text-sm leading-snug text-foreground">
+        <span className="font-semibold">{n.title}</span>
+        {n.body && <span> {n.body}</span>}
+      </p>
+      <p className="mt-0.5 text-[11px] text-muted-foreground">{timeAgo(n.created_at, t)}</p>
+    </div>
   );
 
   const cls = `flex items-start gap-3 border-b border-border px-4 py-3 ${
     highlighted ? "bg-primary/5" : ""
-  } active:bg-muted`;
+  }`;
 
-  if (n.related_post_id) {
-    return (
-      <Link to="/home" search={{ post: n.related_post_id }} className={cls}>
-        {inner}
-      </Link>
-    );
-  }
-  return <div className={cls}>{inner}</div>;
+  return (
+    <div className={cls}>
+      {n.related_user_id ? (
+        <Link to="/users/$userId" params={{ userId: n.related_user_id }} className="active:opacity-60">
+          {avatar}
+        </Link>
+      ) : (
+        avatar
+      )}
+      {n.related_post_id ? (
+        <Link to="/home" search={{ post: n.related_post_id }} className="min-w-0 flex-1 active:opacity-60">
+          {body}
+        </Link>
+      ) : (
+        body
+      )}
+      {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+    </div>
+  );
 }
