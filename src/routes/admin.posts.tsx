@@ -71,29 +71,31 @@ function AdminPostsPage() {
     if (!isAdmin) return;
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin, tab]);
+  }, [isAdmin]);
 
   async function load() {
     setLoading(true);
-    if (tab === "posts") {
-      const { data } = await supabase
+    const [postsResult, storiesResult] = await Promise.all([
+      supabase
         .from("posts")
         .select(
           "id, user_id, content, video_url, created_at, status, profiles(full_name, avatar_url), post_photos(photo_url)",
         )
         .eq("status", "pending")
-        .order("created_at", { ascending: false });
-      setPosts((data as PendingPost[] | null) ?? []);
-    } else {
-      const { data } = await supabase
+        .order("created_at", { ascending: false }),
+      supabase
         .from("stories")
         .select(
           "id, user_id, media_url, caption, created_at, status, profiles(full_name, avatar_url)",
         )
         .eq("status", "pending")
-        .order("created_at", { ascending: false });
-      setStories((data as PendingStory[] | null) ?? []);
-    }
+        .order("created_at", { ascending: false }),
+    ]);
+    const nextPosts = (postsResult.data as PendingPost[] | null) ?? [];
+    const nextStories = (storiesResult.data as PendingStory[] | null) ?? [];
+    setPosts(nextPosts);
+    setStories(nextStories);
+    if (nextPosts.length === 0 && nextStories.length > 0) setTab("stories");
     setLoading(false);
   }
 
