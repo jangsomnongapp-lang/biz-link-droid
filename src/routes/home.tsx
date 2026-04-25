@@ -283,11 +283,13 @@ function HomePage() {
                 </button>
               )}
               <header className="flex items-center gap-3">
-                <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
-                <div className="flex-1">
+                <Link to="/users/$userId" params={{ userId: p.user_id }} className="active:opacity-60">
+                  <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
+                </Link>
+                <Link to="/users/$userId" params={{ userId: p.user_id }} className="flex-1 active:opacity-60">
                   <div className="text-sm font-semibold text-foreground">{p.profiles?.full_name ?? "User"}</div>
                   <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
-                </div>
+                </Link>
               </header>
               {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
               {p.post_photos[0] && (
