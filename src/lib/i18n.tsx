@@ -188,7 +188,7 @@ const Ctx = createContext<I18nCtx | null>(null);
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => {
     if (typeof window === "undefined") return "km";
-    return (localStorage.getItem("lang") as Lang) || "km";
+    return (localStorage.getItem("lang") as Lang) || "en";
   });
   useEffect(() => {
     localStorage.setItem("lang", lang);
