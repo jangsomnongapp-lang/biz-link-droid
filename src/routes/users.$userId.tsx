@@ -1,10 +1,12 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
+import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MoreHorizontal } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/users/$userId")({
   component: () => (
@@ -27,11 +29,15 @@ interface Profile {
 
 function UserProfilePage() {
   const { t, lang } = useI18n();
+  const { user } = useAuth();
+  const nav = useNavigate();
   const { userId } = useParams({ from: "/users/$userId" });
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cats, setCats] = useState<{ name_en: string; name_km: string }[]>([]);
   const [posted, setPosted] = useState(0);
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
+  const [activeProjects, setActiveProjects] = useState<{ id: string; title: string; location: string | null }[]>([]);
+  const [contacting, setContacting] = useState(false);
 
   useEffect(() => {
     void supabase
@@ -49,15 +55,49 @@ function UserProfilePage() {
       });
     void supabase
       .from("listings")
-      .select("id", { count: "exact", head: true })
+      .select("id, title, location, status", { count: "exact" })
       .eq("user_id", userId)
-      .then(({ count }) => setPosted(count ?? 0));
+      .order("created_at", { ascending: false })
+      .then(({ data, count }) => {
+        setPosted(count ?? 0);
+        setActiveProjects((data ?? []).filter((l) => l.status === "active"));
+      });
     void supabase
       .from("portfolio_photos")
       .select("id, photo_url")
       .eq("user_id", userId)
       .then(({ data }) => setPortfolio(data ?? []));
   }, [userId]);
+
+  async function startConversation() {
+    if (!user || !profile) return;
+    if (user.id === profile.id) return;
+    setContacting(true);
+    try {
+      const [a, b] = [user.id, profile.id].sort();
+      const { data: existing } = await supabase
+        .from("message_threads")
+        .select("id")
+        .eq("participant_a", a)
+        .eq("participant_b", b)
+        .maybeSingle();
+      let threadId = existing?.id;
+      if (!threadId) {
+        const { data: created, error } = await supabase
+          .from("message_threads")
+          .insert({ participant_a: a, participant_b: b })
+          .select("id")
+          .single();
+        if (error) throw error;
+        threadId = created.id;
+      }
+      nav({ to: "/messages/$threadId", params: { threadId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setContacting(false);
+    }
+  }
 
   if (!profile)
     return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">{t("loading")}</div>;
@@ -68,21 +108,25 @@ function UserProfilePage() {
   if (profile.is_organization) roleLabels.push(t("role_organization"));
   if (profile.is_client) roleLabels.push(t("role_client"));
 
+  const isSelf = user?.id === profile.id;
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
         <Link to="/listings" className="rounded-full p-2 active:bg-white/10">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="flex-1 text-center text-base font-semibold">{t("nav_profile")}</h1>
-        <div className="w-9" />
+        <h1 className="flex-1 text-center text-base font-semibold truncate">{profile.full_name ?? "—"}</h1>
+        <button className="rounded-full p-2 active:bg-white/10" aria-label="More">
+          <MoreHorizontal className="h-5 w-5" />
+        </button>
       </header>
 
-      <div className="bg-primary px-5 pb-6 pt-5 text-primary-foreground">
+      <div className="bg-primary px-5 pb-6 pt-3 text-primary-foreground">
         <div className="flex flex-col items-center gap-2">
           <Avatar name={profile.full_name} url={profile.avatar_url} size={88} className="border-4 border-white" />
           <h1 className="text-xl font-bold">{profile.full_name ?? "—"}</h1>
-          <p className="text-xs text-white/80">{roleLabels.join(" · ")}</p>
+          <p className="text-xs text-white/80">{roleLabels.join(" · ") || " "}</p>
           {cats.length > 0 && (
             <div className="mt-1 flex flex-wrap justify-center gap-1.5">
               {cats.slice(0, 5).map((c, i) => (
@@ -119,13 +163,44 @@ function UserProfilePage() {
             </div>
           )}
         </Section>
+
+        {activeProjects.length > 0 && (
+          <Section title={t("active_projects")}>
+            <div className="space-y-2">
+              {activeProjects.map((p) => (
+                <Link
+                  key={p.id}
+                  to="/listings/$listingId"
+                  params={{ listingId: p.id }}
+                  className="flex items-center justify-between rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-foreground">{p.title}</div>
+                    {p.location && (
+                      <div className="truncate text-xs text-muted-foreground">{p.location}</div>
+                    )}
+                  </div>
+                  <span className="shrink-0 rounded-pill bg-success/15 px-2.5 py-0.5 text-[10px] font-semibold text-success">
+                    {t("active")}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </Section>
+        )}
       </div>
 
-      <div className="sticky bottom-0 border-t border-border bg-surface p-3">
-        <button className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]">
-          {t("contact")}
-        </button>
-      </div>
+      {!isSelf && (
+        <div className="sticky bottom-0 border-t border-border bg-surface p-3">
+          <button
+            onClick={startConversation}
+            disabled={contacting}
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99] disabled:opacity-60"
+          >
+            {contacting ? t("loading") : t("contact")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
