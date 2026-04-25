@@ -400,6 +400,7 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          rejected_at: string | null
           status: string
           updated_at: string
           user_id: string
@@ -409,6 +410,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          rejected_at?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -418,6 +420,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          rejected_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -522,7 +525,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
