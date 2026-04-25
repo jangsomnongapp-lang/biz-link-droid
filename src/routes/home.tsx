@@ -78,22 +78,28 @@ function HomePage() {
       {/* Quick post */}
       <div className="mt-2 flex items-center gap-2 bg-surface px-3 py-3 shadow-card">
         <Avatar name={profile?.full_name} url={profile?.avatar_url} size={36} />
-        <div className="flex h-10 flex-1 items-center rounded-full border border-border bg-background px-4 text-sm text-muted-foreground">
+        <Link
+          to="/announce"
+          className="flex h-10 flex-1 items-center rounded-full border border-border bg-background px-4 text-sm text-muted-foreground active:bg-muted"
+        >
           {t("what_share")}
-        </div>
-        <button className="rounded-full p-2 text-primary active:bg-primary/10">
+        </Link>
+        <Link to="/announce" className="rounded-full p-2 text-primary active:bg-primary/10">
           <ImageIcon className="h-5 w-5" />
-        </button>
+        </Link>
       </div>
 
       {/* Stories row (placeholder) */}
       <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto bg-surface p-3 shadow-card">
-        <div className="relative flex h-32 w-24 shrink-0 flex-col items-center justify-end overflow-hidden rounded-xl bg-primary p-2 text-primary-foreground">
+        <Link
+          to="/announce"
+          className="relative flex h-32 w-24 shrink-0 flex-col items-center justify-end overflow-hidden rounded-xl bg-primary p-2 text-primary-foreground active:scale-[0.98]"
+        >
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white p-2.5">
             <Plus className="h-4 w-4 text-primary" strokeWidth={3} />
           </div>
           <span className="z-10 text-[11px] font-semibold">{t("create_story")}</span>
-        </div>
+        </Link>
         {["MK", "DR", "SK"].map((i) => (
           <div
             key={i}
