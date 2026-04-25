@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
+import { CommentsSheet } from "@/components/CommentsSheet";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Camera, Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/home")({
@@ -53,6 +54,9 @@ function HomePage() {
   const [stories, setStories] = useState<StoryGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+  const [openComments, setOpenComments] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -66,16 +70,38 @@ function HomePage() {
         setIsAdmin(!!data?.is_admin);
       });
 
-    void supabase
-      .from("posts")
-      .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url), post_photos(photo_url)")
-      .eq("status", "approved")
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .then(({ data }) => {
-        setPosts((data as PostRow[] | null) ?? []);
-        setLoading(false);
-      });
+    void (async () => {
+      const { data } = await supabase
+        .from("posts")
+        .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url), post_photos(photo_url)")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      const rows = (data as PostRow[] | null) ?? [];
+      setPosts(rows);
+      setLoading(false);
+
+      if (rows.length > 0) {
+        const ids = rows.map((p) => p.id);
+        const [{ data: likeRows }, { data: commentRows }] = await Promise.all([
+          supabase.from("post_likes").select("post_id, user_id").in("post_id", ids),
+          supabase.from("post_comments").select("post_id").in("post_id", ids),
+        ]);
+        const likeMap: Record<string, { count: number; mine: boolean }> = {};
+        for (const id of ids) likeMap[id] = { count: 0, mine: false };
+        for (const r of likeRows ?? []) {
+          const e = likeMap[r.post_id];
+          if (!e) continue;
+          e.count += 1;
+          if (r.user_id === user.id) e.mine = true;
+        }
+        setLikes(likeMap);
+        const cMap: Record<string, number> = {};
+        for (const id of ids) cMap[id] = 0;
+        for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
+        setCommentCounts(cMap);
+      }
+    })();
 
     void supabase
       .from("stories")
@@ -110,6 +136,48 @@ function HomePage() {
     }
     setPosts((p) => p.filter((x) => x.id !== id));
     toast.success("OK");
+  }
+
+  async function toggleLike(postId: string) {
+    if (!user) return;
+    const cur = likes[postId] ?? { count: 0, mine: false };
+    // optimistic
+    setLikes((m) => ({
+      ...m,
+      [postId]: { count: cur.count + (cur.mine ? -1 : 1), mine: !cur.mine },
+    }));
+    if (cur.mine) {
+      const { error } = await supabase
+        .from("post_likes")
+        .delete()
+        .eq("post_id", postId)
+        .eq("user_id", user.id);
+      if (error) setLikes((m) => ({ ...m, [postId]: cur }));
+    } else {
+      const { error } = await supabase
+        .from("post_likes")
+        .insert({ post_id: postId, user_id: user.id });
+      if (error) setLikes((m) => ({ ...m, [postId]: cur }));
+    }
+  }
+
+  async function sharePost(postId: string) {
+    const url = `${window.location.origin}/home?post=${postId}`;
+    const shareData = { title: t("app_name"), url };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        return;
+      }
+    } catch {
+      // fall through
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t("share_link_copied"));
+    } catch {
+      toast.error(t("error_generic"));
+    }
   }
 
   return (
@@ -178,44 +246,92 @@ function HomePage() {
             </div>
           </div>
         )}
-        {posts.map((p) => (
-          <article key={p.id} className="relative bg-surface px-4 py-3 shadow-card">
-            {isAdmin && (
-              <button
-                onClick={() => void adminDelete(p.id)}
-                className="absolute -top-1 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-white shadow active:scale-95"
-                aria-label="Delete"
-              >
-                <X className="h-4 w-4" strokeWidth={3} />
-              </button>
-            )}
-            <header className="flex items-center gap-3">
-              <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-foreground">{p.profiles?.full_name ?? "User"}</div>
-                <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
-              </div>
-            </header>
-            {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
-            {p.post_photos[0] && (
-              <img src={p.post_photos[0].photo_url} className="mt-3 w-full rounded-lg object-cover" alt="" />
-            )}
-            <footer className="mt-3 flex border-t border-border pt-2">
-              <ActionBtn icon={ThumbsUp} label={t("like")} />
-              <ActionBtn icon={MessageSquare} label={t("comment")} />
-              <ActionBtn icon={Share2} label={t("share")} />
-            </footer>
-          </article>
-        ))}
-      </div>
-    </div>
-  );
-}
+        {posts.map((p) => {
+          const l = likes[p.id] ?? { count: 0, mine: false };
+          const cc = commentCounts[p.id] ?? 0;
+          return (
+            <article key={p.id} className="relative bg-surface px-4 py-3 shadow-card">
+              {isAdmin && (
+                <button
+                  onClick={() => void adminDelete(p.id)}
+                  className="absolute -top-1 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-white shadow active:scale-95"
+                  aria-label="Delete"
+                >
+                  <X className="h-4 w-4" strokeWidth={3} />
+                </button>
+              )}
+              <header className="flex items-center gap-3">
+                <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
+                <div className="flex-1">
+                  <div className="text-sm font-semibold text-foreground">{p.profiles?.full_name ?? "User"}</div>
+                  <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
+                </div>
+              </header>
+              {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
+              {p.post_photos[0] && (
+                <img src={p.post_photos[0].photo_url} className="mt-3 w-full rounded-lg object-cover" alt="" />
+              )}
 
-function ActionBtn({ icon: Icon, label }: { icon: typeof Camera; label: string }) {
-  return (
-    <button className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium text-muted-foreground active:bg-muted">
-      <Icon className="h-4 w-4" /> {label}
-    </button>
+              {(l.count > 0 || cc > 0) && (
+                <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    {l.count > 0 && (
+                      <>
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                          <ThumbsUp className="h-2.5 w-2.5" strokeWidth={3} />
+                        </span>
+                        {l.count}
+                      </>
+                    )}
+                  </span>
+                  {cc > 0 && (
+                    <button
+                      onClick={() => setOpenComments(p.id)}
+                      className="active:underline"
+                    >
+                      {cc} {t("comments").toLowerCase()}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <footer className="mt-2 flex border-t border-border pt-1">
+                <button
+                  onClick={() => void toggleLike(p.id)}
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium active:bg-muted ${
+                    l.mine ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  <ThumbsUp className="h-4 w-4" fill={l.mine ? "currentColor" : "none"} />
+                  {t("like")}
+                </button>
+                <button
+                  onClick={() => setOpenComments(p.id)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  {t("comment")}
+                </button>
+                <button
+                  onClick={() => void sharePost(p.id)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
+                >
+                  <Share2 className="h-4 w-4" />
+                  {t("share")}
+                </button>
+              </footer>
+            </article>
+          );
+        })}
+      </div>
+
+      {openComments && (
+        <CommentsSheet
+          postId={openComments}
+          onClose={() => setOpenComments(null)}
+          onCountChange={(n) => setCommentCounts((m) => ({ ...m, [openComments]: n }))}
+        />
+      )}
+    </div>
   );
 }
