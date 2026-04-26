@@ -26,22 +26,18 @@ export default function Welcome() {
                 lang === l ? "bg-primary text-primary-foreground" : ""
               }`}
             >
-              <span>{l === "km" ? "🇰🇭" : "🇬🇧"}</span>
-              <span>{l === "km" ? "ខ្មែរ" : "EN"}</span>
+              <span className="text-base leading-none">{l === "km" ? "🇰🇭" : "🇬🇧"}</span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-card">
+      <div className="flex flex-col items-center gap-5 text-center">
+        <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-white shadow-card">
           <img src={logo} alt="BuildHub" className="h-full w-full object-cover" />
         </div>
-        <h1 className="text-3xl font-bold tracking-tight">{t("app_name")}</h1>
+        <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-sm">{t("app_name")}</h1>
         <p className="text-base text-white/85">{t("tagline")}</p>
-        <p className="text-xs uppercase tracking-wider text-white/55">
-          {lang === "km" ? "Find work · Find workers" : "រកការងារ · រកអ្នកជំនាញ"}
-        </p>
       </div>
 
       <div className="flex w-full flex-col gap-3">
