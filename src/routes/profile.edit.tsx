@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
@@ -41,6 +41,34 @@ function EditProfilePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: dataUrl })
+        .eq("id", user.id);
+      if (error) throw error;
+      setAvatarUrl(dataUrl);
+      toast.success(lang === "km" ? "បានធ្វើបច្ចុប្បន្នភាពរូបភាព" : "Photo updated");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -125,9 +153,21 @@ function EditProfilePage() {
         <div className="flex flex-col items-center gap-2 rounded-xl bg-surface p-5 shadow-card">
           <div className="relative">
             <Avatar name={fullName} url={avatarUrl} size={80} />
-            <button className="absolute bottom-0 right-0 rounded-full border-2 border-surface bg-primary p-1.5">
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="absolute bottom-0 right-0 rounded-full border-2 border-surface bg-primary p-1.5 disabled:opacity-60"
+            >
               <Camera className="h-3.5 w-3.5 text-primary-foreground" />
             </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onPickAvatar}
+            />
           </div>
         </div>
 
