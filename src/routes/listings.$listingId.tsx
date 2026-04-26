@@ -282,44 +282,76 @@ function ListingDetailPage() {
           </div>
         )}
 
-        {/* Applicants (owner only) */}
-        {isOwn && (
-          <div className="bg-surface p-4 shadow-card">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="text-sm font-semibold text-foreground">{t("applicants_title")}</div>
-              <span className="rounded-pill bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-                {applicants.length}
-              </span>
+        {/* Accepted worker banner (visible to everyone, while project not finished) */}
+        {(() => {
+          const accepted = applicants.find((a) => a.status === "accepted");
+          if (!accepted || listing.status === "finished") return null;
+          return (
+            <div className="bg-surface p-4 shadow-card">
+              <div className="mb-2 text-sm font-semibold text-foreground">{t("currently_working")}</div>
+              <div className="flex items-center gap-3 rounded-xl border border-success/30 bg-success/5 p-3">
+                <Link
+                  to="/users/$userId"
+                  params={{ userId: accepted.applicant_id }}
+                  className="flex flex-1 items-center gap-3 active:opacity-70"
+                >
+                  <Avatar name={accepted.profiles?.full_name} url={accepted.profiles?.avatar_url} size={44} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold text-foreground">
+                      {accepted.profiles?.full_name ?? "User"}
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-success">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      {t("is_doing_it")}
+                    </div>
+                  </div>
+                </Link>
+                {isOwn && (
+                  <button
+                    onClick={() => void messageApplicant(accepted.applicant_id)}
+                    disabled={contactingId === accepted.applicant_id}
+                    className="flex shrink-0 items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground active:scale-95 disabled:opacity-50"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    {t("message")}
+                  </button>
+                )}
+              </div>
             </div>
-            {applicants.length === 0 ? (
-              <div className="py-4 text-center text-xs text-muted-foreground">{t("no_applicants")}</div>
-            ) : (
-              <ul className="divide-y divide-border">
-                {applicants.map((a) => (
-                  <li key={a.id} className="flex items-center gap-3 py-3">
-                    <Link
-                      to="/users/$userId"
-                      params={{ userId: a.applicant_id }}
-                      className="flex flex-1 items-center gap-3 active:opacity-70"
-                    >
-                      <Avatar name={a.profiles?.full_name} url={a.profiles?.avatar_url} size={40} />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="truncate text-sm font-semibold text-foreground">
+          );
+        })()}
+
+        {/* Applicants list (owner only, hidden once someone is accepted or project finished) */}
+        {isOwn &&
+          !applicants.some((a) => a.status === "accepted") &&
+          listing.status !== "finished" && (
+            <div className="bg-surface p-4 shadow-card">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-sm font-semibold text-foreground">{t("applicants_title")}</div>
+                <span className="rounded-pill bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                  {applicants.length}
+                </span>
+              </div>
+              {applicants.length === 0 ? (
+                <div className="py-4 text-center text-xs text-muted-foreground">{t("no_applicants")}</div>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {applicants.map((a) => (
+                    <li key={a.id} className="flex items-center gap-3 py-3">
+                      <Link
+                        to="/users/$userId"
+                        params={{ userId: a.applicant_id }}
+                        className="flex flex-1 items-center gap-3 active:opacity-70"
+                      >
+                        <Avatar name={a.profiles?.full_name} url={a.profiles?.avatar_url} size={40} />
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-semibold text-foreground">
                             {a.profiles?.full_name ?? "User"}
-                          </span>
-                          {a.status === "accepted" && (
-                            <span className="flex shrink-0 items-center gap-0.5 rounded-pill bg-success/10 px-1.5 py-0.5 text-[10px] font-semibold text-success">
-                              <CheckCircle2 className="h-3 w-3" />
-                              {t("accepted")}
-                            </span>
-                          )}
+                          </div>
+                          <div className="text-xs text-muted-foreground">{timeAgo(a.created_at, t)}</div>
                         </div>
-                        <div className="text-xs text-muted-foreground">{timeAgo(a.created_at, t)}</div>
-                      </div>
-                    </Link>
-                    <div className="flex shrink-0 items-center gap-1.5">
-                      {a.status !== "accepted" && (
+                      </Link>
+                      <div className="flex shrink-0 items-center gap-1.5">
                         <button
                           onClick={() => void acceptApplicant(a.id)}
                           className="flex items-center gap-1 rounded-pill bg-success px-3 py-1.5 text-xs font-semibold text-success-foreground active:scale-95"
@@ -327,20 +359,47 @@ function ListingDetailPage() {
                           <CheckCircle2 className="h-3.5 w-3.5" />
                           {t("accept")}
                         </button>
-                      )}
-                      <button
-                        onClick={() => void messageApplicant(a.applicant_id)}
-                        disabled={contactingId === a.applicant_id}
-                        className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground active:scale-95 disabled:opacity-50"
-                      >
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        {t("message")}
-                      </button>
+                        <button
+                          onClick={() => void messageApplicant(a.applicant_id)}
+                          disabled={contactingId === a.applicant_id}
+                          className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground active:scale-95 disabled:opacity-50"
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" />
+                          {t("message")}
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+        {/* Finished worker recap */}
+        {listing.status === "finished" && applicants.find((a) => a.status === "accepted") && (
+          <div className="bg-surface p-4 shadow-card">
+            <div className="mb-2 text-sm font-semibold text-foreground">{t("completed_by")}</div>
+            {(() => {
+              const accepted = applicants.find((a) => a.status === "accepted")!;
+              return (
+                <Link
+                  to="/users/$userId"
+                  params={{ userId: accepted.applicant_id }}
+                  className="flex items-center gap-3 rounded-xl border border-border p-3 active:bg-muted"
+                >
+                  <Avatar name={accepted.profiles?.full_name} url={accepted.profiles?.avatar_url} size={44} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold text-foreground">
+                      {accepted.profiles?.full_name ?? "User"}
                     </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+                    <div className="flex items-center gap-1 text-xs text-success">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      {t("finished")}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })()}
           </div>
         )}
 
