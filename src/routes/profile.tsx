@@ -173,6 +173,33 @@ function ProfilePage() {
         )}
       </Section>
 
+      {/* Currently doing */}
+      {doingListings.length > 0 && (
+        <Section title={t("currently_working")}>
+          <div className="space-y-2">
+            {doingListings.map((l) => (
+              <Link
+                key={l.id}
+                to="/listings/$listingId"
+                params={{ listingId: l.id }}
+                className="flex items-center justify-between rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
+              >
+                <span className="truncate text-sm font-medium text-foreground">{l.title}</span>
+                <span
+                  className={`shrink-0 rounded-pill px-2.5 py-0.5 text-[10px] font-semibold ${
+                    l.status === "finished"
+                      ? "bg-primary/15 text-primary"
+                      : "bg-success/15 text-success"
+                  }`}
+                >
+                  {l.status === "finished" ? t("finished") : t("is_doing_it")}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </Section>
+      )}
+
       {/* My listings */}
       <Section title={t("my_projects")}>
         {myListings.length === 0 ? (
