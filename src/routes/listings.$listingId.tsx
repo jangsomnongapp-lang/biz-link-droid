@@ -126,6 +126,19 @@ function ListingDetailPage() {
     toast.success(t("project_finished"));
   }
 
+  async function acceptApplicant(appId: string) {
+    const { error } = await supabase
+      .from("applications")
+      .update({ status: "accepted" })
+      .eq("id", appId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setApplicants((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "accepted" } : a)));
+    toast.success(t("applicant_accepted"));
+  }
+
   async function messageApplicant(applicantId: string) {
     if (!user) return;
     setContactingId(applicantId);
