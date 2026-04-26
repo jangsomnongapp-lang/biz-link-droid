@@ -47,6 +47,8 @@ function ListingDetailPage() {
   const [loading, setLoading] = useState(true);
   const [applied, setApplied] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+  const [finishing, setFinishing] = useState(false);
   const [postedCount, setPostedCount] = useState(0);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [contactingId, setContactingId] = useState<string | null>(null);
