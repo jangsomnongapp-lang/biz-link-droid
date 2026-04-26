@@ -79,22 +79,29 @@ function StoryViewerPage() {
     if (!s) return;
     const isOwner = s.user_id === authUser.id;
 
-    if (!isOwner && !recordedRef.current.has(s.id)) {
-      recordedRef.current.add(s.id);
-      void supabase
-        .from("story_views")
-        .insert({ story_id: s.id, viewer_id: authUser.id });
-    }
+    void (async () => {
+      if (!isOwner && !recordedRef.current.has(s.id)) {
+        recordedRef.current.add(s.id);
+        const { error } = await supabase
+          .from("story_views")
+          .insert({ story_id: s.id, viewer_id: authUser.id });
+        if (error && error.code !== "23505") {
+          // Allow duplicate-key (already viewed); log others
+          console.error("story_view insert failed", error);
+          recordedRef.current.delete(s.id);
+        }
+      }
 
-    if (isOwner) {
-      void supabase
-        .from("story_views")
-        .select("viewer_id", { count: "exact", head: true })
-        .eq("story_id", s.id)
-        .then(({ count }) => setViewerCount(count ?? 0));
-    } else {
-      setViewerCount(0);
-    }
+      if (isOwner) {
+        const { count } = await supabase
+          .from("story_views")
+          .select("viewer_id", { count: "exact", head: true })
+          .eq("story_id", s.id);
+        setViewerCount(count ?? 0);
+      } else {
+        setViewerCount(0);
+      }
+    })();
   }, [authUser, stories, idx]);
 
   useEffect(() => {
