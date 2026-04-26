@@ -240,7 +240,50 @@ function ListingDetailPage() {
           </div>
         )}
 
-        {/* About client */}
+        {/* Applicants (owner only) */}
+        {isOwn && (
+          <div className="bg-surface p-4 shadow-card">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="text-sm font-semibold text-foreground">{t("applicants_title")}</div>
+              <span className="rounded-pill bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                {applicants.length}
+              </span>
+            </div>
+            {applicants.length === 0 ? (
+              <div className="py-4 text-center text-xs text-muted-foreground">{t("no_applicants")}</div>
+            ) : (
+              <ul className="divide-y divide-border">
+                {applicants.map((a) => (
+                  <li key={a.id} className="flex items-center gap-3 py-3">
+                    <Link
+                      to="/users/$userId"
+                      params={{ userId: a.applicant_id }}
+                      className="flex flex-1 items-center gap-3 active:opacity-70"
+                    >
+                      <Avatar name={a.profiles?.full_name} url={a.profiles?.avatar_url} size={40} />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-foreground">
+                          {a.profiles?.full_name ?? "User"}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{timeAgo(a.created_at, t)}</div>
+                      </div>
+                    </Link>
+                    <button
+                      onClick={() => void messageApplicant(a.applicant_id)}
+                      disabled={contactingId === a.applicant_id}
+                      className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground active:scale-95 disabled:opacity-50"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      {t("message")}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+
         <div className="bg-surface p-4 shadow-card">
           <div className="mb-3 text-sm font-semibold text-foreground">{t("about_client")}</div>
           <Link
