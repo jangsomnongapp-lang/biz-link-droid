@@ -37,6 +37,7 @@ function ProfilePage() {
   const [stats, setStats] = useState({ posted: 0, applied: 0, contacts: 0 });
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
+  const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -64,9 +65,15 @@ function ProfilePage() {
       });
     void supabase
       .from("applications")
-      .select("id", { count: "exact", head: true })
+      .select("id, status, listing:listings(id, title, status)")
       .eq("applicant_id", user.id)
-      .then(({ count }) => setStats((s) => ({ ...s, applied: count ?? 0 })));
+      .then(({ data, count }) => {
+        setStats((s) => ({ ...s, applied: count ?? (data?.length ?? 0) }));
+        const accepted = (data ?? [])
+          .filter((a: any) => a.status === "accepted" && a.listing && a.listing.status !== "closed")
+          .map((a: any) => a.listing as { id: string; title: string; status: string });
+        setDoingListings(accepted);
+      });
     void supabase
       .from("portfolio_photos")
       .select("id, photo_url")
@@ -165,6 +172,33 @@ function ProfilePage() {
           </div>
         )}
       </Section>
+
+      {/* Currently doing */}
+      {doingListings.length > 0 && (
+        <Section title={t("currently_working")}>
+          <div className="space-y-2">
+            {doingListings.map((l) => (
+              <Link
+                key={l.id}
+                to="/listings/$listingId"
+                params={{ listingId: l.id }}
+                className="flex items-center justify-between rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
+              >
+                <span className="truncate text-sm font-medium text-foreground">{l.title}</span>
+                <span
+                  className={`shrink-0 rounded-pill px-2.5 py-0.5 text-[10px] font-semibold ${
+                    l.status === "finished"
+                      ? "bg-primary/15 text-primary"
+                      : "bg-success/15 text-success"
+                  }`}
+                >
+                  {l.status === "finished" ? t("finished") : t("is_doing_it")}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* My listings */}
       <Section title={t("my_projects")}>
