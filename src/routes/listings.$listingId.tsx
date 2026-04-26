@@ -24,6 +24,7 @@ interface DetailRow {
   description: string | null;
   budget: number | null;
   location: string | null;
+  status: string;
   created_at: string;
   profiles: { full_name: string | null; avatar_url: string | null } | null;
   listing_categories: { categories: { name_en: string; name_km: string } | null }[];
