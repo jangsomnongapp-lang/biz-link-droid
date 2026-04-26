@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
-import { Building2 } from "lucide-react";
+import logo from "@/assets/jangsomnong-logo.jpg";
 
 export default function Welcome() {
   const { t, lang, setLang } = useI18n();
@@ -34,8 +34,8 @@ export default function Welcome() {
       </div>
 
       <div className="flex flex-col items-center gap-4 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-card">
-          <Building2 className="h-10 w-10 text-primary" strokeWidth={2.4} />
+        <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-card">
+          <img src={logo} alt="JangSomnong" className="h-full w-full object-cover" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight">{t("app_name")}</h1>
         <p className="text-base text-white/85">{t("tagline")}</p>

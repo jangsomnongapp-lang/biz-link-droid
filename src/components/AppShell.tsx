@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
 import { Home, Newspaper, Megaphone, Bell, User, Menu, Plus, Search, MessageCircle } from "lucide-react";
 import type { ReactNode } from "react";
+import logo from "@/assets/jangsomnong-logo.jpg";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
@@ -23,6 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/settings" className="rounded-full p-2 active:bg-white/10" aria-label="Menu">
             <Menu className="h-6 w-6" />
           </Link>
+          <img src={logo} alt="JangSomnong" className="h-8 w-8 rounded-md object-cover" />
           <h1 className="text-lg font-bold">{t("app_name")}</h1>
         </div>
         <div className="flex items-center gap-1">
