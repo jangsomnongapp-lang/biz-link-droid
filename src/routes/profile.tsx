@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -10,14 +10,24 @@ import { Camera, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/profile")({
-  component: () => (
-    <RequireAuth>
-      <AppShell>
-        <ProfilePage />
-      </AppShell>
-    </RequireAuth>
-  ),
+  component: ProfileRoute,
 });
+
+function ProfileRoute() {
+  const location = useLocation();
+
+  return (
+    <RequireAuth>
+      {location.pathname === "/profile" ? (
+        <AppShell>
+          <ProfilePage />
+        </AppShell>
+      ) : (
+        <Outlet />
+      )}
+    </RequireAuth>
+  );
+}
 
 interface Profile {
   id: string;
