@@ -145,9 +145,22 @@ function ProfilePage() {
               size={88}
               className="border-4 border-white"
             />
-            <button className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-foreground p-1.5">
+            <button
+              type="button"
+              onClick={() => fileInput.current?.click()}
+              disabled={uploadingAvatar}
+              aria-label={lang === "km" ? "ប្តូររូបថត" : "Change photo"}
+              className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-foreground p-1.5 active:scale-95 disabled:opacity-60"
+            >
               <Camera className="h-3.5 w-3.5 text-primary-foreground" />
             </button>
+            <input
+              ref={fileInput}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onPickAvatar}
+            />
           </div>
           <h1 className="text-xl font-bold">{profile?.full_name ?? "—"}</h1>
           <p className="text-xs text-white/80">{roleLabels.join(" · ") || " "}</p>
