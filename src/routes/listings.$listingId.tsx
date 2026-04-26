@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { ArrowLeft, MapPin, Share2, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/listings/$listingId")({
@@ -30,15 +30,25 @@ interface DetailRow {
   listing_photos: { photo_url: string }[];
 }
 
+interface Applicant {
+  id: string;
+  applicant_id: string;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+}
+
 function ListingDetailPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
+  const nav = useNavigate();
   const { listingId } = useParams({ from: "/listings/$listingId" });
   const [listing, setListing] = useState<DetailRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [applied, setApplied] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [postedCount, setPostedCount] = useState(0);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [contactingId, setContactingId] = useState<string | null>(null);
 
   useEffect(() => {
     void supabase
@@ -70,6 +80,17 @@ function ListingDetailPage() {
     }
   }, [listingId, user]);
 
+  // Load applicants when current user owns the listing
+  useEffect(() => {
+    if (!user || !listing || listing.user_id !== user.id) return;
+    void supabase
+      .from("applications")
+      .select("id, applicant_id, created_at, profiles!applications_applicant_id_fkey(full_name, avatar_url)")
+      .eq("listing_id", listing.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setApplicants((data as Applicant[] | null) ?? []));
+  }, [user, listing]);
+
   async function confirmApply() {
     if (!user || !listing) return;
     setShowConfirm(false);
@@ -82,6 +103,35 @@ function ListingDetailPage() {
     }
     setApplied(true);
     toast.success(lang === "km" ? "បានដាក់ពាក្យ" : "Applied!");
+  }
+
+  async function messageApplicant(applicantId: string) {
+    if (!user) return;
+    setContactingId(applicantId);
+    try {
+      const [a, b] = [user.id, applicantId].sort();
+      const { data: existing } = await supabase
+        .from("message_threads")
+        .select("id")
+        .eq("participant_a", a)
+        .eq("participant_b", b)
+        .maybeSingle();
+      let threadId = existing?.id;
+      if (!threadId) {
+        const { data: created, error } = await supabase
+          .from("message_threads")
+          .insert({ participant_a: a, participant_b: b })
+          .select("id")
+          .single();
+        if (error) throw error;
+        threadId = created.id;
+      }
+      nav({ to: "/messages/$threadId", params: { threadId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setContactingId(null);
+    }
   }
 
   async function shareListing() {
@@ -190,7 +240,50 @@ function ListingDetailPage() {
           </div>
         )}
 
-        {/* About client */}
+        {/* Applicants (owner only) */}
+        {isOwn && (
+          <div className="bg-surface p-4 shadow-card">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="text-sm font-semibold text-foreground">{t("applicants_title")}</div>
+              <span className="rounded-pill bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                {applicants.length}
+              </span>
+            </div>
+            {applicants.length === 0 ? (
+              <div className="py-4 text-center text-xs text-muted-foreground">{t("no_applicants")}</div>
+            ) : (
+              <ul className="divide-y divide-border">
+                {applicants.map((a) => (
+                  <li key={a.id} className="flex items-center gap-3 py-3">
+                    <Link
+                      to="/users/$userId"
+                      params={{ userId: a.applicant_id }}
+                      className="flex flex-1 items-center gap-3 active:opacity-70"
+                    >
+                      <Avatar name={a.profiles?.full_name} url={a.profiles?.avatar_url} size={40} />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold text-foreground">
+                          {a.profiles?.full_name ?? "User"}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{timeAgo(a.created_at, t)}</div>
+                      </div>
+                    </Link>
+                    <button
+                      onClick={() => void messageApplicant(a.applicant_id)}
+                      disabled={contactingId === a.applicant_id}
+                      className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground active:scale-95 disabled:opacity-50"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      {t("message")}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+
         <div className="bg-surface p-4 shadow-card">
           <div className="mb-3 text-sm font-semibold text-foreground">{t("about_client")}</div>
           <Link
