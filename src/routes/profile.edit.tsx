@@ -153,9 +153,21 @@ function EditProfilePage() {
         <div className="flex flex-col items-center gap-2 rounded-xl bg-surface p-5 shadow-card">
           <div className="relative">
             <Avatar name={fullName} url={avatarUrl} size={80} />
-            <button className="absolute bottom-0 right-0 rounded-full border-2 border-surface bg-primary p-1.5">
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              className="absolute bottom-0 right-0 rounded-full border-2 border-surface bg-primary p-1.5 disabled:opacity-60"
+            >
               <Camera className="h-3.5 w-3.5 text-primary-foreground" />
             </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onPickAvatar}
+            />
           </div>
         </div>
 
