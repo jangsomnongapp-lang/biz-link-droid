@@ -215,6 +215,9 @@ const dict: Dict = {
     en: "This project will be marked as finished and won't accept more applications.",
   },
   project_finished: { km: "ការងារបានបញ្ចប់", en: "Project finished" },
+  accept: { km: "ទទួលយក", en: "Accept" },
+  accepted: { km: "បានទទួល", en: "Accepted" },
+  applicant_accepted: { km: "បានទទួលយកបេក្ខជន", en: "Applicant accepted" },
 };
 
 interface I18nCtx {
