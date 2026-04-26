@@ -115,6 +115,9 @@ const dict: Dict = {
   close: { km: "បិទ", en: "Close" },
   reopen: { km: "បើកឡើងវិញ", en: "Reopen" },
   applicants: { km: "បេក្ខជន", en: "applicants" },
+  applicants_title: { km: "បេក្ខជន", en: "Applicants" },
+  no_applicants: { km: "មិនទាន់មានបេក្ខជន", en: "No applicants yet" },
+  message: { km: "ផ្ញើសារ", en: "Message" },
   // messages
   messages: { km: "សារ", en: "Messages" },
   search_messages: { km: "ស្វែងរកសារ...", en: "Search messages..." },
