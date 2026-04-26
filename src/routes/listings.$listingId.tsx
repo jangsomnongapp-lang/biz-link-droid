@@ -89,7 +89,7 @@ function ListingDetailPage() {
     if (!user || !listing || listing.user_id !== user.id) return;
     void supabase
       .from("applications")
-      .select("id, applicant_id, created_at, profiles!applications_applicant_id_fkey(full_name, avatar_url)")
+      .select("id, applicant_id, created_at, status, profiles!applications_applicant_id_fkey(full_name, avatar_url)")
       .eq("listing_id", listing.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setApplicants((data as Applicant[] | null) ?? []));
