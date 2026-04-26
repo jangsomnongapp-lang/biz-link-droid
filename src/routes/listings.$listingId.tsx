@@ -304,20 +304,39 @@ function ListingDetailPage() {
                     >
                       <Avatar name={a.profiles?.full_name} url={a.profiles?.avatar_url} size={40} />
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-semibold text-foreground">
-                          {a.profiles?.full_name ?? "User"}
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate text-sm font-semibold text-foreground">
+                            {a.profiles?.full_name ?? "User"}
+                          </span>
+                          {a.status === "accepted" && (
+                            <span className="flex shrink-0 items-center gap-0.5 rounded-pill bg-success/10 px-1.5 py-0.5 text-[10px] font-semibold text-success">
+                              <CheckCircle2 className="h-3 w-3" />
+                              {t("accepted")}
+                            </span>
+                          )}
                         </div>
                         <div className="text-xs text-muted-foreground">{timeAgo(a.created_at, t)}</div>
                       </div>
                     </Link>
-                    <button
-                      onClick={() => void messageApplicant(a.applicant_id)}
-                      disabled={contactingId === a.applicant_id}
-                      className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground active:scale-95 disabled:opacity-50"
-                    >
-                      <MessageCircle className="h-3.5 w-3.5" />
-                      {t("message")}
-                    </button>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      {a.status !== "accepted" && (
+                        <button
+                          onClick={() => void acceptApplicant(a.id)}
+                          className="flex items-center gap-1 rounded-pill bg-success px-3 py-1.5 text-xs font-semibold text-success-foreground active:scale-95"
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          {t("accept")}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => void messageApplicant(a.applicant_id)}
+                        disabled={contactingId === a.applicant_id}
+                        className="flex items-center gap-1 rounded-pill bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground active:scale-95 disabled:opacity-50"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        {t("message")}
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
