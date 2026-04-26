@@ -30,15 +30,25 @@ interface DetailRow {
   listing_photos: { photo_url: string }[];
 }
 
+interface Applicant {
+  id: string;
+  applicant_id: string;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+}
+
 function ListingDetailPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
+  const nav = useNavigate();
   const { listingId } = useParams({ from: "/listings/$listingId" });
   const [listing, setListing] = useState<DetailRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [applied, setApplied] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [postedCount, setPostedCount] = useState(0);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [contactingId, setContactingId] = useState<string | null>(null);
 
   useEffect(() => {
     void supabase
