@@ -331,21 +331,69 @@ function ListingDetailPage() {
         </div>
       </div>
 
-      {/* Bottom apply */}
-      {!isOwn && (
+      {/* Bottom apply / finish */}
+      {isOwn ? (
+        listing.status !== "finished" && (
+          <div className="sticky bottom-0 border-t border-border bg-surface p-3">
+            <button
+              onClick={() => setShowFinishConfirm(true)}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-success text-sm font-semibold text-success-foreground active:scale-[0.99]"
+            >
+              <CheckCircle2 className="h-5 w-5" />
+              {t("mark_finished")}
+            </button>
+          </div>
+        )
+      ) : (
         <div className="sticky bottom-0 flex gap-2 border-t border-border bg-surface p-3">
           <button className="flex h-12 flex-1 items-center justify-center rounded-xl border-2 border-primary text-sm font-semibold text-primary active:scale-[0.99]">
             {t("contact")}
           </button>
           <button
-            onClick={() => !applied && setShowConfirm(true)}
-            disabled={applied}
+            onClick={() => !applied && listing.status !== "finished" && setShowConfirm(true)}
+            disabled={applied || listing.status === "finished"}
             className={`flex h-12 flex-[2] items-center justify-center rounded-xl text-sm font-semibold active:scale-[0.99] ${
-              applied ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"
+              applied || listing.status === "finished"
+                ? "bg-muted text-muted-foreground"
+                : "bg-primary text-primary-foreground"
             }`}
           >
-            {applied ? t("applied") : t("apply")}
+            {listing.status === "finished" ? t("finished") : applied ? t("applied") : t("apply")}
           </button>
+        </div>
+      )}
+
+      {/* Finish confirm modal */}
+      {showFinishConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+          onClick={() => setShowFinishConfirm(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-t-2xl bg-surface p-6 sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/10 text-success">
+              <CheckCircle2 className="h-7 w-7" />
+            </div>
+            <h3 className="text-center text-lg font-bold text-foreground">{t("finish_confirm_title")}</h3>
+            <p className="mt-1 text-center text-sm text-muted-foreground">{t("finish_confirm_desc")}</p>
+            <div className="mt-5 flex gap-2">
+              <button
+                onClick={() => setShowFinishConfirm(false)}
+                className="flex h-11 flex-1 items-center justify-center rounded-xl border-2 border-border text-sm font-semibold text-foreground"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={() => void finishProject()}
+                disabled={finishing}
+                className="flex h-11 flex-1 items-center justify-center rounded-xl bg-success text-sm font-semibold text-success-foreground disabled:opacity-50"
+              >
+                {t("confirm")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
