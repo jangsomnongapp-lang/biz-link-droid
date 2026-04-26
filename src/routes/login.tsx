@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Building2, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import logo from "@/assets/jangsomnong-logo.jpg";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
@@ -46,8 +47,8 @@ function LoginPage() {
         <ArrowLeft className="h-5 w-5" />
       </Link>
       <div className="mt-6 flex flex-col items-center gap-3 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
-          <Building2 className="h-8 w-8 text-primary" strokeWidth={2.4} />
+        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white">
+          <img src={logo} alt="JangSomnong" className="h-full w-full object-cover" />
         </div>
         <h1 className="text-2xl font-bold">{t("app_name")}</h1>
         <p className="text-sm text-white/85">{t("welcome_back")}</p>
