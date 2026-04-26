@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { ArrowLeft, MapPin, MoreHorizontal, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Share2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/listings/$listingId")({
@@ -84,6 +84,25 @@ function ListingDetailPage() {
     toast.success(lang === "km" ? "បានដាក់ពាក្យ" : "Applied!");
   }
 
+  async function shareListing() {
+    if (!listing) return;
+    const url = `${window.location.origin}/listings/${listing.id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: listing.title, url });
+        return;
+      }
+    } catch {
+      // fall through
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t("share_link_copied"));
+    } catch {
+      toast.error(t("error_generic"));
+    }
+  }
+
   if (loading)
     return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">{t("loading")}</div>;
   if (!listing)
@@ -98,8 +117,12 @@ function ListingDetailPage() {
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="flex-1 text-center text-base font-semibold">{t("project_detail")}</h1>
-        <button className="rounded-full p-2 active:bg-white/10">
-          <MoreHorizontal className="h-5 w-5" />
+        <button
+          onClick={() => void shareListing()}
+          className="rounded-full p-2 active:bg-white/10"
+          aria-label={t("share")}
+        >
+          <Share2 className="h-5 w-5" />
         </button>
       </header>
 
