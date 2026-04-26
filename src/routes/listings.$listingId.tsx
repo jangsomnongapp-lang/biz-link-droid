@@ -57,7 +57,7 @@ function ListingDetailPage() {
     void supabase
       .from("listings")
       .select(
-        "id, user_id, title, description, budget, location, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km)), listing_photos(photo_url)"
+        "id, user_id, title, description, budget, location, status, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km)), listing_photos(photo_url)"
       )
       .eq("id", listingId)
       .maybeSingle()
