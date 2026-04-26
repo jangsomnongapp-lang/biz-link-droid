@@ -65,9 +65,15 @@ function ProfilePage() {
       });
     void supabase
       .from("applications")
-      .select("id", { count: "exact", head: true })
+      .select("id, status, listing:listings(id, title, status)")
       .eq("applicant_id", user.id)
-      .then(({ count }) => setStats((s) => ({ ...s, applied: count ?? 0 })));
+      .then(({ data, count }) => {
+        setStats((s) => ({ ...s, applied: count ?? (data?.length ?? 0) }));
+        const accepted = (data ?? [])
+          .filter((a: any) => a.status === "accepted" && a.listing && a.listing.status !== "closed")
+          .map((a: any) => a.listing as { id: string; title: string; status: string });
+        setDoingListings(accepted);
+      });
     void supabase
       .from("portfolio_photos")
       .select("id, photo_url")
