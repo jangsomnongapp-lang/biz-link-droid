@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, MapPin, DollarSign, Plus } from "lucide-react";
+import { ArrowLeft, MapPin, DollarSign, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/listings/new")({
@@ -33,7 +33,22 @@ function NewListingPage() {
   const [budget, setBudget] = useState("");
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    setPhotos((p) => [...p, dataUrl]);
+  }
 
   useEffect(() => {
     void supabase
@@ -71,6 +86,11 @@ function NewListingPage() {
       if (error) throw error;
       const rows = Array.from(selected).map((cid) => ({ listing_id: data.id, category_id: cid }));
       if (rows.length) await supabase.from("listing_categories").insert(rows);
+      if (photos.length) {
+        await supabase
+          .from("listing_photos")
+          .insert(photos.map((url) => ({ listing_id: data.id, photo_url: url })));
+      }
       toast.success(lang === "km" ? "បានបង្ហោះ!" : "Posted!");
       nav({ to: "/listings" });
     } catch (e) {
@@ -143,11 +163,29 @@ function NewListingPage() {
 
         <Card>
           <Label optional>{t("photos")}</Label>
+          <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPickFile} />
           <div className="grid grid-cols-3 gap-2">
-            <button className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-muted-foreground active:bg-muted">
+            <button
+              type="button"
+              onClick={() => fileInput.current?.click()}
+              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-muted-foreground active:bg-muted"
+            >
               <Plus className="h-5 w-5" />
               <span className="text-[10px]">{t("add_photo")}</span>
             </button>
+            {photos.map((src, i) => (
+              <div key={i} className="relative aspect-square">
+                <img src={src} className="h-full w-full rounded-lg object-cover" alt="" />
+                <button
+                  type="button"
+                  onClick={() => setPhotos((p) => p.filter((_, j) => j !== i))}
+                  className="absolute right-1 top-1 rounded-full bg-foreground/70 p-0.5 text-background"
+                  aria-label="Remove"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
           </div>
         </Card>
 
