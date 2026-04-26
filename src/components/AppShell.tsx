@@ -29,9 +29,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/listings/new" className="rounded-full p-2 active:bg-white/10" aria-label="New">
             <Plus className="h-5 w-5" />
           </Link>
-          <button className="rounded-full p-2 active:bg-white/10" aria-label="Search">
+          <Link to="/search" className="rounded-full p-2 active:bg-white/10" aria-label="Search">
             <Search className="h-5 w-5" />
-          </button>
+          </Link>
           <Link to="/messages" className="relative rounded-full p-2 active:bg-white/10" aria-label="Messages">
             <MessageCircle className="h-5 w-5" />
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
