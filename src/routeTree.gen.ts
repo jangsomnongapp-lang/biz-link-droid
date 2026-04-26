@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
@@ -32,6 +33,11 @@ import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
+  '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
+  '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
+  '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/search'
     | '/settings'
     | '/admin/posts'
     | '/listings/$listingId'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/search'
     | '/settings'
     | '/admin/posts'
     | '/listings/$listingId'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/search'
     | '/settings'
     | '/admin/posts'
     | '/listings/$listingId'
@@ -263,6 +275,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   RegisterRoute: typeof RegisterRoute
+  SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   AdminPostsRoute: typeof AdminPostsRoute
   ListingsListingIdRoute: typeof ListingsListingIdRoute
@@ -282,6 +295,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -434,6 +454,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRouteWithChildren,
   RegisterRoute: RegisterRoute,
+  SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   AdminPostsRoute: AdminPostsRoute,
   ListingsListingIdRoute: ListingsListingIdRoute,
