@@ -47,8 +47,8 @@ function LoginPage() {
         <ArrowLeft className="h-5 w-5" />
       </Link>
       <div className="mt-6 flex flex-col items-center gap-3 text-center">
-        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white">
-          <img src={logo} alt="JangSomnong" className="h-full w-full object-cover" />
+        <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white shadow-card">
+          <img src={logo} alt="BuildHub" className="h-full w-full object-cover border" />
         </div>
         <h1 className="text-2xl font-bold">{t("app_name")}</h1>
         <p className="text-sm text-white/85">{t("welcome_back")}</p>
