@@ -35,6 +35,7 @@ interface Applicant {
   id: string;
   applicant_id: string;
   created_at: string;
+  status: string;
   profiles: { full_name: string | null; avatar_url: string | null } | null;
 }
 
