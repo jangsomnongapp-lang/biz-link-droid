@@ -80,6 +80,17 @@ function ListingDetailPage() {
     }
   }, [listingId, user]);
 
+  // Load applicants when current user owns the listing
+  useEffect(() => {
+    if (!user || !listing || listing.user_id !== user.id) return;
+    void supabase
+      .from("applications")
+      .select("id, applicant_id, created_at, profiles!applications_applicant_id_fkey(full_name, avatar_url)")
+      .eq("listing_id", listing.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setApplicants((data as Applicant[] | null) ?? []));
+  }, [user, listing]);
+
   async function confirmApply() {
     if (!user || !listing) return;
     setShowConfirm(false);
@@ -92,6 +103,35 @@ function ListingDetailPage() {
     }
     setApplied(true);
     toast.success(lang === "km" ? "បានដាក់ពាក្យ" : "Applied!");
+  }
+
+  async function messageApplicant(applicantId: string) {
+    if (!user) return;
+    setContactingId(applicantId);
+    try {
+      const [a, b] = [user.id, applicantId].sort();
+      const { data: existing } = await supabase
+        .from("message_threads")
+        .select("id")
+        .eq("participant_a", a)
+        .eq("participant_b", b)
+        .maybeSingle();
+      let threadId = existing?.id;
+      if (!threadId) {
+        const { data: created, error } = await supabase
+          .from("message_threads")
+          .insert({ participant_a: a, participant_b: b })
+          .select("id")
+          .single();
+        if (error) throw error;
+        threadId = created.id;
+      }
+      nav({ to: "/messages/$threadId", params: { threadId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setContactingId(null);
+    }
   }
 
   async function shareListing() {
