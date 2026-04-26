@@ -39,7 +39,34 @@ function ProfilePage() {
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
+  async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result));
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: dataUrl })
+        .eq("id", user.id);
+      if (error) throw error;
+      setProfile((p) => (p ? { ...p, avatar_url: dataUrl } : p));
+      toast.success(lang === "km" ? "បានរក្សាទុក" : "Photo updated");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Upload failed");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
   useEffect(() => {
     if (!user) return;
     void supabase
