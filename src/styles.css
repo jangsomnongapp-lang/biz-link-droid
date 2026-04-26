@@ -41,7 +41,7 @@
 }
 
 :root {
-  /* Project 001 brand */
+  /* JangSomnong brand */
   --background: oklch(0.972 0.005 247);          /* #f5f7fa */
   --surface: oklch(1 0 0);                        /* white card */
   --foreground: oklch(0.18 0 0);                  /* #1a1a1a */
