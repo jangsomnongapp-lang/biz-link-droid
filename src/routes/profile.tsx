@@ -37,6 +37,7 @@ function ProfilePage() {
   const [stats, setStats] = useState({ posted: 0, applied: 0, contacts: 0 });
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
+  const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
 
   useEffect(() => {
     if (!user) return;
