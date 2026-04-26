@@ -59,18 +59,32 @@ function StoryViewerPage() {
   const recordedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!user) return;
-    void supabase
-      .from("stories")
-      .select("id, user_id, media_url, caption, created_at, expires_at, profiles(full_name, avatar_url)")
-      .eq("user_id", user)
-      .eq("status", "approved")
-      .gt("expires_at", new Date().toISOString())
-      .order("created_at", { ascending: true })
-      .then(({ data }) => {
-        setStories((data as StoryRow[] | null) ?? []);
-      });
-  }, [user]);
+    if (!user || !authUser) return;
+    void (async () => {
+      const { data } = await supabase
+        .from("stories")
+        .select("id, user_id, media_url, caption, created_at, expires_at, profiles(full_name, avatar_url)")
+        .eq("user_id", user)
+        .eq("status", "approved")
+        .gt("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: true });
+
+      const rows = (data as StoryRow[] | null) ?? [];
+      setStories(rows);
+
+      const firstStory = rows[0];
+      if (firstStory && firstStory.user_id !== authUser.id && !recordedRef.current.has(firstStory.id)) {
+        recordedRef.current.add(firstStory.id);
+        const { error } = await supabase
+          .from("story_views")
+          .insert({ story_id: firstStory.id, viewer_id: authUser.id });
+        if (error && error.code !== "23505") {
+          console.error("story_view insert failed", error);
+          recordedRef.current.delete(firstStory.id);
+        }
+      }
+    })();
+  }, [user, authUser]);
 
   // Record view + load viewer count for current story
   useEffect(() => {
@@ -86,7 +100,6 @@ function StoryViewerPage() {
           .from("story_views")
           .insert({ story_id: s.id, viewer_id: authUser.id });
         if (error && error.code !== "23505") {
-          // Allow duplicate-key (already viewed); log others
           console.error("story_view insert failed", error);
           recordedRef.current.delete(s.id);
         }
