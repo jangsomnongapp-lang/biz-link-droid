@@ -5,7 +5,7 @@ export type Lang = "km" | "en";
 type Dict = Record<string, { km: string; en: string }>;
 
 const dict: Dict = {
-  app_name: { km: "ជាងសំណង់", en: "JangSomnong" },
+  app_name: { km: "ជាងសំណង់", en: "BuildHub" },
   tagline: { km: "រកការងារ · រកអ្នកជំនាញ", en: "Find work · Find workers" },
   register: { km: "ចុះឈ្មោះ", en: "Register" },
   have_account: { km: "មានគណនីរួចហើយ", en: "I already have an account" },
