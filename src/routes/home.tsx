@@ -43,6 +43,7 @@ interface StoryRow {
 }
 
 interface StoryGroup {
+  id: string;
   user_id: string;
   full_name: string | null;
   avatar_url: string | null;
