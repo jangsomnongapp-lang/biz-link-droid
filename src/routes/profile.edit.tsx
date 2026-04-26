@@ -42,7 +42,11 @@ function EditProfilePage() {
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [photos, setPhotos] = useState<{ id: string; photo_url: string }[]>([]);
+  const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
+  const [savingPhoto, setSavingPhoto] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const portfolioInputRef = useRef<HTMLInputElement>(null);
 
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -101,7 +105,60 @@ function EditProfilePage() {
       .select("category_id")
       .eq("user_id", user.id)
       .then(({ data }) => setSelected(new Set((data ?? []).map((r) => r.category_id))));
+    void supabase
+      .from("portfolio_photos")
+      .select("id, photo_url")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setPhotos(data ?? []));
   }, [user]);
+
+  async function onPickPortfolioPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      setPendingPhoto(dataUrl);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    }
+  }
+
+  async function savePortfolioPhoto() {
+    if (!user || !pendingPhoto) return;
+    setSavingPhoto(true);
+    try {
+      const { data, error } = await supabase
+        .from("portfolio_photos")
+        .insert({ user_id: user.id, photo_url: pendingPhoto })
+        .select("id, photo_url")
+        .single();
+      if (error) throw error;
+      if (data) setPhotos((p) => [data, ...p]);
+      setPendingPhoto(null);
+      toast.success(lang === "km" ? "បានរក្សាទុករូបថត" : "Photo saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSavingPhoto(false);
+    }
+  }
+
+  async function removePortfolioPhoto(id: string) {
+    const prev = photos;
+    setPhotos((p) => p.filter((x) => x.id !== id));
+    const { error } = await supabase.from("portfolio_photos").delete().eq("id", id);
+    if (error) {
+      setPhotos(prev);
+      toast.error(error.message);
+    }
+  }
 
   async function save() {
     if (!user) return;
