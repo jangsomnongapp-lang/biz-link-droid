@@ -21,12 +21,15 @@ export default function Welcome() {
           {(["km", "en"] as Lang[]).map((l) => (
             <button
               key={l}
+              type="button"
               onClick={() => setLang(l)}
+              aria-pressed={lang === l}
               className={`flex items-center gap-1.5 px-3 py-1.5 transition ${
                 lang === l ? "bg-primary text-primary-foreground" : ""
               }`}
             >
               <span className="text-base leading-none">{l === "km" ? "🇰🇭" : "🇬🇧"}</span>
+              <span>{l === "km" ? "Khmer" : "English"}</span>
             </button>
           ))}
         </div>
