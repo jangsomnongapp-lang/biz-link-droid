@@ -206,6 +206,15 @@ const dict: Dict = {
   reply: { km: "ឆ្លើយតប", en: "Reply" },
   replying_to: { km: "កំពុងឆ្លើយតបទៅ", en: "Replying to" },
   write_reply: { km: "សរសេរការឆ្លើយតប...", en: "Write a reply..." },
+  // finish project
+  mark_finished: { km: "សម្គាល់ថាបានបញ្ចប់", en: "Mark as finished" },
+  finished: { km: "បានបញ្ចប់", en: "Finished" },
+  finish_confirm_title: { km: "បញ្ចប់ការងារនេះ?", en: "Finish this project?" },
+  finish_confirm_desc: {
+    km: "ការងារនេះនឹងត្រូវបានសម្គាល់ថាបញ្ចប់ ហើយនឹងមិនអាចទទួលពាក្យបន្ថែមទៀតទេ។",
+    en: "This project will be marked as finished and won't accept more applications.",
+  },
+  project_finished: { km: "ការងារបានបញ្ចប់", en: "Project finished" },
 };
 
 interface I18nCtx {

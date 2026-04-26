@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/listings/$listingId")({
@@ -24,6 +24,7 @@ interface DetailRow {
   description: string | null;
   budget: number | null;
   location: string | null;
+  status: string;
   created_at: string;
   profiles: { full_name: string | null; avatar_url: string | null } | null;
   listing_categories: { categories: { name_en: string; name_km: string } | null }[];
@@ -46,6 +47,8 @@ function ListingDetailPage() {
   const [loading, setLoading] = useState(true);
   const [applied, setApplied] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+  const [finishing, setFinishing] = useState(false);
   const [postedCount, setPostedCount] = useState(0);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [contactingId, setContactingId] = useState<string | null>(null);
@@ -54,7 +57,7 @@ function ListingDetailPage() {
     void supabase
       .from("listings")
       .select(
-        "id, user_id, title, description, budget, location, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km)), listing_photos(photo_url)"
+        "id, user_id, title, description, budget, location, status, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km)), listing_photos(photo_url)"
       )
       .eq("id", listingId)
       .maybeSingle()
@@ -103,6 +106,23 @@ function ListingDetailPage() {
     }
     setApplied(true);
     toast.success(lang === "km" ? "បានដាក់ពាក្យ" : "Applied!");
+  }
+
+  async function finishProject() {
+    if (!listing) return;
+    setFinishing(true);
+    const { error } = await supabase
+      .from("listings")
+      .update({ status: "finished" })
+      .eq("id", listing.id);
+    setFinishing(false);
+    setShowFinishConfirm(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setListing({ ...listing, status: "finished" });
+    toast.success(t("project_finished"));
   }
 
   async function messageApplicant(applicantId: string) {
@@ -191,7 +211,15 @@ function ListingDetailPage() {
 
         {/* Body */}
         <div className="bg-surface p-4 shadow-card">
-          <h2 className="text-lg font-bold text-foreground">{listing.title}</h2>
+          <div className="flex items-start justify-between gap-2">
+            <h2 className="flex-1 text-lg font-bold text-foreground">{listing.title}</h2>
+            {listing.status === "finished" && (
+              <span className="flex shrink-0 items-center gap-1 rounded-pill bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                {t("finished")}
+              </span>
+            )}
+          </div>
           {listing.description && <p className="mt-2 text-sm leading-relaxed text-foreground">{listing.description}</p>}
         </div>
 
@@ -303,21 +331,69 @@ function ListingDetailPage() {
         </div>
       </div>
 
-      {/* Bottom apply */}
-      {!isOwn && (
+      {/* Bottom apply / finish */}
+      {isOwn ? (
+        listing.status !== "finished" && (
+          <div className="sticky bottom-0 border-t border-border bg-surface p-3">
+            <button
+              onClick={() => setShowFinishConfirm(true)}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-success text-sm font-semibold text-success-foreground active:scale-[0.99]"
+            >
+              <CheckCircle2 className="h-5 w-5" />
+              {t("mark_finished")}
+            </button>
+          </div>
+        )
+      ) : (
         <div className="sticky bottom-0 flex gap-2 border-t border-border bg-surface p-3">
           <button className="flex h-12 flex-1 items-center justify-center rounded-xl border-2 border-primary text-sm font-semibold text-primary active:scale-[0.99]">
             {t("contact")}
           </button>
           <button
-            onClick={() => !applied && setShowConfirm(true)}
-            disabled={applied}
+            onClick={() => !applied && listing.status !== "finished" && setShowConfirm(true)}
+            disabled={applied || listing.status === "finished"}
             className={`flex h-12 flex-[2] items-center justify-center rounded-xl text-sm font-semibold active:scale-[0.99] ${
-              applied ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"
+              applied || listing.status === "finished"
+                ? "bg-muted text-muted-foreground"
+                : "bg-primary text-primary-foreground"
             }`}
           >
-            {applied ? t("applied") : t("apply")}
+            {listing.status === "finished" ? t("finished") : applied ? t("applied") : t("apply")}
           </button>
+        </div>
+      )}
+
+      {/* Finish confirm modal */}
+      {showFinishConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+          onClick={() => setShowFinishConfirm(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-t-2xl bg-surface p-6 sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/10 text-success">
+              <CheckCircle2 className="h-7 w-7" />
+            </div>
+            <h3 className="text-center text-lg font-bold text-foreground">{t("finish_confirm_title")}</h3>
+            <p className="mt-1 text-center text-sm text-muted-foreground">{t("finish_confirm_desc")}</p>
+            <div className="mt-5 flex gap-2">
+              <button
+                onClick={() => setShowFinishConfirm(false)}
+                className="flex h-11 flex-1 items-center justify-center rounded-xl border-2 border-border text-sm font-semibold text-foreground"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={() => void finishProject()}
+                disabled={finishing}
+                className="flex h-11 flex-1 items-center justify-center rounded-xl bg-success text-sm font-semibold text-success-foreground disabled:opacity-50"
+              >
+                {t("confirm")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
