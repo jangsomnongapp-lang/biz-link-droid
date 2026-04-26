@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, MapPin, DollarSign, Plus } from "lucide-react";
+import { ArrowLeft, MapPin, DollarSign, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/listings/new")({
