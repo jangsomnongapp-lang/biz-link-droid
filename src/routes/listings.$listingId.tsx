@@ -108,6 +108,23 @@ function ListingDetailPage() {
     toast.success(lang === "km" ? "បានដាក់ពាក្យ" : "Applied!");
   }
 
+  async function finishProject() {
+    if (!listing) return;
+    setFinishing(true);
+    const { error } = await supabase
+      .from("listings")
+      .update({ status: "finished" })
+      .eq("id", listing.id);
+    setFinishing(false);
+    setShowFinishConfirm(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setListing({ ...listing, status: "finished" });
+    toast.success(t("project_finished"));
+  }
+
   async function messageApplicant(applicantId: string) {
     if (!user) return;
     setContactingId(applicantId);
