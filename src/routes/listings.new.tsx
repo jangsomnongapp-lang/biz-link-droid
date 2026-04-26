@@ -86,6 +86,11 @@ function NewListingPage() {
       if (error) throw error;
       const rows = Array.from(selected).map((cid) => ({ listing_id: data.id, category_id: cid }));
       if (rows.length) await supabase.from("listing_categories").insert(rows);
+      if (photos.length) {
+        await supabase
+          .from("listing_photos")
+          .insert(photos.map((url) => ({ listing_id: data.id, photo_url: url })));
+      }
       toast.success(lang === "km" ? "បានបង្ហោះ!" : "Posted!");
       nav({ to: "/listings" });
     } catch (e) {
