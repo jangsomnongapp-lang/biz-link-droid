@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/listings/$listingId")({
