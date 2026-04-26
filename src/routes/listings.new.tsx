@@ -163,11 +163,29 @@ function NewListingPage() {
 
         <Card>
           <Label optional>{t("photos")}</Label>
+          <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPickFile} />
           <div className="grid grid-cols-3 gap-2">
-            <button className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-muted-foreground active:bg-muted">
+            <button
+              type="button"
+              onClick={() => fileInput.current?.click()}
+              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-muted-foreground active:bg-muted"
+            >
               <Plus className="h-5 w-5" />
               <span className="text-[10px]">{t("add_photo")}</span>
             </button>
+            {photos.map((src, i) => (
+              <div key={i} className="relative aspect-square">
+                <img src={src} className="h-full w-full rounded-lg object-cover" alt="" />
+                <button
+                  type="button"
+                  onClick={() => setPhotos((p) => p.filter((_, j) => j !== i))}
+                  className="absolute right-1 top-1 rounded-full bg-foreground/70 p-0.5 text-background"
+                  aria-label="Remove"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
           </div>
         </Card>
 
