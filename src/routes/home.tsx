@@ -133,6 +133,7 @@ function HomePage() {
         for (const r of rows) {
           if (!map.has(r.user_id)) {
             map.set(r.user_id, {
+              id: r.id,
               user_id: r.user_id,
               full_name: r.profiles?.full_name ?? null,
               avatar_url: r.profiles?.avatar_url ?? null,
@@ -197,6 +198,14 @@ function HomePage() {
     }
   }
 
+  async function recordStoryOpen(storyId: string, ownerId: string) {
+    if (!user || ownerId === user.id) return;
+    const { error } = await supabase
+      .from("story_views")
+      .insert({ story_id: storyId, viewer_id: user.id });
+    if (error && error.code !== "23505") console.error("story_view insert failed", error);
+  }
+
   return (
     <div>
       {/* Quick post */}
@@ -232,6 +241,7 @@ function HomePage() {
             key={s.user_id}
             to="/story/view"
             search={{ user: s.user_id }}
+            onClick={() => void recordStoryOpen(s.id, s.user_id)}
             className="flex w-16 shrink-0 flex-col items-center gap-1.5 active:scale-[0.97]"
           >
             <div className="rounded-full bg-gradient-to-tr from-pink-500 via-orange-400 to-yellow-400 p-[2px]">
