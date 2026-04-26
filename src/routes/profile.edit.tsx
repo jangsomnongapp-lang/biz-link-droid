@@ -41,6 +41,34 @@ function EditProfilePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: dataUrl })
+        .eq("id", user.id);
+      if (error) throw error;
+      setAvatarUrl(dataUrl);
+      toast.success(lang === "km" ? "បានធ្វើបច្ចុប្បន្នភាពរូបភាព" : "Photo updated");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
 
   useEffect(() => {
     if (!user) return;
