@@ -33,7 +33,22 @@ function NewListingPage() {
   const [budget, setBudget] = useState("");
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    setPhotos((p) => [...p, dataUrl]);
+  }
 
   useEffect(() => {
     void supabase
