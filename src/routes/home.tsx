@@ -12,7 +12,7 @@ import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X } from "lu
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/home")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { post?: string } => ({
     post: typeof s.post === "string" ? s.post : undefined,
   }),
   component: () => (

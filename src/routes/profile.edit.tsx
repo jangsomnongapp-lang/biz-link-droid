@@ -5,7 +5,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Camera } from "lucide-react";
+import { ArrowLeft, Camera, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/profile/edit")({
@@ -42,7 +42,11 @@ function EditProfilePage() {
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [photos, setPhotos] = useState<{ id: string; photo_url: string }[]>([]);
+  const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
+  const [savingPhoto, setSavingPhoto] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const portfolioInputRef = useRef<HTMLInputElement>(null);
 
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -101,7 +105,60 @@ function EditProfilePage() {
       .select("category_id")
       .eq("user_id", user.id)
       .then(({ data }) => setSelected(new Set((data ?? []).map((r) => r.category_id))));
+    void supabase
+      .from("portfolio_photos")
+      .select("id, photo_url")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setPhotos(data ?? []));
   }, [user]);
+
+  async function onPickPortfolioPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      setPendingPhoto(dataUrl);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    }
+  }
+
+  async function savePortfolioPhoto() {
+    if (!user || !pendingPhoto) return;
+    setSavingPhoto(true);
+    try {
+      const { data, error } = await supabase
+        .from("portfolio_photos")
+        .insert({ user_id: user.id, photo_url: pendingPhoto })
+        .select("id, photo_url")
+        .single();
+      if (error) throw error;
+      if (data) setPhotos((p) => [data, ...p]);
+      setPendingPhoto(null);
+      toast.success(lang === "km" ? "បានរក្សាទុករូបថត" : "Photo saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSavingPhoto(false);
+    }
+  }
+
+  async function removePortfolioPhoto(id: string) {
+    const prev = photos;
+    setPhotos((p) => p.filter((x) => x.id !== id));
+    const { error } = await supabase.from("portfolio_photos").delete().eq("id", id);
+    if (error) {
+      setPhotos(prev);
+      toast.error(error.message);
+    }
+  }
 
   async function save() {
     if (!user) return;
@@ -252,6 +309,82 @@ function EditProfilePage() {
                   </button>
                 );
               })}
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-center justify-between">
+            <Label>{`${t("portfolio")} (${photos.length})`}</Label>
+            <button
+              type="button"
+              onClick={() => portfolioInputRef.current?.click()}
+              className="text-xs font-semibold text-primary"
+            >
+              {t("add_photos")}
+            </button>
+            <input
+              ref={portfolioInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={onPickPortfolioPhoto}
+            />
+          </div>
+
+          {pendingPhoto && (
+            <div className="rounded-lg border border-border bg-background p-2">
+              <img
+                src={pendingPhoto}
+                alt="Preview"
+                className="mb-2 aspect-square w-full rounded-md object-cover"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => void savePortfolioPhoto()}
+                  disabled={savingPhoto}
+                  className="h-9 flex-1 rounded-lg bg-primary text-xs font-semibold text-primary-foreground disabled:opacity-60"
+                >
+                  {savingPhoto ? t("loading") : t("save_changes")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPendingPhoto(null)}
+                  disabled={savingPhoto}
+                  className="h-9 flex-1 rounded-lg border border-border bg-background text-xs font-semibold text-foreground disabled:opacity-60"
+                >
+                  {lang === "km" ? "បោះបង់" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-3 gap-2">
+            {photos.map((p) => (
+              <div key={p.id} className="relative aspect-square">
+                <img
+                  src={p.photo_url}
+                  alt=""
+                  className="h-full w-full rounded-lg object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => void removePortfolioPhoto(p.id)}
+                  className="absolute right-1 top-1 rounded-full bg-foreground/70 p-0.5 text-background"
+                  aria-label="Remove"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => portfolioInputRef.current?.click()}
+              className="flex aspect-square flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-background text-primary active:scale-[0.98]"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="mt-1 text-[11px] font-medium">{t("add")}</span>
+            </button>
           </div>
         </Card>
       </div>
