@@ -311,6 +311,82 @@ function EditProfilePage() {
               })}
           </div>
         </Card>
+
+        <Card>
+          <div className="flex items-center justify-between">
+            <Label>{`${t("portfolio")} (${photos.length})`}</Label>
+            <button
+              type="button"
+              onClick={() => portfolioInputRef.current?.click()}
+              className="text-xs font-semibold text-primary"
+            >
+              {t("add_photos")}
+            </button>
+            <input
+              ref={portfolioInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={onPickPortfolioPhoto}
+            />
+          </div>
+
+          {pendingPhoto && (
+            <div className="rounded-lg border border-border bg-background p-2">
+              <img
+                src={pendingPhoto}
+                alt="Preview"
+                className="mb-2 aspect-square w-full rounded-md object-cover"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => void savePortfolioPhoto()}
+                  disabled={savingPhoto}
+                  className="h-9 flex-1 rounded-lg bg-primary text-xs font-semibold text-primary-foreground disabled:opacity-60"
+                >
+                  {savingPhoto ? t("loading") : t("save_changes")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPendingPhoto(null)}
+                  disabled={savingPhoto}
+                  className="h-9 flex-1 rounded-lg border border-border bg-background text-xs font-semibold text-foreground disabled:opacity-60"
+                >
+                  {lang === "km" ? "បោះបង់" : "Cancel"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-3 gap-2">
+            {photos.map((p) => (
+              <div key={p.id} className="relative aspect-square">
+                <img
+                  src={p.photo_url}
+                  alt=""
+                  className="h-full w-full rounded-lg object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => void removePortfolioPhoto(p.id)}
+                  className="absolute right-1 top-1 rounded-full bg-foreground/70 p-0.5 text-background"
+                  aria-label="Remove"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => portfolioInputRef.current?.click()}
+              className="flex aspect-square flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-background text-primary active:scale-[0.98]"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="mt-1 text-[11px] font-medium">{t("add")}</span>
+            </button>
+          </div>
+        </Card>
       </div>
 
       <div className="sticky bottom-0 border-t border-border bg-surface p-3">
