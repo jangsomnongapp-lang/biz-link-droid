@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Camera, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/profile")({
   component: () => (
@@ -38,7 +39,34 @@ function ProfilePage() {
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
+  async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result));
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: dataUrl })
+        .eq("id", user.id);
+      if (error) throw error;
+      setProfile((p) => (p ? { ...p, avatar_url: dataUrl } : p));
+      toast.success(lang === "km" ? "បានរក្សាទុក" : "Photo updated");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Upload failed");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
   useEffect(() => {
     if (!user) return;
     void supabase
@@ -117,9 +145,22 @@ function ProfilePage() {
               size={88}
               className="border-4 border-white"
             />
-            <button className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-foreground p-1.5">
+            <button
+              type="button"
+              onClick={() => fileInput.current?.click()}
+              disabled={uploadingAvatar}
+              aria-label={lang === "km" ? "ប្តូររូបថត" : "Change photo"}
+              className="absolute bottom-0 right-0 rounded-full border-2 border-white bg-foreground p-1.5 active:scale-95 disabled:opacity-60"
+            >
               <Camera className="h-3.5 w-3.5 text-primary-foreground" />
             </button>
+            <input
+              ref={fileInput}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onPickAvatar}
+            />
           </div>
           <h1 className="text-xl font-bold">{profile?.full_name ?? "—"}</h1>
           <p className="text-xs text-white/80">{roleLabels.join(" · ") || " "}</p>
