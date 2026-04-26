@@ -218,6 +218,9 @@ const dict: Dict = {
   accept: { km: "ទទួលយក", en: "Accept" },
   accepted: { km: "បានទទួល", en: "Accepted" },
   applicant_accepted: { km: "បានទទួលយកបេក្ខជន", en: "Applicant accepted" },
+  currently_working: { km: "កំពុងធ្វើការ", en: "Currently working on this" },
+  is_doing_it: { km: "កំពុងធ្វើការងារនេះ", en: "Is doing this project" },
+  completed_by: { km: "បានបញ្ចប់ដោយ", en: "Completed by" },
 };
 
 interface I18nCtx {

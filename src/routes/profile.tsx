@@ -186,10 +186,16 @@ function ProfilePage() {
                   className={`shrink-0 rounded-pill px-2.5 py-0.5 text-[10px] font-semibold ${
                     l.status === "active"
                       ? "bg-success/15 text-success"
-                      : "bg-muted text-muted-foreground"
+                      : l.status === "finished"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {l.status === "active" ? t("active") : t("closed")}
+                  {l.status === "active"
+                    ? t("active")
+                    : l.status === "finished"
+                      ? t("finished")
+                      : t("closed")}
                 </span>
               </Link>
             ))}
