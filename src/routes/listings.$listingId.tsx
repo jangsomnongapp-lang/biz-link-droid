@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { ArrowLeft, MapPin, Share2, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/listings/$listingId")({
