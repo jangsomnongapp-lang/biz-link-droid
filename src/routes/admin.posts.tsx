@@ -270,6 +270,7 @@ function AdminPostsPage() {
                 name={p.profiles?.full_name}
                 avatar={p.profiles?.avatar_url}
                 createdAt={p.created_at}
+                status={p.status}
               />
               {p.content && (
                 <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>
