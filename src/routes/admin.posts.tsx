@@ -362,6 +362,7 @@ function AdminPostsPage() {
                 name={s.profiles?.full_name}
                 avatar={s.profiles?.avatar_url}
                 createdAt={s.created_at}
+                status={s.status}
               />
               <div className="mt-3 overflow-hidden rounded-xl bg-black">
                 <img
