@@ -52,6 +52,7 @@ interface PendingListing {
 }
 
 type Tab = "posts" | "stories" | "listings";
+type View = "pending" | "approved";
 type DeleteTarget = { kind: Tab; id: string };
 
 function AdminPostsPage() {
@@ -59,6 +60,7 @@ function AdminPostsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("posts");
+  const [view, setView] = useState<View>("pending");
   const [posts, setPosts] = useState<PendingPost[]>([]);
   const [stories, setStories] = useState<PendingStory[]>([]);
   const [listings, setListings] = useState<PendingListing[]>([]);
