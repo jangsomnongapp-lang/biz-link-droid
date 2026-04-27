@@ -302,6 +302,7 @@ function HomePage() {
                   <div className="text-sm font-semibold text-foreground">{p.profiles?.full_name ?? "User"}</div>
                   <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
                 </Link>
+                {user?.id !== p.user_id && <ReportMenu targetKind="post" targetId={p.id} />}
               </header>
               {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
               {p.post_photos[0] && (
