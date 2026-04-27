@@ -279,11 +279,27 @@ function ConversationPage() {
         <Link to="/messages" className="rounded-full p-2 active:bg-white/10">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <Avatar name={other?.full_name} url={other?.avatar_url} size={36} />
-        <div className="flex-1 min-w-0">
-          <div className="truncate text-sm font-semibold">{other?.full_name ?? "—"}</div>
-          <div className="text-[11px] text-white/80">{t("online")}</div>
-        </div>
+        {other?.id ? (
+          <Link
+            to="/users/$userId"
+            params={{ userId: other.id }}
+            className="flex flex-1 min-w-0 items-center gap-2 rounded-lg p-1 -m-1 active:bg-white/10"
+          >
+            <Avatar name={other?.full_name} url={other?.avatar_url} size={36} />
+            <div className="flex-1 min-w-0">
+              <div className="truncate text-sm font-semibold">{other?.full_name ?? "—"}</div>
+              <div className="text-[11px] text-white/80">{t("online")}</div>
+            </div>
+          </Link>
+        ) : (
+          <div className="flex flex-1 min-w-0 items-center gap-2">
+            <Avatar name={other?.full_name} url={other?.avatar_url} size={36} />
+            <div className="flex-1 min-w-0">
+              <div className="truncate text-sm font-semibold">{other?.full_name ?? "—"}</div>
+              <div className="text-[11px] text-white/80">{t("online")}</div>
+            </div>
+          </div>
+        )}
         <button className="rounded-full p-2 active:bg-white/10" aria-label="More">
           <MoreHorizontal className="h-5 w-5" />
         </button>
