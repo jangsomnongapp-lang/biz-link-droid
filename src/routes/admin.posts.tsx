@@ -231,6 +231,23 @@ function AdminPostsPage() {
         })}
       </div>
 
+      {/* View toggle: Pending / Approved */}
+      <div className="flex gap-2 px-3 pt-3">
+        {(["pending", "approved"] as View[]).map((v) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={`flex-1 rounded-pill py-2 text-xs font-semibold transition-colors ${
+              view === v
+                ? "bg-primary text-primary-foreground"
+                : "bg-surface text-muted-foreground border border-border"
+            }`}
+          >
+            {v === "pending" ? t("pending") : t("approved")}
+          </button>
+        ))}
+      </div>
+
       <div className="flex-1 space-y-2 px-3 pt-3">
         {loading && (
           <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>
