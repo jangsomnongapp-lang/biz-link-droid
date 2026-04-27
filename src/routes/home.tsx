@@ -306,6 +306,7 @@ function HomePage() {
               {p.post_photos[0] && (
                 <img src={p.post_photos[0].photo_url} className="mt-3 w-full rounded-lg object-cover" alt="" />
               )}
+              {p.video_url && <VideoEmbed url={p.video_url} />}
 
               {(l.count > 0 || cc > 0) && (
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
