@@ -450,12 +450,15 @@ function ItemHeader({
   name,
   avatar,
   createdAt,
+  status,
 }: {
   name: string | null | undefined;
   avatar: string | null | undefined;
   createdAt: string;
+  status?: string;
 }) {
   const { t } = useI18n();
+  const isApproved = status === "approved" || status === "active";
   return (
     <header className="flex items-center gap-3">
       <Avatar name={name} url={avatar} size={36} />
@@ -465,8 +468,12 @@ function ItemHeader({
           {t("submitted_ago")} {timeAgo(createdAt, t)}
         </div>
       </div>
-      <span className="rounded-pill bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-700">
-        {t("pending")}
+      <span
+        className={`rounded-pill px-2.5 py-0.5 text-[10px] font-bold ${
+          isApproved ? "bg-success/15 text-success" : "bg-amber-100 text-amber-700"
+        }`}
+      >
+        {isApproved ? t("approved") : t("pending")}
       </span>
     </header>
   );
@@ -477,12 +484,26 @@ function DecisionFooter({
   onReject,
   onDelete,
   t,
+  approvedOnly,
 }: {
   onApprove: () => void;
   onReject: () => void;
   onDelete: () => void;
   t: ReturnType<typeof useI18n>["t"];
+  approvedOnly?: boolean;
 }) {
+  if (approvedOnly) {
+    return (
+      <footer className="mt-3">
+        <button
+          onClick={onDelete}
+          className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-destructive text-sm font-semibold text-destructive-foreground active:scale-[0.99]"
+        >
+          <X className="h-4 w-4" /> {t("delete")}
+        </button>
+      </footer>
+    );
+  }
   return (
     <footer className="mt-3 grid grid-cols-3 gap-2">
       <button
