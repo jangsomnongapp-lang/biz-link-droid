@@ -92,31 +92,34 @@ function AdminPostsPage() {
     if (!isAdmin) return;
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin]);
+  }, [isAdmin, view]);
 
   async function load() {
     setLoading(true);
+    const postStatuses = view === "pending" ? ["pending"] : ["approved"];
+    const storyStatuses = view === "pending" ? ["pending"] : ["approved"];
+    const listingStatuses = view === "pending" ? ["pending"] : ["active"];
     const [postsResult, storiesResult, listingsResult] = await Promise.all([
       supabase
         .from("posts")
         .select(
           "id, user_id, content, video_url, created_at, status, profiles(full_name, avatar_url), post_photos(photo_url)",
         )
-        .eq("status", "pending")
+        .in("status", postStatuses)
         .order("created_at", { ascending: false }),
       supabase
         .from("stories")
         .select(
           "id, user_id, media_url, caption, created_at, status, profiles(full_name, avatar_url)",
         )
-        .eq("status", "pending")
+        .in("status", storyStatuses)
         .order("created_at", { ascending: false }),
       supabase
         .from("listings")
         .select(
           "id, user_id, title, description, budget, location, created_at, status, profiles(full_name, avatar_url), listing_photos(photo_url)",
         )
-        .in("status", ["pending", "active"])
+        .in("status", listingStatuses)
         .order("created_at", { ascending: false }),
     ]);
     const nextPosts = (postsResult.data as PendingPost[] | null) ?? [];
@@ -125,7 +128,7 @@ function AdminPostsPage() {
     setPosts(nextPosts);
     setStories(nextStories);
     setListings(nextListings);
-    if (nextPosts.length === 0) {
+    if (view === "pending" && nextPosts.length === 0) {
       if (nextListings.length > 0) setTab("listings");
       else if (nextStories.length > 0) setTab("stories");
     }
