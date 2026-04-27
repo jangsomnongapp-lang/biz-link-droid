@@ -114,7 +114,7 @@ function AdminPostsPage() {
         .select(
           "id, user_id, title, description, budget, location, created_at, status, profiles(full_name, avatar_url), listing_photos(photo_url)",
         )
-        .eq("status", "pending")
+        .in("status", ["pending", "active"])
         .order("created_at", { ascending: false }),
     ]);
     const nextPosts = (postsResult.data as PendingPost[] | null) ?? [];
