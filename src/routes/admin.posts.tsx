@@ -303,6 +303,7 @@ function AdminPostsPage() {
                 onReject={() => void decide("posts", p.id, "rejected")}
                 onDelete={() => openDelete("posts", p.id)}
                 t={t}
+                approvedOnly={view === "approved"}
               />
             </article>
           ))}
