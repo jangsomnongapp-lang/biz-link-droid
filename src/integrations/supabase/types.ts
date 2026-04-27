@@ -187,6 +187,7 @@ export type Database = {
           description: string | null
           id: string
           location: string | null
+          rejected_at: string | null
           status: string
           title: string
           updated_at: string
@@ -198,6 +199,7 @@ export type Database = {
           description?: string | null
           id?: string
           location?: string | null
+          rejected_at?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -209,6 +211,7 @@ export type Database = {
           description?: string | null
           id?: string
           location?: string | null
+          rejected_at?: string | null
           status?: string
           title?: string
           updated_at?: string
