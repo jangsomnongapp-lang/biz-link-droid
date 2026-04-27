@@ -209,6 +209,9 @@ function ListingDetailPage() {
         >
           <Share2 className="h-5 w-5" />
         </button>
+        {!isOwn && (
+          <ReportMenu targetKind="listing" targetId={listing.id} iconClassName="text-primary-foreground" />
+        )}
       </header>
 
       <div className="flex-1 space-y-2 pb-24">
