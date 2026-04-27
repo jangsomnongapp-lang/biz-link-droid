@@ -315,6 +315,7 @@ function AdminPostsPage() {
                 name={l.profiles?.full_name}
                 avatar={l.profiles?.avatar_url}
                 createdAt={l.created_at}
+                status={l.status}
               />
               <h3 className="mt-2 text-base font-semibold text-foreground">{l.title}</h3>
               {l.description && (
