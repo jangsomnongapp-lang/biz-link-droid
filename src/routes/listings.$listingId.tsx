@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
+import { ReportMenu } from "@/components/ReportMenu";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -208,6 +209,9 @@ function ListingDetailPage() {
         >
           <Share2 className="h-5 w-5" />
         </button>
+        {!isOwn && (
+          <ReportMenu targetKind="listing" targetId={listing.id} iconClassName="text-primary-foreground" />
+        )}
       </header>
 
       <div className="flex-1 space-y-2 pb-24">

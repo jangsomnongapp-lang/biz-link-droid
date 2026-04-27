@@ -234,6 +234,27 @@ const dict: Dict = {
     en: "Are you sure you want to delete this project? This action cannot be undone.",
   },
   deleted: { km: "បានលុប", en: "Deleted" },
+  more: { km: "ច្រើនទៀត", en: "More" },
+  report: { km: "រាយការណ៍", en: "Report" },
+  report_desc: {
+    km: "ប្រាប់យើងពីមូលហេតុដែលអ្នករាយការណ៍។ អ្នកគ្រប់គ្រងនឹងពិនិត្យ។",
+    en: "Tell us why you're reporting this. An admin will review it.",
+  },
+  report_reason_ph: { km: "មូលហេតុ (ស្រេចចិត្ត)...", en: "Reason (optional)..." },
+  send_report: { km: "ផ្ញើរាយការណ៍", en: "Send report" },
+  report_sent: { km: "បានផ្ញើរាយការណ៍", en: "Report sent" },
+  reports: { km: "របាយការណ៍", en: "Reports" },
+  review_reports: { km: "ពិនិត្យរបាយការណ៍", en: "Review reports" },
+  no_reports: { km: "គ្មានរបាយការណ៍", en: "No reports" },
+  resolve: { km: "ដោះស្រាយ", en: "Resolve" },
+  dismiss: { km: "បោះបង់", en: "Dismiss" },
+  open_status: { km: "បើក", en: "Open" },
+  resolved: { km: "បានដោះស្រាយ", en: "Resolved" },
+  dismissed: { km: "បានបោះបង់", en: "Dismissed" },
+  reported_post: { km: "ការបង្ហោះ", en: "Post" },
+  reported_listing: { km: "ការងារ", en: "Project" },
+  reported_profile: { km: "គណនី", en: "Profile" },
+  view: { km: "មើល", en: "View" },
 };
 
 interface I18nCtx {

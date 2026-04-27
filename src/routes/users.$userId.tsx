@@ -2,10 +2,11 @@ import { createFileRoute, Link, useParams, useNavigate } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
+import { ReportMenu } from "@/components/ReportMenu";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, MoreHorizontal } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/users/$userId")({
@@ -117,9 +118,9 @@ function UserProfilePage() {
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="flex-1 text-center text-base font-semibold truncate">{profile.full_name ?? "—"}</h1>
-        <button className="rounded-full p-2 active:bg-white/10" aria-label="More">
-          <MoreHorizontal className="h-5 w-5" />
-        </button>
+        {!isSelf && (
+          <ReportMenu targetKind="profile" targetId={profile.id} iconClassName="text-primary-foreground" />
+        )}
       </header>
 
       <div className="bg-primary px-5 pb-6 pt-3 text-primary-foreground">

@@ -28,6 +28,7 @@ import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
 import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 
 const SettingsRoute = SettingsRouteImport.update({
@@ -125,6 +126,11 @@ const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
   path: '/listings/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/admin/reports',
+  path: '/admin/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPostsRoute = AdminPostsRouteImport.update({
   id: '/admin/posts',
   path: '/admin/posts',
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/admin/posts'
+    | '/admin/reports'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -233,6 +243,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/admin/posts'
+    | '/admin/reports'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -255,6 +266,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/admin/posts'
+    | '/admin/reports'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -278,6 +290,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   AdminPostsRoute: typeof AdminPostsRoute
+  AdminReportsRoute: typeof AdminReportsRoute
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
@@ -423,6 +436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/posts': {
       id: '/admin/posts'
       path: '/admin/posts'
@@ -457,6 +477,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   AdminPostsRoute: AdminPostsRoute,
+  AdminReportsRoute: AdminReportsRoute,
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
