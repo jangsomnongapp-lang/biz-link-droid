@@ -306,6 +306,7 @@ function HomePage() {
               {p.post_photos[0] && (
                 <img src={p.post_photos[0].photo_url} className="mt-3 w-full rounded-lg object-cover" alt="" />
               )}
+              {p.video_url && <VideoEmbed url={p.video_url} />}
 
               {(l.count > 0 || cc > 0) && (
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
@@ -368,5 +369,51 @@ function HomePage() {
         />
       )}
     </div>
+  );
+}
+
+function VideoEmbed({ url }: { url: string }) {
+  const trimmed = url.trim();
+  let embed: string | null = null;
+  try {
+    const u = new URL(trimmed);
+    const host = u.hostname.replace(/^www\./, "");
+    if (host === "youtube.com" || host === "m.youtube.com") {
+      const v = u.searchParams.get("v");
+      if (v) embed = `https://www.youtube.com/embed/${v}`;
+      else if (u.pathname.startsWith("/shorts/"))
+        embed = `https://www.youtube.com/embed/${u.pathname.split("/")[2]}`;
+    } else if (host === "youtu.be") {
+      embed = `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    } else if (host === "vimeo.com") {
+      const id = u.pathname.split("/").filter(Boolean)[0];
+      if (id) embed = `https://player.vimeo.com/video/${id}`;
+    }
+  } catch {
+    // not a valid URL; fall through to link
+  }
+
+  if (embed) {
+    return (
+      <div className="mt-3 aspect-video overflow-hidden rounded-lg bg-black">
+        <iframe
+          src={embed}
+          className="h-full w-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={trimmed}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-3 block truncate rounded-lg border border-border bg-background px-3 py-2 text-sm text-primary underline"
+    >
+      {trimmed}
+    </a>
   );
 }
