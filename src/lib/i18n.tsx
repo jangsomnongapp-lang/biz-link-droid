@@ -221,6 +221,19 @@ const dict: Dict = {
   currently_working: { km: "កំពុងធ្វើការ", en: "Currently working on this" },
   is_doing_it: { km: "កំពុងធ្វើការងារនេះ", en: "Is doing this project" },
   completed_by: { km: "បានបញ្ចប់ដោយ", en: "Completed by" },
+  // listings review
+  tab_listings: { km: "ការងារ", en: "Projects" },
+  review_listings: { km: "ពិនិត្យការងារ", en: "Review projects" },
+  listing_review_notice: {
+    km: "ការងាររបស់អ្នកនឹងត្រូវពិនិត្យមុនចេញផ្សាយ។ ជាធម្មតាវាចំណាយពេលពីរបីម៉ោង។",
+    en: "Your project will be reviewed before it goes live. This usually takes a few hours.",
+  },
+  delete: { km: "លុប", en: "Delete" },
+  delete_confirm_desc: {
+    km: "តើអ្នកប្រាកដទេថាចង់លុបការងារនេះ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
+    en: "Are you sure you want to delete this project? This action cannot be undone.",
+  },
+  deleted: { km: "បានលុប", en: "Deleted" },
 };
 
 interface I18nCtx {

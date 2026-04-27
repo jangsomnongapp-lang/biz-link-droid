@@ -79,7 +79,7 @@ function NewListingPage() {
           description: description.trim() || null,
           location: location.trim() || null,
           budget: budget ? Number(budget) : null,
-          status: "active",
+          status: "pending",
         })
         .select("id")
         .single();
@@ -91,7 +91,7 @@ function NewListingPage() {
           .from("listing_photos")
           .insert(photos.map((url) => ({ listing_id: data.id, photo_url: url })));
       }
-      toast.success(lang === "km" ? "បានបង្ហោះ!" : "Posted!");
+      toast.success(t("submit_review"));
       nav({ to: "/listings" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
