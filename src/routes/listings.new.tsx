@@ -219,12 +219,15 @@ function NewListingPage() {
       </div>
 
       <div className="sticky bottom-0 border-t border-border bg-surface p-3">
+        <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800">
+          {t("listing_review_notice")}
+        </p>
         <button
           onClick={submit}
           disabled={submitting}
           className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99] disabled:opacity-60"
         >
-          {submitting ? t("loading") : t("post_listing")}
+          {submitting ? t("loading") : t("submit_review")}
         </button>
       </div>
     </div>
