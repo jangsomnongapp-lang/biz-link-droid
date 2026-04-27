@@ -144,6 +144,13 @@ function SettingsPage() {
             iconColor="text-rose-600"
             label={t("review_posts")}
           />
+          <Row
+            to="/admin/reports"
+            icon={Flag}
+            iconBg="bg-amber-100"
+            iconColor="text-amber-600"
+            label={t("review_reports")}
+          />
         </Group>
       )}
 
