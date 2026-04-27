@@ -52,6 +52,7 @@ interface PendingListing {
 }
 
 type Tab = "posts" | "stories" | "listings";
+type View = "pending" | "approved";
 type DeleteTarget = { kind: Tab; id: string };
 
 function AdminPostsPage() {
@@ -59,6 +60,7 @@ function AdminPostsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("posts");
+  const [view, setView] = useState<View>("pending");
   const [posts, setPosts] = useState<PendingPost[]>([]);
   const [stories, setStories] = useState<PendingStory[]>([]);
   const [listings, setListings] = useState<PendingListing[]>([]);
@@ -90,31 +92,34 @@ function AdminPostsPage() {
     if (!isAdmin) return;
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin]);
+  }, [isAdmin, view]);
 
   async function load() {
     setLoading(true);
+    const postStatuses = view === "pending" ? ["pending"] : ["approved"];
+    const storyStatuses = view === "pending" ? ["pending"] : ["approved"];
+    const listingStatuses = view === "pending" ? ["pending"] : ["active"];
     const [postsResult, storiesResult, listingsResult] = await Promise.all([
       supabase
         .from("posts")
         .select(
           "id, user_id, content, video_url, created_at, status, profiles(full_name, avatar_url), post_photos(photo_url)",
         )
-        .eq("status", "pending")
+        .in("status", postStatuses)
         .order("created_at", { ascending: false }),
       supabase
         .from("stories")
         .select(
           "id, user_id, media_url, caption, created_at, status, profiles(full_name, avatar_url)",
         )
-        .eq("status", "pending")
+        .in("status", storyStatuses)
         .order("created_at", { ascending: false }),
       supabase
         .from("listings")
         .select(
           "id, user_id, title, description, budget, location, created_at, status, profiles(full_name, avatar_url), listing_photos(photo_url)",
         )
-        .in("status", ["pending", "active"])
+        .in("status", listingStatuses)
         .order("created_at", { ascending: false }),
     ]);
     const nextPosts = (postsResult.data as PendingPost[] | null) ?? [];
@@ -123,7 +128,7 @@ function AdminPostsPage() {
     setPosts(nextPosts);
     setStories(nextStories);
     setListings(nextListings);
-    if (nextPosts.length === 0) {
+    if (view === "pending" && nextPosts.length === 0) {
       if (nextListings.length > 0) setTab("listings");
       else if (nextStories.length > 0) setTab("stories");
     }
@@ -226,6 +231,23 @@ function AdminPostsPage() {
         })}
       </div>
 
+      {/* View toggle: Pending / Approved */}
+      <div className="flex gap-2 px-3 pt-3">
+        {(["pending", "approved"] as View[]).map((v) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={`flex-1 rounded-pill py-2 text-xs font-semibold transition-colors ${
+              view === v
+                ? "bg-primary text-primary-foreground"
+                : "bg-surface text-muted-foreground border border-border"
+            }`}
+          >
+            {v === "pending" ? t("pending") : t("approved")}
+          </button>
+        ))}
+      </div>
+
       <div className="flex-1 space-y-2 px-3 pt-3">
         {loading && (
           <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>
@@ -248,6 +270,7 @@ function AdminPostsPage() {
                 name={p.profiles?.full_name}
                 avatar={p.profiles?.avatar_url}
                 createdAt={p.created_at}
+                status={p.status}
               />
               {p.content && (
                 <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>
@@ -280,6 +303,7 @@ function AdminPostsPage() {
                 onReject={() => void decide("posts", p.id, "rejected")}
                 onDelete={() => openDelete("posts", p.id)}
                 t={t}
+                approvedOnly={view === "approved"}
               />
             </article>
           ))}
@@ -291,6 +315,7 @@ function AdminPostsPage() {
                 name={l.profiles?.full_name}
                 avatar={l.profiles?.avatar_url}
                 createdAt={l.created_at}
+                status={l.status}
               />
               <h3 className="mt-2 text-base font-semibold text-foreground">{l.title}</h3>
               {l.description && (
@@ -325,6 +350,7 @@ function AdminPostsPage() {
                 onReject={() => void decide("listings", l.id, "rejected")}
                 onDelete={() => openDelete("listings", l.id)}
                 t={t}
+                approvedOnly={view === "approved"}
               />
             </article>
           ))}
@@ -336,6 +362,7 @@ function AdminPostsPage() {
                 name={s.profiles?.full_name}
                 avatar={s.profiles?.avatar_url}
                 createdAt={s.created_at}
+                status={s.status}
               />
               <div className="mt-3 overflow-hidden rounded-xl bg-black">
                 <img
@@ -352,6 +379,7 @@ function AdminPostsPage() {
                 onReject={() => void decide("stories", s.id, "rejected")}
                 onDelete={() => openDelete("stories", s.id)}
                 t={t}
+                approvedOnly={view === "approved"}
               />
             </article>
           ))}
@@ -428,12 +456,15 @@ function ItemHeader({
   name,
   avatar,
   createdAt,
+  status,
 }: {
   name: string | null | undefined;
   avatar: string | null | undefined;
   createdAt: string;
+  status?: string;
 }) {
   const { t } = useI18n();
+  const isApproved = status === "approved" || status === "active";
   return (
     <header className="flex items-center gap-3">
       <Avatar name={name} url={avatar} size={36} />
@@ -443,8 +474,12 @@ function ItemHeader({
           {t("submitted_ago")} {timeAgo(createdAt, t)}
         </div>
       </div>
-      <span className="rounded-pill bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-700">
-        {t("pending")}
+      <span
+        className={`rounded-pill px-2.5 py-0.5 text-[10px] font-bold ${
+          isApproved ? "bg-success/15 text-success" : "bg-amber-100 text-amber-700"
+        }`}
+      >
+        {isApproved ? t("approved") : t("pending")}
       </span>
     </header>
   );
@@ -455,12 +490,26 @@ function DecisionFooter({
   onReject,
   onDelete,
   t,
+  approvedOnly,
 }: {
   onApprove: () => void;
   onReject: () => void;
   onDelete: () => void;
   t: ReturnType<typeof useI18n>["t"];
+  approvedOnly?: boolean;
 }) {
+  if (approvedOnly) {
+    return (
+      <footer className="mt-3">
+        <button
+          onClick={onDelete}
+          className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-destructive text-sm font-semibold text-destructive-foreground active:scale-[0.99]"
+        >
+          <X className="h-4 w-4" /> {t("delete")}
+        </button>
+      </footer>
+    );
+  }
   return (
     <footer className="mt-3 grid grid-cols-3 gap-2">
       <button
