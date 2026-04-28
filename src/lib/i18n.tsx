@@ -255,6 +255,20 @@ const dict: Dict = {
   reported_listing: { km: "ការងារ", en: "Project" },
   reported_profile: { km: "គណនី", en: "Profile" },
   view: { km: "មើល", en: "View" },
+  report_problem_title: { km: "រាយការណ៍បញ្ហា", en: "Report a problem" },
+  report_problem_desc: {
+    km: "ពិពណ៌នាពីបញ្ហាដែលអ្នកជួបប្រទះ។ ក្រុមការងាររបស់យើងនឹងពិនិត្យ។",
+    en: "Describe the problem you're experiencing. Our team will review it.",
+  },
+  report_category: { km: "ប្រភេទបញ្ហា", en: "Problem type" },
+  report_cat_bug: { km: "កំហុសកម្មវិធី", en: "App bug" },
+  report_cat_account: { km: "បញ្ហាគណនី", en: "Account issue" },
+  report_cat_payment: { km: "ការទូទាត់", en: "Payment" },
+  report_cat_abuse: { km: "ការរំលោភបំពាន", en: "Abuse / safety" },
+  report_cat_other: { km: "ផ្សេងៗ", en: "Other" },
+  report_details: { km: "ព័ត៌មានលម្អិត", en: "Details" },
+  report_details_ph: { km: "ពន្យល់បន្ថែម...", en: "Tell us more..." },
+  submit: { km: "ផ្ញើ", en: "Submit" },
 };
 
 interface I18nCtx {
