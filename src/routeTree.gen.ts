@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as ReportRouteImport } from './routes/report'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
@@ -39,6 +40,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportRoute = ReportRouteImport.update({
+  id: '/report',
+  path: '/report',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
+  '/report': typeof ReportRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
+  '/report': typeof ReportRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
+  '/report': typeof ReportRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/report'
     | '/search'
     | '/settings'
     | '/admin/posts'
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/report'
     | '/search'
     | '/settings'
     | '/admin/posts'
@@ -263,6 +274,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/register'
+    | '/report'
     | '/search'
     | '/settings'
     | '/admin/posts'
@@ -287,6 +299,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   RegisterRoute: typeof RegisterRoute
+  ReportRoute: typeof ReportRoute
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   AdminPostsRoute: typeof AdminPostsRoute
@@ -315,6 +328,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report': {
+      id: '/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -474,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRouteWithChildren,
   RegisterRoute: RegisterRoute,
+  ReportRoute: ReportRoute,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   AdminPostsRoute: AdminPostsRoute,

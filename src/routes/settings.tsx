@@ -157,7 +157,7 @@ function SettingsPage() {
       {/* Support */}
       <Group title={t("support")}>
         <Row icon={HelpCircle} iconBg="bg-sky-100" iconColor="text-sky-600" label={t("help_faq")} />
-        <Row icon={Flag} iconBg="bg-rose-100" iconColor="text-rose-600" label={t("report_problem")} />
+        <Row to="/report" icon={Flag} iconBg="bg-rose-100" iconColor="text-rose-600" label={t("report_problem")} />
         <Row icon={FileText} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("terms")} />
         <Row icon={ShieldAlert} iconBg="bg-amber-100" iconColor="text-amber-600" label={t("privacy")} />
       </Group>
