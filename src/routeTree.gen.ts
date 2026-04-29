@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ReportRouteImport } from './routes/report'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
@@ -45,6 +48,21 @@ const SearchRoute = SearchRouteImport.update({
 const ReportRoute = ReportRouteImport.update({
   id: '/report',
   path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -152,6 +170,9 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
+  '/terms': typeof TermsRoute
+  '/privacy': typeof PrivacyRoute
+  '/help': typeof HelpRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
@@ -176,6 +197,9 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
+  '/terms': typeof TermsRoute
+  '/privacy': typeof PrivacyRoute
+  '/help': typeof HelpRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
@@ -201,6 +225,9 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
+  '/terms': typeof TermsRoute
+  '/privacy': typeof PrivacyRoute
+  '/help': typeof HelpRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/admin/posts': typeof AdminPostsRoute
@@ -227,6 +254,9 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/report'
+    | '/terms'
+    | '/privacy'
+    | '/help'
     | '/search'
     | '/settings'
     | '/admin/posts'
@@ -251,6 +281,9 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/report'
+    | '/terms'
+    | '/privacy'
+    | '/help'
     | '/search'
     | '/settings'
     | '/admin/posts'
@@ -275,6 +308,9 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/report'
+    | '/terms'
+    | '/privacy'
+    | '/help'
     | '/search'
     | '/settings'
     | '/admin/posts'
@@ -300,6 +336,9 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   ReportRoute: typeof ReportRoute
+  TermsRoute: typeof TermsRoute
+  PrivacyRoute: typeof PrivacyRoute
+  HelpRoute: typeof HelpRoute
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   AdminPostsRoute: typeof AdminPostsRoute
@@ -335,6 +374,27 @@ declare module '@tanstack/react-router' {
       path: '/report'
       fullPath: '/report'
       preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -495,6 +555,9 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRouteWithChildren,
   RegisterRoute: RegisterRoute,
   ReportRoute: ReportRoute,
+  TermsRoute: TermsRoute,
+  PrivacyRoute: PrivacyRoute,
+  HelpRoute: HelpRoute,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   AdminPostsRoute: AdminPostsRoute,
