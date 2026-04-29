@@ -96,7 +96,7 @@ function SettingsPage() {
       </header>
 
       {/* Discover */}
-      <Group title={t("discover" as never) || "Discover"}>
+      <Group title={t("find_worker")}>
         <Row to="/find-worker" icon={HardHat} iconBg="bg-indigo-100" iconColor="text-indigo-600" label={t("find_worker")} />
       </Group>
 
