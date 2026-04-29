@@ -269,6 +269,12 @@ const dict: Dict = {
   report_details: { km: "ព័ត៌មានលម្អិត", en: "Details" },
   report_details_ph: { km: "ពន្យល់បន្ថែម...", en: "Tell us more..." },
   submit: { km: "ផ្ញើ", en: "Submit" },
+  // find worker
+  find_worker: { km: "រកអ្នកជំនាញ", en: "Find a worker" },
+  find_worker_search_ph: { km: "ស្វែងរកតាមឈ្មោះ ឬជំនាញ...", en: "Search by name or skill..." },
+  all: { km: "ទាំងអស់", en: "All" },
+  workers_found: { km: "{n} អ្នកជំនាញ", en: "{n} workers" },
+  no_workers_found: { km: "រកមិនឃើញអ្នកជំនាញទេ", en: "No workers found" },
 };
 
 interface I18nCtx {

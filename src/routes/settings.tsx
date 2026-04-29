@@ -19,6 +19,7 @@ import {
   FileText,
   ShieldCheck,
   ShieldAlert,
+  HardHat,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
@@ -93,6 +94,11 @@ function SettingsPage() {
           <ChevronRight className="h-5 w-5 text-white/80" />
         </Link>
       </header>
+
+      {/* Discover */}
+      <Group title={t("find_worker")}>
+        <Row to="/find-worker" icon={HardHat} iconBg="bg-indigo-100" iconColor="text-indigo-600" label={t("find_worker")} />
+      </Group>
 
       {/* My Account */}
       <Group title={t("my_account")}>

@@ -19,6 +19,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as FindWorkerRouteImport } from './routes/find-worker'
 import { Route as AnnounceRouteImport } from './routes/announce'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
@@ -83,6 +84,11 @@ const HomeRoute = HomeRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindWorkerRoute = FindWorkerRouteImport.update({
+  id: '/find-worker',
+  path: '/find-worker',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnnounceRoute = AnnounceRouteImport.update({
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/find-worker': typeof FindWorkerRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/find-worker': typeof FindWorkerRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/find-worker': typeof FindWorkerRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/announce'
+    | '/find-worker'
     | '/help'
     | '/home'
     | '/login'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/announce'
+    | '/find-worker'
     | '/help'
     | '/home'
     | '/login'
@@ -303,6 +314,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/announce'
+    | '/find-worker'
     | '/help'
     | '/home'
     | '/login'
@@ -331,6 +343,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AnnounceRoute: typeof AnnounceRoute
+  FindWorkerRoute: typeof FindWorkerRoute
   HelpRoute: typeof HelpRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
@@ -423,6 +436,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find-worker': {
+      id: '/find-worker'
+      path: '/find-worker'
+      fullPath: '/find-worker'
+      preLoaderRoute: typeof FindWorkerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/announce': {
@@ -550,6 +570,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AnnounceRoute: AnnounceRoute,
+  FindWorkerRoute: FindWorkerRoute,
   HelpRoute: HelpRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
