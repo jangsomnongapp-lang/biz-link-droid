@@ -300,7 +300,7 @@ const dict: Dict = {
   // admin invitations
   admin_invitations: { km: "Admin — ការអញ្ជើញ", en: "Admin — Invitations" },
   admin_only: { km: "សម្រាប់តែអ្នកគ្រប់គ្រង", en: "Admins only" },
-  pending: { km: "កំពុងរង់ចាំ", en: "pending" },
+  pending_label: { km: "កំពុងរង់ចាំ", en: "pending" },
   period_month: { km: "ខែនេះ", en: "This month" },
   period_prev: { km: "ខែមុន", en: "Last month" },
   period_all: { km: "ទាំងអស់", en: "All time" },
