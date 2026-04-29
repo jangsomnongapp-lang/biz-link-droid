@@ -273,7 +273,6 @@ const dict: Dict = {
   find_worker: { km: "រកអ្នកជំនាញ", en: "Find a worker" },
   find_worker_search_ph: { km: "ស្វែងរកតាមឈ្មោះ ឬជំនាញ...", en: "Search by name or skill..." },
   all: { km: "ទាំងអស់", en: "All" },
-  loading: { km: "កំពុងផ្ទុក...", en: "Loading..." },
   workers_found: { km: "{n} អ្នកជំនាញ", en: "{n} workers" },
   no_workers_found: { km: "រកមិនឃើញអ្នកជំនាញទេ", en: "No workers found" },
 };
