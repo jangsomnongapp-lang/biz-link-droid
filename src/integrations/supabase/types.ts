@@ -118,6 +118,99 @@ export type Database = {
           },
         ]
       }
+      invite_clicks: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          inviter_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          inviter_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          inviter_id?: string
+        }
+        Relationships: []
+      }
+      invite_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      invite_joins: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          invitee_id: string
+          inviter_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          invitee_id: string
+          inviter_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          invitee_id?: string
+          inviter_id?: string
+        }
+        Relationships: []
+      }
+      invite_rewards: {
+        Row: {
+          created_at: string
+          id: string
+          sent_at: string | null
+          status: string
+          tier: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sent_at?: string | null
+          status?: string
+          tier: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sent_at?: string | null
+          status?: string
+          tier?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       listing_categories: {
         Row: {
           category_id: string
