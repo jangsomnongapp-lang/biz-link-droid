@@ -160,6 +160,13 @@ function SettingsPage() {
             iconColor="text-amber-600"
             label={t("review_reports")}
           />
+          <Row
+            to="/admin/invitations"
+            icon={Trophy}
+            iconBg="bg-violet-100"
+            iconColor="text-violet-600"
+            label={t("admin_invitations")}
+          />
         </Group>
       )}
 
