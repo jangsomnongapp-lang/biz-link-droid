@@ -20,6 +20,8 @@ import {
   ShieldCheck,
   ShieldAlert,
   HardHat,
+  Users,
+  Trophy,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
