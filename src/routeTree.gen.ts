@@ -37,6 +37,9 @@ import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPostsRouteImport } from './routes/admin.posts'
+import { Route as InvitationsRouteImport } from './routes/invitations'
+import { Route as JoinRouteImport } from './routes/join'
+import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
 import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
 
 const TermsRoute = TermsRouteImport.update({
