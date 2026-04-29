@@ -100,6 +100,7 @@ function SettingsPage() {
       {/* Discover */}
       <Group title={t("find_worker")}>
         <Row to="/find-worker" icon={HardHat} iconBg="bg-indigo-100" iconColor="text-indigo-600" label={t("find_worker")} />
+        <Row to="/invitations" icon={Users} iconBg="bg-violet-100" iconColor="text-violet-600" label={t("my_invitations")} />
       </Group>
 
       {/* My Account */}
