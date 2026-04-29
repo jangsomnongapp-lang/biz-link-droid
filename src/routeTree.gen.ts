@@ -17,6 +17,8 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as JoinRouteImport } from './routes/join'
+import { Route as InvitationsRouteImport } from './routes/invitations'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FindWorkerRouteImport } from './routes/find-worker'
@@ -74,6 +76,16 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvitationsRoute = InvitationsRouteImport.update({
+  id: '/invitations',
+  path: '/invitations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -174,6 +186,8 @@ export interface FileRoutesByFullPath {
   '/find-worker': typeof FindWorkerRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
+  '/invitations': typeof InvitationsRoute
+  '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
@@ -202,6 +216,8 @@ export interface FileRoutesByTo {
   '/find-worker': typeof FindWorkerRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
+  '/invitations': typeof InvitationsRoute
+  '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
@@ -231,6 +247,8 @@ export interface FileRoutesById {
   '/find-worker': typeof FindWorkerRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
+  '/invitations': typeof InvitationsRoute
+  '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
@@ -261,6 +279,8 @@ export interface FileRouteTypes {
     | '/find-worker'
     | '/help'
     | '/home'
+    | '/invitations'
+    | '/join'
     | '/login'
     | '/privacy'
     | '/profile'
@@ -289,6 +309,8 @@ export interface FileRouteTypes {
     | '/find-worker'
     | '/help'
     | '/home'
+    | '/invitations'
+    | '/join'
     | '/login'
     | '/privacy'
     | '/profile'
@@ -317,6 +339,8 @@ export interface FileRouteTypes {
     | '/find-worker'
     | '/help'
     | '/home'
+    | '/invitations'
+    | '/join'
     | '/login'
     | '/privacy'
     | '/profile'
@@ -346,6 +370,8 @@ export interface RootRouteChildren {
   FindWorkerRoute: typeof FindWorkerRoute
   HelpRoute: typeof HelpRoute
   HomeRoute: typeof HomeRoute
+  InvitationsRoute: typeof InvitationsRoute
+  JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRouteWithChildren
@@ -422,6 +448,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invitations': {
+      id: '/invitations'
+      path: '/invitations'
+      fullPath: '/invitations'
+      preLoaderRoute: typeof InvitationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -573,6 +613,8 @@ const rootRouteChildren: RootRouteChildren = {
   FindWorkerRoute: FindWorkerRoute,
   HelpRoute: HelpRoute,
   HomeRoute: HomeRoute,
+  InvitationsRoute: InvitationsRoute,
+  JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRouteWithChildren,
