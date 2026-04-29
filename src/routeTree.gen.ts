@@ -37,6 +37,7 @@ import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPostsRouteImport } from './routes/admin.posts'
+import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -178,6 +179,11 @@ const AdminPostsRoute = AdminPostsRouteImport.update({
   path: '/admin/posts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminInvitationsRoute = AdminInvitationsRouteImport.update({
+  id: '/admin/invitations',
+  path: '/admin/invitations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
@@ -257,6 +265,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
@@ -289,6 +298,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/terms'
+    | '/admin/invitations'
     | '/admin/posts'
     | '/admin/reports'
     | '/listings/$listingId'
@@ -319,6 +329,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/terms'
+    | '/admin/invitations'
     | '/admin/posts'
     | '/admin/reports'
     | '/listings/$listingId'
@@ -349,6 +360,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/terms'
+    | '/admin/invitations'
     | '/admin/posts'
     | '/admin/reports'
     | '/listings/$listingId'
@@ -380,6 +392,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
+  AdminInvitationsRoute: typeof AdminInvitationsRoute
   AdminPostsRoute: typeof AdminPostsRoute
   AdminReportsRoute: typeof AdminReportsRoute
   ListingsListingIdRoute: typeof ListingsListingIdRoute
@@ -590,6 +603,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/invitations': {
+      id: '/admin/invitations'
+      path: '/admin/invitations'
+      fullPath: '/admin/invitations'
+      preLoaderRoute: typeof AdminInvitationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -623,6 +643,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
+  AdminInvitationsRoute: AdminInvitationsRoute,
   AdminPostsRoute: AdminPostsRoute,
   AdminReportsRoute: AdminReportsRoute,
   ListingsListingIdRoute: ListingsListingIdRoute,
