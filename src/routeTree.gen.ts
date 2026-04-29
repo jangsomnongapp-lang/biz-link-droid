@@ -197,11 +197,6 @@ const AdminInvitationsRoute = AdminInvitationsRouteImport.update({
   path: '/admin/invitations',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminInvitationsRoute = AdminInvitationsRouteImport.update({
-  id: '/admin/invitations',
-  path: '/admin/invitations',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
