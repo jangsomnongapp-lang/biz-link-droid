@@ -20,6 +20,8 @@ import {
   ShieldCheck,
   ShieldAlert,
   HardHat,
+  Users,
+  Trophy,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
@@ -98,6 +100,7 @@ function SettingsPage() {
       {/* Discover */}
       <Group title={t("find_worker")}>
         <Row to="/find-worker" icon={HardHat} iconBg="bg-indigo-100" iconColor="text-indigo-600" label={t("find_worker")} />
+        <Row to="/invitations" icon={Users} iconBg="bg-violet-100" iconColor="text-violet-600" label={t("my_invitations")} />
       </Group>
 
       {/* My Account */}
@@ -156,6 +159,13 @@ function SettingsPage() {
             iconBg="bg-amber-100"
             iconColor="text-amber-600"
             label={t("review_reports")}
+          />
+          <Row
+            to="/admin/invitations"
+            icon={Trophy}
+            iconBg="bg-violet-100"
+            iconColor="text-violet-600"
+            label={t("admin_invitations")}
           />
         </Group>
       )}

@@ -99,6 +99,27 @@ function RegisterFlow() {
         const rows = Array.from(selectedCats).map((cid) => ({ user_id: userId, category_id: cid }));
         await supabase.from("user_categories").insert(rows);
       }
+      // Record invite join if user came from a referral link
+      if (userId && typeof window !== "undefined") {
+        try {
+          const ref = localStorage.getItem("invite_ref");
+          if (ref) {
+            const { data: ic } = await supabase
+              .from("invite_codes")
+              .select("user_id")
+              .eq("code", ref)
+              .maybeSingle();
+            if (ic && ic.user_id !== userId) {
+              await supabase
+                .from("invite_joins")
+                .insert({ inviter_id: ic.user_id, invitee_id: userId, code: ref });
+            }
+            localStorage.removeItem("invite_ref");
+          }
+        } catch {
+          /* noop */
+        }
+      }
       toast.success(lang === "km" ? "ស្វាគមន៍!" : "Welcome!");
       nav({ to: "/home" });
     } catch (e: unknown) {
