@@ -178,7 +178,7 @@ function AdminInvitationsPage() {
         </div>
         {totals.due > 0 && (
           <span className="rounded-full bg-red-500 px-2.5 py-1 text-xs font-bold">
-            {totals.due} {t("pending")}
+            {totals.due} {t("pending_label")}
           </span>
         )}
       </div>
