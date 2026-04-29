@@ -252,7 +252,16 @@ function HomePage() {
                   alt=""
                   className="h-[60px] w-[60px] rounded-full object-cover"
                 />
-              </div>
+      </div>
+
+      {/* Invite friends banner */}
+      <Link
+        to="/invitations"
+        className="mt-2 flex items-center justify-center gap-2 bg-primary/10 px-3 py-3 text-sm font-semibold text-primary shadow-card active:bg-primary/15"
+      >
+        <Users className="h-4 w-4" />
+        {t("invite_friends_earn")}
+      </Link>
             </div>
             <span className="line-clamp-1 w-full text-center text-[11px] font-medium text-foreground">
               {s.full_name ?? "User"}
