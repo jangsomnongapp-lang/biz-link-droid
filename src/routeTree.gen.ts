@@ -9,16 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ReportRouteImport } from './routes/report'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as HelpRouteImport } from './routes/help'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as AnnounceRouteImport } from './routes/announce'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
@@ -35,6 +35,11 @@ import { Route as ListingsListingIdRouteImport } from './routes/listings.$listin
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -50,21 +55,6 @@ const ReportRoute = ReportRouteImport.update({
   path: '/report',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HelpRoute = HelpRouteImport.update({
-  id: '/help',
-  path: '/help',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -75,6 +65,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -83,6 +78,11 @@ const LoginRoute = LoginRouteImport.update({
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnnounceRoute = AnnounceRouteImport.update({
@@ -165,16 +165,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
-  '/terms': typeof TermsRoute
-  '/privacy': typeof PrivacyRoute
-  '/help': typeof HelpRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
@@ -192,16 +192,16 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
-  '/terms': typeof TermsRoute
-  '/privacy': typeof PrivacyRoute
-  '/help': typeof HelpRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
@@ -220,16 +220,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
-  '/terms': typeof TermsRoute
-  '/privacy': typeof PrivacyRoute
-  '/help': typeof HelpRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
+  '/terms': typeof TermsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
@@ -249,16 +249,16 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/announce'
+    | '/help'
     | '/home'
     | '/login'
+    | '/privacy'
     | '/profile'
     | '/register'
     | '/report'
-    | '/terms'
-    | '/privacy'
-    | '/help'
     | '/search'
     | '/settings'
+    | '/terms'
     | '/admin/posts'
     | '/admin/reports'
     | '/listings/$listingId'
@@ -276,16 +276,16 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/announce'
+    | '/help'
     | '/home'
     | '/login'
+    | '/privacy'
     | '/profile'
     | '/register'
     | '/report'
-    | '/terms'
-    | '/privacy'
-    | '/help'
     | '/search'
     | '/settings'
+    | '/terms'
     | '/admin/posts'
     | '/admin/reports'
     | '/listings/$listingId'
@@ -303,16 +303,16 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/announce'
+    | '/help'
     | '/home'
     | '/login'
+    | '/privacy'
     | '/profile'
     | '/register'
     | '/report'
-    | '/terms'
-    | '/privacy'
-    | '/help'
     | '/search'
     | '/settings'
+    | '/terms'
     | '/admin/posts'
     | '/admin/reports'
     | '/listings/$listingId'
@@ -331,16 +331,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AnnounceRoute: typeof AnnounceRoute
+  HelpRoute: typeof HelpRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   ReportRoute: typeof ReportRoute
-  TermsRoute: typeof TermsRoute
-  PrivacyRoute: typeof PrivacyRoute
-  HelpRoute: typeof HelpRoute
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
+  TermsRoute: typeof TermsRoute
   AdminPostsRoute: typeof AdminPostsRoute
   AdminReportsRoute: typeof AdminReportsRoute
   ListingsListingIdRoute: typeof ListingsListingIdRoute
@@ -355,6 +355,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -376,27 +383,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/help': {
-      id: '/help'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof HelpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -411,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -423,6 +416,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/announce': {
@@ -550,16 +550,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AnnounceRoute: AnnounceRoute,
+  HelpRoute: HelpRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRouteWithChildren,
   RegisterRoute: RegisterRoute,
   ReportRoute: ReportRoute,
-  TermsRoute: TermsRoute,
-  PrivacyRoute: PrivacyRoute,
-  HelpRoute: HelpRoute,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
+  TermsRoute: TermsRoute,
   AdminPostsRoute: AdminPostsRoute,
   AdminReportsRoute: AdminReportsRoute,
   ListingsListingIdRoute: ListingsListingIdRoute,
