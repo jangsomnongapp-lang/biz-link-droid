@@ -129,7 +129,18 @@ function UserProfilePage() {
       <div className="bg-primary px-5 pb-6 pt-3 text-primary-foreground">
         <div className="flex flex-col items-center gap-2">
           <Avatar name={profile.full_name} url={profile.avatar_url} size={88} className="border-4 border-white" />
-          <h1 className="text-xl font-bold">{profile.full_name ?? "—"}</h1>
+          <div className="flex items-center gap-1.5">
+            <h1 className="text-xl font-bold">{profile.full_name ?? "—"}</h1>
+            {profile.is_verified && (
+              <BadgeCheck className="h-5 w-5 fill-sky-400 text-white" aria-label={t("badge_verified")} />
+            )}
+            {profile.is_recruiter && (
+              <Award className="h-5 w-5 fill-amber-400 text-white" aria-label={t("badge_recruiter")} />
+            )}
+            {profile.is_featured && (
+              <Star className="h-5 w-5 fill-pink-400 text-white" aria-label={t("badge_featured")} />
+            )}
+          </div>
           <p className="text-xs text-white/80">{roleLabels.join(" · ") || " "}</p>
           {cats.length > 0 && (
             <div className="mt-1 flex flex-wrap justify-center gap-1.5">
