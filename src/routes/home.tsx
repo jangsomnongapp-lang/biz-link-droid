@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, Users, BadgeCheck, Award, Star } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, Users, BadgeCheck, Briefcase, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/home")({
@@ -311,8 +311,8 @@ function HomePage() {
                   <div className="flex items-center gap-1 text-sm font-semibold text-foreground">
                     <span className="truncate">{p.profiles?.full_name ?? "User"}</span>
                     {p.profiles?.is_verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-sky-400 text-white" />}
-                    {p.profiles?.is_recruiter && <Award className="h-4 w-4 shrink-0 fill-amber-400 text-white" />}
-                    {p.profiles?.is_featured && <Star className="h-4 w-4 shrink-0 fill-pink-400 text-white" />}
+                    {p.profiles?.is_recruiter && <Briefcase className="h-4 w-4 shrink-0 text-amber-500" />}
+                    {p.profiles?.is_featured && <Sparkles className="h-4 w-4 shrink-0 text-pink-500" />}
                   </div>
                   <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
                 </Link>

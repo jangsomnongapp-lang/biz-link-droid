@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Copy, Users, Trophy, Lock, Check, Beer, Award, Star } from "lucide-react";
+import { ArrowLeft, Copy, Users, Trophy, Lock, Check, Beer, Briefcase, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -19,8 +19,8 @@ export const Route = createFileRoute("/invitations")({
 
 const TIERS = [
   { tier: 5, key: "tier_verified", icon: Check },
-  { tier: 25, key: "tier_recruiter", icon: Award },
-  { tier: 50, key: "tier_featured", icon: Star },
+  { tier: 25, key: "tier_recruiter", icon: Briefcase },
+  { tier: 50, key: "tier_featured", icon: Sparkles },
   { tier: 100, key: "tier_beer", icon: Beer },
 ];
 

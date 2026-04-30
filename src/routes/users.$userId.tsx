@@ -6,7 +6,7 @@ import { ReportMenu } from "@/components/ReportMenu";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, BadgeCheck, Award, Star } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Briefcase, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/users/$userId")({
@@ -135,10 +135,10 @@ function UserProfilePage() {
               <BadgeCheck className="h-5 w-5 fill-sky-400 text-white" aria-label={t("badge_verified")} />
             )}
             {profile.is_recruiter && (
-              <Award className="h-5 w-5 fill-amber-400 text-white" aria-label={t("badge_recruiter")} />
+              <Briefcase className="h-5 w-5 text-amber-300" aria-label={t("badge_recruiter")} />
             )}
             {profile.is_featured && (
-              <Star className="h-5 w-5 fill-pink-400 text-white" aria-label={t("badge_featured")} />
+              <Sparkles className="h-5 w-5 text-pink-300" aria-label={t("badge_featured")} />
             )}
           </div>
           <p className="text-xs text-white/80">{roleLabels.join(" · ") || " "}</p>
