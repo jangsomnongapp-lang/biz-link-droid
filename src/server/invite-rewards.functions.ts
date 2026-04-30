@@ -66,6 +66,15 @@ export const claimInviteRewards = createServerFn({ method: "POST" })
       newlyClaimed: toInsert,
       rewards: rewards ?? [],
     };
+    } catch (err) {
+      console.error("claimInviteRewards failed:", err);
+      return {
+        joined: 0,
+        newlyClaimed: [] as number[],
+        rewards: [] as { tier: number; status: string; sent_at: string | null }[],
+        error: err instanceof Error ? err.message : "Unknown error",
+      };
+    }
   });
 
 /**
