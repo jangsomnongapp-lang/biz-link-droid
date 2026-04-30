@@ -34,10 +34,24 @@ export const claimInviteRewards = createServerFn({ method: "POST" })
     const toInsert = earned.filter((t) => !existingTiers.has(t));
 
     if (toInsert.length > 0) {
-      const { error: insErr } = await supabase
-        .from("invite_rewards")
-        .insert(toInsert.map((tier) => ({ user_id: userId, tier })));
+      // Digital badges (5/25/50) auto-deliver instantly. Beer (100) stays pending for admin shipping.
+      const rows = toInsert.map((tier) => ({
+        user_id: userId,
+        tier,
+        status: tier === 100 ? "pending" : "sent",
+        sent_at: tier === 100 ? null : new Date().toISOString(),
+      }));
+      const { error: insErr } = await supabase.from("invite_rewards").insert(rows);
       if (insErr) throw new Error(insErr.message);
+
+      // Auto-grant the matching profile badge for digital tiers.
+      const patch: { is_verified?: boolean; is_recruiter?: boolean; is_featured?: boolean } = {};
+      if (toInsert.includes(5)) patch.is_verified = true;
+      if (toInsert.includes(25)) patch.is_recruiter = true;
+      if (toInsert.includes(50)) patch.is_featured = true;
+      if (Object.keys(patch).length > 0) {
+        await supabaseAdmin.from("profiles").update(patch as never).eq("id", userId);
+      }
     }
 
     const { data: rewards } = await supabase
