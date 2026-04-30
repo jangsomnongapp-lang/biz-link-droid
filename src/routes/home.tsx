@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, Users } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, Users, BadgeCheck, Award, Star } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/home")({
@@ -31,7 +31,7 @@ interface PostRow {
   content: string | null;
   video_url: string | null;
   created_at: string;
-  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  profiles: { full_name: string | null; avatar_url: string | null; is_verified: boolean | null; is_recruiter: boolean | null; is_featured: boolean | null } | null;
   post_photos: { photo_url: string }[];
 }
 
@@ -91,7 +91,7 @@ function HomePage() {
     void (async () => {
       const { data } = await supabase
         .from("posts")
-        .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url), post_photos(photo_url)")
+        .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured), post_photos(photo_url)")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(20);
@@ -308,7 +308,12 @@ function HomePage() {
                   <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
                 </Link>
                 <Link to="/users/$userId" params={{ userId: p.user_id }} className="flex-1 active:opacity-60">
-                  <div className="text-sm font-semibold text-foreground">{p.profiles?.full_name ?? "User"}</div>
+                  <div className="flex items-center gap-1 text-sm font-semibold text-foreground">
+                    <span className="truncate">{p.profiles?.full_name ?? "User"}</span>
+                    {p.profiles?.is_verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-sky-400 text-white" />}
+                    {p.profiles?.is_recruiter && <Award className="h-4 w-4 shrink-0 fill-amber-400 text-white" />}
+                    {p.profiles?.is_featured && <Star className="h-4 w-4 shrink-0 fill-pink-400 text-white" />}
+                  </div>
                   <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
                 </Link>
                 {user?.id !== p.user_id && <ReportMenu targetKind="post" targetId={p.id} />}
