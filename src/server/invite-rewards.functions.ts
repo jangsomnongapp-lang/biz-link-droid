@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
@@ -11,12 +12,21 @@ const TIERS = [5, 25, 50, 100] as const;
  * - Returns the canonical reward state for the user
  */
 export const claimInviteRewards = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async () => {
     try {
-    const { supabase, userId } = context;
+    const authHeader = getRequest().headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      throw new Error("Unauthorized: Missing authorization token");
+    }
 
-    const { count: joinCount, error: countErr } = await supabase
+    const token = authHeader.replace("Bearer ", "");
+    const { data: authData, error: authErr } = await supabaseAdmin.auth.getClaims(token);
+    const userId = authData?.claims?.sub;
+    if (authErr || !userId) {
+      throw new Error("Unauthorized: Invalid authorization token");
+    }
+
+    const { count: joinCount, error: countErr } = await supabaseAdmin
       .from("invite_joins")
       .select("id", { count: "exact", head: true })
       .eq("inviter_id", userId);
@@ -25,7 +35,7 @@ export const claimInviteRewards = createServerFn({ method: "POST" })
     const joined = joinCount ?? 0;
     const earned = TIERS.filter((t) => joined >= t);
 
-    const { data: existing, error: existErr } = await supabase
+    const { data: existing, error: existErr } = await supabaseAdmin
       .from("invite_rewards")
       .select("tier, status, sent_at")
       .eq("user_id", userId);
@@ -42,7 +52,7 @@ export const claimInviteRewards = createServerFn({ method: "POST" })
         status: tier === 100 ? "pending" : "sent",
         sent_at: tier === 100 ? null : new Date().toISOString(),
       }));
-      const { error: insErr } = await supabase.from("invite_rewards").insert(rows);
+      const { error: insErr } = await supabaseAdmin.from("invite_rewards").insert(rows);
       if (insErr) throw new Error(insErr.message);
 
       // Auto-grant the matching profile badge for digital tiers.
@@ -55,7 +65,7 @@ export const claimInviteRewards = createServerFn({ method: "POST" })
       }
     }
 
-    const { data: rewards } = await supabase
+    const { data: rewards } = await supabaseAdmin
       .from("invite_rewards")
       .select("tier, status, sent_at")
       .eq("user_id", userId)
