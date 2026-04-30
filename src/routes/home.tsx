@@ -91,7 +91,7 @@ function HomePage() {
     void (async () => {
       const { data } = await supabase
         .from("posts")
-        .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url), post_photos(photo_url)")
+        .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured), post_photos(photo_url)")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(20);
