@@ -90,7 +90,7 @@ export const markRewardSent = createServerFn({ method: "POST" })
 
     // Auto-grant the matching profile badge for tiers 5 / 25 / 50.
     // Tier 100 (beer) is a physical prize — no profile flag.
-    const patch: Record<string, boolean> = {};
+    const patch: { is_verified?: boolean; is_recruiter?: boolean; is_featured?: boolean } = {};
     if (reward.tier === 5) patch.is_verified = true;
     else if (reward.tier === 25) patch.is_recruiter = true;
     else if (reward.tier === 50) patch.is_featured = true;
@@ -98,7 +98,7 @@ export const markRewardSent = createServerFn({ method: "POST" })
     if (Object.keys(patch).length > 0) {
       const { error: pErr } = await supabaseAdmin
         .from("profiles")
-        .update(patch)
+        .update(patch as never)
         .eq("id", reward.user_id);
       if (pErr) throw new Error(pErr.message);
     }
