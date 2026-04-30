@@ -318,6 +318,11 @@ const dict: Dict = {
   mark_sent: { km: "សម្គាល់ផ្ញើ", en: "Mark sent" },
   next_prize: { km: "រង្វាន់បន្ទាប់", en: "Next prize" },
   all_done: { km: "បានគ្រប់", en: "All done" },
+  badge_verified: { km: "គណនីបញ្ជាក់", en: "Verified" },
+  badge_recruiter: { km: "អ្នកអញ្ជើញ", en: "Recruiter" },
+  badge_featured: { km: "បង្ហាញលើជញ្ជាំង", en: "Featured" },
+  reward_delivered: { km: "បានផ្ញើរួច ✓", en: "Delivered ✓" },
+  reward_pending_delivery: { km: "កំពុងរៀបចំផ្ញើ", en: "Pending delivery" },
 };
 
 interface I18nCtx {

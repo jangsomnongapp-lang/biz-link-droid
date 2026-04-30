@@ -652,8 +652,11 @@ export type Database = {
           is_admin: boolean
           is_client: boolean
           is_coordinator: boolean
+          is_featured: boolean
           is_organization: boolean
           is_provider: boolean
+          is_recruiter: boolean
+          is_verified: boolean
           language: string
           phone: string | null
           updated_at: string
@@ -667,8 +670,11 @@ export type Database = {
           is_admin?: boolean
           is_client?: boolean
           is_coordinator?: boolean
+          is_featured?: boolean
           is_organization?: boolean
           is_provider?: boolean
+          is_recruiter?: boolean
+          is_verified?: boolean
           language?: string
           phone?: string | null
           updated_at?: string
@@ -682,8 +688,11 @@ export type Database = {
           is_admin?: boolean
           is_client?: boolean
           is_coordinator?: boolean
+          is_featured?: boolean
           is_organization?: boolean
           is_provider?: boolean
+          is_recruiter?: boolean
+          is_verified?: boolean
           language?: string
           phone?: string | null
           updated_at?: string

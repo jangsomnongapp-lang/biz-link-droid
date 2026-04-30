@@ -39,6 +39,7 @@ function InvitationsPage() {
   const [joined, setJoined] = useState(0);
   const [monthJoined, setMonthJoined] = useState(0);
   const [leaders, setLeaders] = useState<LeaderRow[]>([]);
+  const [rewardStatus, setRewardStatus] = useState<Map<number, string>>(new Map());
   const [loading, setLoading] = useState(true);
 
   const link = useMemo(() => {
@@ -116,11 +117,19 @@ function InvitationsPage() {
   }, [user]);
 
   // Securely claim rewards via server function (validates joins server-side)
+  // and load delivery status (pending vs sent) for each tier.
   useEffect(() => {
-    if (!user || joined === 0) return;
-    void claimInviteRewards().catch(() => {
-      /* silently ignore — UI still shows progress */
-    });
+    if (!user) return;
+    void (async () => {
+      try {
+        const res = await claimInviteRewards();
+        const map = new Map<number, string>();
+        for (const r of res.rewards ?? []) map.set(r.tier, r.status);
+        setRewardStatus(map);
+      } catch {
+        /* silently ignore — UI still shows progress */
+      }
+    })();
   }, [user, joined]);
 
   async function copyLink() {
@@ -225,6 +234,19 @@ function InvitationsPage() {
                         </div>
                       )}
                     </div>
+                    {completed && (
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                          rewardStatus.get(tier) === "sent"
+                            ? "bg-green-500/15 text-green-700"
+                            : "bg-amber-500/15 text-amber-700"
+                        }`}
+                      >
+                        {rewardStatus.get(tier) === "sent"
+                          ? t("reward_delivered")
+                          : t("reward_pending_delivery")}
+                      </span>
+                    )}
                     {!completed && joined < tier && <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
                   </div>
                 </div>

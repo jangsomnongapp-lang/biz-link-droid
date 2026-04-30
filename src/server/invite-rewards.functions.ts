@@ -73,12 +73,37 @@ export const markRewardSent = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!prof?.is_admin) throw new Error("Forbidden");
 
+    // Look up the reward first so we know which user + tier to credit
+    const { data: reward, error: rErr } = await supabaseAdmin
+      .from("invite_rewards")
+      .select("id, user_id, tier, status")
+      .eq("id", data.rewardId)
+      .maybeSingle();
+    if (rErr) throw new Error(rErr.message);
+    if (!reward) throw new Error("Reward not found");
+
     const { error } = await supabaseAdmin
       .from("invite_rewards")
       .update({ status: "sent", sent_at: new Date().toISOString() })
       .eq("id", data.rewardId);
     if (error) throw new Error(error.message);
-    return { ok: true };
+
+    // Auto-grant the matching profile badge for tiers 5 / 25 / 50.
+    // Tier 100 (beer) is a physical prize — no profile flag.
+    const patch: { is_verified?: boolean; is_recruiter?: boolean; is_featured?: boolean } = {};
+    if (reward.tier === 5) patch.is_verified = true;
+    else if (reward.tier === 25) patch.is_recruiter = true;
+    else if (reward.tier === 50) patch.is_featured = true;
+
+    if (Object.keys(patch).length > 0) {
+      const { error: pErr } = await supabaseAdmin
+        .from("profiles")
+        .update(patch as never)
+        .eq("id", reward.user_id);
+      if (pErr) throw new Error(pErr.message);
+    }
+
+    return { ok: true, tier: reward.tier, granted: patch };
   });
 
 /**

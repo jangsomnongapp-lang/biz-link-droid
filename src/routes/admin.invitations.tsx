@@ -7,6 +7,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { markRewardSent } from "@/server/invite-rewards.functions";
 
 export const Route = createFileRoute("/admin/invitations")({
   component: () => (
@@ -134,11 +135,9 @@ function AdminInvitationsPage() {
   }, [isAdmin, period]);
 
   async function markSent(rewardId: string, userId: string) {
-    const { error } = await supabase
-      .from("invite_rewards")
-      .update({ status: "sent", sent_at: new Date().toISOString() })
-      .eq("id", rewardId);
-    if (error) {
+    try {
+      await markRewardSent({ data: { rewardId } });
+    } catch {
       toast.error(t("error_generic"));
       return;
     }
