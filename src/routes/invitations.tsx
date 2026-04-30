@@ -234,6 +234,19 @@ function InvitationsPage() {
                         </div>
                       )}
                     </div>
+                    {completed && (
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                          rewardStatus.get(tier) === "sent"
+                            ? "bg-green-500/15 text-green-700"
+                            : "bg-amber-500/15 text-amber-700"
+                        }`}
+                      >
+                        {rewardStatus.get(tier) === "sent"
+                          ? t("reward_delivered")
+                          : t("reward_pending_delivery")}
+                      </span>
+                    )}
                     {!completed && joined < tier && <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
                   </div>
                 </div>
