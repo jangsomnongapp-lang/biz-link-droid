@@ -39,6 +39,7 @@ function InvitationsPage() {
   const [joined, setJoined] = useState(0);
   const [monthJoined, setMonthJoined] = useState(0);
   const [leaders, setLeaders] = useState<LeaderRow[]>([]);
+  const [rewardStatus, setRewardStatus] = useState<Map<number, string>>(new Map());
   const [loading, setLoading] = useState(true);
 
   const link = useMemo(() => {
