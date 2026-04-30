@@ -115,24 +115,12 @@ function InvitationsPage() {
     })();
   }, [user]);
 
-  // Auto-claim rewards when thresholds reached
+  // Securely claim rewards via server function (validates joins server-side)
   useEffect(() => {
     if (!user || joined === 0) return;
-    void (async () => {
-      const earned = TIERS.filter((t) => joined >= t.tier).map((t) => t.tier);
-      if (earned.length === 0) return;
-      const { data: existing } = await supabase
-        .from("invite_rewards")
-        .select("tier")
-        .eq("user_id", user.id);
-      const existingTiers = new Set((existing ?? []).map((r) => r.tier));
-      const toInsert = earned.filter((t) => !existingTiers.has(t));
-      if (toInsert.length > 0) {
-        await supabase
-          .from("invite_rewards")
-          .insert(toInsert.map((tier) => ({ user_id: user.id, tier })));
-      }
-    })();
+    void claimInviteRewards().catch(() => {
+      /* silently ignore — UI still shows progress */
+    });
   }, [user, joined]);
 
   async function copyLink() {
