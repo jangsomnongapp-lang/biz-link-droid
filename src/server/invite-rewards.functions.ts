@@ -13,6 +13,7 @@ const TIERS = [5, 25, 50, 100] as const;
 export const claimInviteRewards = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    try {
     const { supabase, userId } = context;
 
     const { count: joinCount, error: countErr } = await supabase
@@ -65,6 +66,15 @@ export const claimInviteRewards = createServerFn({ method: "POST" })
       newlyClaimed: toInsert,
       rewards: rewards ?? [],
     };
+    } catch (err) {
+      console.error("claimInviteRewards failed:", err);
+      return {
+        joined: 0,
+        newlyClaimed: [] as number[],
+        rewards: [] as { tier: number; status: string; sent_at: string | null }[],
+        error: err instanceof Error ? err.message : "Unknown error",
+      };
+    }
   });
 
 /**
