@@ -13,6 +13,7 @@ const TIERS = [5, 25, 50, 100] as const;
 export const claimInviteRewards = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    try {
     const { supabase, userId } = context;
 
     const { count: joinCount, error: countErr } = await supabase
