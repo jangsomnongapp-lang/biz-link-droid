@@ -46,7 +46,7 @@ function UserProfilePage() {
   useEffect(() => {
     void supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client")
+      .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client, is_verified, is_recruiter, is_featured")
       .eq("id", userId)
       .maybeSingle()
       .then(({ data }) => setProfile(data));
