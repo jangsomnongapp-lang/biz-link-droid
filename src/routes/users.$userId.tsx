@@ -26,6 +26,9 @@ interface Profile {
   is_coordinator: boolean;
   is_organization: boolean;
   is_client: boolean;
+  is_verified?: boolean | null;
+  is_recruiter?: boolean | null;
+  is_featured?: boolean | null;
 }
 
 function UserProfilePage() {
