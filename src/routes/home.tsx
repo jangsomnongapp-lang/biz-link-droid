@@ -31,7 +31,7 @@ interface PostRow {
   content: string | null;
   video_url: string | null;
   created_at: string;
-  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  profiles: { full_name: string | null; avatar_url: string | null; is_verified: boolean | null; is_recruiter: boolean | null; is_featured: boolean | null } | null;
   post_photos: { photo_url: string }[];
 }
 
