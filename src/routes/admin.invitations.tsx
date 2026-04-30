@@ -135,11 +135,9 @@ function AdminInvitationsPage() {
   }, [isAdmin, period]);
 
   async function markSent(rewardId: string, userId: string) {
-    const { error } = await supabase
-      .from("invite_rewards")
-      .update({ status: "sent", sent_at: new Date().toISOString() })
-      .eq("id", rewardId);
-    if (error) {
+    try {
+      await markRewardSent({ data: { rewardId } });
+    } catch {
       toast.error(t("error_generic"));
       return;
     }
