@@ -117,11 +117,19 @@ function InvitationsPage() {
   }, [user]);
 
   // Securely claim rewards via server function (validates joins server-side)
+  // and load delivery status (pending vs sent) for each tier.
   useEffect(() => {
-    if (!user || joined === 0) return;
-    void claimInviteRewards().catch(() => {
-      /* silently ignore — UI still shows progress */
-    });
+    if (!user) return;
+    void (async () => {
+      try {
+        const res = await claimInviteRewards();
+        const map = new Map<number, string>();
+        for (const r of res.rewards ?? []) map.set(r.tier, r.status);
+        setRewardStatus(map);
+      } catch {
+        /* silently ignore — UI still shows progress */
+      }
+    })();
   }, [user, joined]);
 
   async function copyLink() {
