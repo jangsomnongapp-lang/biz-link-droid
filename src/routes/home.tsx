@@ -308,7 +308,12 @@ function HomePage() {
                   <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
                 </Link>
                 <Link to="/users/$userId" params={{ userId: p.user_id }} className="flex-1 active:opacity-60">
-                  <div className="text-sm font-semibold text-foreground">{p.profiles?.full_name ?? "User"}</div>
+                  <div className="flex items-center gap-1 text-sm font-semibold text-foreground">
+                    <span className="truncate">{p.profiles?.full_name ?? "User"}</span>
+                    {p.profiles?.is_verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-sky-400 text-white" />}
+                    {p.profiles?.is_recruiter && <Award className="h-4 w-4 shrink-0 fill-amber-400 text-white" />}
+                    {p.profiles?.is_featured && <Star className="h-4 w-4 shrink-0 fill-pink-400 text-white" />}
+                  </div>
                   <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
                 </Link>
                 {user?.id !== p.user_id && <ReportMenu targetKind="post" targetId={p.id} />}
