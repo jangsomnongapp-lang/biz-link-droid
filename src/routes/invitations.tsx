@@ -234,7 +234,7 @@ function InvitationsPage() {
                         </div>
                       )}
                     </div>
-                    {completed && (
+                    {completed && tier === 100 && (
                       <span
                         className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
                           rewardStatus.get(tier) === "sent"
