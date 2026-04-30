@@ -33,7 +33,7 @@ interface LeaderRow {
 
 function InvitationsPage() {
   const { t } = useI18n();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [code, setCode] = useState<string | null>(null);
   const [sent, setSent] = useState(0);
   const [joined, setJoined] = useState(0);
@@ -119,10 +119,12 @@ function InvitationsPage() {
   // Securely claim rewards via server function (validates joins server-side)
   // and load delivery status (pending vs sent) for each tier.
   useEffect(() => {
-    if (!user) return;
+    if (!user || !session?.access_token) return;
     void (async () => {
       try {
-        const res = await claimInviteRewards();
+        const res = await claimInviteRewards({
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
         const map = new Map<number, string>();
         for (const r of res.rewards ?? []) map.set(r.tier, r.status);
         setRewardStatus(map);
@@ -130,7 +132,7 @@ function InvitationsPage() {
         /* silently ignore — UI still shows progress */
       }
     })();
-  }, [user, joined]);
+  }, [user, session?.access_token, joined]);
 
   async function copyLink() {
     try {
