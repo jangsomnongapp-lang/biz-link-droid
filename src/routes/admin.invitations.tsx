@@ -34,7 +34,7 @@ const TIERS = [5, 25, 50, 100];
 
 function AdminInvitationsPage() {
   const { t } = useI18n();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [period, setPeriod] = useState<Period>("month");
   const [rows, setRows] = useState<UserStats[]>([]);
@@ -136,7 +136,11 @@ function AdminInvitationsPage() {
 
   async function markSent(rewardId: string, userId: string) {
     try {
-      await markRewardSent({ data: { rewardId } });
+      if (!session?.access_token) throw new Error("Missing session");
+      await markRewardSent({
+        data: { rewardId },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
     } catch {
       toast.error(t("error_generic"));
       return;
