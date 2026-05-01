@@ -215,6 +215,7 @@ function Step1({ roles, setRoles }: { roles: Roles; setRoles: (r: Roles) => void
     { key: "is_coordinator", titleKey: "role_coordinator", descKey: "role_coordinator_desc", icon: Users },
     { key: "is_organization", titleKey: "role_organization", descKey: "role_organization_desc", icon: Building },
     { key: "is_client", titleKey: "role_client", descKey: "role_client_desc", icon: Briefcase },
+    { key: "is_specialist", titleKey: "role_specialist", descKey: "role_specialist_desc", icon: GraduationCap },
   ];
   return (
     <div>
