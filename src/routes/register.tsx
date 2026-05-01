@@ -24,6 +24,7 @@ interface Roles {
   is_coordinator: boolean;
   is_organization: boolean;
   is_client: boolean;
+  is_specialist: boolean;
 }
 
 function RegisterFlow() {
@@ -36,6 +37,7 @@ function RegisterFlow() {
     is_coordinator: false,
     is_organization: false,
     is_client: false,
+    is_specialist: false,
   });
   const [selectedCats, setSelectedCats] = useState<Set<string>>(new Set());
   const [categories, setCategories] = useState<CategoryRow[]>([]);
