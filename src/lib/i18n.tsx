@@ -276,7 +276,7 @@ const dict: Dict = {
   workers_found: { km: "{n} អ្នកជំនាញ", en: "{n} workers" },
   no_workers_found: { km: "រកមិនឃើញអ្នកជំនាញទេ", en: "No workers found" },
   // invitations
-  invite_friends_earn: { km: "👥 អញ្ជើញមិត្ត — ទទួលរង្វាន់", en: "👥 Invite friends — Earn rewards" },
+  invite_friends_earn: { km: "អញ្ជើញមិត្ត — ទទួលរង្វាន់", en: "Invite friends — Earn rewards" },
   my_invitations: { km: "ការអញ្ជើញរបស់ខ្ញុំ", en: "My Invitations" },
   invitations_sent: { km: "ការអញ្ជើញដែលបានផ្ញើ", en: "Invitations sent" },
   successful_joins: { km: "ការចូលរួមជោគជ័យ", en: "Successful joins" },
