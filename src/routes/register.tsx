@@ -263,6 +263,7 @@ function dictKm(key: string) {
     role_coordinator: "មេក្រុម",
     role_organization: "ក្រុមហ៊ុន",
     role_client: "អ្នកម៉ៅការ",
+    role_specialist: "អ្នកជំនាញ",
   };
   return map[key] ?? "";
 }
