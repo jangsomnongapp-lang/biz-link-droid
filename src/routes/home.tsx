@@ -226,7 +226,7 @@ function HomePage() {
       {/* Invite friends banner */}
       <Link
         to="/invitations"
-        className="mt-2 flex items-center justify-center gap-2 bg-primary/10 px-3 py-3 text-sm font-semibold text-primary shadow-card active:bg-primary/15"
+        className="mt-2 flex items-center justify-center gap-2 bg-primary/10 px-3 py-3 text-sm font-semibold text-primary shadow-card active:bg-primary/15 rounded-sm"
       >
         <Users className="h-4 w-4" />
         {t("invite_friends_earn")}
