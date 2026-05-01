@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, Users, BadgeCheck, Briefcase, Sparkles } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, Users, UserPlus, BadgeCheck, Briefcase, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/home")({
@@ -228,7 +228,7 @@ function HomePage() {
         to="/invitations"
         className="mt-2 flex items-center justify-center gap-2 bg-primary/10 px-3 py-3 text-sm font-semibold text-primary shadow-card active:bg-primary/15 rounded-sm"
       >
-        <Users className="h-4 w-4" />
+        <UserPlus className="h-4 w-4" />
         {t("invite_friends_earn")}
       </Link>
 
