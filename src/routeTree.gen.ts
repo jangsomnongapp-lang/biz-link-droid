@@ -37,9 +37,11 @@ import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
 import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
+import { Route as AdminSuppliersRouteImport } from './routes/admin.suppliers'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
+import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -181,6 +183,11 @@ const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
   path: '/listings/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSuppliersRoute = AdminSuppliersRouteImport.update({
+  id: '/admin/suppliers',
+  path: '/admin/suppliers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminReportsRoute = AdminReportsRouteImport.update({
   id: '/admin/reports',
   path: '/admin/reports',
@@ -194,6 +201,11 @@ const AdminPostsRoute = AdminPostsRouteImport.update({
 const AdminInvitationsRoute = AdminInvitationsRouteImport.update({
   id: '/admin/invitations',
   path: '/admin/invitations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupplierJoinTokenRoute = SupplierJoinTokenRouteImport.update({
+  id: '/supplier/join/$token',
+  path: '/supplier/join/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -217,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/suppliers': typeof AdminSuppliersRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -229,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
+  '/supplier/join/$token': typeof SupplierJoinTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -250,6 +264,7 @@ export interface FileRoutesByTo {
   '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/suppliers': typeof AdminSuppliersRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -262,6 +277,7 @@ export interface FileRoutesByTo {
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
+  '/supplier/join/$token': typeof SupplierJoinTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -284,6 +300,7 @@ export interface FileRoutesById {
   '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/suppliers': typeof AdminSuppliersRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -296,6 +313,7 @@ export interface FileRoutesById {
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
+  '/supplier/join/$token': typeof SupplierJoinTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -319,6 +337,7 @@ export interface FileRouteTypes {
     | '/admin/invitations'
     | '/admin/posts'
     | '/admin/reports'
+    | '/admin/suppliers'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -331,6 +350,7 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
+    | '/supplier/join/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -352,6 +372,7 @@ export interface FileRouteTypes {
     | '/admin/invitations'
     | '/admin/posts'
     | '/admin/reports'
+    | '/admin/suppliers'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -364,6 +385,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/messages'
     | '/suppliers'
+    | '/supplier/join/$token'
   id:
     | '__root__'
     | '/'
@@ -385,6 +407,7 @@ export interface FileRouteTypes {
     | '/admin/invitations'
     | '/admin/posts'
     | '/admin/reports'
+    | '/admin/suppliers'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -397,6 +420,7 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
+    | '/supplier/join/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -419,6 +443,7 @@ export interface RootRouteChildren {
   AdminInvitationsRoute: typeof AdminInvitationsRoute
   AdminPostsRoute: typeof AdminPostsRoute
   AdminReportsRoute: typeof AdminReportsRoute
+  AdminSuppliersRoute: typeof AdminSuppliersRoute
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
@@ -429,6 +454,7 @@ export interface RootRouteChildren {
   ListingsIndexRoute: typeof ListingsIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   SuppliersIndexRoute: typeof SuppliersIndexRoute
+  SupplierJoinTokenRoute: typeof SupplierJoinTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -629,6 +655,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/suppliers': {
+      id: '/admin/suppliers'
+      path: '/admin/suppliers'
+      fullPath: '/admin/suppliers'
+      preLoaderRoute: typeof AdminSuppliersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/reports': {
       id: '/admin/reports'
       path: '/admin/reports'
@@ -648,6 +681,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/invitations'
       fullPath: '/admin/invitations'
       preLoaderRoute: typeof AdminInvitationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/supplier/join/$token': {
+      id: '/supplier/join/$token'
+      path: '/supplier/join/$token'
+      fullPath: '/supplier/join/$token'
+      preLoaderRoute: typeof SupplierJoinTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -686,6 +726,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminInvitationsRoute: AdminInvitationsRoute,
   AdminPostsRoute: AdminPostsRoute,
   AdminReportsRoute: AdminReportsRoute,
+  AdminSuppliersRoute: AdminSuppliersRoute,
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
@@ -696,6 +737,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsIndexRoute: ListingsIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   SuppliersIndexRoute: SuppliersIndexRoute,
+  SupplierJoinTokenRoute: SupplierJoinTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
