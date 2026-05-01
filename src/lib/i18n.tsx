@@ -21,6 +21,8 @@ const dict: Dict = {
   role_organization_desc: { km: "អាជីវកម្មសាងសង់", en: "Construction business" },
   role_client: { km: "អ្នកម៉ៅការ", en: "Client" },
   role_client_desc: { km: "ខ្ញុំត្រូវការកម្មករសម្រាប់ការងារ", en: "I need workers for a project" },
+  role_specialist: { km: "អ្នកជំនាញ", en: "Specialist" },
+  role_specialist_desc: { km: "អ្នករចនា 2D/3D · ស្ថាបត្យករ · វិស្វករ", en: "Designer 2D/3D · Architect · Engineer" },
   next: { km: "បន្ទាប់ →", en: "Next →" },
   back: { km: "← ត្រឡប់", en: "← Back" },
   your_specialties: { km: "ជំនាញរបស់អ្នក", en: "Your specialties" },
