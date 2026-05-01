@@ -22,6 +22,7 @@ import {
   HardHat,
   Users,
   Trophy,
+  Store,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
