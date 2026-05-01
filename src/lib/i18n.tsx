@@ -365,8 +365,6 @@ const dict: Dict = {
   approved_stores: { km: "ហាងបានអនុម័ត", en: "Approved stores" },
   copy_link: { km: "ចម្លងតំណ", en: "Copy link" },
   link_copied: { km: "បានចម្លង!", en: "Copied!" },
-  approve: { km: "អនុម័ត", en: "Approve" },
-  reject: { km: "បដិសេធ", en: "Reject" },
   used: { km: "បានប្រើ", en: "Used" },
   // store profile stats
   posts_label: { km: "ការបង្ហោះ", en: "Posts" },
