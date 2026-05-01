@@ -25,9 +25,11 @@ import { Route as FindWorkerRouteImport } from './routes/find-worker'
 import { Route as AnnounceRouteImport } from './routes/announce'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SuppliersIndexRouteImport } from './routes/suppliers.index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
+import { Route as SuppliersStoreIdRouteImport } from './routes/suppliers.$storeId'
 import { Route as StoryViewRouteImport } from './routes/story.view'
 import { Route as StoryNewRouteImport } from './routes/story.new'
 import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
@@ -119,6 +121,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuppliersIndexRoute = SuppliersIndexRouteImport.update({
+  id: '/suppliers/',
+  path: '/suppliers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesIndexRoute = MessagesIndexRouteImport.update({
   id: '/messages/',
   path: '/messages/',
@@ -132,6 +139,11 @@ const ListingsIndexRoute = ListingsIndexRouteImport.update({
 const UsersUserIdRoute = UsersUserIdRouteImport.update({
   id: '/users/$userId',
   path: '/users/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuppliersStoreIdRoute = SuppliersStoreIdRouteImport.update({
+  id: '/suppliers/$storeId',
+  path: '/suppliers/$storeId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StoryViewRoute = StoryViewRouteImport.update({
@@ -212,9 +224,11 @@ export interface FileRoutesByFullPath {
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
+  '/suppliers/$storeId': typeof SuppliersStoreIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
+  '/suppliers/': typeof SuppliersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -243,9 +257,11 @@ export interface FileRoutesByTo {
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
+  '/suppliers/$storeId': typeof SuppliersStoreIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
+  '/suppliers': typeof SuppliersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -275,9 +291,11 @@ export interface FileRoutesById {
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
+  '/suppliers/$storeId': typeof SuppliersStoreIdRoute
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
+  '/suppliers/': typeof SuppliersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -308,9 +326,11 @@ export interface FileRouteTypes {
     | '/profile/portfolio'
     | '/story/new'
     | '/story/view'
+    | '/suppliers/$storeId'
     | '/users/$userId'
     | '/listings/'
     | '/messages/'
+    | '/suppliers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -339,9 +359,11 @@ export interface FileRouteTypes {
     | '/profile/portfolio'
     | '/story/new'
     | '/story/view'
+    | '/suppliers/$storeId'
     | '/users/$userId'
     | '/listings'
     | '/messages'
+    | '/suppliers'
   id:
     | '__root__'
     | '/'
@@ -370,9 +392,11 @@ export interface FileRouteTypes {
     | '/profile/portfolio'
     | '/story/new'
     | '/story/view'
+    | '/suppliers/$storeId'
     | '/users/$userId'
     | '/listings/'
     | '/messages/'
+    | '/suppliers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -400,9 +424,11 @@ export interface RootRouteChildren {
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
   StoryNewRoute: typeof StoryNewRoute
   StoryViewRoute: typeof StoryViewRoute
+  SuppliersStoreIdRoute: typeof SuppliersStoreIdRoute
   UsersUserIdRoute: typeof UsersUserIdRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
+  SuppliersIndexRoute: typeof SuppliersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -519,6 +545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/suppliers/': {
+      id: '/suppliers/'
+      path: '/suppliers'
+      fullPath: '/suppliers/'
+      preLoaderRoute: typeof SuppliersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages/': {
       id: '/messages/'
       path: '/messages'
@@ -538,6 +571,13 @@ declare module '@tanstack/react-router' {
       path: '/users/$userId'
       fullPath: '/users/$userId'
       preLoaderRoute: typeof UsersUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suppliers/$storeId': {
+      id: '/suppliers/$storeId'
+      path: '/suppliers/$storeId'
+      fullPath: '/suppliers/$storeId'
+      preLoaderRoute: typeof SuppliersStoreIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/story/view': {
@@ -651,9 +691,11 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesThreadIdRoute: MessagesThreadIdRoute,
   StoryNewRoute: StoryNewRoute,
   StoryViewRoute: StoryViewRoute,
+  SuppliersStoreIdRoute: SuppliersStoreIdRoute,
   UsersUserIdRoute: UsersUserIdRoute,
   ListingsIndexRoute: ListingsIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
+  SuppliersIndexRoute: SuppliersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
