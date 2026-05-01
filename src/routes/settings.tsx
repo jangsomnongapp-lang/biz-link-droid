@@ -168,6 +168,13 @@ function SettingsPage() {
             iconColor="text-violet-600"
             label={t("admin_invitations")}
           />
+          <Row
+            to="/admin/suppliers"
+            icon={Store}
+            iconBg="bg-emerald-100"
+            iconColor="text-emerald-600"
+            label={t("admin_suppliers")}
+          />
         </Group>
       )}
 
