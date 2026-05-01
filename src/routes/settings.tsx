@@ -22,6 +22,7 @@ import {
   HardHat,
   Users,
   Trophy,
+  Store,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
@@ -166,6 +167,13 @@ function SettingsPage() {
             iconBg="bg-violet-100"
             iconColor="text-violet-600"
             label={t("admin_invitations")}
+          />
+          <Row
+            to="/admin/suppliers"
+            icon={Store}
+            iconBg="bg-emerald-100"
+            iconColor="text-emerald-600"
+            label={t("admin_suppliers")}
           />
         </Group>
       )}

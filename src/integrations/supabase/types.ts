@@ -657,6 +657,7 @@ export type Database = {
           is_provider: boolean
           is_recruiter: boolean
           is_specialist: boolean
+          is_supplier: boolean
           is_verified: boolean
           language: string
           phone: string | null
@@ -676,6 +677,7 @@ export type Database = {
           is_provider?: boolean
           is_recruiter?: boolean
           is_specialist?: boolean
+          is_supplier?: boolean
           is_verified?: boolean
           language?: string
           phone?: string | null
@@ -695,6 +697,7 @@ export type Database = {
           is_provider?: boolean
           is_recruiter?: boolean
           is_specialist?: boolean
+          is_supplier?: boolean
           is_verified?: boolean
           language?: string
           phone?: string | null
@@ -814,6 +817,176 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      supplier_categories: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name_en: string
+          name_km: string
+          sort_order: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en: string
+          name_km: string
+          sort_order?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_km?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      supplier_invites: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          note: string | null
+          token: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          note?: string | null
+          token: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          note?: string | null
+          token?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
+      supplier_store_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          store_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          store_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_store_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_store_categories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_store_photos: {
+        Row: {
+          created_at: string
+          id: string
+          photo_url: string
+          sort_order: number
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          photo_url: string
+          sort_order?: number
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          photo_url?: string
+          sort_order?: number
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_store_photos_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_stores: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          location: string | null
+          logo_url: string | null
+          name: string
+          phone: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_categories: {
         Row: {
