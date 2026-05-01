@@ -656,6 +656,7 @@ export type Database = {
           is_organization: boolean
           is_provider: boolean
           is_recruiter: boolean
+          is_specialist: boolean
           is_verified: boolean
           language: string
           phone: string | null
@@ -674,6 +675,7 @@ export type Database = {
           is_organization?: boolean
           is_provider?: boolean
           is_recruiter?: boolean
+          is_specialist?: boolean
           is_verified?: boolean
           language?: string
           phone?: string | null
@@ -692,6 +694,7 @@ export type Database = {
           is_organization?: boolean
           is_provider?: boolean
           is_recruiter?: boolean
+          is_specialist?: boolean
           is_verified?: boolean
           language?: string
           phone?: string | null

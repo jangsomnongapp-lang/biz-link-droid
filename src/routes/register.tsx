@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Eye, EyeOff, Check, Hammer, Users, Building, Briefcase } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Check, Hammer, Users, Building, Briefcase, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({
@@ -24,6 +24,7 @@ interface Roles {
   is_coordinator: boolean;
   is_organization: boolean;
   is_client: boolean;
+  is_specialist: boolean;
 }
 
 function RegisterFlow() {
@@ -36,6 +37,7 @@ function RegisterFlow() {
     is_coordinator: false,
     is_organization: false,
     is_client: false,
+    is_specialist: false,
   });
   const [selectedCats, setSelectedCats] = useState<Set<string>>(new Set());
   const [categories, setCategories] = useState<CategoryRow[]>([]);
@@ -60,7 +62,7 @@ function RegisterFlow() {
       });
   }, []);
 
-  const anyRole = roles.is_provider || roles.is_coordinator || roles.is_organization || roles.is_client;
+  const anyRole = roles.is_provider || roles.is_coordinator || roles.is_organization || roles.is_client || roles.is_specialist;
   const needsCats = roles.is_provider || roles.is_coordinator || roles.is_organization;
 
   function goNextFromStep1() {
@@ -213,6 +215,7 @@ function Step1({ roles, setRoles }: { roles: Roles; setRoles: (r: Roles) => void
     { key: "is_coordinator", titleKey: "role_coordinator", descKey: "role_coordinator_desc", icon: Users },
     { key: "is_organization", titleKey: "role_organization", descKey: "role_organization_desc", icon: Building },
     { key: "is_client", titleKey: "role_client", descKey: "role_client_desc", icon: Briefcase },
+    { key: "is_specialist", titleKey: "role_specialist", descKey: "role_specialist_desc", icon: GraduationCap },
   ];
   return (
     <div>
@@ -260,6 +263,7 @@ function dictKm(key: string) {
     role_coordinator: "មេក្រុម",
     role_organization: "ក្រុមហ៊ុន",
     role_client: "អ្នកម៉ៅការ",
+    role_specialist: "អ្នកជំនាញ",
   };
   return map[key] ?? "";
 }
