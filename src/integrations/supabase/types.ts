@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          id: number
+          telegram_chat_id: string | null
+          telegram_webhook_secret: string | null
+          telegram_webhook_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          telegram_chat_id?: string | null
+          telegram_webhook_secret?: string | null
+          telegram_webhook_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          telegram_chat_id?: string | null
+          telegram_webhook_secret?: string | null
+          telegram_webhook_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           applicant_id: string
@@ -1048,6 +1072,10 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: { _uid: string }; Returns: boolean }
+      notify_telegram: {
+        Args: { _kind: string; _payload: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
