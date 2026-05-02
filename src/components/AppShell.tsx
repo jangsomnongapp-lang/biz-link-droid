@@ -81,7 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link
               key={tab.to}
               to="/suppliers/$storeId"
-              params={{ storeId: mySupplierStoreId }}
+              params={{ storeId: mySupplierStoreId! }}
               className="relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
             >
               {content}
