@@ -120,7 +120,7 @@ function SupplierEditPage() {
     }
     setSaving(true);
     try {
-      const { error } = await supabase
+      const { error: updErr } = await supabase
         .from("supplier_stores")
         .update({
           name: name.trim(),
@@ -130,27 +130,39 @@ function SupplierEditPage() {
           logo_url: logo,
         })
         .eq("id", storeId);
-      if (error) throw error;
+      if (updErr) throw updErr;
 
       // Sync categories: delete all, re-insert
-      await supabase.from("supplier_store_categories").delete().eq("store_id", storeId);
+      const { error: delCatErr } = await supabase
+        .from("supplier_store_categories")
+        .delete()
+        .eq("store_id", storeId);
+      if (delCatErr) throw delCatErr;
       if (selectedCats.size > 0) {
-        await supabase.from("supplier_store_categories").insert(
-          Array.from(selectedCats).map((cid) => ({ store_id: storeId, category_id: cid })),
-        );
+        const { error: insCatErr } = await supabase
+          .from("supplier_store_categories")
+          .insert(Array.from(selectedCats).map((cid) => ({ store_id: storeId, category_id: cid })));
+        if (insCatErr) throw insCatErr;
       }
 
       // Remove deleted photos
       if (removedPhotoIds.length > 0) {
-        await supabase.from("supplier_store_photos").delete().in("id", removedPhotoIds);
+        const { error: delPhErr } = await supabase
+          .from("supplier_store_photos")
+          .delete()
+          .in("id", removedPhotoIds);
+        if (delPhErr) throw delPhErr;
       }
       // Insert new photos (those without id)
       const newPhotos = photos.filter((p) => !p.id);
       if (newPhotos.length > 0) {
         const startOrder = photos.length - newPhotos.length;
-        await supabase.from("supplier_store_photos").insert(
-          newPhotos.map((p, i) => ({ store_id: storeId, photo_url: p.url, sort_order: startOrder + i })),
-        );
+        const { error: insPhErr } = await supabase
+          .from("supplier_store_photos")
+          .insert(
+            newPhotos.map((p, i) => ({ store_id: storeId, photo_url: p.url, sort_order: startOrder + i })),
+          );
+        if (insPhErr) throw insPhErr;
       }
 
       toast.success(t("store_updated"));
