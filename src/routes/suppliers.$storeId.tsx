@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, MapPin, Phone, MessageCircle, Pencil, ShieldCheck, Store as StoreIcon, Sparkles } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, MapPin, Phone, MessageCircle, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
@@ -102,6 +102,7 @@ function SupplierProfilePage() {
         })),
       );
 
+      // Increment view count if not owner
       if (user && user.id !== s.user_id) {
         void supabase.rpc("increment_supplier_view", { _store_id: storeId });
       }
@@ -150,199 +151,135 @@ function SupplierProfilePage() {
   const isOwner = user?.id === store.user_id;
 
   return (
-    <div className="min-h-screen bg-[#0d1424] pb-28">
-      {/* Dramatic dark hero with amber gradient glow */}
-      <div className="relative overflow-hidden">
-        {/* Background layers */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a2542] via-[#0f1a33] to-[#0d1424]" />
-        <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-amber-500/25 blur-3xl" />
-        <div className="absolute -right-16 top-10 h-56 w-56 rounded-full bg-primary/30 blur-3xl" />
-        {/* Subtle grid overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-
-        <div className="relative px-5 pb-14 pt-5 text-white">
-          {/* Top bar */}
-          <div className="flex items-center justify-between">
-            <Link to="/suppliers" className="rounded-full bg-white/10 p-2 backdrop-blur active:bg-white/20">
-              <ArrowLeft className="h-4 w-4" />
+    <div className="min-h-screen bg-background pb-24">
+      {/* Blue header */}
+      <div className="bg-primary px-5 pb-8 pt-5 text-primary-foreground">
+        <div className="flex items-center justify-between">
+          <Link to="/suppliers" className="rounded-full p-1 active:bg-white/10">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <h2 className="text-base font-semibold">Supplier Profile</h2>
+          {isOwner ? (
+            <Link
+              to="/suppliers/$storeId/edit"
+              params={{ storeId }}
+              className="rounded-full p-1 active:bg-white/10"
+              aria-label={t("edit_store")}
+            >
+              <Pencil className="h-5 w-5" />
             </Link>
-            <span className="flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-300 ring-1 ring-amber-400/30">
-              <StoreIcon className="h-3 w-3" /> {t("supplier_badge")}
-            </span>
-            {isOwner ? (
-              <Link
-                to="/suppliers/$storeId/edit"
-                params={{ storeId }}
-                className="rounded-full bg-white/10 p-2 backdrop-blur active:bg-white/20"
-                aria-label={t("edit_store")}
-              >
-                <Pencil className="h-4 w-4" />
-              </Link>
-            ) : (
-              <span className="w-8" />
-            )}
-          </div>
-
-          {/* Logo with gold ring */}
-          <div className="mt-6 flex flex-col items-center">
-            <div className="relative">
-              {/* Decorative gold ring */}
-              <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-br from-amber-300 via-amber-500 to-amber-700" />
-              <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-br from-amber-300 via-amber-500 to-amber-700 blur-md opacity-60" />
-              {store.logo_url ? (
-                <img
-                  src={store.logo_url}
-                  alt={store.name}
-                  className="relative h-28 w-28 rounded-3xl bg-white object-cover"
-                />
-              ) : (
-                <div className="relative flex h-28 w-28 items-center justify-center rounded-3xl bg-white text-3xl font-black text-[#0d1424]">
-                  {initials(store.name)}
-                </div>
-              )}
-              {/* Verified check badge */}
-              <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 ring-4 ring-[#0f1a33]">
-                <ShieldCheck className="h-4 w-4 text-[#0d1424]" />
-              </div>
-            </div>
-
-            <h1 className="mt-5 text-center text-2xl font-black tracking-tight">{store.name}</h1>
-
-            {store.location && (
-              <p className="mt-1.5 flex items-center gap-1 text-xs text-white/70">
-                <MapPin className="h-3 w-3 text-amber-300" /> {store.location}
-              </p>
-            )}
-
-            {/* Categories */}
-            {cats.length > 0 && (
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
-                {cats.map((c) => (
-                  <span
-                    key={c.id}
-                    className="rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-[11px] font-semibold text-amber-200"
-                  >
-                    {lang === "km" ? c.name_km : c.name_en}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+          ) : (
+            <button className="rounded-full p-1 active:bg-white/10" aria-label="more">
+              <MoreHorizontal className="h-5 w-5" />
+            </button>
+          )}
         </div>
 
-        {/* Diagonal divider with stat strip */}
-        <div className="relative -mb-px">
-          <svg
-            className="block h-6 w-full text-background"
-            viewBox="0 0 100 6"
-            preserveAspectRatio="none"
-          >
-            <polygon points="0,6 100,0 100,6" fill="currentColor" />
-          </svg>
+        <div className="mt-4 flex flex-col items-center">
+          {store.logo_url ? (
+            <img
+              src={store.logo_url}
+              alt={store.name}
+              className="h-24 w-24 rounded-2xl bg-white object-cover shadow-card"
+            />
+          ) : (
+            <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white text-2xl font-bold text-primary shadow-card">
+              {initials(store.name)}
+            </div>
+          )}
+          <h1 className="mt-3 text-lg font-bold">{store.name}</h1>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
+            <span className="rounded-full bg-amber-500 px-3 py-1 text-[11px] font-bold">
+              {t("supplier_badge")} ✓
+            </span>
+            {cats.map((c) => (
+              <span key={c.id} className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-medium">
+                {lang === "km" ? c.name_km : c.name_en}
+              </span>
+            ))}
+          </div>
+          {store.location && (
+            <p className="mt-2 flex items-center gap-1 text-xs opacity-90">
+              📍 {store.location}
+            </p>
+          )}
         </div>
       </div>
 
-      {/* Floating stats card */}
-      <div className="-mt-8 px-4">
-        <div className="grid grid-cols-3 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-black/5">
-          <Stat value={postsCount} label={t("posts_label")} />
-          <Stat value={store.view_count ?? 0} label={t("views_label")} divider />
-          <Stat value={store.contact_count ?? 0} label={t("contacts_label")} divider />
-        </div>
+      {/* Stats row */}
+      <div className="grid grid-cols-3 border-b border-border bg-surface">
+        <Stat value={postsCount} label={t("posts_label")} />
+        <Stat value={store.view_count ?? 0} label={t("views_label")} divider />
+        <Stat value={store.contact_count ?? 0} label={t("contacts_label")} divider />
       </div>
 
       {/* About */}
       {(store.description || store.phone) && (
-        <Section icon="info" title={t("about_label")}>
+        <div className="border-b border-border bg-surface px-5 py-4">
+          <p className="text-sm font-semibold text-foreground">{t("about_label")}</p>
           {store.description && (
-            <p className="text-sm leading-relaxed text-foreground">{store.description}</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">{store.description}</p>
           )}
           {store.phone && (
             <a
               href={`tel:${store.phone}`}
-              className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-400/15 px-4 py-2 text-sm font-bold text-amber-700 ring-1 ring-amber-400/40 active:scale-95"
+              className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-primary"
             >
               <Phone className="h-4 w-4" /> {store.phone}
             </a>
           )}
-        </Section>
+        </div>
       )}
 
-      {/* Featured products bento */}
+      {/* Featured products */}
       {photos.length > 0 && (
-        <Section
-          icon="star"
-          title={t("featured_products")}
-          count={photos.length}
-        >
-          <div className="grid grid-cols-3 gap-1.5">
-            {photos.map((p, i) => {
-              // First photo spans 2x2 for hero feel
-              const span = i === 0 && photos.length >= 3 ? "col-span-2 row-span-2 aspect-square" : "aspect-square";
-              return (
-                <div
-                  key={i}
-                  className={`${span} group relative overflow-hidden rounded-xl bg-muted ring-1 ring-black/5`}
-                >
-                  <img src={p} alt="" className="h-full w-full object-cover transition group-active:scale-105" />
-                  {i === 0 && photos.length >= 3 && (
-                    <div className="absolute left-2 top-2 rounded-full bg-amber-400 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#0d1424]">
-                      ★ Featured
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+        <div className="border-b border-border bg-surface px-5 py-4">
+          <p className="text-sm font-semibold text-foreground">
+            {t("featured_products")} ({photos.length})
+          </p>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {photos.map((p, i) => (
+              <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
+                <img src={p} alt="" className="h-full w-full object-cover" />
+              </div>
+            ))}
           </div>
-        </Section>
+        </div>
       )}
 
       {/* Recent posts */}
       {posts.length > 0 && (
-        <Section icon="post" title={t("recent_posts")}>
-          <div className="space-y-2">
+        <div className="border-b border-border bg-surface px-5 py-4">
+          <p className="text-sm font-semibold text-foreground">{t("recent_posts")}</p>
+          <div className="mt-3 space-y-2">
             {posts.map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 transition active:scale-[0.99]"
-              >
-                {p.photo_url ? (
-                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-black/5">
-                    <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
-                  </div>
-                ) : (
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-amber-400/15 text-amber-600">
-                    <Sparkles className="h-5 w-5" />
-                  </div>
-                )}
+              <div key={p.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 text-sm font-semibold text-foreground">
+                  <p className="truncate text-sm font-semibold text-foreground">
                     {p.content?.split("\n")[0] || "Post"}
                   </p>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
                     {timeAgo(p.created_at, lang)}
                   </p>
                 </div>
+                {p.photo_url && (
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+                    <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
+                  </div>
+                )}
               </div>
             ))}
           </div>
-        </Section>
+        </div>
       )}
 
       {/* Contact button */}
       {!isOwner && (
-        <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[480px] border-t border-border bg-surface/95 px-4 py-3 backdrop-blur">
+        <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[480px] border-t border-border bg-surface px-5 py-3">
           <button
             onClick={startConversation}
             disabled={contacting}
-            className="flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-amber-500/30 active:scale-[0.98] disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.98] disabled:opacity-50"
           >
             <MessageCircle className="h-4 w-4" />
             {t("contact_supplier")}
@@ -356,37 +293,8 @@ function SupplierProfilePage() {
 function Stat({ value, label, divider }: { value: number; label: string; divider?: boolean }) {
   return (
     <div className={`py-4 text-center ${divider ? "border-l border-border" : ""}`}>
-      <p className="text-2xl font-black text-foreground">{formatN(value)}</p>
-      <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
-    </div>
-  );
-}
-
-function Section({
-  title,
-  count,
-  icon,
-  children,
-}: {
-  title: string;
-  count?: number;
-  icon: "info" | "star" | "post";
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="mt-4 px-4">
-      <div className="rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5">
-        <div className="mb-3 flex items-center gap-2">
-          <span className="h-4 w-1 rounded-full bg-amber-400" />
-          <h3 className="text-sm font-bold text-foreground">
-            {title}
-            {typeof count === "number" && (
-              <span className="ml-1.5 font-medium text-muted-foreground">({count})</span>
-            )}
-          </h3>
-        </div>
-        {children}
-      </div>
+      <p className="text-2xl font-bold text-primary">{value}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }
@@ -399,11 +307,6 @@ function initials(name: string) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-}
-
-function formatN(n: number) {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return String(n);
 }
 
 function timeAgo(iso: string, lang: "km" | "en") {
