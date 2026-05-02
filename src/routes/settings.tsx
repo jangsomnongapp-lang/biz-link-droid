@@ -118,8 +118,29 @@ function SettingsPage() {
 
       {/* My Account */}
       <Group title={t("my_account")}>
-        <Row to="/profile/edit" icon={Pencil} iconBg="bg-amber-100" iconColor="text-amber-600" label={t("edit_profile")} />
-        <Row to="/profile/portfolio" icon={ImageIcon} iconBg="bg-emerald-100" iconColor="text-emerald-600" label={t("update_profile")} />
+        {mySupplierStoreId ? (
+          <>
+            <RowButton
+              onClick={() => navigate({ to: "/suppliers/$storeId", params: { storeId: mySupplierStoreId } })}
+              icon={Store}
+              iconBg="bg-emerald-100"
+              iconColor="text-emerald-600"
+              label="Supplier Profile"
+            />
+            <RowButton
+              onClick={() => navigate({ to: "/suppliers/$storeId/edit", params: { storeId: mySupplierStoreId } })}
+              icon={Pencil}
+              iconBg="bg-amber-100"
+              iconColor="text-amber-600"
+              label={t("edit_store")}
+            />
+          </>
+        ) : (
+          <>
+            <Row to="/profile/edit" icon={Pencil} iconBg="bg-amber-100" iconColor="text-amber-600" label={t("edit_profile")} />
+            <Row to="/profile/portfolio" icon={ImageIcon} iconBg="bg-emerald-100" iconColor="text-emerald-600" label={t("update_profile")} />
+          </>
+        )}
         <Row icon={Lock} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("change_password")} />
         <Row icon={Smartphone} iconBg="bg-slate-200" iconColor="text-slate-700" label={t("change_phone")} />
       </Group>
@@ -252,6 +273,16 @@ function Row({ to, icon: Icon, iconBg, iconColor, label }: RowProps) {
   return (
     <button className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-muted">
       {inner}
+    </button>
+  );
+}
+
+function RowButton({ onClick, icon: Icon, iconBg, iconColor, label }: RowProps & { onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-muted">
+      <IconBox icon={Icon} bg={iconBg} color={iconColor} />
+      <div className="flex-1 text-sm font-semibold text-foreground">{label}</div>
+      <ChevronRight className="h-4 w-4 text-muted-foreground" />
     </button>
   );
 }
