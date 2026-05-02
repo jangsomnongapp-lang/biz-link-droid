@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -9,8 +9,16 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, Users, UserPlus, BadgeCheck, Briefcase, Sparkles } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+
+interface SupplierStoreInfo {
+  id: string;
+  name: string;
+  logo_url: string | null;
+  category: string | null;
+  photos: string[];
+}
 
 export const Route = createFileRoute("/home")({
   validateSearch: (s: Record<string, unknown>): { post?: string } => ({
