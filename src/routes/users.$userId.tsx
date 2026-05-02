@@ -200,6 +200,78 @@ function UserProfilePage() {
       </div>
 
       <div className="flex-1 space-y-2 pb-24">
+        {supplierStore && (
+          <div className="mt-2 bg-surface p-4 shadow-card">
+            <Link
+              to="/suppliers/$storeId"
+              params={{ storeId: supplierStore.id }}
+              className="block rounded-2xl bg-surface p-3 shadow-card active:scale-[0.99] border border-border"
+            >
+              <div className="flex items-center gap-3">
+                {supplierStore.logo_url ? (
+                  <img
+                    src={supplierStore.logo_url}
+                    alt={supplierStore.name}
+                    className="h-12 w-12 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
+                    {supplierStore.name
+                      .split(/\s+/)
+                      .map((s) => s[0])
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-bold text-foreground">{supplierStore.name}</p>
+                    <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                      {t("supplier_badge")}
+                    </span>
+                  </div>
+                  <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                    {supplierStore.location && (
+                      <>
+                        <MapPin className="h-3 w-3" />
+                        <span className="truncate">{supplierStore.location}</span>
+                      </>
+                    )}
+                    {supplierStore.categories.length > 0 && (
+                      <span className="truncate">
+                        {" · "}
+                        {supplierStore.categories
+                          .map((c) => (lang === "km" ? c.name_km : c.name_en))
+                          .join(" · ")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              {supplierStore.photos.length > 0 && (
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  {supplierStore.photos.map((p, i) => (
+                    <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
+                      <img src={p} alt="" className="h-full w-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              )}
+              {supplierStore.description && (
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <p className="line-clamp-2 flex-1 text-xs text-muted-foreground">
+                    {supplierStore.description}
+                  </p>
+                  <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
+                    {t("contact_supplier")}
+                  </span>
+                </div>
+              )}
+            </Link>
+          </div>
+        )}
         <Section title={t("about_me")}>
           <p className="text-sm text-foreground">
             {profile.about_me || <span className="text-text-hint">—</span>}
