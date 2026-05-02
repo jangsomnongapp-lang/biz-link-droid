@@ -1,12 +1,29 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Home, Newspaper, Bell, User, Menu, Plus, Search, MessageCircle, Store } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
+  const { user } = useAuth();
   const location = useLocation();
   const path = location.pathname;
+  const [mySupplierStoreId, setMySupplierStoreId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setMySupplierStoreId(null);
+      return;
+    }
+    void supabase
+      .from("supplier_stores")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setMySupplierStoreId(data?.id ?? null));
+  }, [user]);
 
   const tabs = [
     { to: "/home", label: t("nav_home"), icon: Home },
@@ -42,14 +59,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       <nav className="sticky top-14 z-20 flex border-b border-border bg-surface">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const active =
-            tab.to === "/home" ? path === "/home" : path.startsWith(tab.to);
-          return (
-            <Link
-              key={tab.to}
-              to={tab.to}
-              className="relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
-            >
+          const isSupplierProfileTab = tab.to === "/profile" && !!mySupplierStoreId;
+          const active = isSupplierProfileTab
+            ? path === "/profile" || path.startsWith(`/suppliers/${mySupplierStoreId}`)
+            : tab.to === "/home"
+              ? path === "/home"
+              : path.startsWith(tab.to);
+          const content = (
+            <>
               <Icon
                 className={`h-5 w-5 ${active ? "text-primary" : "text-muted-foreground"}`}
                 strokeWidth={active ? 2.5 : 2}
@@ -58,6 +75,24 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {tab.label}
               </span>
               {active && <span className="absolute bottom-0 h-0.5 w-10 rounded-full bg-primary" />}
+            </>
+          );
+          return isSupplierProfileTab ? (
+            <Link
+              key={tab.to}
+              to="/suppliers/$storeId"
+              params={{ storeId: mySupplierStoreId }}
+              className="relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
+            >
+              {content}
+            </Link>
+          ) : (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              className="relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
+            >
+              {content}
             </Link>
           );
         })}
