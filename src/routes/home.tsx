@@ -129,6 +129,36 @@ function HomePage() {
         for (const id of ids) cMap[id] = 0;
         for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
         setCommentCounts(cMap);
+
+        // Fetch supplier store info for any post authors that own a store
+        const userIds = Array.from(new Set(rows.map((p) => p.user_id)));
+        const { data: stores } = await supabase
+          .from("supplier_stores")
+          .select("id, user_id, name, logo_url, supplier_store_categories(supplier_categories(name_en, name_km)), supplier_store_photos(photo_url, sort_order)")
+          .in("user_id", userIds);
+        const map: Record<string, SupplierStoreInfo> = {};
+        for (const s of (stores ?? []) as Array<{
+          id: string;
+          user_id: string;
+          name: string;
+          logo_url: string | null;
+          supplier_store_categories: Array<{ supplier_categories: { name_en: string; name_km: string } | null }>;
+          supplier_store_photos: Array<{ photo_url: string; sort_order: number | null }>;
+        }>) {
+          const catObj = s.supplier_store_categories?.[0]?.supplier_categories ?? null;
+          const photos = (s.supplier_store_photos ?? [])
+            .slice()
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+            .map((p) => p.photo_url);
+          map[s.user_id] = {
+            id: s.id,
+            name: s.name,
+            logo_url: s.logo_url,
+            category: catObj ? (lang === "km" ? catObj.name_km : catObj.name_en) : null,
+            photos,
+          };
+        }
+        setSupplierByUser(map);
       }
     })();
 
