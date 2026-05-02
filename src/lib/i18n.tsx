@@ -371,6 +371,13 @@ const dict: Dict = {
   views_label: { km: "ការមើល", en: "Views" },
   contacts_label: { km: "ទំនាក់ទំនង", en: "Contacts" },
   about_label: { km: "អំពី", en: "About" },
+  recent_posts: { km: "ការបង្ហោះថ្មីៗ", en: "Recent posts" },
+  views_short: { km: "មើល", en: "views" },
+  edit_store: { km: "កែសម្រួលហាង", en: "Edit store" },
+  store_updated: { km: "បានធ្វើបច្ចុប្បន្នភាពហាង", en: "Store updated" },
+  remove: { km: "យកចេញ", en: "Remove" },
+  my_store: { km: "ហាងរបស់ខ្ញុំ", en: "My store" },
+  store_phone_ph: { km: "លេខទូរសព្ទហាង (ស្រេចចិត្ត)", en: "Store phone (optional)" },
 };
 
 interface I18nCtx {
