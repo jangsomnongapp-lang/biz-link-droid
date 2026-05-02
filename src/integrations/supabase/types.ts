@@ -611,6 +611,7 @@ export type Database = {
           updated_at: string
           user_id: string
           video_url: string | null
+          view_count: number
         }
         Insert: {
           content?: string | null
@@ -621,6 +622,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           video_url?: string | null
+          view_count?: number
         }
         Update: {
           content?: string | null
@@ -631,6 +633,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           video_url?: string | null
+          view_count?: number
         }
         Relationships: [
           {
@@ -1035,6 +1038,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      increment_post_view: { Args: { _post_id: string }; Returns: undefined }
       increment_supplier_contact: {
         Args: { _store_id: string }
         Returns: undefined
