@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, MoreHorizontal, MapPin, Phone, MessageCircle, Pencil } from "lucide-react";
 import { toast } from "sonner";
@@ -8,12 +8,19 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/suppliers/$storeId")({
-  component: () => (
-    <RequireAuth>
-      <SupplierProfilePage />
-    </RequireAuth>
-  ),
+  component: SupplierRoute,
 });
+
+function SupplierRoute() {
+  const { storeId } = Route.useParams();
+  const location = useLocation();
+
+  return (
+    <RequireAuth>
+      {location.pathname === `/suppliers/${storeId}` ? <SupplierProfilePage /> : <Outlet />}
+    </RequireAuth>
+  );
+}
 
 interface SupplierCategory {
   id: string;
