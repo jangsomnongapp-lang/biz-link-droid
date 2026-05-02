@@ -38,6 +38,7 @@ interface RecentPost {
   content: string | null;
   created_at: string;
   photo_url: string | null;
+  view_count: number;
 }
 
 function SupplierProfilePage() {
