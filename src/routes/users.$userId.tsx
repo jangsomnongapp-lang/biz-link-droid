@@ -80,6 +80,36 @@ function UserProfilePage() {
       .select("id, photo_url")
       .eq("user_id", userId)
       .then(({ data }) => setPortfolio(data ?? []));
+    void (async () => {
+      const { data: store } = await supabase
+        .from("supplier_stores")
+        .select("id, name, location, description, logo_url")
+        .eq("user_id", userId)
+        .eq("status", "approved")
+        .maybeSingle();
+      if (!store) {
+        setSupplierStore(null);
+        return;
+      }
+      const [{ data: scs }, { data: photos }] = await Promise.all([
+        supabase
+          .from("supplier_store_categories")
+          .select("supplier_categories(name_en, name_km)")
+          .eq("store_id", store.id),
+        supabase
+          .from("supplier_store_photos")
+          .select("photo_url")
+          .eq("store_id", store.id)
+          .order("sort_order"),
+      ]);
+      setSupplierStore({
+        ...store,
+        categories: ((scs ?? []) as Array<{ supplier_categories: { name_en: string; name_km: string } }>)
+          .map((r) => r.supplier_categories)
+          .filter(Boolean),
+        photos: ((photos ?? []) as Array<{ photo_url: string }>).slice(0, 3).map((p) => p.photo_url),
+      });
+    })();
   }, [userId]);
 
   async function startConversation() {
