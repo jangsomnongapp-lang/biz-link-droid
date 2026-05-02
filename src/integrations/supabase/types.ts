@@ -951,6 +951,7 @@ export type Database = {
       }
       supplier_stores: {
         Row: {
+          contact_count: number
           created_at: string
           description: string | null
           id: string
@@ -961,8 +962,10 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string
+          view_count: number
         }
         Insert: {
+          contact_count?: number
           created_at?: string
           description?: string | null
           id?: string
@@ -973,8 +976,10 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
+          view_count?: number
         }
         Update: {
+          contact_count?: number
           created_at?: string
           description?: string | null
           id?: string
@@ -985,6 +990,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+          view_count?: number
         }
         Relationships: []
       }
@@ -1029,6 +1035,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      increment_supplier_contact: {
+        Args: { _store_id: string }
+        Returns: undefined
+      }
+      increment_supplier_view: {
+        Args: { _store_id: string }
+        Returns: undefined
+      }
       is_admin: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
