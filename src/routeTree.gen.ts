@@ -41,6 +41,7 @@ import { Route as AdminSuppliersRouteImport } from './routes/admin.suppliers'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
+import { Route as SuppliersStoreIdEditRouteImport } from './routes/suppliers.$storeId.edit'
 import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
 
 const TermsRoute = TermsRouteImport.update({
@@ -203,6 +204,11 @@ const AdminInvitationsRoute = AdminInvitationsRouteImport.update({
   path: '/admin/invitations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuppliersStoreIdEditRoute = SuppliersStoreIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => SuppliersStoreIdRoute,
+} as any)
 const SupplierJoinTokenRoute = SupplierJoinTokenRouteImport.update({
   id: '/supplier/join/$token',
   path: '/supplier/join/$token',
@@ -237,12 +243,13 @@ export interface FileRoutesByFullPath {
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
-  '/suppliers/$storeId': typeof SuppliersStoreIdRoute
+  '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
+  '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -272,12 +279,13 @@ export interface FileRoutesByTo {
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
-  '/suppliers/$storeId': typeof SuppliersStoreIdRoute
+  '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
+  '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -308,12 +316,13 @@ export interface FileRoutesById {
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
-  '/suppliers/$storeId': typeof SuppliersStoreIdRoute
+  '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
+  '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -351,6 +360,7 @@ export interface FileRouteTypes {
     | '/messages/'
     | '/suppliers/'
     | '/supplier/join/$token'
+    | '/suppliers/$storeId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/suppliers'
     | '/supplier/join/$token'
+    | '/suppliers/$storeId/edit'
   id:
     | '__root__'
     | '/'
@@ -421,6 +432,7 @@ export interface FileRouteTypes {
     | '/messages/'
     | '/suppliers/'
     | '/supplier/join/$token'
+    | '/suppliers/$storeId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -449,7 +461,7 @@ export interface RootRouteChildren {
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
   StoryNewRoute: typeof StoryNewRoute
   StoryViewRoute: typeof StoryViewRoute
-  SuppliersStoreIdRoute: typeof SuppliersStoreIdRoute
+  SuppliersStoreIdRoute: typeof SuppliersStoreIdRouteWithChildren
   UsersUserIdRoute: typeof UsersUserIdRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
@@ -683,6 +695,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInvitationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/suppliers/$storeId/edit': {
+      id: '/suppliers/$storeId/edit'
+      path: '/edit'
+      fullPath: '/suppliers/$storeId/edit'
+      preLoaderRoute: typeof SuppliersStoreIdEditRouteImport
+      parentRoute: typeof SuppliersStoreIdRoute
+    }
     '/supplier/join/$token': {
       id: '/supplier/join/$token'
       path: '/supplier/join/$token'
@@ -705,6 +724,17 @@ const ProfileRouteChildren: ProfileRouteChildren = {
 
 const ProfileRouteWithChildren =
   ProfileRoute._addFileChildren(ProfileRouteChildren)
+
+interface SuppliersStoreIdRouteChildren {
+  SuppliersStoreIdEditRoute: typeof SuppliersStoreIdEditRoute
+}
+
+const SuppliersStoreIdRouteChildren: SuppliersStoreIdRouteChildren = {
+  SuppliersStoreIdEditRoute: SuppliersStoreIdEditRoute,
+}
+
+const SuppliersStoreIdRouteWithChildren =
+  SuppliersStoreIdRoute._addFileChildren(SuppliersStoreIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -732,7 +762,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesThreadIdRoute: MessagesThreadIdRoute,
   StoryNewRoute: StoryNewRoute,
   StoryViewRoute: StoryViewRoute,
-  SuppliersStoreIdRoute: SuppliersStoreIdRoute,
+  SuppliersStoreIdRoute: SuppliersStoreIdRouteWithChildren,
   UsersUserIdRoute: UsersUserIdRoute,
   ListingsIndexRoute: ListingsIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
