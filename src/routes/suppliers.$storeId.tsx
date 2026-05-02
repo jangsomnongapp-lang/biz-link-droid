@@ -38,6 +38,7 @@ interface RecentPost {
   content: string | null;
   created_at: string;
   photo_url: string | null;
+  view_count: number;
 }
 
 function SupplierProfilePage() {
@@ -79,7 +80,7 @@ function SupplierProfilePage() {
           .eq("status", "approved"),
         supabase
           .from("posts")
-          .select("id, content, created_at, post_photos(photo_url)")
+          .select("id, content, created_at, view_count, post_photos(photo_url)")
           .eq("user_id", s.user_id)
           .eq("status", "approved")
           .order("created_at", { ascending: false })
@@ -94,11 +95,12 @@ function SupplierProfilePage() {
       setPhotos(((ph ?? []) as Array<{ photo_url: string }>).map((p) => p.photo_url));
       setPostsCount(count ?? 0);
       setPosts(
-        ((pp ?? []) as Array<{ id: string; content: string | null; created_at: string; post_photos: Array<{ photo_url: string }> }>).map((p) => ({
+        ((pp ?? []) as Array<{ id: string; content: string | null; created_at: string; view_count: number | null; post_photos: Array<{ photo_url: string }> }>).map((p) => ({
           id: p.id,
           content: p.content,
           created_at: p.created_at,
           photo_url: p.post_photos?.[0]?.photo_url ?? null,
+          view_count: p.view_count ?? 0,
         })),
       );
 
@@ -259,7 +261,7 @@ function SupplierProfilePage() {
                     {p.content?.split("\n")[0] || "Post"}
                   </p>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {timeAgo(p.created_at, lang)}
+                    {timeAgo(p.created_at, lang)} · {p.view_count} {lang === "km" ? "មើល" : `view${p.view_count === 1 ? "" : "s"}`}
                   </p>
                 </div>
                 {p.photo_url && (
