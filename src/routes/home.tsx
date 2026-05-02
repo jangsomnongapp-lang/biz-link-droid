@@ -60,8 +60,9 @@ interface StoryGroup {
 }
 
 function HomePage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
+  const nav = useNavigate();
   const { post: focusPostId } = Route.useSearch();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
@@ -72,6 +73,8 @@ function HomePage() {
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [supplierByUser, setSupplierByUser] = useState<Record<string, SupplierStoreInfo>>({});
+  const [contactingUser, setContactingUser] = useState<string | null>(null);
 
   useEffect(() => {
     if (!focusPostId || loading) return;
