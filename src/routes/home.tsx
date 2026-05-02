@@ -357,13 +357,21 @@ function HomePage() {
         {posts.map((p) => {
           const l = likes[p.id] ?? { count: 0, mine: false };
           const cc = commentCounts[p.id] ?? 0;
+          const supplier = supplierByUser[p.user_id];
+          const isSupplierPost = !!supplier;
+          // Combine post photos with store photos (post first, then store fillers up to 2 total visible)
+          const postPhotoUrls = p.post_photos.map((ph) => ph.photo_url);
+          const supplierGalleryPhotos = isSupplierPost
+            ? [...postPhotoUrls, ...supplier.photos.filter((u) => !postPhotoUrls.includes(u))].slice(0, 2)
+            : [];
+          const isOwner = user?.id === p.user_id;
           return (
             <article
               key={p.id}
               id={`post-${p.id}`}
               className={`relative bg-surface px-4 py-3 shadow-card transition-shadow ${
-                highlightId === p.id ? "ring-2 ring-primary" : ""
-              }`}
+                isSupplierPost ? "border-l-4 border-amber-500" : ""
+              } ${highlightId === p.id ? "ring-2 ring-primary" : ""}`}
             >
               {isAdmin && (
                 <button
@@ -375,25 +383,90 @@ function HomePage() {
                 </button>
               )}
               <header className="flex items-center gap-3">
-                <Link to="/users/$userId" params={{ userId: p.user_id }} className="active:opacity-60">
-                  <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
-                </Link>
-                <Link to="/users/$userId" params={{ userId: p.user_id }} className="flex-1 active:opacity-60">
-                  <div className="flex items-center gap-1 text-sm font-semibold text-foreground">
-                    <span className="truncate">{p.profiles?.full_name ?? "User"}</span>
-                    {p.profiles?.is_verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-sky-400 text-white" />}
-                    {p.profiles?.is_recruiter && <Briefcase className="h-4 w-4 shrink-0 text-amber-500" />}
-                    {p.profiles?.is_featured && <Sparkles className="h-4 w-4 shrink-0 text-pink-500" />}
-                  </div>
-                  <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
-                </Link>
+                {isSupplierPost ? (
+                  <Link
+                    to="/suppliers/$storeId"
+                    params={{ storeId: supplier.id }}
+                    className="active:opacity-60"
+                  >
+                    {supplier.logo_url ? (
+                      <img
+                        src={supplier.logo_url}
+                        alt={supplier.name}
+                        className="h-10 w-10 rounded-lg bg-muted object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
+                        {supplier.name.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                  </Link>
+                ) : (
+                  <Link to="/users/$userId" params={{ userId: p.user_id }} className="active:opacity-60">
+                    <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
+                  </Link>
+                )}
+                {isSupplierPost ? (
+                  <Link
+                    to="/suppliers/$storeId"
+                    params={{ storeId: supplier.id }}
+                    className="flex-1 active:opacity-60"
+                  >
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                      <span className="truncate">{supplier.name}</span>
+                      <span className="rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        {t("supplier_badge")}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {timeAgo(p.created_at, t)}
+                      {supplier.category && <> · {supplier.category}</>}
+                    </div>
+                  </Link>
+                ) : (
+                  <Link to="/users/$userId" params={{ userId: p.user_id }} className="flex-1 active:opacity-60">
+                    <div className="flex items-center gap-1 text-sm font-semibold text-foreground">
+                      <span className="truncate">{p.profiles?.full_name ?? "User"}</span>
+                      {p.profiles?.is_verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-sky-400 text-white" />}
+                      {p.profiles?.is_recruiter && <Briefcase className="h-4 w-4 shrink-0 text-amber-500" />}
+                      {p.profiles?.is_featured && <Sparkles className="h-4 w-4 shrink-0 text-pink-500" />}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
+                  </Link>
+                )}
                 {user?.id !== p.user_id && <ReportMenu targetKind="post" targetId={p.id} />}
               </header>
               {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
-              {p.post_photos[0] && (
-                <img src={p.post_photos[0].photo_url} className="mt-3 w-full rounded-lg object-cover" alt="" />
+              {isSupplierPost ? (
+                supplierGalleryPhotos.length > 0 && (
+                  <div className={`mt-3 grid gap-2 ${supplierGalleryPhotos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+                    {supplierGalleryPhotos.map((url, i) => (
+                      <img
+                        key={i}
+                        src={url}
+                        alt=""
+                        className="aspect-square w-full rounded-lg bg-muted object-cover"
+                      />
+                    ))}
+                  </div>
+                )
+              ) : (
+                p.post_photos[0] && (
+                  <img src={p.post_photos[0].photo_url} className="mt-3 w-full rounded-lg object-cover" alt="" />
+                )
               )}
               {p.video_url && <VideoEmbed url={p.video_url} />}
+
+              {isSupplierPost && !isOwner && (
+                <button
+                  onClick={() => void contactSupplier(p.user_id, supplier.id)}
+                  disabled={contactingUser === p.user_id}
+                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-500 text-sm font-bold text-white shadow active:scale-[0.98] disabled:opacity-50"
+                >
+                  {t("contact_supplier")} <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
+
 
               {(l.count > 0 || cc > 0) && (
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
