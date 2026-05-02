@@ -37,12 +37,14 @@ import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
 import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
+import { Route as AdminTelegramRouteImport } from './routes/admin.telegram'
 import { Route as AdminSuppliersRouteImport } from './routes/admin.suppliers'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
 import { Route as SuppliersStoreIdEditRouteImport } from './routes/suppliers.$storeId.edit'
 import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
+import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -184,6 +186,11 @@ const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
   path: '/listings/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTelegramRoute = AdminTelegramRouteImport.update({
+  id: '/admin/telegram',
+  path: '/admin/telegram',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSuppliersRoute = AdminSuppliersRouteImport.update({
   id: '/admin/suppliers',
   path: '/admin/suppliers',
@@ -214,6 +221,11 @@ const SupplierJoinTokenRoute = SupplierJoinTokenRouteImport.update({
   path: '/supplier/join/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTelegramNotifyRoute = ApiPublicTelegramNotifyRouteImport.update({
+  id: '/api/public/telegram-notify',
+  path: '/api/public/telegram-notify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -236,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
+  '/admin/telegram': typeof AdminTelegramRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -248,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
+  '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
@@ -272,6 +286,7 @@ export interface FileRoutesByTo {
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
+  '/admin/telegram': typeof AdminTelegramRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -284,6 +299,7 @@ export interface FileRoutesByTo {
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
+  '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
@@ -309,6 +325,7 @@ export interface FileRoutesById {
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
+  '/admin/telegram': typeof AdminTelegramRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -321,6 +338,7 @@ export interface FileRoutesById {
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
+  '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
@@ -347,6 +365,7 @@ export interface FileRouteTypes {
     | '/admin/posts'
     | '/admin/reports'
     | '/admin/suppliers'
+    | '/admin/telegram'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -359,6 +378,7 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
+    | '/api/public/telegram-notify'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -383,6 +403,7 @@ export interface FileRouteTypes {
     | '/admin/posts'
     | '/admin/reports'
     | '/admin/suppliers'
+    | '/admin/telegram'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -395,6 +416,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/messages'
     | '/suppliers'
+    | '/api/public/telegram-notify'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
   id:
@@ -419,6 +441,7 @@ export interface FileRouteTypes {
     | '/admin/posts'
     | '/admin/reports'
     | '/admin/suppliers'
+    | '/admin/telegram'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -431,6 +454,7 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
+    | '/api/public/telegram-notify'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
   fileRoutesById: FileRoutesById
@@ -456,6 +480,7 @@ export interface RootRouteChildren {
   AdminPostsRoute: typeof AdminPostsRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSuppliersRoute: typeof AdminSuppliersRoute
+  AdminTelegramRoute: typeof AdminTelegramRoute
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
@@ -466,6 +491,7 @@ export interface RootRouteChildren {
   ListingsIndexRoute: typeof ListingsIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   SuppliersIndexRoute: typeof SuppliersIndexRoute
+  ApiPublicTelegramNotifyRoute: typeof ApiPublicTelegramNotifyRoute
   SupplierJoinTokenRoute: typeof SupplierJoinTokenRoute
 }
 
@@ -667,6 +693,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/telegram': {
+      id: '/admin/telegram'
+      path: '/admin/telegram'
+      fullPath: '/admin/telegram'
+      preLoaderRoute: typeof AdminTelegramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/suppliers': {
       id: '/admin/suppliers'
       path: '/admin/suppliers'
@@ -707,6 +740,13 @@ declare module '@tanstack/react-router' {
       path: '/supplier/join/$token'
       fullPath: '/supplier/join/$token'
       preLoaderRoute: typeof SupplierJoinTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/telegram-notify': {
+      id: '/api/public/telegram-notify'
+      path: '/api/public/telegram-notify'
+      fullPath: '/api/public/telegram-notify'
+      preLoaderRoute: typeof ApiPublicTelegramNotifyRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -757,6 +797,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminPostsRoute: AdminPostsRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminSuppliersRoute: AdminSuppliersRoute,
+  AdminTelegramRoute: AdminTelegramRoute,
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
@@ -767,6 +808,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsIndexRoute: ListingsIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   SuppliersIndexRoute: SuppliersIndexRoute,
+  ApiPublicTelegramNotifyRoute: ApiPublicTelegramNotifyRoute,
   SupplierJoinTokenRoute: SupplierJoinTokenRoute,
 }
 export const routeTree = rootRouteImport
