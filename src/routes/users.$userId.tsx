@@ -41,6 +41,15 @@ function UserProfilePage() {
   const [posted, setPosted] = useState(0);
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
   const [activeProjects, setActiveProjects] = useState<{ id: string; title: string; location: string | null }[]>([]);
+  const [supplierStore, setSupplierStore] = useState<{
+    id: string;
+    name: string;
+    location: string | null;
+    description: string | null;
+    logo_url: string | null;
+    categories: { name_en: string; name_km: string }[];
+    photos: string[];
+  } | null>(null);
   const [contacting, setContacting] = useState(false);
 
   useEffect(() => {
