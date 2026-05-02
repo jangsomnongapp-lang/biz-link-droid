@@ -23,6 +23,7 @@ import {
   Users,
   Trophy,
   Store,
+  Send,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
