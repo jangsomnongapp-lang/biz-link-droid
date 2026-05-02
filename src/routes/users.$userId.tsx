@@ -91,6 +91,9 @@ function UserProfilePage() {
         setSupplierStore(null);
         return;
       }
+      // If this user is a supplier, take visitors straight to the shop page
+      nav({ to: "/suppliers/$storeId", params: { storeId: store.id }, replace: true });
+      return;
       const [{ data: scs }, { data: photos }] = await Promise.all([
         supabase
           .from("supplier_store_categories")
