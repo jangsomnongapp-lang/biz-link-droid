@@ -261,7 +261,7 @@ function SupplierProfilePage() {
                     {p.content?.split("\n")[0] || "Post"}
                   </p>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {timeAgo(p.created_at, lang)}
+                    {timeAgo(p.created_at, lang)} · {p.view_count} {lang === "km" ? "មើល" : `view${p.view_count === 1 ? "" : "s"}`}
                   </p>
                 </div>
                 {p.photo_url && (
