@@ -129,7 +129,7 @@ function ProfilePage() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setPortfolio(data ?? []));
-  }, [user, nav]);
+  }, [user]);
 
   const roleLabels: string[] = [];
   if (profile?.is_provider) roleLabels.push(t("role_provider"));
