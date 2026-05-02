@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -9,8 +9,16 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, Users, UserPlus, BadgeCheck, Briefcase, Sparkles } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+
+interface SupplierStoreInfo {
+  id: string;
+  name: string;
+  logo_url: string | null;
+  category: string | null;
+  photos: string[];
+}
 
 export const Route = createFileRoute("/home")({
   validateSearch: (s: Record<string, unknown>): { post?: string } => ({
@@ -52,8 +60,9 @@ interface StoryGroup {
 }
 
 function HomePage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
+  const nav = useNavigate();
   const { post: focusPostId } = Route.useSearch();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
@@ -64,6 +73,8 @@ function HomePage() {
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [supplierByUser, setSupplierByUser] = useState<Record<string, SupplierStoreInfo>>({});
+  const [contactingUser, setContactingUser] = useState<string | null>(null);
 
   useEffect(() => {
     if (!focusPostId || loading) return;
@@ -118,6 +129,36 @@ function HomePage() {
         for (const id of ids) cMap[id] = 0;
         for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
         setCommentCounts(cMap);
+
+        // Fetch supplier store info for any post authors that own a store
+        const userIds = Array.from(new Set(rows.map((p) => p.user_id)));
+        const { data: stores } = await supabase
+          .from("supplier_stores")
+          .select("id, user_id, name, logo_url, supplier_store_categories(supplier_categories(name_en, name_km)), supplier_store_photos(photo_url, sort_order)")
+          .in("user_id", userIds);
+        const map: Record<string, SupplierStoreInfo> = {};
+        for (const s of (stores ?? []) as Array<{
+          id: string;
+          user_id: string;
+          name: string;
+          logo_url: string | null;
+          supplier_store_categories: Array<{ supplier_categories: { name_en: string; name_km: string } | null }>;
+          supplier_store_photos: Array<{ photo_url: string; sort_order: number | null }>;
+        }>) {
+          const catObj = s.supplier_store_categories?.[0]?.supplier_categories ?? null;
+          const photos = (s.supplier_store_photos ?? [])
+            .slice()
+            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+            .map((p) => p.photo_url);
+          map[s.user_id] = {
+            id: s.id,
+            name: s.name,
+            logo_url: s.logo_url,
+            category: catObj ? (lang === "km" ? catObj.name_km : catObj.name_en) : null,
+            photos,
+          };
+        }
+        setSupplierByUser(map);
       }
     })();
 
@@ -177,6 +218,36 @@ function HomePage() {
         .from("post_likes")
         .insert({ post_id: postId, user_id: user.id });
       if (error) setLikes((m) => ({ ...m, [postId]: cur }));
+    }
+  }
+
+  async function contactSupplier(ownerId: string, storeId: string) {
+    if (!user || user.id === ownerId) return;
+    setContactingUser(ownerId);
+    try {
+      const [a, b] = [user.id, ownerId].sort();
+      const { data: existing } = await supabase
+        .from("message_threads")
+        .select("id")
+        .eq("participant_a", a)
+        .eq("participant_b", b)
+        .maybeSingle();
+      let threadId = existing?.id;
+      if (!threadId) {
+        const { data: created, error } = await supabase
+          .from("message_threads")
+          .insert({ participant_a: a, participant_b: b })
+          .select("id")
+          .single();
+        if (error) throw error;
+        threadId = created.id;
+      }
+      void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
+      nav({ to: "/messages/$threadId", params: { threadId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setContactingUser(null);
     }
   }
 
@@ -286,13 +357,21 @@ function HomePage() {
         {posts.map((p) => {
           const l = likes[p.id] ?? { count: 0, mine: false };
           const cc = commentCounts[p.id] ?? 0;
+          const supplier = supplierByUser[p.user_id];
+          const isSupplierPost = !!supplier;
+          // Combine post photos with store photos (post first, then store fillers up to 2 total visible)
+          const postPhotoUrls = p.post_photos.map((ph) => ph.photo_url);
+          const supplierGalleryPhotos = isSupplierPost
+            ? [...postPhotoUrls, ...supplier.photos.filter((u) => !postPhotoUrls.includes(u))].slice(0, 2)
+            : [];
+          const isOwner = user?.id === p.user_id;
           return (
             <article
               key={p.id}
               id={`post-${p.id}`}
               className={`relative bg-surface px-4 py-3 shadow-card transition-shadow ${
-                highlightId === p.id ? "ring-2 ring-primary" : ""
-              }`}
+                isSupplierPost ? "border-l-4 border-amber-500" : ""
+              } ${highlightId === p.id ? "ring-2 ring-primary" : ""}`}
             >
               {isAdmin && (
                 <button
@@ -304,25 +383,90 @@ function HomePage() {
                 </button>
               )}
               <header className="flex items-center gap-3">
-                <Link to="/users/$userId" params={{ userId: p.user_id }} className="active:opacity-60">
-                  <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
-                </Link>
-                <Link to="/users/$userId" params={{ userId: p.user_id }} className="flex-1 active:opacity-60">
-                  <div className="flex items-center gap-1 text-sm font-semibold text-foreground">
-                    <span className="truncate">{p.profiles?.full_name ?? "User"}</span>
-                    {p.profiles?.is_verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-sky-400 text-white" />}
-                    {p.profiles?.is_recruiter && <Briefcase className="h-4 w-4 shrink-0 text-amber-500" />}
-                    {p.profiles?.is_featured && <Sparkles className="h-4 w-4 shrink-0 text-pink-500" />}
-                  </div>
-                  <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
-                </Link>
+                {isSupplierPost ? (
+                  <Link
+                    to="/suppliers/$storeId"
+                    params={{ storeId: supplier.id }}
+                    className="active:opacity-60"
+                  >
+                    {supplier.logo_url ? (
+                      <img
+                        src={supplier.logo_url}
+                        alt={supplier.name}
+                        className="h-10 w-10 rounded-lg bg-muted object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
+                        {supplier.name.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                  </Link>
+                ) : (
+                  <Link to="/users/$userId" params={{ userId: p.user_id }} className="active:opacity-60">
+                    <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
+                  </Link>
+                )}
+                {isSupplierPost ? (
+                  <Link
+                    to="/suppliers/$storeId"
+                    params={{ storeId: supplier.id }}
+                    className="flex-1 active:opacity-60"
+                  >
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                      <span className="truncate">{supplier.name}</span>
+                      <span className="rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        {t("supplier_badge")}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {timeAgo(p.created_at, t)}
+                      {supplier.category && <> · {supplier.category}</>}
+                    </div>
+                  </Link>
+                ) : (
+                  <Link to="/users/$userId" params={{ userId: p.user_id }} className="flex-1 active:opacity-60">
+                    <div className="flex items-center gap-1 text-sm font-semibold text-foreground">
+                      <span className="truncate">{p.profiles?.full_name ?? "User"}</span>
+                      {p.profiles?.is_verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-sky-400 text-white" />}
+                      {p.profiles?.is_recruiter && <Briefcase className="h-4 w-4 shrink-0 text-amber-500" />}
+                      {p.profiles?.is_featured && <Sparkles className="h-4 w-4 shrink-0 text-pink-500" />}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
+                  </Link>
+                )}
                 {user?.id !== p.user_id && <ReportMenu targetKind="post" targetId={p.id} />}
               </header>
               {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
-              {p.post_photos[0] && (
-                <img src={p.post_photos[0].photo_url} className="mt-3 w-full rounded-lg object-cover" alt="" />
+              {isSupplierPost ? (
+                supplierGalleryPhotos.length > 0 && (
+                  <div className={`mt-3 grid gap-2 ${supplierGalleryPhotos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+                    {supplierGalleryPhotos.map((url, i) => (
+                      <img
+                        key={i}
+                        src={url}
+                        alt=""
+                        className="aspect-square w-full rounded-lg bg-muted object-cover"
+                      />
+                    ))}
+                  </div>
+                )
+              ) : (
+                p.post_photos[0] && (
+                  <img src={p.post_photos[0].photo_url} className="mt-3 w-full rounded-lg object-cover" alt="" />
+                )
               )}
               {p.video_url && <VideoEmbed url={p.video_url} />}
+
+              {isSupplierPost && !isOwner && (
+                <button
+                  onClick={() => void contactSupplier(p.user_id, supplier.id)}
+                  disabled={contactingUser === p.user_id}
+                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-500 text-sm font-bold text-white shadow active:scale-[0.98] disabled:opacity-50"
+                >
+                  {t("contact_supplier")} <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
+
 
               {(l.count > 0 || cc > 0) && (
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
