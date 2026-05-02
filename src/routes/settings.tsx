@@ -23,6 +23,7 @@ import {
   Users,
   Trophy,
   Store,
+  Send,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
@@ -207,6 +208,13 @@ function SettingsPage() {
             iconBg="bg-emerald-100"
             iconColor="text-emerald-600"
             label={t("admin_suppliers")}
+          />
+          <Row
+            to="/admin/telegram"
+            icon={Send}
+            iconBg="bg-sky-100"
+            iconColor="text-sky-600"
+            label="Telegram notifications"
           />
         </Group>
       )}
