@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -43,6 +43,7 @@ interface Profile {
 function ProfilePage() {
   const { t, lang } = useI18n();
   const { user, signOut } = useAuth();
+  const nav = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cats, setCats] = useState<{ name_en: string; name_km: string }[]>([]);
   const [stats, setStats] = useState({ posted: 0, applied: 0, contacts: 0 });
@@ -79,6 +80,16 @@ function ProfilePage() {
   }
   useEffect(() => {
     if (!user) return;
+    void supabase
+      .from("supplier_stores")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.id) {
+          nav({ to: "/suppliers/$storeId", params: { storeId: data.id }, replace: true });
+        }
+      });
     void supabase
       .from("profiles")
       .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client")

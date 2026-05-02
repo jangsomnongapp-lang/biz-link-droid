@@ -129,7 +129,8 @@ function SupplierEditPage() {
           phone: phone.trim() || null,
           logo_url: logo,
         })
-        .eq("id", storeId);
+        .eq("id", storeId)
+        .eq("user_id", user?.id ?? "");
       if (updErr) throw updErr;
 
       // Sync categories: delete all, re-insert
