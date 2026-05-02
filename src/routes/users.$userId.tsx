@@ -83,14 +83,10 @@ function UserProfilePage() {
     void (async () => {
       const { data: store } = await supabase
         .from("supplier_stores")
-        .select("id, name, location, description, logo_url")
+        .select("id")
         .eq("user_id", userId)
-        .eq("status", "approved")
         .maybeSingle();
-      if (!store) {
-        setSupplierStore(null);
-        return;
-      }
+      if (!store) return;
       // If this user is a supplier, take visitors straight to the shop page
       nav({ to: "/suppliers/$storeId", params: { storeId: store.id }, replace: true });
     })();
