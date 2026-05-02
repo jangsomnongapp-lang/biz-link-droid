@@ -221,6 +221,36 @@ function HomePage() {
     }
   }
 
+  async function contactSupplier(ownerId: string, storeId: string) {
+    if (!user || user.id === ownerId) return;
+    setContactingUser(ownerId);
+    try {
+      const [a, b] = [user.id, ownerId].sort();
+      const { data: existing } = await supabase
+        .from("message_threads")
+        .select("id")
+        .eq("participant_a", a)
+        .eq("participant_b", b)
+        .maybeSingle();
+      let threadId = existing?.id;
+      if (!threadId) {
+        const { data: created, error } = await supabase
+          .from("message_threads")
+          .insert({ participant_a: a, participant_b: b })
+          .select("id")
+          .single();
+        if (error) throw error;
+        threadId = created.id;
+      }
+      void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
+      nav({ to: "/messages/$threadId", params: { threadId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setContactingUser(null);
+    }
+  }
+
   async function sharePost(postId: string) {
     const url = `${window.location.origin}/home?post=${postId}`;
     const shareData = { title: t("app_name"), url };
