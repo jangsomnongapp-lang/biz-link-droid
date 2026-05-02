@@ -41,6 +41,7 @@ function UserProfilePage() {
   const [posted, setPosted] = useState(0);
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
   const [activeProjects, setActiveProjects] = useState<{ id: string; title: string; location: string | null }[]>([]);
+  const [checkingSupplier, setCheckingSupplier] = useState(true);
   const [supplierStore, setSupplierStore] = useState<{
     id: string;
     name: string;
@@ -53,6 +54,20 @@ function UserProfilePage() {
   const [contacting, setContacting] = useState(false);
 
   useEffect(() => {
+    setCheckingSupplier(true);
+    void (async () => {
+      const { data: store } = await supabase
+        .from("supplier_stores")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (store?.id) {
+        // Supplier owners must always open their shop page, not the worker profile.
+        nav({ to: "/suppliers/$storeId", params: { storeId: store.id }, replace: true });
+        return;
+      }
+      setCheckingSupplier(false);
+    })();
     void supabase
       .from("profiles")
       .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client, is_verified, is_recruiter, is_featured")
@@ -80,16 +95,6 @@ function UserProfilePage() {
       .select("id, photo_url")
       .eq("user_id", userId)
       .then(({ data }) => setPortfolio(data ?? []));
-    void (async () => {
-      const { data: store } = await supabase
-        .from("supplier_stores")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
-      if (!store) return;
-      // If this user is a supplier, take visitors straight to the shop page
-      nav({ to: "/suppliers/$storeId", params: { storeId: store.id }, replace: true });
-    })();
   }, [userId]);
 
   async function startConversation() {
@@ -122,7 +127,7 @@ function UserProfilePage() {
     }
   }
 
-  if (!profile)
+  if (checkingSupplier || !profile)
     return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">{t("loading")}</div>;
 
   const roleLabels: string[] = [];
