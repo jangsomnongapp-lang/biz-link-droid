@@ -46,6 +46,7 @@ function SettingsPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileLite | null>(null);
+  const [mySupplierStoreId, setMySupplierStoreId] = useState<string | null>(null);
   const [notifEnabled, setNotifEnabled] = useState(true);
 
   useEffect(() => {
@@ -56,6 +57,12 @@ function SettingsPage() {
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => setProfile(data));
+    void supabase
+      .from("supplier_stores")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setMySupplierStoreId(data?.id ?? null));
   }, [user]);
 
   const subtitle = [
@@ -80,9 +87,14 @@ function SettingsPage() {
           <h1 className="flex-1 text-center text-base font-semibold">{t("menu")}</h1>
           <span className="w-9" />
         </div>
-        <Link
-          to="/profile"
-          className="flex items-center gap-3 rounded-xl px-1 py-2 active:bg-white/10"
+        <button
+          type="button"
+          onClick={() =>
+            mySupplierStoreId
+              ? navigate({ to: "/suppliers/$storeId", params: { storeId: mySupplierStoreId } })
+              : navigate({ to: "/profile" })
+          }
+          className="flex w-full items-center gap-3 rounded-xl px-1 py-2 text-left active:bg-white/10"
         >
           <Avatar
             name={profile?.full_name}
@@ -95,7 +107,7 @@ function SettingsPage() {
             <div className="text-xs text-white/80">{subtitle || " "}</div>
           </div>
           <ChevronRight className="h-5 w-5 text-white/80" />
-        </Link>
+        </button>
       </header>
 
       {/* Discover */}
