@@ -359,10 +359,9 @@ function HomePage() {
           const cc = commentCounts[p.id] ?? 0;
           const supplier = supplierByUser[p.user_id];
           const isSupplierPost = !!supplier;
-          // Combine post photos with store photos (post first, then store fillers up to 2 total visible)
-          const postPhotoUrls = p.post_photos.map((ph) => ph.photo_url);
+          // Only show photos that were actually attached to this post
           const supplierGalleryPhotos = isSupplierPost
-            ? [...postPhotoUrls, ...supplier.photos.filter((u) => !postPhotoUrls.includes(u))].slice(0, 2)
+            ? p.post_photos.map((ph) => ph.photo_url).slice(0, 2)
             : [];
           const isOwner = user?.id === p.user_id;
           return (
