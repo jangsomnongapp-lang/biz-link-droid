@@ -171,13 +171,24 @@ function RentalDetailPage() {
                 {memberSince ? ` · Member since ${memberSince}` : ""}
               </div>
             </div>
-            <Link
-              to="/users/$userId"
-              params={{ userId: rental.user_id }}
-              className="rounded-full border border-[#534AB7] px-3 py-1.5 text-xs font-semibold text-[#534AB7] active:bg-[#EEEDFE]"
-            >
-              {t("view_profile")}
-            </Link>
+            <div className="flex flex-col gap-1.5">
+              <Link
+                to="/users/$userId"
+                params={{ userId: rental.user_id }}
+                className="rounded-full border border-[#534AB7] px-3 py-1.5 text-xs font-semibold text-[#534AB7] active:bg-[#EEEDFE]"
+              >
+                {t("view_profile")}
+              </Link>
+              {user && user.id !== rental.user_id && (
+                <button
+                  onClick={() => void contact()}
+                  disabled={contacting}
+                  className="rounded-full bg-[#534AB7] px-3 py-1.5 text-xs font-semibold text-white active:scale-[0.99] disabled:opacity-60"
+                >
+                  {t("contact")}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
