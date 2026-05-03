@@ -617,7 +617,8 @@ function HomePage() {
               </footer>
             </article>
           );
-        })}
+        });
+        })()}
       </div>
 
       {openComments && (
