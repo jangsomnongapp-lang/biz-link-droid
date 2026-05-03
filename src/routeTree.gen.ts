@@ -33,6 +33,7 @@ import { Route as SuppliersStoreIdRouteImport } from './routes/suppliers.$storeI
 import { Route as StoryViewRouteImport } from './routes/story.view'
 import { Route as StoryNewRouteImport } from './routes/story.new'
 import { Route as RentalsNewRouteImport } from './routes/rentals.new'
+import { Route as RentalsRentalIdRouteImport } from './routes/rentals.$rentalId'
 import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
@@ -167,6 +168,11 @@ const RentalsNewRoute = RentalsNewRouteImport.update({
   path: '/rentals/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RentalsRentalIdRoute = RentalsRentalIdRouteImport.update({
+  id: '/rentals/$rentalId',
+  path: '/rentals/$rentalId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfilePortfolioRoute = ProfilePortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/rentals/$rentalId': typeof RentalsRentalIdRoute
   '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
@@ -299,6 +306,7 @@ export interface FileRoutesByTo {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/rentals/$rentalId': typeof RentalsRentalIdRoute
   '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
@@ -339,6 +347,7 @@ export interface FileRoutesById {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/rentals/$rentalId': typeof RentalsRentalIdRoute
   '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
@@ -380,6 +389,7 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/rentals/$rentalId'
     | '/rentals/new'
     | '/story/new'
     | '/story/view'
@@ -419,6 +429,7 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/rentals/$rentalId'
     | '/rentals/new'
     | '/story/new'
     | '/story/view'
@@ -458,6 +469,7 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/rentals/$rentalId'
     | '/rentals/new'
     | '/story/new'
     | '/story/view'
@@ -496,6 +508,7 @@ export interface RootRouteChildren {
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
+  RentalsRentalIdRoute: typeof RentalsRentalIdRoute
   RentalsNewRoute: typeof RentalsNewRoute
   StoryNewRoute: typeof StoryNewRoute
   StoryViewRoute: typeof StoryViewRoute
@@ -678,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RentalsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rentals/$rentalId': {
+      id: '/rentals/$rentalId'
+      path: '/rentals/$rentalId'
+      fullPath: '/rentals/$rentalId'
+      preLoaderRoute: typeof RentalsRentalIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/portfolio': {
       id: '/profile/portfolio'
       path: '/portfolio'
@@ -821,6 +841,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
+  RentalsRentalIdRoute: RentalsRentalIdRoute,
   RentalsNewRoute: RentalsNewRoute,
   StoryNewRoute: StoryNewRoute,
   StoryViewRoute: StoryViewRoute,
