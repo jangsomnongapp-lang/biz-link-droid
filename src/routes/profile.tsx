@@ -320,7 +320,65 @@ function ProfilePage() {
         )}
       </Section>
 
-      {/* Logout */}
+      {/* List for rent action */}
+      <div className="mt-2 px-3">
+        <Link
+          to="/rentals/new"
+          className="flex items-center gap-3 rounded-xl border border-[#7F77DD] bg-[#EEEDFE] p-3 active:scale-[0.99]"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#534AB7] text-base font-bold text-white">
+            $
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-[#26215C]">{t("list_something_for_rent")}</div>
+            <div className="text-[11px] text-[#534AB7]/80">{t("earn_money_tools")}</div>
+          </div>
+        </Link>
+      </div>
+
+      {/* My rentals */}
+      <Section title={`${t("my_rentals")} (${myRentals.length})`}>
+        {myRentals.length === 0 ? (
+          <p className="text-sm text-text-hint">{t("no_rentals")}</p>
+        ) : (
+          <div className="space-y-2">
+            {myRentals.map((r) => (
+              <Link
+                key={r.id}
+                to="/rentals/$rentalId"
+                params={{ rentalId: r.id }}
+                className="block rounded-lg border border-[#7F77DD] bg-[#EEEDFE] p-3 active:scale-[0.99]"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate text-sm font-semibold text-[#26215C]">{r.title}</span>
+                  <span className="shrink-0 text-sm font-bold text-[#534AB7]">${r.price_per_day}/d</span>
+                </div>
+                <div className="mt-1 flex items-center gap-1.5 text-[11px]">
+                  <span className="rounded-pill bg-white/70 px-1.5 py-0.5 font-semibold text-[#26215C]">
+                    {r.category}
+                  </span>
+                  {r.status === "approved" ? (
+                    r.availability === "now" ? (
+                      <span className="rounded-pill bg-[#e8f8f0] px-1.5 py-0.5 font-semibold text-[#27ae60]">
+                        {t("available_label")}
+                      </span>
+                    ) : (
+                      <span className="rounded-pill bg-[#fff8e1] px-1.5 py-0.5 font-semibold text-[#b07d00]">
+                        {t("booked_until")} {r.available_from ?? ""}
+                      </span>
+                    )
+                  ) : (
+                    <span className="rounded-pill bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground">
+                      {r.status}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </Section>
+
       <div className="mt-3 px-3">
         <button
           onClick={() => void signOut()}
