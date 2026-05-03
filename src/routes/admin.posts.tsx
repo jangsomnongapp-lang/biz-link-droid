@@ -79,6 +79,7 @@ function AdminPostsPage() {
   const [posts, setPosts] = useState<PendingPost[]>([]);
   const [stories, setStories] = useState<PendingStory[]>([]);
   const [listings, setListings] = useState<PendingListing[]>([]);
+  const [rentals, setRentals] = useState<PendingRental[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
