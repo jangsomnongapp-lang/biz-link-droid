@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Camera, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { ShareButton } from "@/components/ShareButton";
 
 export const Route = createFileRoute("/profile")({
   component: ProfileRoute,
@@ -144,6 +145,13 @@ function ProfilePage() {
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold">{t("my_profile")}</h2>
           <div className="flex items-center gap-2">
+            {user && (
+              <ShareButton
+                path={`/users/${user.id}`}
+                title={profile?.full_name ?? undefined}
+                variant="pill"
+              />
+            )}
             <Link
               to="/profile/portfolio"
               className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur active:bg-white/25"

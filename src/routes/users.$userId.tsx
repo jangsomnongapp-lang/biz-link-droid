@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { ReportMenu } from "@/components/ReportMenu";
+import { ShareButton } from "@/components/ShareButton";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -145,6 +146,11 @@ function UserProfilePage() {
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="flex-1 text-center text-base font-semibold truncate">{profile.full_name ?? "—"}</h1>
+        <ShareButton
+          path={`/users/${profile.id}`}
+          title={profile.full_name ?? undefined}
+          className="rounded-full p-2 active:bg-white/10"
+        />
         {!isSelf && (
           <ReportMenu targetKind="profile" targetId={profile.id} iconClassName="text-primary-foreground" />
         )}

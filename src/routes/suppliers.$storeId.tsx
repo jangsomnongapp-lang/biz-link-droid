@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, MoreHorizontal, MapPin, Phone, MessageCircle, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
+import { ShareButton } from "@/components/ShareButton";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -168,20 +169,27 @@ function SupplierProfilePage() {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <h2 className="text-base font-semibold">Supplier Profile</h2>
-          {isOwner ? (
-            <Link
-              to="/suppliers/$storeId/edit"
-              params={{ storeId }}
+          <div className="flex items-center gap-1">
+            <ShareButton
+              path={`/suppliers/${storeId}`}
+              title={store.name}
               className="rounded-full p-1 active:bg-white/10"
-              aria-label={t("edit_store")}
-            >
-              <Pencil className="h-5 w-5" />
-            </Link>
-          ) : (
-            <button className="rounded-full p-1 active:bg-white/10" aria-label="more">
-              <MoreHorizontal className="h-5 w-5" />
-            </button>
-          )}
+            />
+            {isOwner ? (
+              <Link
+                to="/suppliers/$storeId/edit"
+                params={{ storeId }}
+                className="rounded-full p-1 active:bg-white/10"
+                aria-label={t("edit_store")}
+              >
+                <Pencil className="h-5 w-5" />
+              </Link>
+            ) : (
+              <button className="rounded-full p-1 active:bg-white/10" aria-label="more">
+                <MoreHorizontal className="h-5 w-5" />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-4 flex flex-col items-center">
