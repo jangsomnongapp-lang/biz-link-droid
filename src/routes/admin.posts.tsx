@@ -168,11 +168,15 @@ function AdminPostsPage() {
     decision: "approved" | "rejected",
   ) {
     const approvedStatus = table === "listings" ? "active" : "approved";
-    const patch =
+    const rejectedStatus = "rejected";
+    const patch: Record<string, unknown> =
       decision === "approved"
-        ? { status: approvedStatus, rejected_at: null }
-        : { status: "rejected", rejected_at: new Date().toISOString() };
-    const { error } = await supabase.from(table).update(patch).eq("id", id);
+        ? { status: approvedStatus }
+        : { status: rejectedStatus };
+    if (table !== "rental_listings") {
+      patch.rejected_at = decision === "approved" ? null : new Date().toISOString();
+    }
+    const { error } = await supabase.from(table).update(patch as never).eq("id", id);
     if (error) {
       toast.error(error.message);
       return;
