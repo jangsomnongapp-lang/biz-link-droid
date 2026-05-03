@@ -132,6 +132,12 @@ function ProfilePage() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setPortfolio(data ?? []));
+    void supabase
+      .from("rental_listings")
+      .select("id, title, status, price_per_day, category, availability, available_from")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setMyRentals(data ?? []));
   }, [user]);
 
   const roleLabels: string[] = [];
