@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Camera, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { ShareButton } from "@/components/ShareButton";
 
 export const Route = createFileRoute("/profile")({
   component: ProfileRoute,
