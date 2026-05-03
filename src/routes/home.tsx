@@ -321,6 +321,46 @@ function HomePage() {
     }
   }
 
+  async function toggleRentalLike(rentalId: string) {
+    if (!user) return;
+    const cur = rentalLikes[rentalId] ?? { count: 0, mine: false };
+    setRentalLikes((m) => ({
+      ...m,
+      [rentalId]: { count: cur.count + (cur.mine ? -1 : 1), mine: !cur.mine },
+    }));
+    if (cur.mine) {
+      const { error } = await supabase
+        .from("rental_likes")
+        .delete()
+        .eq("rental_id", rentalId)
+        .eq("user_id", user.id);
+      if (error) setRentalLikes((m) => ({ ...m, [rentalId]: cur }));
+    } else {
+      const { error } = await supabase
+        .from("rental_likes")
+        .insert({ rental_id: rentalId, user_id: user.id });
+      if (error) setRentalLikes((m) => ({ ...m, [rentalId]: cur }));
+    }
+  }
+
+  async function shareRental(rentalId: string) {
+    const url = `${window.location.origin}/rentals/${rentalId}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: t("app_name"), url });
+        return;
+      }
+    } catch {
+      // fall through
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success(t("share_link_copied"));
+    } catch {
+      toast.error(t("error_generic"));
+    }
+  }
+
   async function recordStoryOpen(storyId: string, ownerId: string) {
     if (!user || ownerId === user.id) return;
     const { error } = await supabase
