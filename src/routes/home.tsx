@@ -92,6 +92,9 @@ function HomePage() {
   const [supplierByUser, setSupplierByUser] = useState<Record<string, SupplierStoreInfo>>({});
   const [contactingUser, setContactingUser] = useState<string | null>(null);
   const [rentals, setRentals] = useState<RentalRow[]>([]);
+  const [rentalLikes, setRentalLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
+  const [rentalCommentCounts, setRentalCommentCounts] = useState<Record<string, number>>({});
+  const [openRentalComments, setOpenRentalComments] = useState<string | null>(null);
 
   useEffect(() => {
     if (!focusPostId || loading) return;
