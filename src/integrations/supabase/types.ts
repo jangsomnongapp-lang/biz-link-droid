@@ -735,6 +735,91 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_listings: {
+        Row: {
+          availability: string
+          available_from: string | null
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          location: string
+          min_days: number
+          price_per_day: number
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string
+          available_from?: string | null
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location: string
+          min_days?: number
+          price_per_day: number
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string
+          available_from?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string
+          min_days?: number
+          price_per_day?: number
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_listings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_photos: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          photo_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          photo_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_photos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "rental_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reports: {
         Row: {
           created_at: string
