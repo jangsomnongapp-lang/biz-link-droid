@@ -51,6 +51,7 @@ function ProfilePage() {
   const [stats, setStats] = useState({ posted: 0, applied: 0, contacts: 0 });
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
+  const [myRentals, setMyRentals] = useState<{ id: string; title: string; status: string; price_per_day: number; category: string; availability: string; available_from: string | null }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
