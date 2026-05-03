@@ -456,68 +456,123 @@ function HomePage() {
           return items.map((item) => {
             if (item.kind === "rental") {
               const r = item.data;
+              const rl = rentalLikes[r.id] ?? { count: 0, mine: false };
+              const rcc = rentalCommentCounts[r.id] ?? 0;
               return (
-                <Link
+                <article
                   key={`r-${r.id}`}
-                  to="/rentals/$rentalId"
-                  params={{ rentalId: r.id }}
-                  className="block border border-[#7F77DD] bg-surface px-4 py-3 shadow-card active:scale-[0.997]"
+                  className="block border border-[#7F77DD] bg-surface px-4 py-3 shadow-card"
                 >
-                  <div className="flex items-center gap-3">
-                    <Avatar name={r.profiles?.full_name} url={r.profiles?.avatar_url} size={40} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                        <span className="truncate">{r.profiles?.full_name ?? "User"}</span>
-                        <span className="rounded-md bg-[#EEEDFE] px-1.5 py-0.5 text-[10px] font-bold text-[#26215C]">
-                          {t("for_rent_badge")}
+                  <Link
+                    to="/rentals/$rentalId"
+                    params={{ rentalId: r.id }}
+                    className="block active:opacity-95"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar name={r.profiles?.full_name} url={r.profiles?.avatar_url} size={40} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                          <span className="truncate">{r.profiles?.full_name ?? "User"}</span>
+                          <span className="rounded-md bg-[#EEEDFE] px-1.5 py-0.5 text-[10px] font-bold text-[#26215C]">
+                            {t("for_rent_badge")}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {timeAgo(r.created_at, t)} · {r.location}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-sm font-bold text-foreground">{r.title}</h3>
+                        {r.description && (
+                          <p className="line-clamp-2 text-xs text-muted-foreground">{r.description}</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-base font-bold text-[#534AB7]">${r.price_per_day}</div>
+                        <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
+                      </div>
+                    </div>
+                    {r.rental_photos.length > 0 && (
+                      <div className={`mt-3 grid gap-2 ${r.rental_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+                        {r.rental_photos.slice(0, 2).map((p, i) => (
+                          <img key={i} src={p.photo_url} alt="" className="aspect-square w-full rounded-lg bg-muted object-cover" />
+                        ))}
+                      </div>
+                    )}
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        {r.availability === "now" ? (
+                          <span className="rounded-pill bg-[#e8f8f0] px-2 py-0.5 text-[10px] font-semibold text-[#27ae60]">
+                            {t("available_now")}
+                          </span>
+                        ) : (
+                          <span className="rounded-pill bg-[#fff8e1] px-2 py-0.5 text-[10px] font-semibold text-[#b07d00]">
+                            {t("booked_until")} {r.available_from ?? ""}
+                          </span>
+                        )}
+                        <span className="rounded-pill bg-[#EEEDFE] px-2 py-0.5 text-[10px] font-semibold text-[#26215C]">
+                          {r.category}
                         </span>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {timeAgo(r.created_at, t)} · {r.location}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-sm font-bold text-foreground">{r.title}</h3>
-                      {r.description && (
-                        <p className="line-clamp-2 text-xs text-muted-foreground">{r.description}</p>
+                      {user?.id !== r.user_id && (
+                        <span className="rounded-lg bg-[#534AB7] px-3 py-1.5 text-xs font-semibold text-white">
+                          {t("contact")} →
+                        </span>
                       )}
                     </div>
-                    <div className="text-right">
-                      <div className="text-base font-bold text-[#534AB7]">${r.price_per_day}</div>
-                      <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
-                    </div>
-                  </div>
-                  {r.rental_photos.length > 0 && (
-                    <div className={`mt-3 grid gap-2 ${r.rental_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                      {r.rental_photos.slice(0, 2).map((p, i) => (
-                        <img key={i} src={p.photo_url} alt="" className="aspect-square w-full rounded-lg bg-muted object-cover" />
-                      ))}
+                  </Link>
+
+                  {(rl.count > 0 || rcc > 0) && (
+                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        {rl.count > 0 && (
+                          <>
+                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#534AB7] text-white">
+                              <ThumbsUp className="h-2.5 w-2.5" strokeWidth={3} />
+                            </span>
+                            {rl.count}
+                          </>
+                        )}
+                      </span>
+                      {rcc > 0 && (
+                        <button
+                          onClick={() => setOpenRentalComments(r.id)}
+                          className="active:underline"
+                        >
+                          {rcc} {t("comments").toLowerCase()}
+                        </button>
+                      )}
                     </div>
                   )}
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5">
-                      {r.availability === "now" ? (
-                        <span className="rounded-pill bg-[#e8f8f0] px-2 py-0.5 text-[10px] font-semibold text-[#27ae60]">
-                          {t("available_now")}
-                        </span>
-                      ) : (
-                        <span className="rounded-pill bg-[#fff8e1] px-2 py-0.5 text-[10px] font-semibold text-[#b07d00]">
-                          {t("booked_until")} {r.available_from ?? ""}
-                        </span>
-                      )}
-                      <span className="rounded-pill bg-[#EEEDFE] px-2 py-0.5 text-[10px] font-semibold text-[#26215C]">
-                        {r.category}
-                      </span>
-                    </div>
-                    {user?.id !== r.user_id && (
-                      <span className="rounded-lg bg-[#534AB7] px-3 py-1.5 text-xs font-semibold text-white">
-                        {t("contact")} →
-                      </span>
-                    )}
-                  </div>
-                </Link>
+
+                  <footer className="mt-2 flex border-t border-border pt-1">
+                    <button
+                      onClick={() => void toggleRentalLike(r.id)}
+                      className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium active:bg-muted ${
+                        rl.mine ? "text-[#534AB7]" : "text-muted-foreground"
+                      }`}
+                    >
+                      <ThumbsUp className="h-4 w-4" fill={rl.mine ? "currentColor" : "none"} />
+                      {t("like")}
+                    </button>
+                    <button
+                      onClick={() => setOpenRentalComments(r.id)}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      {t("comment")}
+                    </button>
+                    <button
+                      onClick={() => void shareRental(r.id)}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
+                    >
+                      <Share2 className="h-4 w-4" />
+                      {t("share")}
+                    </button>
+                  </footer>
+                </article>
               );
             }
             const p = item.data;
