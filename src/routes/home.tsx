@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { CommentsSheet } from "@/components/CommentsSheet";
+import { RentalCommentsSheet } from "@/components/RentalCommentsSheet";
 import { ReportMenu } from "@/components/ReportMenu";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
