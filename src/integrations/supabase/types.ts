@@ -735,6 +735,113 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "rental_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          parent_id: string | null
+          rental_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          rental_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          rental_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "rental_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rental_comments_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rental_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rental_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_likes: {
+        Row: {
+          created_at: string
+          id: string
+          rental_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rental_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rental_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_likes_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rental_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rental_listings: {
         Row: {
           availability: string
