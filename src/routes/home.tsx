@@ -749,6 +749,14 @@ function HomePage() {
           onCountChange={(n) => setCommentCounts((m) => ({ ...m, [openComments]: n }))}
         />
       )}
+
+      {openRentalComments && (
+        <RentalCommentsSheet
+          rentalId={openRentalComments}
+          onClose={() => setOpenRentalComments(null)}
+          onCountChange={(n) => setRentalCommentCounts((m) => ({ ...m, [openRentalComments]: n }))}
+        />
+      )}
     </div>
   );
 }
