@@ -1,0 +1,1 @@
+UPDATE public.app_settings SET telegram_chat_id = '-1003921126651', updated_at = now() WHERE id = 1;
