@@ -221,9 +221,22 @@ function AdminPostsPage() {
     );
   }
 
-  const count = tab === "posts" ? posts.length : tab === "stories" ? stories.length : listings.length;
+  const count =
+    tab === "posts"
+      ? posts.length
+      : tab === "stories"
+        ? stories.length
+        : tab === "rentals"
+          ? rentals.length
+          : listings.length;
   const headerLabel =
-    tab === "posts" ? t("review_posts") : tab === "stories" ? t("review_stories") : t("review_listings");
+    tab === "posts"
+      ? t("review_posts")
+      : tab === "stories"
+        ? t("review_stories")
+        : tab === "rentals"
+          ? "Rentals"
+          : t("review_listings");
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-6">
@@ -240,10 +253,24 @@ function AdminPostsPage() {
       </header>
 
       {/* Tabs */}
-      <div className="flex border-b border-border bg-surface">
-        {(["posts", "listings", "stories"] as Tab[]).map((k) => {
-          const tabCount = k === "posts" ? posts.length : k === "stories" ? stories.length : listings.length;
-          const label = k === "posts" ? t("tab_posts") : k === "stories" ? t("tab_stories") : t("tab_listings");
+      <div className="flex border-b border-border bg-surface overflow-x-auto">
+        {(["posts", "listings", "rentals", "stories"] as Tab[]).map((k) => {
+          const tabCount =
+            k === "posts"
+              ? posts.length
+              : k === "stories"
+                ? stories.length
+                : k === "rentals"
+                  ? rentals.length
+                  : listings.length;
+          const label =
+            k === "posts"
+              ? t("tab_posts")
+              : k === "stories"
+                ? t("tab_stories")
+                : k === "rentals"
+                  ? "Rent"
+                  : t("tab_listings");
           return (
             <button
               key={k}
