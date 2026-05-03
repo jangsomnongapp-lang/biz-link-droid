@@ -116,14 +116,23 @@ function HomePage() {
       });
 
     void (async () => {
-      const { data } = await supabase
-        .from("posts")
-        .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured), post_photos(photo_url)")
-        .eq("status", "approved")
-        .order("created_at", { ascending: false })
-        .limit(20);
+      const [{ data }, { data: rentalData }] = await Promise.all([
+        supabase
+          .from("posts")
+          .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured), post_photos(photo_url)")
+          .eq("status", "approved")
+          .order("created_at", { ascending: false })
+          .limit(20),
+        supabase
+          .from("rental_listings")
+          .select("id, user_id, title, description, category, price_per_day, location, availability, available_from, created_at, profiles(full_name, avatar_url), rental_photos(photo_url)")
+          .eq("status", "approved")
+          .order("created_at", { ascending: false })
+          .limit(20),
+      ]);
       const rows = (data as PostRow[] | null) ?? [];
       setPosts(rows);
+      setRentals((rentalData as RentalRow[] | null) ?? []);
       setLoading(false);
 
       if (rows.length > 0) {
