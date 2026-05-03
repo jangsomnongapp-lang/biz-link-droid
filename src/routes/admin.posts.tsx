@@ -323,6 +323,57 @@ function AdminPostsPage() {
         {!loading && tab === "listings" && listings.length === 0 && (
           <EmptyState text={t("no_pending")} />
         )}
+        {!loading && tab === "rentals" && rentals.length === 0 && (
+          <EmptyState text={t("no_pending")} />
+        )}
+
+        {tab === "rentals" &&
+          rentals.map((r) => (
+            <article key={r.id} className="rounded-xl border-2 border-[#7F77DD] bg-[#EEEDFE] p-3 shadow-card">
+              <ItemHeader
+                name={r.profiles?.full_name}
+                avatar={r.profiles?.avatar_url}
+                createdAt={r.created_at}
+                status={r.status}
+              />
+              <div className="mt-2 inline-block rounded-pill bg-[#534AB7] px-2 py-0.5 text-[10px] font-bold text-white">
+                For rent · {r.category}
+              </div>
+              <h3 className="mt-2 text-base font-semibold text-[#26215C]">{r.title}</h3>
+              {r.description && (
+                <p className="mt-1 text-sm leading-relaxed text-[#26215C]/80">{r.description}</p>
+              )}
+              {r.rental_photos.length > 0 && (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {r.rental_photos.slice(0, 4).map((ph, i) => (
+                    <img
+                      key={i}
+                      src={ph.photo_url}
+                      alt=""
+                      className="aspect-video w-full rounded-lg object-cover"
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="mt-2 flex items-center gap-3 text-xs">
+                {r.location && (
+                  <span className="flex items-center gap-1 text-[#26215C]/70">
+                    <MapPin className="h-3.5 w-3.5 text-[#534AB7]" /> {r.location}
+                  </span>
+                )}
+                <span className="font-semibold text-[#534AB7]">
+                  {r.price_per_day ? `$ ${r.price_per_day}/day` : t("to_discuss")}
+                </span>
+              </div>
+              <DecisionFooter
+                onApprove={() => void decide("rental_listings", r.id, "approved")}
+                onReject={() => void decide("rental_listings", r.id, "rejected")}
+                onDelete={() => openDelete("rental_listings", r.id)}
+                t={t}
+                approvedOnly={view === "approved"}
+              />
+            </article>
+          ))}
 
         {tab === "posts" &&
           posts.map((p) => (
