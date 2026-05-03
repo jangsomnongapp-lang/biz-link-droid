@@ -43,6 +43,21 @@ interface PostRow {
   post_photos: { photo_url: string }[];
 }
 
+interface RentalRow {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  price_per_day: number;
+  location: string;
+  availability: string;
+  available_from: string | null;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  rental_photos: { photo_url: string }[];
+}
+
 interface StoryRow {
   id: string;
   user_id: string;
