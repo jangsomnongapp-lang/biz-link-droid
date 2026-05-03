@@ -136,8 +136,30 @@ function HomePage() {
       ]);
       const rows = (data as PostRow[] | null) ?? [];
       setPosts(rows);
-      setRentals((rentalData as RentalRow[] | null) ?? []);
+      const rentalRows = (rentalData as RentalRow[] | null) ?? [];
+      setRentals(rentalRows);
       setLoading(false);
+
+      if (rentalRows.length > 0) {
+        const rIds = rentalRows.map((r) => r.id);
+        const [{ data: rLikeRows }, { data: rCommentRows }] = await Promise.all([
+          supabase.from("rental_likes").select("rental_id, user_id").in("rental_id", rIds),
+          supabase.from("rental_comments").select("rental_id").in("rental_id", rIds),
+        ]);
+        const rLikeMap: Record<string, { count: number; mine: boolean }> = {};
+        for (const id of rIds) rLikeMap[id] = { count: 0, mine: false };
+        for (const r of rLikeRows ?? []) {
+          const e = rLikeMap[r.rental_id];
+          if (!e) continue;
+          e.count += 1;
+          if (r.user_id === user.id) e.mine = true;
+        }
+        setRentalLikes(rLikeMap);
+        const rcMap: Record<string, number> = {};
+        for (const id of rIds) rcMap[id] = 0;
+        for (const r of rCommentRows ?? []) rcMap[r.rental_id] = (rcMap[r.rental_id] ?? 0) + 1;
+        setRentalCommentCounts(rcMap);
+      }
 
       if (rows.length > 0) {
         const ids = rows.map((p) => p.id);
