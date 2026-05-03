@@ -687,6 +687,7 @@ export type Database = {
           is_supplier: boolean
           is_verified: boolean
           language: string
+          member_number: number | null
           phone: string | null
           updated_at: string
         }
@@ -707,6 +708,7 @@ export type Database = {
           is_supplier?: boolean
           is_verified?: boolean
           language?: string
+          member_number?: number | null
           phone?: string | null
           updated_at?: string
         }
@@ -727,6 +729,7 @@ export type Database = {
           is_supplier?: boolean
           is_verified?: boolean
           language?: string
+          member_number?: number | null
           phone?: string | null
           updated_at?: string
         }

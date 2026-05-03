@@ -39,6 +39,7 @@ interface Profile {
   is_coordinator: boolean;
   is_organization: boolean;
   is_client: boolean;
+  member_number: number | null;
 }
 
 function ProfilePage() {
@@ -93,7 +94,7 @@ function ProfilePage() {
       });
     void supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client")
+      .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client, member_number")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => setProfile(data));
@@ -192,6 +193,11 @@ function ProfilePage() {
             />
           </div>
           <h1 className="text-xl font-bold">{profile?.full_name ?? "—"}</h1>
+          {profile?.member_number != null && (
+            <p className="text-[11px] font-medium text-white/90">
+              {lang === "km" ? "សមាជិក" : "Member"} #{profile.member_number}
+            </p>
+          )}
           <p className="text-xs text-white/80">{roleLabels.join(" · ") || " "}</p>
           {cats.length > 0 && (
             <div className="mt-1 flex flex-wrap justify-center gap-1.5">
