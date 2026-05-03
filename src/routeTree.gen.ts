@@ -32,6 +32,7 @@ import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
 import { Route as SuppliersStoreIdRouteImport } from './routes/suppliers.$storeId'
 import { Route as StoryViewRouteImport } from './routes/story.view'
 import { Route as StoryNewRouteImport } from './routes/story.new'
+import { Route as RentalsNewRouteImport } from './routes/rentals.new'
 import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
@@ -161,6 +162,11 @@ const StoryNewRoute = StoryNewRouteImport.update({
   path: '/story/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RentalsNewRoute = RentalsNewRouteImport.update({
+  id: '/rentals/new',
+  path: '/rentals/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfilePortfolioRoute = ProfilePortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -254,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
@@ -331,6 +339,7 @@ export interface FileRoutesById {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
@@ -371,6 +380,7 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/rentals/new'
     | '/story/new'
     | '/story/view'
     | '/suppliers/$storeId'
@@ -409,6 +419,7 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/rentals/new'
     | '/story/new'
     | '/story/view'
     | '/suppliers/$storeId'
@@ -447,6 +458,7 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/rentals/new'
     | '/story/new'
     | '/story/view'
     | '/suppliers/$storeId'
@@ -484,6 +496,7 @@ export interface RootRouteChildren {
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
+  RentalsNewRoute: typeof RentalsNewRoute
   StoryNewRoute: typeof StoryNewRoute
   StoryViewRoute: typeof StoryViewRoute
   SuppliersStoreIdRoute: typeof SuppliersStoreIdRouteWithChildren
@@ -658,6 +671,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoryNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rentals/new': {
+      id: '/rentals/new'
+      path: '/rentals/new'
+      fullPath: '/rentals/new'
+      preLoaderRoute: typeof RentalsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/portfolio': {
       id: '/profile/portfolio'
       path: '/portfolio'
@@ -801,6 +821,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
+  RentalsNewRoute: RentalsNewRoute,
   StoryNewRoute: StoryNewRoute,
   StoryViewRoute: StoryViewRoute,
   SuppliersStoreIdRoute: SuppliersStoreIdRouteWithChildren,
