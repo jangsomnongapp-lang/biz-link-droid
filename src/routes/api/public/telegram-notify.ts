@@ -40,6 +40,15 @@ function buildMessage(kind: string, data: Record<string, unknown>): string {
         `Title: ${escapeHtml(data.title)}\n` +
         `Status: ${escapeHtml(data.status)}`
       );
+    case "rental":
+      return (
+        `🚜 <b>New rental listing</b>\n` +
+        `By: ${escapeHtml(data.user_name)}\n` +
+        `Title: ${escapeHtml(data.title)}\n` +
+        `Category: ${escapeHtml(data.category)}\n` +
+        `Price/day: $${escapeHtml(data.price_per_day)}\n` +
+        `Status: ${escapeHtml(data.status)}`
+      );
     default:
       return `🔔 <b>${escapeHtml(kind)}</b>\n${escapeHtml(JSON.stringify(data))}`;
   }
