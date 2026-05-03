@@ -115,7 +115,8 @@ function AdminPostsPage() {
     const postStatuses = view === "pending" ? ["pending"] : ["approved"];
     const storyStatuses = view === "pending" ? ["pending"] : ["approved"];
     const listingStatuses = view === "pending" ? ["pending"] : ["active"];
-    const [postsResult, storiesResult, listingsResult] = await Promise.all([
+    const rentalStatuses = view === "pending" ? ["pending"] : ["approved"];
+    const [postsResult, storiesResult, listingsResult, rentalsResult] = await Promise.all([
       supabase
         .from("posts")
         .select(
@@ -137,22 +138,32 @@ function AdminPostsPage() {
         )
         .in("status", listingStatuses)
         .order("created_at", { ascending: false }),
+      supabase
+        .from("rental_listings")
+        .select(
+          "id, user_id, title, description, category, price_per_day, location, created_at, status, profiles(full_name, avatar_url), rental_photos(photo_url)",
+        )
+        .in("status", rentalStatuses)
+        .order("created_at", { ascending: false }),
     ]);
     const nextPosts = (postsResult.data as PendingPost[] | null) ?? [];
     const nextStories = (storiesResult.data as PendingStory[] | null) ?? [];
     const nextListings = (listingsResult.data as PendingListing[] | null) ?? [];
+    const nextRentals = (rentalsResult.data as PendingRental[] | null) ?? [];
     setPosts(nextPosts);
     setStories(nextStories);
     setListings(nextListings);
+    setRentals(nextRentals);
     if (view === "pending" && nextPosts.length === 0) {
       if (nextListings.length > 0) setTab("listings");
+      else if (nextRentals.length > 0) setTab("rentals");
       else if (nextStories.length > 0) setTab("stories");
     }
     setLoading(false);
   }
 
   async function decide(
-    table: "posts" | "stories" | "listings",
+    table: "posts" | "stories" | "listings" | "rental_listings",
     id: string,
     decision: "approved" | "rejected",
   ) {
@@ -169,10 +180,11 @@ function AdminPostsPage() {
     if (table === "posts") setPosts((p) => p.filter((x) => x.id !== id));
     if (table === "stories") setStories((p) => p.filter((x) => x.id !== id));
     if (table === "listings") setListings((p) => p.filter((x) => x.id !== id));
+    if (table === "rental_listings") setRentals((p) => p.filter((x) => x.id !== id));
     toast.success(decision === "approved" ? t("approved") : t("rejected"));
   }
 
-  function openDelete(kind: Tab, id: string) {
+  function openDelete(kind: DeleteKind, id: string) {
     setDeleteTarget({ kind, id });
     setDeleteKey("");
     setShowKey(false);
@@ -191,6 +203,8 @@ function AdminPostsPage() {
     if (deleteTarget.kind === "stories") setStories((p) => p.filter((x) => x.id !== deleteTarget.id));
     if (deleteTarget.kind === "listings")
       setListings((p) => p.filter((x) => x.id !== deleteTarget.id));
+    if (deleteTarget.kind === "rental_listings")
+      setRentals((p) => p.filter((x) => x.id !== deleteTarget.id));
     setDeleteTarget(null);
     toast.success(t("deleted"));
   }
