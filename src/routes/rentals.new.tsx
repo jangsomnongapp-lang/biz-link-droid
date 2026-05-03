@@ -1,0 +1,276 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useRef, useState } from "react";
+import { RequireAuth } from "@/components/RequireAuth";
+import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { ArrowLeft, MapPin, DollarSign, Plus, X, Truck, HardHat, Wrench, Hammer } from "lucide-react";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/rentals/new")({
+  component: () => (
+    <RequireAuth>
+      <NewRentalPage />
+    </RequireAuth>
+  ),
+});
+
+type Cat = "vehicles" | "heavy" | "light" | "tools";
+
+const CATS: { id: Cat; icon: typeof Truck; titleKey: "cat_vehicles" | "cat_heavy" | "cat_light_machinery" | "cat_tools"; descKey: "cat_vehicles_desc" | "cat_heavy_desc" | "cat_light_desc" | "cat_tools_desc" }[] = [
+  { id: "vehicles", icon: Truck, titleKey: "cat_vehicles", descKey: "cat_vehicles_desc" },
+  { id: "heavy", icon: HardHat, titleKey: "cat_heavy", descKey: "cat_heavy_desc" },
+  { id: "light", icon: Wrench, titleKey: "cat_light_machinery", descKey: "cat_light_desc" },
+  { id: "tools", icon: Hammer, titleKey: "cat_tools", descKey: "cat_tools_desc" },
+];
+
+function NewRentalPage() {
+  const { t } = useI18n();
+  const { user } = useAuth();
+  const nav = useNavigate();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<Cat | null>(null);
+  const [price, setPrice] = useState("");
+  const [minDays, setMinDays] = useState("1");
+  const [availability, setAvailability] = useState<"now" | "from_date">("now");
+  const [availableFrom, setAvailableFrom] = useState("");
+  const [location, setLocation] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (photos.length >= 4) {
+      toast.error("Max 4 photos");
+      return;
+    }
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    setPhotos((p) => [...p, dataUrl]);
+  }
+
+  async function submit() {
+    if (!user) return;
+    if (!title.trim() || !category || !price || !location.trim()) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { data, error } = await supabase
+        .from("rental_listings")
+        .insert({
+          user_id: user.id,
+          title: title.trim(),
+          description: description.trim() || null,
+          category,
+          price_per_day: Number(price),
+          min_days: Number(minDays) || 1,
+          availability,
+          available_from: availability === "from_date" ? availableFrom || null : null,
+          location: location.trim(),
+          status: "pending",
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      if (photos.length) {
+        await supabase
+          .from("rental_photos")
+          .insert(photos.map((url) => ({ listing_id: data.id, photo_url: url })));
+      }
+      toast.success(t("rental_review_notice"));
+      nav({ to: "/profile" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-20 flex h-14 items-center bg-[#534AB7] px-2 text-white">
+        <Link to="/profile" className="rounded-full p-2 active:bg-white/10">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="flex-1 text-center text-base font-semibold">{t("list_for_rent")}</h1>
+        <div className="w-9" />
+      </header>
+
+      <div className="flex-1 space-y-3 p-3 pb-24">
+        <Card>
+          <Label>{t("photos")} <span className="ml-1 text-xs font-normal text-muted-foreground">max 4</span></Label>
+          <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPickFile} />
+          <div className="grid grid-cols-4 gap-2">
+            <button
+              type="button"
+              onClick={() => fileInput.current?.click()}
+              disabled={photos.length >= 4}
+              className="flex aspect-square items-center justify-center rounded-lg border-2 border-dashed border-[#7F77DD] bg-[#EEEDFE] text-[#534AB7] active:scale-95 disabled:opacity-40"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+            {photos.map((src, i) => (
+              <div key={i} className="relative aspect-square">
+                <img src={src} className="h-full w-full rounded-lg object-cover" alt="" />
+                <button
+                  type="button"
+                  onClick={() => setPhotos((p) => p.filter((_, j) => j !== i))}
+                  className="absolute right-1 top-1 rounded-full bg-foreground/70 p-0.5 text-background"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+            {Array.from({ length: Math.max(0, 3 - photos.length) }).map((_, i) => (
+              <div key={`ph-${i}`} className="aspect-square rounded-lg bg-[#EEEDFE]/60" />
+            ))}
+          </div>
+        </Card>
+
+        <Card>
+          <Label>{t("details")}</Label>
+          <div>
+            <p className="mb-1 text-sm font-medium">{t("rental_name")} <span className="text-destructive">*</span></p>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={t("rental_name_ph")}
+              className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-[#534AB7]"
+            />
+          </div>
+          <div>
+            <p className="mb-1 text-sm font-medium">{t("description")} <span className="text-xs font-normal text-text-hint">optional</span></p>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={t("rental_desc_ph")}
+              rows={3}
+              className="w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-[#534AB7]"
+            />
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium">{t("category_label")} <span className="text-destructive">*</span></p>
+            <div className="grid grid-cols-2 gap-2">
+              {CATS.map((c) => {
+                const sel = category === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setCategory(c.id)}
+                    className={`rounded-lg border p-3 text-left transition ${
+                      sel
+                        ? "border-[1.5px] border-[#534AB7] bg-[#EEEDFE]"
+                        : "border-border bg-background"
+                    }`}
+                  >
+                    <div className="text-sm font-semibold text-foreground">{t(c.titleKey)}</div>
+                    <div className="mt-0.5 text-[11px] text-muted-foreground">{t(c.descKey)}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <Label>{t("pricing_availability")}</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="mb-1 text-sm font-medium">{t("price_per_day_label")} <span className="text-destructive">*</span></p>
+              <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-[#534AB7]">
+                <DollarSign className="ml-2 h-4 w-4 text-success" />
+                <input
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, ""))}
+                  inputMode="decimal"
+                  placeholder="0"
+                  className="h-full flex-1 bg-transparent px-2 text-sm outline-none"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="mb-1 text-sm font-medium">{t("min_days")} <span className="text-xs font-normal text-text-hint">optional</span></p>
+              <input
+                value={minDays}
+                onChange={(e) => setMinDays(e.target.value.replace(/[^0-9]/g, ""))}
+                inputMode="numeric"
+                placeholder="1"
+                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-[#534AB7]"
+              />
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-medium">{t("available_from")}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setAvailability("now")}
+                className={`h-11 rounded-lg border text-sm font-semibold transition ${
+                  availability === "now"
+                    ? "border-[#534AB7] bg-[#EEEDFE] text-[#26215C]"
+                    : "border-border bg-background text-foreground"
+                }`}
+              >
+                {t("now")}
+              </button>
+              <input
+                type="date"
+                value={availableFrom}
+                onChange={(e) => {
+                  setAvailableFrom(e.target.value);
+                  setAvailability("from_date");
+                }}
+                placeholder={t("pick_a_date")}
+                className={`h-11 rounded-lg border px-3 text-sm transition ${
+                  availability === "from_date"
+                    ? "border-[#534AB7] bg-[#EEEDFE]"
+                    : "border-border bg-background"
+                }`}
+              />
+            </div>
+          </div>
+          <div>
+            <p className="mb-1 text-sm font-medium">{t("location")} <span className="text-destructive">*</span></p>
+            <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-[#534AB7]">
+              <MapPin className="ml-2 h-4 w-4 text-destructive" />
+              <input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder={t("location_ph")}
+                className="h-full flex-1 bg-transparent px-2 text-sm outline-none"
+              />
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <div className="sticky bottom-0 border-t border-border bg-surface p-3">
+        <button
+          onClick={submit}
+          disabled={submitting}
+          className="flex h-12 w-full items-center justify-center rounded-xl bg-[#534AB7] text-sm font-semibold text-white active:scale-[0.99] disabled:opacity-60"
+        >
+          {submitting ? t("loading") : t("publish_for_rent")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Card({ children }: { children: React.ReactNode }) {
+  return <div className="space-y-3 rounded-xl bg-surface p-3 shadow-card">{children}</div>;
+}
+function Label({ children }: { children: React.ReactNode }) {
+  return <div className="text-sm font-bold text-foreground">{children}</div>;
+}
