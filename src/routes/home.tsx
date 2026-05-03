@@ -90,6 +90,7 @@ function HomePage() {
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [supplierByUser, setSupplierByUser] = useState<Record<string, SupplierStoreInfo>>({});
   const [contactingUser, setContactingUser] = useState<string | null>(null);
+  const [rentals, setRentals] = useState<RentalRow[]>([]);
 
   useEffect(() => {
     if (!focusPostId || loading) return;
