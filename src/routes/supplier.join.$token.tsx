@@ -160,11 +160,8 @@ function SupplierJoinPage() {
           productPhotos.map((url, i) => ({ store_id: storeId, photo_url: url, sort_order: i })),
         );
       }
-      // Mark invite used
-      await supabase
-        .from("supplier_invites")
-        .update({ used_by: userId, used_at: new Date().toISOString() })
-        .eq("token", token);
+      // Mark invite used via secure RPC
+      await supabase.rpc("consume_supplier_invite", { _token: token });
 
       toast.success(lang === "km" ? "បានបញ្ជូន!" : "Submitted!");
       nav({ to: "/home" });
