@@ -221,6 +221,18 @@ function SettingsPage() {
         </Group>
       )}
 
+      {profile?.is_super_user && (
+        <Group title="Super user">
+          <RowButton
+            onClick={() => navigate({ to: "/superuser/panel" })}
+            icon={UserCog}
+            iconBg="bg-indigo-100"
+            iconColor="text-indigo-600"
+            label="Switch identity"
+          />
+        </Group>
+      )}
+
       {/* Support */}
       <Group title={t("support")}>
         <Row to="/help" icon={HelpCircle} iconBg="bg-sky-100" iconColor="text-sky-600" label={t("help_faq")} />
