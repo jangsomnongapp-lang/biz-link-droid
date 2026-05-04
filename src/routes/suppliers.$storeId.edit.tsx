@@ -97,6 +97,8 @@ function SupplierEditPage() {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(f)) return;
     setLogo(await fileToDataUrl(f));
   }
 
@@ -104,6 +106,8 @@ function SupplierEditPage() {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f || photos.length >= 5) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(f)) return;
     setPhotos([...photos, { url: await fileToDataUrl(f) }]);
   }
 

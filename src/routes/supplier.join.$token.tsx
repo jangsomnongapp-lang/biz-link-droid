@@ -90,6 +90,8 @@ function SupplierJoinPage() {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(f)) return;
     setLogoData(await fileToDataUrl(f));
   }
 
@@ -98,6 +100,8 @@ function SupplierJoinPage() {
     e.target.value = "";
     if (!f) return;
     if (productPhotos.length >= 5) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(f)) return;
     setProductPhotos([...productPhotos, await fileToDataUrl(f)]);
   }
 
