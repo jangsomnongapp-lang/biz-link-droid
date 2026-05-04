@@ -120,6 +120,8 @@ function EditProfilePage() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(file)) return;
     try {
       const dataUrl = await new Promise<string>((resolve, reject) => {
         const r = new FileReader();
