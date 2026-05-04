@@ -24,6 +24,7 @@ import {
   Trophy,
   Store,
   Send,
+  UserCog,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
@@ -40,6 +41,7 @@ interface ProfileLite {
   is_provider: boolean;
   is_organization: boolean;
   is_admin: boolean;
+  is_super_user: boolean;
 }
 
 function SettingsPage() {
@@ -54,7 +56,7 @@ function SettingsPage() {
     if (!user) return;
     void supabase
       .from("profiles")
-      .select("full_name, avatar_url, is_provider, is_organization, is_admin")
+      .select("full_name, avatar_url, is_provider, is_organization, is_admin, is_super_user")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => setProfile(data));
@@ -215,6 +217,18 @@ function SettingsPage() {
             iconBg="bg-sky-100"
             iconColor="text-sky-600"
             label="Telegram notifications"
+          />
+        </Group>
+      )}
+
+      {profile?.is_super_user && (
+        <Group title="Super user">
+          <RowButton
+            onClick={() => navigate({ to: "/superuser/panel" })}
+            icon={UserCog}
+            iconBg="bg-indigo-100"
+            iconColor="text-indigo-600"
+            label="Switch identity"
           />
         </Group>
       )}

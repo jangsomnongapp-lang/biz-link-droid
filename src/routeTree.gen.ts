@@ -30,6 +30,7 @@ import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
 import { Route as SuppliersStoreIdRouteImport } from './routes/suppliers.$storeId'
+import { Route as SuperuserPanelRouteImport } from './routes/superuser.panel'
 import { Route as StoryViewRouteImport } from './routes/story.view'
 import { Route as StoryNewRouteImport } from './routes/story.new'
 import { Route as RentalsNewRouteImport } from './routes/rentals.new'
@@ -153,6 +154,11 @@ const SuppliersStoreIdRoute = SuppliersStoreIdRouteImport.update({
   path: '/suppliers/$storeId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperuserPanelRoute = SuperuserPanelRouteImport.update({
+  id: '/superuser/panel',
+  path: '/superuser/panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StoryViewRoute = StoryViewRouteImport.update({
   id: '/story/view',
   path: '/story/view',
@@ -270,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
+  '/superuser/panel': typeof SuperuserPanelRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
@@ -310,6 +317,7 @@ export interface FileRoutesByTo {
   '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
+  '/superuser/panel': typeof SuperuserPanelRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
   '/listings': typeof ListingsIndexRoute
@@ -351,6 +359,7 @@ export interface FileRoutesById {
   '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
+  '/superuser/panel': typeof SuperuserPanelRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
   '/listings/': typeof ListingsIndexRoute
@@ -393,6 +402,7 @@ export interface FileRouteTypes {
     | '/rentals/new'
     | '/story/new'
     | '/story/view'
+    | '/superuser/panel'
     | '/suppliers/$storeId'
     | '/users/$userId'
     | '/listings/'
@@ -433,6 +443,7 @@ export interface FileRouteTypes {
     | '/rentals/new'
     | '/story/new'
     | '/story/view'
+    | '/superuser/panel'
     | '/suppliers/$storeId'
     | '/users/$userId'
     | '/listings'
@@ -473,6 +484,7 @@ export interface FileRouteTypes {
     | '/rentals/new'
     | '/story/new'
     | '/story/view'
+    | '/superuser/panel'
     | '/suppliers/$storeId'
     | '/users/$userId'
     | '/listings/'
@@ -512,6 +524,7 @@ export interface RootRouteChildren {
   RentalsNewRoute: typeof RentalsNewRoute
   StoryNewRoute: typeof StoryNewRoute
   StoryViewRoute: typeof StoryViewRoute
+  SuperuserPanelRoute: typeof SuperuserPanelRoute
   SuppliersStoreIdRoute: typeof SuppliersStoreIdRouteWithChildren
   UsersUserIdRoute: typeof UsersUserIdRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
@@ -668,6 +681,13 @@ declare module '@tanstack/react-router' {
       path: '/suppliers/$storeId'
       fullPath: '/suppliers/$storeId'
       preLoaderRoute: typeof SuppliersStoreIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superuser/panel': {
+      id: '/superuser/panel'
+      path: '/superuser/panel'
+      fullPath: '/superuser/panel'
+      preLoaderRoute: typeof SuperuserPanelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/story/view': {
@@ -845,6 +865,7 @@ const rootRouteChildren: RootRouteChildren = {
   RentalsNewRoute: RentalsNewRoute,
   StoryNewRoute: StoryNewRoute,
   StoryViewRoute: StoryViewRoute,
+  SuperuserPanelRoute: SuperuserPanelRoute,
   SuppliersStoreIdRoute: SuppliersStoreIdRouteWithChildren,
   UsersUserIdRoute: UsersUserIdRoute,
   ListingsIndexRoute: ListingsIndexRoute,
