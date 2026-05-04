@@ -1257,6 +1257,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      consume_supplier_invite: { Args: { _token: string }; Returns: string }
+      get_supplier_invite_by_token: {
+        Args: { _token: string }
+        Returns: {
+          expires_at: string
+          id: string
+          used_by: string
+        }[]
+      }
+      get_user_phone: { Args: { _uid: string }; Returns: string }
       increment_post_view: { Args: { _post_id: string }; Returns: undefined }
       increment_supplier_contact: {
         Args: { _store_id: string }
@@ -1271,6 +1281,8 @@ export type Database = {
         Args: { _kind: string; _payload: Json }
         Returns: undefined
       }
+      record_invite_click: { Args: { _code: string }; Returns: undefined }
+      resolve_invite_code: { Args: { _code: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
