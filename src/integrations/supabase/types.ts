@@ -684,9 +684,11 @@ export type Database = {
           is_provider: boolean
           is_recruiter: boolean
           is_specialist: boolean
+          is_super_user: boolean
           is_supplier: boolean
           is_verified: boolean
           language: string
+          master_account_id: string | null
           member_number: number | null
           phone: string | null
           updated_at: string
@@ -705,9 +707,11 @@ export type Database = {
           is_provider?: boolean
           is_recruiter?: boolean
           is_specialist?: boolean
+          is_super_user?: boolean
           is_supplier?: boolean
           is_verified?: boolean
           language?: string
+          master_account_id?: string | null
           member_number?: number | null
           phone?: string | null
           updated_at?: string
@@ -726,14 +730,24 @@ export type Database = {
           is_provider?: boolean
           is_recruiter?: boolean
           is_specialist?: boolean
+          is_super_user?: boolean
           is_supplier?: boolean
           is_verified?: boolean
           language?: string
+          master_account_id?: string | null
           member_number?: number | null
           phone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_master_account_id_fkey"
+            columns: ["master_account_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rental_comment_likes: {
         Row: {
@@ -1040,6 +1054,57 @@ export type Database = {
           },
         ]
       }
+      super_user_identities: {
+        Row: {
+          avatar_shape: string
+          badges: string[]
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          identity_user_id: string
+          is_official: boolean
+          master_user_id: string
+        }
+        Insert: {
+          avatar_shape?: string
+          badges?: string[]
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          identity_user_id: string
+          is_official?: boolean
+          master_user_id: string
+        }
+        Update: {
+          avatar_shape?: string
+          badges?: string[]
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          identity_user_id?: string
+          is_official?: boolean
+          master_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_user_identities_identity_user_id_fkey"
+            columns: ["identity_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "super_user_identities_master_user_id_fkey"
+            columns: ["master_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_categories: {
         Row: {
           code: string
@@ -1258,6 +1323,7 @@ export type Database = {
     }
     Functions: {
       consume_supplier_invite: { Args: { _token: string }; Returns: string }
+      current_master_user_id: { Args: never; Returns: string }
       get_supplier_invite_by_token: {
         Args: { _token: string }
         Returns: {
