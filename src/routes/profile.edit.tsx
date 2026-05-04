@@ -52,6 +52,8 @@ function EditProfilePage() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file || !user) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(file)) return;
     setUploadingAvatar(true);
     try {
       const dataUrl = await new Promise<string>((resolve, reject) => {
