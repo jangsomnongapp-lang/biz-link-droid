@@ -43,18 +43,23 @@ function NewRentalPage() {
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file) return;
+    if (!file || !user) return;
     if (photos.length >= 4) {
       toast.error("Max 4 photos");
       return;
     }
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(String(r.result));
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
-    setPhotos((p) => [...p, dataUrl]);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("rental-photos")
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("rental-photos").getPublicUrl(path);
+      setPhotos((p) => [...p, pub.publicUrl]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    }
   }
 
   async function submit() {
