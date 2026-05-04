@@ -106,15 +106,11 @@ function RegisterFlow() {
         try {
           const ref = localStorage.getItem("invite_ref");
           if (ref) {
-            const { data: ic } = await supabase
-              .from("invite_codes")
-              .select("user_id")
-              .eq("code", ref)
-              .maybeSingle();
-            if (ic && ic.user_id !== userId) {
+            const { data: inviterId } = await supabase.rpc("resolve_invite_code", { _code: ref });
+            if (inviterId && inviterId !== userId) {
               await supabase
                 .from("invite_joins")
-                .insert({ inviter_id: ic.user_id, invitee_id: userId, code: ref });
+                .insert({ inviter_id: inviterId, invitee_id: userId, code: ref });
             }
             localStorage.removeItem("invite_ref");
           }
