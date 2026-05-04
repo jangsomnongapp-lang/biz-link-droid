@@ -44,14 +44,12 @@ function SupplierJoinPage() {
   // Validate invite + redirect already-signed-in users
   useEffect(() => {
     void supabase
-      .from("supplier_invites")
-      .select("id, used_by, expires_at")
-      .eq("token", token)
-      .maybeSingle()
+      .rpc("get_supplier_invite_by_token", { _token: token })
       .then(({ data }) => {
-        if (!data) return setInviteValid(false);
-        if (data.used_by) return setInviteValid(false);
-        if (data.expires_at && new Date(data.expires_at) < new Date()) return setInviteValid(false);
+        const row = Array.isArray(data) ? data[0] : data;
+        if (!row) return setInviteValid(false);
+        if (row.used_by) return setInviteValid(false);
+        if (row.expires_at && new Date(row.expires_at) < new Date()) return setInviteValid(false);
         setInviteValid(true);
       });
   }, [token]);
@@ -162,11 +160,8 @@ function SupplierJoinPage() {
           productPhotos.map((url, i) => ({ store_id: storeId, photo_url: url, sort_order: i })),
         );
       }
-      // Mark invite used
-      await supabase
-        .from("supplier_invites")
-        .update({ used_by: userId, used_at: new Date().toISOString() })
-        .eq("token", token);
+      // Mark invite used via secure RPC
+      await supabase.rpc("consume_supplier_invite", { _token: token });
 
       toast.success(lang === "km" ? "បានបញ្ជូន!" : "Submitted!");
       nav({ to: "/home" });

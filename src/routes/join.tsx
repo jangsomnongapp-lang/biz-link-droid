@@ -18,18 +18,14 @@ function JoinPage() {
   useEffect(() => {
     if (!ref) return;
     void (async () => {
-      // Resolve inviter
-      const { data: ic } = await supabase
-        .from("invite_codes")
-        .select("user_id")
-        .eq("code", ref)
-        .maybeSingle();
-      if (!ic) {
+      // Resolve inviter via secure RPC
+      const { data: inviterId } = await supabase.rpc("resolve_invite_code", { _code: ref });
+      if (!inviterId) {
         nav({ to: "/" });
         return;
       }
-      // Record the click
-      await supabase.from("invite_clicks").insert({ code: ref, inviter_id: ic.user_id });
+      // Record the click via secure RPC (validates code server-side)
+      await supabase.rpc("record_invite_click", { _code: ref });
       // Persist code so register can record the join
       try {
         if (typeof window !== "undefined") localStorage.setItem("invite_ref", ref);
