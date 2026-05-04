@@ -70,6 +70,8 @@ function PortfolioPage() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file || !user) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(file)) return;
     setAdding(true);
     try {
       // Use a data URL since storage bucket isn't set up yet.
