@@ -176,7 +176,7 @@ export const updateIdentity = createServerFn({ method: "POST" })
         .eq("id", row.identity_user_id);
     }
 
-    const patch: Record<string, unknown> = {};
+    const patch: { avatar_shape?: "circle" | "square"; badges?: string[]; description?: string } = {};
     if (data.avatar_shape) patch.avatar_shape = data.avatar_shape;
     if (data.badges) patch.badges = data.badges;
     if (data.description !== undefined) patch.description = data.description;
