@@ -81,10 +81,11 @@ function EditProfilePage() {
       .select("*")
       .eq("id", user.id)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (!data) return;
         setFullName(data.full_name ?? "");
-        setPhone((data.phone ?? "").replace("+855", ""));
+        const { data: phoneVal } = await supabase.rpc("get_user_phone", { _uid: user.id });
+        setPhone(((phoneVal as string | null) ?? "").replace("+855", ""));
         setAboutMe(data.about_me ?? "");
         setAvatarUrl(data.avatar_url);
         setRoles({
