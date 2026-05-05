@@ -225,6 +225,7 @@ function SuperUserPanel() {
             void load();
           }}
           createFn={createFn}
+          authHeaders={authHeaders}
         />
       )}
     </div>
@@ -307,10 +308,12 @@ function CreateIdentitySheet({
   onClose,
   onCreated,
   createFn,
+  authHeaders,
 }: {
   onClose: () => void;
   onCreated: () => void;
   createFn: ReturnType<typeof useServerFn<typeof createIdentity>>;
+  authHeaders: () => { Authorization: string };
 }) {
   const [full_name, setName] = useState("");
   const [user_type, setType] = useState<"worker" | "company" | "supplier" | "client" | "specialist">(
@@ -336,6 +339,7 @@ function CreateIdentitySheet({
           avatar_shape: user_type === "company" || user_type === "supplier" ? "square" : "circle",
           badges: [],
         },
+        headers: authHeaders(),
       });
       toast.success("Identity created");
       onCreated();
