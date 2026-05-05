@@ -1,7 +1,9 @@
-import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { RequireAuth } from "@/components/RequireAuth";
+import { useAuth } from "@/lib/auth";
 import {
   listIdentities,
   createIdentity,
@@ -12,11 +14,11 @@ import { toast } from "sonner";
 import { Plus, Inbox, X, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/superuser/panel")({
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/login" });
-  },
-  component: SuperUserPanel,
+  component: () => (
+    <RequireAuth>
+      <SuperUserPanel />
+    </RequireAuth>
+  ),
   notFoundComponent: () => <NotFound404 />,
 });
 
@@ -49,6 +51,7 @@ interface IdentityRow {
 
 function SuperUserPanel() {
   const nav = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const list = useServerFn(listIdentities);
   const switchFn = useServerFn(switchToIdentity);
   const inboxFn = useServerFn(getUnifiedInbox);
@@ -83,8 +86,9 @@ function SuperUserPanel() {
   }
 
   useEffect(() => {
+    if (authLoading || !user) return;
     void load();
-  }, []);
+  }, [authLoading, user?.id]);
 
   async function handleSwitch(targetUserId: string) {
     try {
