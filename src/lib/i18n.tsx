@@ -437,14 +437,20 @@ interface I18nCtx {
 const Ctx = createContext<I18nCtx | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(() => {
-    if (typeof window === "undefined") return "km";
-    return (localStorage.getItem("lang") as Lang) || "en";
-  });
+  const [lang, setLangState] = useState<Lang>("km");
+  const [hydrated, setHydrated] = useState(false);
+
   useEffect(() => {
+    const saved = localStorage.getItem("lang");
+    if (saved === "km" || saved === "en") setLangState(saved);
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem("lang", lang);
     document.documentElement.lang = lang;
-  }, [lang]);
+  }, [lang, hydrated]);
 
   const t: I18nCtx["t"] = (key, vars) => {
     const entry = dict[key];

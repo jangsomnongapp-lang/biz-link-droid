@@ -42,6 +42,7 @@ interface ProfileLite {
   is_organization: boolean;
   is_admin: boolean;
   is_super_user: boolean;
+  master_account_id: string | null;
 }
 
 function SettingsPage() {
@@ -56,7 +57,7 @@ function SettingsPage() {
     if (!user) return;
     void supabase
       .from("profiles")
-      .select("full_name, avatar_url, is_provider, is_organization, is_admin, is_super_user")
+      .select("full_name, avatar_url, is_provider, is_organization, is_admin, is_super_user, master_account_id")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => setProfile(data));
@@ -221,7 +222,7 @@ function SettingsPage() {
         </Group>
       )}
 
-      {profile?.is_super_user && (
+      {(profile?.is_super_user || profile?.master_account_id) && (
         <Group title="Super user">
           <RowButton
             onClick={() => navigate({ to: "/superuser/panel" })}
