@@ -72,8 +72,8 @@ function SuperUserPanel() {
         list(),
       ]);
       setActiveId(u.user?.id ?? null);
-      setMasterId(res.masterId);
-      setIdentities(res.identities as IdentityRow[]);
+      setMasterId(res?.masterId ?? null);
+      setIdentities(Array.isArray(res?.identities) ? (res.identities as IdentityRow[]) : []);
     } catch (e: any) {
       if (String(e?.message ?? "").includes("Forbidden")) {
         setForbidden(true);
@@ -116,7 +116,8 @@ function SuperUserPanel() {
   // Pretend route doesn't exist for non-super-users
   if (forbidden) return <NotFound404 />;
 
-  const totalUnread = identities.reduce((a, b) => a + (b.unread ?? 0), 0);
+  const safeIdentities = Array.isArray(identities) ? identities : [];
+  const totalUnread = safeIdentities.reduce((a, b) => a + (b.unread ?? 0), 0);
   const masterRow: IdentityRow | undefined = masterId
     ? {
         id: "__master__",
@@ -127,10 +128,10 @@ function SuperUserPanel() {
         badges: ["Admin panel", "All post types"],
         description: "Official BuildHub account — admin badge visible to users",
         unread: 0,
-        profile: identities.find((i) => i.identity_user_id === masterId)?.profile ?? null,
+        profile: safeIdentities.find((i) => i.identity_user_id === masterId)?.profile ?? null,
       }
     : undefined;
-  const others = identities.filter((i) => i.identity_user_id !== masterId);
+  const others = safeIdentities.filter((i) => i.identity_user_id !== masterId);
 
   return (
     <div className="min-h-screen bg-[#0b0b1a] text-white">
