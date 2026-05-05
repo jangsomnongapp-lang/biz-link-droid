@@ -216,7 +216,13 @@ function SuperUserPanel() {
         </div>
       </div>
 
-      {showInbox && <UnifiedInbox onClose={() => setShowInbox(false)} loadFn={inboxFn} />}
+      {showInbox && (
+        <UnifiedInbox
+          onClose={() => setShowInbox(false)}
+          loadFn={inboxFn}
+          authHeaders={authHeaders}
+        />
+      )}
       {showCreate && (
         <CreateIdentitySheet
           onClose={() => setShowCreate(false)}
@@ -423,9 +429,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function UnifiedInbox({
   onClose,
   loadFn,
+  authHeaders,
 }: {
   onClose: () => void;
   loadFn: ReturnType<typeof useServerFn<typeof getUnifiedInbox>>;
+  authHeaders: () => { Authorization: string };
 }) {
   const [loading, setLoading] = useState(true);
   const [threads, setThreads] = useState<any[]>([]);
@@ -434,7 +442,7 @@ function UnifiedInbox({
   useEffect(() => {
     (async () => {
       try {
-        const res = await loadFn();
+        const res = await loadFn({ headers: authHeaders() });
         setThreads(res.threads);
       } catch (e: any) {
         toast.error(e?.message ?? "Failed");
