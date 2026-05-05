@@ -12,12 +12,21 @@ function syntheticEmail(masterId: string) {
 async function assertSuperUser(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("profiles")
-    .select("id, is_super_user")
+    .select("id, is_super_user, master_account_id")
     .eq("id", userId)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data?.is_super_user) throw new Error("Forbidden: not a super user");
-  return data.id;
+  if (data?.is_super_user) return data.id;
+  if (data?.master_account_id) {
+    const { data: master, error: masterError } = await supabaseAdmin
+      .from("profiles")
+      .select("id, is_super_user")
+      .eq("id", data.master_account_id)
+      .maybeSingle();
+    if (masterError) throw new Error(masterError.message);
+    if (master?.is_super_user) return master.id;
+  }
+  throw new Error("Forbidden: not a super user");
 }
 
 export const listIdentities = createServerFn({ method: "GET" })

@@ -20,10 +20,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(s);
       setLoading(false);
     });
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(async ({ data, error }) => {
+        if (error) {
+          await supabase.auth.signOut({ scope: "local" });
+          setSession(null);
+          return;
+        }
+        setSession(data.session);
+      })
+      .catch(() => setSession(null))
+      .finally(() => setLoading(false));
     return () => sub.subscription.unsubscribe();
   }, []);
 
