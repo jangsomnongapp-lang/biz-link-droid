@@ -1,7 +1,9 @@
-import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { RequireAuth } from "@/components/RequireAuth";
+import { useAuth } from "@/lib/auth";
 import {
   listIdentities,
   createIdentity,
@@ -12,11 +14,11 @@ import { toast } from "sonner";
 import { Plus, Inbox, X, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/superuser/panel")({
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/login" });
-  },
-  component: SuperUserPanel,
+  component: () => (
+    <RequireAuth>
+      <SuperUserPanel />
+    </RequireAuth>
+  ),
   notFoundComponent: () => <NotFound404 />,
 });
 
@@ -49,6 +51,7 @@ interface IdentityRow {
 
 function SuperUserPanel() {
   const nav = useNavigate();
+  const { user, session, loading: authLoading } = useAuth();
   const list = useServerFn(listIdentities);
   const switchFn = useServerFn(switchToIdentity);
   const inboxFn = useServerFn(getUnifiedInbox);
@@ -62,15 +65,20 @@ function SuperUserPanel() {
   const [showInbox, setShowInbox] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
 
+  function authHeaders() {
+    if (!session?.access_token) throw new Error("Missing session");
+    return { Authorization: `Bearer ${session.access_token}` };
+  }
+
   async function load() {
     try {
       const [{ data: u }, res] = await Promise.all([
         supabase.auth.getUser(),
-        list(),
+        list({ headers: authHeaders() }),
       ]);
       setActiveId(u.user?.id ?? null);
-      setMasterId(res.masterId);
-      setIdentities(res.identities as IdentityRow[]);
+      setMasterId(res?.masterId ?? null);
+      setIdentities(Array.isArray(res?.identities) ? (res.identities as IdentityRow[]) : []);
     } catch (e: any) {
       if (String(e?.message ?? "").includes("Forbidden")) {
         setForbidden(true);
@@ -83,12 +91,16 @@ function SuperUserPanel() {
   }
 
   useEffect(() => {
+    if (authLoading || !user || !session?.access_token) return;
     void load();
-  }, []);
+  }, [authLoading, user?.id, session?.access_token]);
 
   async function handleSwitch(targetUserId: string) {
     try {
-      const { email, token_hash } = await switchFn({ data: { target_user_id: targetUserId } });
+      const { email, token_hash } = await switchFn({
+        data: { target_user_id: targetUserId },
+        headers: authHeaders(),
+      });
       const { error } = await supabase.auth.verifyOtp({
         type: "magiclink",
         token_hash,
@@ -112,7 +124,8 @@ function SuperUserPanel() {
   // Pretend route doesn't exist for non-super-users
   if (forbidden) return <NotFound404 />;
 
-  const totalUnread = identities.reduce((a, b) => a + (b.unread ?? 0), 0);
+  const safeIdentities = Array.isArray(identities) ? identities : [];
+  const totalUnread = safeIdentities.reduce((a, b) => a + (b.unread ?? 0), 0);
   const masterRow: IdentityRow | undefined = masterId
     ? {
         id: "__master__",
@@ -123,10 +136,10 @@ function SuperUserPanel() {
         badges: ["Admin panel", "All post types"],
         description: "Official BuildHub account — admin badge visible to users",
         unread: 0,
-        profile: identities.find((i) => i.identity_user_id === masterId)?.profile ?? null,
+        profile: safeIdentities.find((i) => i.identity_user_id === masterId)?.profile ?? null,
       }
     : undefined;
-  const others = identities.filter((i) => i.identity_user_id !== masterId);
+  const others = safeIdentities.filter((i) => i.identity_user_id !== masterId);
 
   return (
     <div className="min-h-screen bg-[#0b0b1a] text-white">
@@ -203,7 +216,13 @@ function SuperUserPanel() {
         </div>
       </div>
 
-      {showInbox && <UnifiedInbox onClose={() => setShowInbox(false)} loadFn={inboxFn} />}
+      {showInbox && (
+        <UnifiedInbox
+          onClose={() => setShowInbox(false)}
+          loadFn={inboxFn}
+          authHeaders={authHeaders}
+        />
+      )}
       {showCreate && (
         <CreateIdentitySheet
           onClose={() => setShowCreate(false)}
@@ -212,6 +231,7 @@ function SuperUserPanel() {
             void load();
           }}
           createFn={createFn}
+          authHeaders={authHeaders}
         />
       )}
     </div>
@@ -294,10 +314,12 @@ function CreateIdentitySheet({
   onClose,
   onCreated,
   createFn,
+  authHeaders,
 }: {
   onClose: () => void;
   onCreated: () => void;
   createFn: ReturnType<typeof useServerFn<typeof createIdentity>>;
+  authHeaders: () => { Authorization: string };
 }) {
   const [full_name, setName] = useState("");
   const [user_type, setType] = useState<"worker" | "company" | "supplier" | "client" | "specialist">(
@@ -323,6 +345,7 @@ function CreateIdentitySheet({
           avatar_shape: user_type === "company" || user_type === "supplier" ? "square" : "circle",
           badges: [],
         },
+        headers: authHeaders(),
       });
       toast.success("Identity created");
       onCreated();
@@ -406,9 +429,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function UnifiedInbox({
   onClose,
   loadFn,
+  authHeaders,
 }: {
   onClose: () => void;
   loadFn: ReturnType<typeof useServerFn<typeof getUnifiedInbox>>;
+  authHeaders: () => { Authorization: string };
 }) {
   const [loading, setLoading] = useState(true);
   const [threads, setThreads] = useState<any[]>([]);
@@ -417,7 +442,7 @@ function UnifiedInbox({
   useEffect(() => {
     (async () => {
       try {
-        const res = await loadFn();
+        const res = await loadFn({ headers: authHeaders() });
         setThreads(res.threads);
       } catch (e: any) {
         toast.error(e?.message ?? "Failed");
