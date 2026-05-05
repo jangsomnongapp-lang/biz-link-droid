@@ -51,7 +51,7 @@ interface IdentityRow {
 
 function SuperUserPanel() {
   const nav = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
   const list = useServerFn(listIdentities);
   const switchFn = useServerFn(switchToIdentity);
   const inboxFn = useServerFn(getUnifiedInbox);
@@ -65,11 +65,16 @@ function SuperUserPanel() {
   const [showInbox, setShowInbox] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
 
+  function authHeaders() {
+    if (!session?.access_token) throw new Error("Missing session");
+    return { Authorization: `Bearer ${session.access_token}` };
+  }
+
   async function load() {
     try {
       const [{ data: u }, res] = await Promise.all([
         supabase.auth.getUser(),
-        list(),
+        list({ headers: authHeaders() }),
       ]);
       setActiveId(u.user?.id ?? null);
       setMasterId(res?.masterId ?? null);
@@ -86,13 +91,16 @@ function SuperUserPanel() {
   }
 
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (authLoading || !user || !session?.access_token) return;
     void load();
-  }, [authLoading, user?.id]);
+  }, [authLoading, user?.id, session?.access_token]);
 
   async function handleSwitch(targetUserId: string) {
     try {
-      const { email, token_hash } = await switchFn({ data: { target_user_id: targetUserId } });
+      const { email, token_hash } = await switchFn({
+        data: { target_user_id: targetUserId },
+        headers: authHeaders(),
+      });
       const { error } = await supabase.auth.verifyOtp({
         type: "magiclink",
         token_hash,
