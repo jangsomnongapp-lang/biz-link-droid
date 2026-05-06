@@ -331,11 +331,11 @@ export const amISuperUser = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data } = await supabaseAdmin
       .from("profiles")
-      .select("is_super_user, master_account_id")
+      .select("is_admin, is_super_user, master_account_id")
       .eq("id", context.userId)
       .maybeSingle();
     return {
-      isSuperUser: !!data?.is_super_user,
+      isSuperUser: !!(data?.is_super_user || data?.is_admin),
       isIdentity: !!data?.master_account_id,
     };
   });
