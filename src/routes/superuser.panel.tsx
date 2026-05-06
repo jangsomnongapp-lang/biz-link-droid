@@ -97,14 +97,13 @@ function SuperUserPanel() {
 
   async function handleSwitch(targetUserId: string) {
     try {
-      const { email, token_hash } = await switchFn({
+      const { token_hash } = await switchFn({
         data: { target_user_id: targetUserId },
         headers: authHeaders(),
       });
       const { error } = await supabase.auth.verifyOtp({
         type: "magiclink",
         token_hash,
-        email,
       });
       if (error) throw error;
       toast.success("Switched");
