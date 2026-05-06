@@ -94,6 +94,7 @@ export const listIdentities = createServerFn({ method: "GET" })
 
     return {
       masterId,
+      forbidden: false,
       identities: (rows ?? []).map((r) => ({
         ...r,
         profile: pmap.get(r.identity_user_id) ?? null,
