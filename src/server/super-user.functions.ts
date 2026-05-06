@@ -57,7 +57,7 @@ export const listIdentities = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
 
     const identityIds = (rows ?? []).map((r) => r.identity_user_id);
-    if (identityIds.length === 0) return { identities: [] as Array<any>, masterId };
+    if (identityIds.length === 0) return { identities: [] as Array<any>, masterId, forbidden: false };
 
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
