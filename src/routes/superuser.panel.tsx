@@ -77,6 +77,13 @@ function SuperUserPanel() {
         list({ headers: authHeaders() }),
       ]);
       setActiveId(u.user?.id ?? null);
+      if (res?.forbidden) {
+        setForbidden(true);
+        setIdentities([]);
+        setMasterId(null);
+        return;
+      }
+      setForbidden(false);
       setMasterId(res?.masterId ?? null);
       setIdentities(Array.isArray(res?.identities) ? (res.identities as IdentityRow[]) : []);
     } catch (e: any) {

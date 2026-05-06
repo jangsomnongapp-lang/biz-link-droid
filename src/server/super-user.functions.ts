@@ -12,27 +12,42 @@ function syntheticEmail(masterId: string) {
 async function assertSuperUser(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("profiles")
-    .select("id, is_super_user, master_account_id")
+    .select("id, is_admin, is_super_user, master_account_id")
     .eq("id", userId)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (data?.is_super_user) return data.id;
+  if (data?.is_super_user || data?.is_admin) {
+    if (!data.is_super_user) {
+      await supabaseAdmin.from("profiles").update({ is_super_user: true }).eq("id", data.id);
+    }
+    return data.id;
+  }
   if (data?.master_account_id) {
     const { data: master, error: masterError } = await supabaseAdmin
       .from("profiles")
-      .select("id, is_super_user")
+      .select("id, is_admin, is_super_user")
       .eq("id", data.master_account_id)
       .maybeSingle();
     if (masterError) throw new Error(masterError.message);
-    if (master?.is_super_user) return master.id;
+    if (master?.is_super_user || master?.is_admin) return master.id;
   }
   throw new Error("Forbidden: not a super user");
+}
+
+async function maybeSuperUser(userId: string) {
+  try {
+    return await assertSuperUser(userId);
+  } catch (error: any) {
+    if (String(error?.message ?? "").includes("Forbidden")) return null;
+    throw error;
+  }
 }
 
 export const listIdentities = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const masterId = await assertSuperUser(context.userId);
+    const masterId = await maybeSuperUser(context.userId);
+    if (!masterId) return { identities: [] as Array<any>, masterId: null, forbidden: true };
 
     const { data: rows, error } = await supabaseAdmin
       .from("super_user_identities")
@@ -42,7 +57,7 @@ export const listIdentities = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
 
     const identityIds = (rows ?? []).map((r) => r.identity_user_id);
-    if (identityIds.length === 0) return { identities: [] as Array<any>, masterId };
+    if (identityIds.length === 0) return { identities: [] as Array<any>, masterId, forbidden: false };
 
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
@@ -79,6 +94,7 @@ export const listIdentities = createServerFn({ method: "GET" })
 
     return {
       masterId,
+      forbidden: false,
       identities: (rows ?? []).map((r) => ({
         ...r,
         profile: pmap.get(r.identity_user_id) ?? null,
@@ -316,11 +332,11 @@ export const amISuperUser = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data } = await supabaseAdmin
       .from("profiles")
-      .select("is_super_user, master_account_id")
+      .select("is_admin, is_super_user, master_account_id")
       .eq("id", context.userId)
       .maybeSingle();
     return {
-      isSuperUser: !!data?.is_super_user,
+      isSuperUser: !!(data?.is_super_user || data?.is_admin),
       isIdentity: !!data?.master_account_id,
     };
   });
