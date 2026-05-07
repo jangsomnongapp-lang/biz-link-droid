@@ -254,12 +254,17 @@ function SupplierProfilePage() {
           <p className="text-sm font-semibold text-foreground">
             {t("featured_products")} ({photos.length})
           </p>
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            {photos.map((p, i) => (
-              <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
-                <img src={p} alt="" className="h-full w-full object-cover" />
-              </div>
-            ))}
+          <div className="mt-3 -mx-5 overflow-x-auto px-5 snap-x snap-mandatory scrollbar-none">
+            <div className="flex gap-2">
+              {photos.map((p, i) => (
+                <div
+                  key={i}
+                  className="aspect-square w-[70%] shrink-0 snap-start overflow-hidden rounded-md bg-muted"
+                >
+                  <img src={p} alt="" className="h-full w-full object-cover" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
