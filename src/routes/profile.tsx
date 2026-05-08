@@ -348,6 +348,53 @@ function ProfilePage() {
             <div className="text-[11px] text-muted-foreground">{t("post_project_hint") !== "post_project_hint" ? t("post_project_hint") : (lang === "km" ? "បង្ហោះការងារដើម្បីស្វែងរកអ្នកជំនាញ" : "Post a project to find specialists")}</div>
           </div>
         </Link>
+        {(() => {
+          const hasActive = myListings.some((l) => l.status === "active");
+          const isClient = !!profile?.is_client;
+          const title = lang === "km" ? "ជំនួយគម្រោងឥតគិតថ្លៃ" : "FREE PROJECT HELP";
+          const desc = !hasActive
+            ? (lang === "km"
+                ? "បង្ហោះគម្រោងសកម្មយ៉ាងហោចណាស់ ១ ដើម្បីដោះសោមុខងារនេះ"
+                : "Publish at least 1 active project to unlock this feature")
+            : isClient
+              ? (lang === "km"
+                  ? "ទទួលដំបូន្មានបច្ចេកទេសឥតគិតថ្លៃសម្រាប់គម្រោងសំណង់របស់អ្នក"
+                  : "Get free technical advice for your construction project")
+              : (lang === "km"
+                  ? "ទទួលដំបូន្មានឥតគិតថ្លៃអំពីរបៀបអនុវត្តការងាររបស់អ្នក"
+                  : "Get free technical advice on how to execute your work");
+
+          if (!hasActive) {
+            return (
+              <div
+                aria-disabled="true"
+                className="mt-2 flex cursor-not-allowed items-center gap-3 rounded-xl border border-border bg-muted p-3 opacity-70"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted-foreground/30 text-muted-foreground">
+                  💬
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-muted-foreground">{title}</div>
+                  <div className="text-[11px] text-muted-foreground">{desc}</div>
+                </div>
+              </div>
+            );
+          }
+          return (
+            <Link
+              to="/help"
+              className="mt-2 flex items-center gap-3 rounded-xl bg-primary p-3 text-primary-foreground active:scale-[0.99]"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
+                💬
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-bold">{title}</div>
+                <div className="text-[11px] text-white/85">{desc}</div>
+              </div>
+            </Link>
+          );
+        })()}
       </div>
 
       {/* My rentals */}
