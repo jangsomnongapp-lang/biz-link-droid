@@ -54,7 +54,7 @@ export const requestFreeHelp = createServerFn({ method: "POST" })
 
     // Also fire telegram notification via existing helper (best-effort)
     try {
-      await supabaseAdmin.rpc("notify_telegram" as any, {
+      await (supabaseAdmin as any).rpc("notify_telegram", {
         _kind: "help_request",
         _payload: {
           user_id: userId,
