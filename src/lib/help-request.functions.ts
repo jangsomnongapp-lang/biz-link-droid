@@ -52,21 +52,6 @@ export const requestFreeHelp = createServerFn({ method: "POST" })
       if (nerr) throw new Error(nerr.message);
     }
 
-    // Also fire telegram notification via existing helper (best-effort)
-    try {
-      await (supabaseAdmin as any).rpc("notify_telegram", {
-        _kind: "help_request",
-        _payload: {
-          user_id: userId,
-          user_name: requesterName,
-          role,
-          title,
-          body,
-        },
-      });
-    } catch {
-      // ignore
-    }
-
     return { ok: true };
   });
+
