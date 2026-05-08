@@ -116,10 +116,13 @@ function SectionLabel({ title }: { title: string }) {
 }
 
 function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18n>["t"]; highlighted?: boolean }) {
+  const { user } = useAuth();
+  const nav = useNavigate();
+  const [opening, setOpening] = useState(false);
   const Icon =
     n.kind === "application" || n.kind === "accepted"
       ? Check
-      : n.kind === "message"
+      : n.kind === "message" || n.kind === "help_request"
         ? MessageCircle
         : n.kind === "new_listing"
           ? Star
@@ -127,11 +130,9 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   const iconBg =
     n.kind === "application" || n.kind === "accepted"
       ? "bg-primary text-primary-foreground"
-      : n.kind === "message"
+      : n.kind === "message" || n.kind === "help_request"
         ? "bg-success text-white"
-        : n.kind === "new_listing"
-          ? "bg-warning text-white"
-          : "bg-warning text-white";
+        : "bg-warning text-white";
 
   const avatar = (
     <div className="relative">
@@ -157,6 +158,47 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   const cls = `flex items-start gap-3 border-b border-border px-4 py-3 ${
     highlighted ? "bg-primary/5" : ""
   }`;
+
+  async function openChatWith(otherId: string) {
+    if (!user || opening) return;
+    if (user.id === otherId) return;
+    setOpening(true);
+    try {
+      const [a, b] = [user.id, otherId].sort();
+      const { data: existing } = await supabase
+        .from("message_threads")
+        .select("id")
+        .eq("participant_a", a)
+        .eq("participant_b", b)
+        .maybeSingle();
+      let threadId = existing?.id;
+      if (!threadId) {
+        const { data: created, error } = await supabase
+          .from("message_threads")
+          .insert({ participant_a: a, participant_b: b })
+          .select("id")
+          .single();
+        if (error) throw error;
+        threadId = created.id;
+      }
+      nav({ to: "/messages/$threadId", params: { threadId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setOpening(false);
+    }
+  }
+
+  // help_request (admin notification): clicking opens chat with the requester
+  if (n.kind === "help_request" && n.related_user_id) {
+    return (
+      <button onClick={() => void openChatWith(n.related_user_id!)} className={`${cls} w-full text-left active:opacity-60`}>
+        {avatar}
+        {body}
+        {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+      </button>
+    );
+  }
 
   return (
     <div className={cls}>
