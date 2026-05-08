@@ -27,7 +27,7 @@ const FAQS: QA[] = [
   {
     q: { en: "How do I create an account?", km: "តើខ្ញុំបង្កើតគណនីយ៉ាងដូចម្តេច?" },
     a: {
-      en: "Tap Register on the welcome screen, choose your role (Worker, Team leader, Company, or Client), then enter your name, phone, and password.",
+      en: "Tap Register on the welcome screen, choose your role (Worker, Team leader, Company, or Owner), then enter your name, phone, and password.",
       km: "ចុចចុះឈ្មោះនៅអេក្រង់ស្វាគមន៍ ជ្រើសរើសតួនាទីរបស់អ្នក រួចបញ្ចូលឈ្មោះ លេខទូរសព្ទ និងពាក្យសម្ងាត់។",
     },
   },

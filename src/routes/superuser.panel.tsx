@@ -388,7 +388,7 @@ function CreateIdentitySheet({
               <option value="worker">Worker</option>
               <option value="company">Company</option>
               <option value="supplier">Supplier</option>
-              <option value="client">Client</option>
+              <option value="client">Owner</option>
               <option value="specialist">Specialist</option>
             </select>
           </Field>
