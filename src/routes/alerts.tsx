@@ -26,6 +26,7 @@ interface Notif {
   body: string | null;
   related_user_id: string | null;
   related_post_id: string | null;
+  related_listing_id: string | null;
   read_at: string | null;
   created_at: string;
   related_user?: { full_name: string | null; avatar_url: string | null } | null;
@@ -167,6 +168,14 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
       )}
       {n.related_post_id ? (
         <Link to="/home" search={{ post: n.related_post_id }} className="min-w-0 flex-1 active:opacity-60">
+          {body}
+        </Link>
+      ) : n.related_listing_id ? (
+        <Link to="/listings/$listingId" params={{ listingId: n.related_listing_id }} className="min-w-0 flex-1 active:opacity-60">
+          {body}
+        </Link>
+      ) : n.related_user_id ? (
+        <Link to="/users/$userId" params={{ userId: n.related_user_id }} className="min-w-0 flex-1 active:opacity-60">
           {body}
         </Link>
       ) : (
