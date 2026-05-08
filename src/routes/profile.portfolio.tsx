@@ -127,7 +127,7 @@ function PortfolioPage() {
             <h3 className="text-sm font-bold text-foreground">
               {t("portfolio")} ({photos.length})
             </h3>
-            <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPickFile} />
+            <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={onPickFile} />
           </div>
           <button
             onClick={() => fileInput.current?.click()}
