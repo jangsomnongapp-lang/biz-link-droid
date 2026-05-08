@@ -398,18 +398,22 @@ function ProfilePage() {
             );
           }
           return (
-            <Link
-              to="/help"
-              className="mt-2 flex items-center gap-3 rounded-xl bg-primary p-3 text-primary-foreground active:scale-[0.99]"
+            <button
+              type="button"
+              onClick={onClickFreeHelp}
+              disabled={requestingHelp}
+              className="mt-2 flex w-full items-center gap-3 rounded-xl bg-primary p-3 text-left text-primary-foreground active:scale-[0.99] disabled:opacity-70"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
                 💬
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-bold">{title}</div>
-                <div className="text-[11px] text-white/85">{desc}</div>
+                <div className="text-[11px] text-white/85">
+                  {requestingHelp ? (lang === "km" ? "កំពុងផ្ញើ..." : "Sending...") : desc}
+                </div>
               </div>
-            </Link>
+            </button>
           );
         })()}
       </div>
