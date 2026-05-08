@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -9,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Camera, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
+import { requestFreeHelp } from "@/lib/help-request.functions";
 
 export const Route = createFileRoute("/profile")({
   component: ProfileRoute,
@@ -54,7 +56,22 @@ function ProfilePage() {
   const [myRentals, setMyRentals] = useState<{ id: string; title: string; status: string; price_per_day: number; category: string; availability: string; available_from: string | null }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [requestingHelp, setRequestingHelp] = useState(false);
+  const requestFreeHelpFn = useServerFn(requestFreeHelp);
   const fileInput = useRef<HTMLInputElement>(null);
+
+  async function onClickFreeHelp() {
+    if (requestingHelp) return;
+    setRequestingHelp(true);
+    try {
+      await requestFreeHelpFn({});
+      toast.success(lang === "km" ? "បានផ្ញើសំណើទៅអ្នកគ្រប់គ្រង" : "Request sent to admin");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to send request");
+    } finally {
+      setRequestingHelp(false);
+    }
+  }
 
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -381,18 +398,22 @@ function ProfilePage() {
             );
           }
           return (
-            <Link
-              to="/help"
-              className="mt-2 flex items-center gap-3 rounded-xl bg-primary p-3 text-primary-foreground active:scale-[0.99]"
+            <button
+              type="button"
+              onClick={onClickFreeHelp}
+              disabled={requestingHelp}
+              className="mt-2 flex w-full items-center gap-3 rounded-xl bg-primary p-3 text-left text-primary-foreground active:scale-[0.99] disabled:opacity-70"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
                 💬
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-bold">{title}</div>
-                <div className="text-[11px] text-white/85">{desc}</div>
+                <div className="text-[11px] text-white/85">
+                  {requestingHelp ? (lang === "km" ? "កំពុងផ្ញើ..." : "Sending...") : desc}
+                </div>
               </div>
-            </Link>
+            </button>
           );
         })()}
       </div>
