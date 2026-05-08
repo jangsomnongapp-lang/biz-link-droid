@@ -124,15 +124,16 @@ function PortfolioPage() {
             <h3 className="text-sm font-bold text-foreground">
               {t("portfolio")} ({photos.length})
             </h3>
-            <button
-              onClick={() => fileInput.current?.click()}
-              disabled={adding}
-              className="text-xs font-semibold text-primary disabled:opacity-60"
-            >
-              {t("add_photos")}
-            </button>
             <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPickFile} />
           </div>
+          <button
+            onClick={() => fileInput.current?.click()}
+            disabled={adding}
+            className="mb-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-card active:scale-[0.99] disabled:opacity-60"
+          >
+            <Plus className="h-4 w-4" />
+            {adding ? t("loading") : t("add_photos")}
+          </button>
           <div className="grid grid-cols-3 gap-2">
             {photos.map((p) => (
               <div key={p.id} className="relative aspect-square">
