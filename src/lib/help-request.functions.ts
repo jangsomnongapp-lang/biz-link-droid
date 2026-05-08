@@ -39,7 +39,8 @@ export const requestFreeHelp = createServerFn({ method: "POST" })
       .eq("is_admin", true);
     if (aerr) throw new Error(aerr.message);
 
-    const rows: Array<Record<string, unknown>> = [];
+    type NotifInsert = { user_id: string; kind: string; title: string; body: string; related_user_id?: string; related_listing_id?: string };
+    const rows: NotifInsert[] = [];
     if (admins && admins.length > 0) {
       for (const a of admins) {
         rows.push({
