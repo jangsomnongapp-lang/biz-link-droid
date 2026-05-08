@@ -26,6 +26,7 @@ interface Notif {
   body: string | null;
   related_user_id: string | null;
   related_post_id: string | null;
+  related_listing_id: string | null;
   read_at: string | null;
   created_at: string;
   related_user?: { full_name: string | null; avatar_url: string | null } | null;
