@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -9,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Camera, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
+import { requestFreeHelp } from "@/lib/help-request.functions";
 
 export const Route = createFileRoute("/profile")({
   component: ProfileRoute,
