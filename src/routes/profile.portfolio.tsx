@@ -67,25 +67,28 @@ function PortfolioPage() {
   }
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!file || !user) return;
+    if (!files.length || !user) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
-    if (!validateImageFile(file)) return;
+    const valid = files.filter((f) => validateImageFile(f));
+    if (!valid.length) return;
     setAdding(true);
     try {
-      // Use a data URL since storage bucket isn't set up yet.
-      // Keeps the flow working end-to-end without infra changes.
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(String(r.result));
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
-      const { error } = await supabase
-        .from("portfolio_photos")
-        .insert({ user_id: user.id, photo_url: dataUrl });
+      const rows = await Promise.all(
+        valid.map(
+          (file) =>
+            new Promise<{ user_id: string; photo_url: string }>((resolve, reject) => {
+              const r = new FileReader();
+              r.onload = () => resolve({ user_id: user.id, photo_url: String(r.result) });
+              r.onerror = reject;
+              r.readAsDataURL(file);
+            }),
+        ),
+      );
+      const { error } = await supabase.from("portfolio_photos").insert(rows);
       if (error) throw error;
+      toast.success(`${rows.length} photo${rows.length > 1 ? "s" : ""} added`);
       await load();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error");
@@ -124,7 +127,7 @@ function PortfolioPage() {
             <h3 className="text-sm font-bold text-foreground">
               {t("portfolio")} ({photos.length})
             </h3>
-            <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPickFile} />
+            <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={onPickFile} />
           </div>
           <button
             onClick={() => fileInput.current?.click()}
