@@ -56,7 +56,22 @@ function ProfilePage() {
   const [myRentals, setMyRentals] = useState<{ id: string; title: string; status: string; price_per_day: number; category: string; availability: string; available_from: string | null }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [requestingHelp, setRequestingHelp] = useState(false);
+  const requestFreeHelpFn = useServerFn(requestFreeHelp);
   const fileInput = useRef<HTMLInputElement>(null);
+
+  async function onClickFreeHelp() {
+    if (requestingHelp) return;
+    setRequestingHelp(true);
+    try {
+      await requestFreeHelpFn({});
+      toast.success(lang === "km" ? "បានផ្ញើសំណើទៅអ្នកគ្រប់គ្រង" : "Request sent to admin");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to send request");
+    } finally {
+      setRequestingHelp(false);
+    }
+  }
 
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
