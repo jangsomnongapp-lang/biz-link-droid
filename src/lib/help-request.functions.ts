@@ -39,18 +39,29 @@ export const requestFreeHelp = createServerFn({ method: "POST" })
       .eq("is_admin", true);
     if (aerr) throw new Error(aerr.message);
 
+    const rows: Array<Record<string, unknown>> = [];
     if (admins && admins.length > 0) {
-      const rows = admins.map((a) => ({
-        user_id: a.id,
-        kind: "help_request",
-        title,
-        body,
-        related_user_id: userId,
-        related_listing_id: active[0].id,
-      }));
-      const { error: nerr } = await supabaseAdmin.from("notifications").insert(rows);
-      if (nerr) throw new Error(nerr.message);
+      for (const a of admins) {
+        rows.push({
+          user_id: a.id,
+          kind: "help_request",
+          title,
+          body,
+          related_user_id: userId,
+          related_listing_id: active[0].id,
+        });
+      }
     }
+    // Also notify the requester so they see a record in their own Alerts
+    rows.push({
+      user_id: userId,
+      kind: "help_request_sent",
+      title: "Your free help request was sent",
+      body: "An admin will contact you shortly.",
+      related_listing_id: active[0].id,
+    });
+    const { error: nerr } = await supabaseAdmin.from("notifications").insert(rows);
+    if (nerr) throw new Error(nerr.message);
 
     return { ok: true };
   });
