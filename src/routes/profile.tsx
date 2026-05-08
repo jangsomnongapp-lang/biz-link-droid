@@ -64,7 +64,9 @@ function ProfilePage() {
     if (requestingHelp) return;
     setRequestingHelp(true);
     try {
-      await requestFreeHelpFn({});
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Not signed in");
+      await requestFreeHelpFn({ headers: { Authorization: `Bearer ${session.access_token}` } });
       toast.success(lang === "km" ? "បានផ្ញើសំណើទៅអ្នកគ្រប់គ្រង" : "Request sent to admin");
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to send request");
