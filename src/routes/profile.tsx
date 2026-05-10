@@ -55,7 +55,7 @@ function ProfilePage() {
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [myRentals, setMyRentals] = useState<{ id: string; title: string; status: string; price_per_day: number; category: string; availability: string; available_from: string | null }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
-  const [myProjects, setMyProjects] = useState<{ id: string; status: string; worker: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
+  const [myProjects, setMyProjects] = useState<{ id: string; status: string; role: "owner" | "worker"; other: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [requestingHelp, setRequestingHelp] = useState(false);
   const requestFreeHelpFn = useServerFn(requestFreeHelp);
@@ -163,17 +163,22 @@ function ProfilePage() {
     void (async () => {
       const { data: ps } = await supabase
         .from("projects")
-        .select("id, status, worker_id")
-        .eq("owner_id", user.id)
+        .select("id, status, owner_id, worker_id")
+        .or(`owner_id.eq.${user.id},worker_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
       if (!ps) return;
-      const ids = Array.from(new Set(ps.map((p) => p.worker_id).filter(Boolean)));
-      const { data: workers } = ids.length
+      const ids = Array.from(new Set(ps.map((p) => (p.owner_id === user.id ? p.worker_id : p.owner_id)).filter(Boolean)));
+      const { data: people } = ids.length
         ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", ids)
         : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
-      const byId = new Map((workers ?? []).map((w) => [w.id, w]));
+      const byId = new Map((people ?? []).map((w) => [w.id, w]));
       setMyProjects(
-        ps.map((p) => ({ id: p.id, status: p.status, worker: byId.get(p.worker_id) ?? null })),
+        ps.map((p) => ({
+          id: p.id,
+          status: p.status,
+          role: p.owner_id === user.id ? "owner" : "worker",
+          other: byId.get(p.owner_id === user.id ? p.worker_id : p.owner_id) ?? null,
+        })),
       );
     })();
   }, [user]);
@@ -355,17 +360,19 @@ function ProfilePage() {
                 className="flex items-center gap-3 rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
               >
                 <Avatar
-                  name={p.worker?.full_name ?? null}
-                  url={p.worker?.avatar_url ?? null}
+                  name={p.other?.full_name ?? null}
+                  url={p.other?.avatar_url ?? null}
                   size={36}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-foreground">
-                    {p.worker?.full_name ?? "—"}
+                    {p.other?.full_name ?? "—"}
                   </div>
                   <div className="text-[11px] text-muted-foreground">
                     {p.status === "pending"
-                      ? lang === "km" ? "កំពុងរង់ចាំ" : "Pending"
+                      ? p.role === "worker"
+                        ? lang === "km" ? "សំណើថ្មី — ចុចដើម្បីបញ្ជាក់" : "New request — tap to confirm"
+                        : lang === "km" ? "កំពុងរង់ចាំការបញ្ជាក់" : "Waiting for confirmation"
                       : p.status === "active"
                         ? lang === "km" ? "សកម្ម" : "Active"
                         : p.status === "completed"

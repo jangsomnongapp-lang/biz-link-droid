@@ -274,7 +274,7 @@ function ProjectSpacePage() {
         </Card>
 
         {/* Completion banner */}
-        {project.status === "active" && completionRequestedByOther && (
+        {completionRequestedByOther && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
             <p className="text-sm text-amber-900">
               <strong>{other?.full_name}</strong> {lang === "km" ? "និយាយថាគម្រោងនេះបានបញ្ចប់។ តើពិតមែនទេ?" : "says the project is finished. Do you confirm?"}
@@ -298,7 +298,7 @@ function ProjectSpacePage() {
             </div>
           </div>
         )}
-        {project.status === "active" && completionRequestedByMe && (
+        {completionRequestedByMe && (
           <div className="rounded-xl border border-border bg-muted p-3 text-xs text-muted-foreground">
             {lang === "km" ? "កំពុងរង់ចាំការបញ្ជាក់ពីភាគីម្ខាងទៀត..." : "Waiting for the other party to confirm completion..."}
           </div>
