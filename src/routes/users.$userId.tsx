@@ -7,7 +7,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, BadgeCheck, Briefcase, Sparkles, MapPin } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Briefcase, Sparkles, MapPin, Star } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/users/$userId")({
@@ -53,6 +53,16 @@ function UserProfilePage() {
     photos: string[];
   } | null>(null);
   const [contacting, setContacting] = useState(false);
+  const [reviews, setReviews] = useState<{
+    id: string;
+    stars: number;
+    comment: string | null;
+    created_at: string;
+    rater: { id: string; full_name: string | null; avatar_url: string | null } | null;
+  }[]>([]);
+  const avgStars = reviews.length
+    ? reviews.reduce((s, r) => s + r.stars, 0) / reviews.length
+    : 0;
 
   useEffect(() => {
     setCheckingSupplier(true);
@@ -96,6 +106,28 @@ function UserProfilePage() {
       .select("id, photo_url")
       .eq("user_id", userId)
       .then(({ data }) => setPortfolio(data ?? []));
+    void (async () => {
+      const { data: rs } = await supabase
+        .from("project_ratings")
+        .select("id, stars, comment, created_at, rater_id")
+        .eq("rated_id", userId)
+        .order("created_at", { ascending: false });
+      if (!rs) return;
+      const raterIds = Array.from(new Set(rs.map((r) => r.rater_id)));
+      const { data: raters } = raterIds.length
+        ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", raterIds)
+        : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
+      const byId = new Map((raters ?? []).map((p) => [p.id, p]));
+      setReviews(
+        rs.map((r) => ({
+          id: r.id,
+          stars: r.stars,
+          comment: r.comment,
+          created_at: r.created_at,
+          rater: byId.get(r.rater_id) ?? null,
+        })),
+      );
+    })();
   }, [userId]);
 
   async function startConversation() {
@@ -276,6 +308,52 @@ function UserProfilePage() {
             <div className="grid grid-cols-3 gap-1.5">
               {portfolio.map((p) => (
                 <img key={p.id} src={p.photo_url} className="aspect-square w-full rounded-lg object-cover" alt="" />
+              ))}
+            </div>
+          )}
+        </Section>
+
+        <Section
+          title={`${lang === "km" ? "ការវាយតម្លៃ" : "Reviews"} (${reviews.length})${
+            reviews.length ? ` · ${avgStars.toFixed(1)}★` : ""
+          }`}
+        >
+          {reviews.length === 0 ? (
+            <p className="text-sm text-text-hint">
+              {lang === "km" ? "មិនទាន់មានការវាយតម្លៃ" : "No reviews yet"}
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {reviews.map((r) => (
+                <div key={r.id} className="rounded-lg border border-border bg-background p-3">
+                  <div className="flex items-center gap-2">
+                    <Avatar
+                      name={r.rater?.full_name ?? null}
+                      url={r.rater?.avatar_url ?? null}
+                      size={32}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-foreground">
+                        {r.rater?.full_name ?? "—"}
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <Star
+                            key={i}
+                            className={`h-3.5 w-3.5 ${
+                              i <= r.stars
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-muted-foreground/40"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  {r.comment && (
+                    <p className="mt-2 text-sm text-foreground">{r.comment}</p>
+                  )}
+                </div>
               ))}
             </div>
           )}
