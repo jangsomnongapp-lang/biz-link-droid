@@ -71,6 +71,7 @@ function ProjectSpacePage() {
   const cancelFn = useServerFn(cancelCompletion);
   const confirmFn = useServerFn(confirmCompletion);
   const rateFn = useServerFn(submitRating);
+  const configureFn = useServerFn(configureProject);
 
   // Loaders
   useEffect(() => {
