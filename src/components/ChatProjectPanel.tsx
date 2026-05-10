@@ -299,41 +299,18 @@ export function ChatProjectPanel({ otherUserId, otherName, projectId, threadId }
             </div>
           )}
 
-          {/* Completion banners */}
-          {project.status === "active" && completionByOther && (
-            <div className="rounded-lg border border-amber-300 bg-amber-50 p-2">
-              <p className="text-xs text-amber-900">
-                <strong>{otherName}</strong> {lang === "km" ? "និយាយថាការងារបានបញ្ចប់។" : "says the work is finished."}
-              </p>
-              <div className="mt-2 flex gap-2">
-                <button
-                  onClick={async () => { setBusy(true); try { await cancelFn({ headers: await authHeaders(), data: { projectId: project.id } }); } finally { setBusy(false); } }}
-                  disabled={busy}
-                  className="flex-1 rounded-lg border border-rose-300 bg-rose-50 py-2 text-xs font-semibold text-rose-800"
-                >
-                  {lang === "km" ? "មិនទាន់" : "No"}
-                </button>
-                <button
-                  onClick={async () => { setBusy(true); try { await confirmFn({ headers: await authHeaders(), data: { projectId: project.id } }); setShowRate(true); } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); } }}
-                  disabled={busy}
-                  style={{ backgroundColor: "#0F6E56" }}
-                  className="flex-1 rounded-lg py-2 text-xs font-semibold text-white"
-                >
-                  {lang === "km" ? "បាទ បញ្ជាក់" : "Yes, confirm"}
-                </button>
-              </div>
-            </div>
-          )}
-          {project.status === "active" && completionByMe && (
-            <div className="rounded-lg border border-border bg-white p-2 text-[11px] text-muted-foreground">
-              {lang === "km" ? "កំពុងរង់ចាំការបញ្ជាក់..." : "Waiting for the other party to confirm..."}
-            </div>
-          )}
-
-          {/* Mark complete */}
-          {project.status === "active" && project.setup_completed && !completionByOther && !completionByMe && (
+          {/* Mark complete (single click — completes immediately) */}
+          {project.status === "active" && project.setup_completed && (
             <button
-              onClick={async () => { setBusy(true); try { await requestFn({ headers: await authHeaders(), data: { projectId: project.id } }); toast.success(lang === "km" ? "បានស្នើ" : "Completion requested"); } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); } }}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  await requestFn({ headers: await authHeaders(), data: { projectId: project.id } });
+                  toast.success(lang === "km" ? "បានបញ្ចប់" : "Project completed");
+                  await postThreadNote(`✅ ${lang === "km" ? "គម្រោងបានបញ្ចប់" : "Project marked as completed"}`);
+                  setShowRate(true);
+                } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); }
+              }}
               disabled={busy}
               style={{ backgroundColor: "#0F6E56" }}
               className="flex h-9 w-full items-center justify-center gap-2 rounded-lg text-xs font-semibold text-white disabled:opacity-60"
