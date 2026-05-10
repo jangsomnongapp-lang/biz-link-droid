@@ -55,7 +55,7 @@ function ProfilePage() {
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [myRentals, setMyRentals] = useState<{ id: string; title: string; status: string; price_per_day: number; category: string; availability: string; available_from: string | null }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
-  const [myProjects, setMyProjects] = useState<{ id: string; status: string; worker: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
+  const [myProjects, setMyProjects] = useState<{ id: string; status: string; role: "owner" | "worker"; other: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [requestingHelp, setRequestingHelp] = useState(false);
   const requestFreeHelpFn = useServerFn(requestFreeHelp);
@@ -163,17 +163,22 @@ function ProfilePage() {
     void (async () => {
       const { data: ps } = await supabase
         .from("projects")
-        .select("id, status, worker_id")
-        .eq("owner_id", user.id)
+        .select("id, status, owner_id, worker_id")
+        .or(`owner_id.eq.${user.id},worker_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
       if (!ps) return;
-      const ids = Array.from(new Set(ps.map((p) => p.worker_id).filter(Boolean)));
-      const { data: workers } = ids.length
+      const ids = Array.from(new Set(ps.map((p) => (p.owner_id === user.id ? p.worker_id : p.owner_id)).filter(Boolean)));
+      const { data: people } = ids.length
         ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", ids)
         : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
-      const byId = new Map((workers ?? []).map((w) => [w.id, w]));
+      const byId = new Map((people ?? []).map((w) => [w.id, w]));
       setMyProjects(
-        ps.map((p) => ({ id: p.id, status: p.status, worker: byId.get(p.worker_id) ?? null })),
+        ps.map((p) => ({
+          id: p.id,
+          status: p.status,
+          role: p.owner_id === user.id ? "owner" : "worker",
+          other: byId.get(p.owner_id === user.id ? p.worker_id : p.owner_id) ?? null,
+        })),
       );
     })();
   }, [user]);
