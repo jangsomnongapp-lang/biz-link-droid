@@ -186,6 +186,37 @@ export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: stri
             </div>
           )}
 
+          {/* Worker review of project request after owner configures */}
+          {project.status === "pending" && project.setup_completed && me === "worker" && (
+            <ProjectRequestReview
+              ownerName={otherName}
+              project={project}
+              busy={busy}
+              onAccept={async () => {
+                if (busy) return;
+                setBusy(true);
+                try {
+                  await respondFn({ headers: await authHeaders(), data: { projectId: project.id, accept: true } });
+                  toast.success(lang === "km" ? "បានទទួលយក" : "Project accepted");
+                } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); }
+              }}
+              onDecline={async () => {
+                if (busy) return;
+                setBusy(true);
+                try {
+                  await respondFn({ headers: await authHeaders(), data: { projectId: project.id, accept: false } });
+                  toast.success(lang === "km" ? "បានបដិសេធ" : "Declined");
+                } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); }
+              }}
+            />
+          )}
+          {project.status === "pending" && project.setup_completed && me === "owner" && (
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-white p-2 text-xs text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              {lang === "km" ? `កំពុងរង់ចាំ ${otherName} បញ្ជាក់...` : `Waiting for ${otherName} to confirm the project...`}
+            </div>
+          )}
+
           {/* Active worker controls */}
           {project.status === "active" && project.setup_completed && me === "worker" && (
             <div className="grid grid-cols-3 gap-2">
