@@ -139,6 +139,7 @@ export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: stri
 
   const statusBadge =
     project.status === "completed" ? (lang === "km" ? "បានបញ្ចប់" : "Completed") :
+    project.status === "pending" && project.setup_completed ? (lang === "km" ? "សំណើ" : "Project request") :
     project.status === "pending" ? (lang === "km" ? "កំពុងរង់ចាំ" : "Pending") :
     !project.setup_completed ? (lang === "km" ? "ត្រៀមរៀបចំ" : "Setup needed") :
     (lang === "km" ? "សកម្ម" : "Active");
