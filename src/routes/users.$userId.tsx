@@ -53,6 +53,16 @@ function UserProfilePage() {
     photos: string[];
   } | null>(null);
   const [contacting, setContacting] = useState(false);
+  const [reviews, setReviews] = useState<{
+    id: string;
+    stars: number;
+    comment: string | null;
+    created_at: string;
+    rater: { id: string; full_name: string | null; avatar_url: string | null } | null;
+  }[]>([]);
+  const avgStars = reviews.length
+    ? reviews.reduce((s, r) => s + r.stars, 0) / reviews.length
+    : 0;
 
   useEffect(() => {
     setCheckingSupplier(true);
