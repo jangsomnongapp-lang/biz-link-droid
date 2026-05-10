@@ -106,6 +106,17 @@ function UserProfilePage() {
       .select("id, photo_url")
       .eq("user_id", userId)
       .then(({ data }) => setPortfolio(data ?? []));
+    void supabase
+      .from("project_ratings")
+      .select("id, stars, comment, created_at, rater:profiles!project_ratings_rater_id_fkey(id, full_name, avatar_url)")
+      .eq("rated_id", userId)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        // Fallback: if FK alias fails, fetch raters separately
+        if (data) {
+          setReviews(data as never);
+        }
+      });
   }, [userId]);
 
   async function startConversation() {
