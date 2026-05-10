@@ -144,7 +144,7 @@ function ListingDetailPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) throw new Error("Not signed in");
-      await startProject({
+      const project = await startProject({
         headers: { Authorization: `Bearer ${session.access_token}` },
         data: { workerId: applicantId },
       });
@@ -167,7 +167,7 @@ function ListingDetailPage() {
         if (error) throw error;
         threadId = created.id;
       }
-      nav({ to: "/messages/$threadId", params: { threadId } });
+      nav({ to: "/messages/$threadId", params: { threadId }, search: { project: project.id } });
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to start project");
     }
