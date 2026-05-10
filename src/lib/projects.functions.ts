@@ -67,7 +67,7 @@ export const configureProject = createServerFn({ method: "POST" })
     if (gerr) throw new Error(gerr.message);
     if (!p) throw new Error("Not found");
     if (p.owner_id !== userId) throw new Error("Only the owner can configure");
-    if (p.status !== "active") throw new Error("Project must be accepted first");
+    if (p.status !== "active" && p.status !== "pending") throw new Error("Project must be accepted first");
     const { error } = await supabase
       .from("projects")
       .update({
@@ -78,6 +78,9 @@ export const configureProject = createServerFn({ method: "POST" })
         start_date: data.startDate || null,
         duration: data.duration || null,
         setup_completed: true,
+        // After owner finalizes setup, worker must confirm before work begins.
+        status: "pending",
+        completion_requested_by: null,
       })
       .eq("id", data.projectId);
     if (error) throw new Error(error.message);
