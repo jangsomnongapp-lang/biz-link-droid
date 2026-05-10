@@ -55,6 +55,7 @@ function ProfilePage() {
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [myRentals, setMyRentals] = useState<{ id: string; title: string; status: string; price_per_day: number; category: string; availability: string; available_from: string | null }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
+  const [myProjects, setMyProjects] = useState<{ id: string; status: string; worker: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [requestingHelp, setRequestingHelp] = useState(false);
   const requestFreeHelpFn = useServerFn(requestFreeHelp);
