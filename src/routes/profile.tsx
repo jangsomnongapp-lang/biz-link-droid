@@ -167,7 +167,7 @@ function ProfilePage() {
     void (async () => {
       const { data: ps } = await supabase
         .from("projects")
-        .select("id, status, owner_id, worker_id")
+        .select("id, status, owner_id, worker_id, completion_requested_by")
         .or(`owner_id.eq.${user.id},worker_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
       if (!ps) return;
@@ -181,6 +181,7 @@ function ProfilePage() {
           id: p.id,
           status: p.status,
           role: p.owner_id === user.id ? "owner" : "worker",
+          completion_requested_by: p.completion_requested_by ?? null,
           other: byId.get(p.owner_id === user.id ? p.worker_id : p.owner_id) ?? null,
         })),
       );
