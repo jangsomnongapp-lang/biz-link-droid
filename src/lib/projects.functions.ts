@@ -2,8 +2,23 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const createSchema = z.object({
-  workerId: z.string().uuid(),
+export const createProjectRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ workerId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    if (data.workerId === userId) throw new Error("You cannot start a project with yourself");
+    const { data: row, error } = await supabase
+      .from("projects")
+      .insert({ owner_id: userId, worker_id: data.workerId })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: row.id };
+  });
+
+const configureSchema = z.object({
+  projectId: z.string().uuid(),
   agreedPrice: z.number().nullable().optional(),
   checkinRequired: z.boolean().optional(),
   checkoutRequired: z.boolean().optional(),
@@ -12,28 +27,31 @@ const createSchema = z.object({
   duration: z.string().nullable().optional(),
 });
 
-export const createProjectRequest = createServerFn({ method: "POST" })
+export const configureProject = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => createSchema.parse(d))
+  .inputValidator((d) => configureSchema.parse(d))
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    if (data.workerId === userId) throw new Error("You cannot start a project with yourself");
-    const { data: row, error } = await supabase
+    const { data: p, error: gerr } = await supabase
+      .from("projects").select("owner_id, status").eq("id", data.projectId).maybeSingle();
+    if (gerr) throw new Error(gerr.message);
+    if (!p) throw new Error("Not found");
+    if (p.owner_id !== userId) throw new Error("Only the owner can configure");
+    if (p.status !== "active") throw new Error("Project must be accepted first");
+    const { error } = await supabase
       .from("projects")
-      .insert({
-        owner_id: userId,
-        worker_id: data.workerId,
+      .update({
         agreed_price: data.agreedPrice ?? null,
         checkin_required: !!data.checkinRequired,
         checkout_required: !!data.checkoutRequired,
         photo_frequency: data.photoFrequency ?? null,
         start_date: data.startDate || null,
         duration: data.duration || null,
+        setup_completed: true,
       })
-      .select("id")
-      .single();
+      .eq("id", data.projectId);
     if (error) throw new Error(error.message);
-    return { id: row.id };
+    return { ok: true };
   });
 
 export const respondToProject = createServerFn({ method: "POST" })
