@@ -37,6 +37,7 @@ interface Project {
   start_date: string | null;
   duration: string | null;
   completion_requested_by: string | null;
+  setup_completed: boolean;
   created_at: string;
 }
 interface PartProfile { id: string; full_name: string | null; avatar_url: string | null }
