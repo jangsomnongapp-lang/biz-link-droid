@@ -49,7 +49,7 @@ async function authHeaders() {
   return { Authorization: `Bearer ${session?.access_token ?? ""}` };
 }
 
-export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: string; otherName: string }) {
+export function ChatProjectPanel({ otherUserId, otherName, projectId }: { otherUserId: string; otherName: string; projectId?: string }) {
   const { user } = useAuth();
   const { lang } = useI18n();
   const [project, setProject] = useState<Project | null>(null);
@@ -72,15 +72,16 @@ export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: stri
     if (!user) return;
     let cancelled = false;
     async function load() {
-      const { data } = await supabase
-        .from("projects")
-        .select("*")
-        .or(
-          `and(owner_id.eq.${user!.id},worker_id.eq.${otherUserId}),and(owner_id.eq.${otherUserId},worker_id.eq.${user!.id})`,
-        )
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const query = supabase.from("projects").select("*");
+      const { data } = projectId
+        ? await query.eq("id", projectId).maybeSingle()
+        : await query
+            .or(
+              `and(owner_id.eq.${user!.id},worker_id.eq.${otherUserId}),and(owner_id.eq.${otherUserId},worker_id.eq.${user!.id})`,
+            )
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
       if (cancelled) return;
       setProject((data as Project) ?? null);
       if (data?.id) {
@@ -106,7 +107,7 @@ export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: stri
       })
       .subscribe();
     return () => { cancelled = true; void supabase.removeChannel(channel); };
-  }, [user, otherUserId]);
+  }, [user, otherUserId, projectId]);
 
   if (!user || !project) return null;
   if (project.status === "declined") return null;
