@@ -360,17 +360,19 @@ function ProfilePage() {
                 className="flex items-center gap-3 rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
               >
                 <Avatar
-                  name={p.worker?.full_name ?? null}
-                  url={p.worker?.avatar_url ?? null}
+                  name={p.other?.full_name ?? null}
+                  url={p.other?.avatar_url ?? null}
                   size={36}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-foreground">
-                    {p.worker?.full_name ?? "—"}
+                    {p.other?.full_name ?? "—"}
                   </div>
                   <div className="text-[11px] text-muted-foreground">
                     {p.status === "pending"
-                      ? lang === "km" ? "កំពុងរង់ចាំ" : "Pending"
+                      ? p.role === "worker"
+                        ? lang === "km" ? "សំណើថ្មី — ចុចដើម្បីបញ្ជាក់" : "New request — tap to confirm"
+                        : lang === "km" ? "កំពុងរង់ចាំការបញ្ជាក់" : "Waiting for confirmation"
                       : p.status === "active"
                         ? lang === "km" ? "សកម្ម" : "Active"
                         : p.status === "completed"
