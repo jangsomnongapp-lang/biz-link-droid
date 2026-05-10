@@ -49,7 +49,7 @@ async function authHeaders() {
   return { Authorization: `Bearer ${session?.access_token ?? ""}` };
 }
 
-export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: string; otherName: string }) {
+export function ChatProjectPanel({ otherUserId, otherName, projectId }: { otherUserId: string; otherName: string; projectId?: string }) {
   const { user } = useAuth();
   const { lang } = useI18n();
   const [project, setProject] = useState<Project | null>(null);
@@ -72,15 +72,16 @@ export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: stri
     if (!user) return;
     let cancelled = false;
     async function load() {
-      const { data } = await supabase
-        .from("projects")
-        .select("*")
-        .or(
-          `and(owner_id.eq.${user!.id},worker_id.eq.${otherUserId}),and(owner_id.eq.${otherUserId},worker_id.eq.${user!.id})`,
-        )
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const query = supabase.from("projects").select("*");
+      const { data } = projectId
+        ? await query.eq("id", projectId).maybeSingle()
+        : await query
+            .or(
+              `and(owner_id.eq.${user!.id},worker_id.eq.${otherUserId}),and(owner_id.eq.${otherUserId},worker_id.eq.${user!.id})`,
+            )
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
       if (cancelled) return;
       setProject((data as Project) ?? null);
       if (data?.id) {
@@ -106,7 +107,7 @@ export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: stri
       })
       .subscribe();
     return () => { cancelled = true; void supabase.removeChannel(channel); };
-  }, [user, otherUserId]);
+  }, [user, otherUserId, projectId]);
 
   if (!user || !project) return null;
   if (project.status === "declined") return null;
@@ -165,7 +166,7 @@ export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: stri
       {expanded && (
         <div className="space-y-2 px-3 pb-3">
           {/* Owner setup */}
-          {project.status === "active" && !project.setup_completed && me === "owner" && (
+          {project.status !== "completed" && !project.setup_completed && me === "owner" && (
             <SetupForm
               busy={busy}
               workerName={otherName}
@@ -179,7 +180,7 @@ export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: stri
               }}
             />
           )}
-          {project.status === "active" && !project.setup_completed && me === "worker" && (
+          {project.status !== "completed" && !project.setup_completed && me === "worker" && (
             <div className="flex items-center gap-2 rounded-lg border border-border bg-white p-2 text-xs text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
               {lang === "km" ? `កំពុងរង់ចាំ ${otherName} កំណត់លក្ខខណ្ឌ...` : `Waiting for ${otherName} to set up project details...`}
