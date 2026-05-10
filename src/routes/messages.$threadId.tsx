@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
-import { ChatProjectPanel } from "@/components/ChatProjectPanel";
+
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -79,7 +79,7 @@ function ConversationPage() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { threadId } = useParams({ from: "/messages/$threadId" });
-  const { project: focusProjectId } = Route.useSearch();
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [other, setOther] = useState<OtherProfile | null>(null);
   const [text, setText] = useState("");
@@ -310,9 +310,6 @@ function ConversationPage() {
         </button>
       </header>
 
-      {other?.id && (
-        <ChatProjectPanel otherUserId={other.id} otherName={other.full_name ?? "—"} projectId={focusProjectId} threadId={threadId} />
-      )}
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
         <div className="mx-auto w-fit rounded-pill bg-muted px-3 py-0.5 text-[11px] font-medium text-muted-foreground">

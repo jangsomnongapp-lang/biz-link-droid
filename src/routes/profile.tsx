@@ -55,6 +55,7 @@ function ProfilePage() {
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [myRentals, setMyRentals] = useState<{ id: string; title: string; status: string; price_per_day: number; category: string; availability: string; available_from: string | null }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
+  const [myProjects, setMyProjects] = useState<{ id: string; status: string; worker: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [requestingHelp, setRequestingHelp] = useState(false);
   const requestFreeHelpFn = useServerFn(requestFreeHelp);
@@ -159,6 +160,22 @@ function ProfilePage() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setMyRentals(data ?? []));
+    void (async () => {
+      const { data: ps } = await supabase
+        .from("projects")
+        .select("id, status, worker_id")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false });
+      if (!ps) return;
+      const ids = Array.from(new Set(ps.map((p) => p.worker_id).filter(Boolean)));
+      const { data: workers } = ids.length
+        ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", ids)
+        : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
+      const byId = new Map((workers ?? []).map((w) => [w.id, w]));
+      setMyProjects(
+        ps.map((p) => ({ id: p.id, status: p.status, worker: byId.get(p.worker_id) ?? null })),
+      );
+    })();
   }, [user]);
 
   const roleLabels: string[] = [];
@@ -303,6 +320,75 @@ function ProfilePage() {
           </div>
         </Section>
       )}
+
+      {/* Project control: pick a worker, send request, track progress */}
+      <Section title={lang === "km" ? "ការគ្រប់គ្រងគម្រោង" : "Project control"}>
+        <Link
+          to="/find-worker"
+          className="mb-3 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 active:scale-[0.99]"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
+            +
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-foreground">
+              {lang === "km" ? "ចាប់ផ្តើមគម្រោងជាមួយអ្នកធ្វើការ" : "Start a project with a worker"}
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              {lang === "km"
+                ? "ជ្រើសរើសអ្នកធ្វើការ ហើយផ្ញើសំណើ"
+                : "Pick a worker and send a request"}
+            </div>
+          </div>
+        </Link>
+        {myProjects.length === 0 ? (
+          <p className="text-sm text-text-hint">
+            {lang === "km" ? "មិនទាន់មានគម្រោង" : "No projects yet"}
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {myProjects.map((p) => (
+              <Link
+                key={p.id}
+                to="/projects/$projectId"
+                params={{ projectId: p.id }}
+                className="flex items-center gap-3 rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
+              >
+                <Avatar
+                  name={p.worker?.full_name ?? null}
+                  url={p.worker?.avatar_url ?? null}
+                  size={36}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium text-foreground">
+                    {p.worker?.full_name ?? "—"}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {p.status === "pending"
+                      ? lang === "km" ? "កំពុងរង់ចាំ" : "Pending"
+                      : p.status === "active"
+                        ? lang === "km" ? "សកម្ម" : "Active"
+                        : p.status === "completed"
+                          ? lang === "km" ? "បានបញ្ចប់" : "Completed"
+                          : p.status}
+                  </div>
+                </div>
+                <span
+                  className={`shrink-0 rounded-pill px-2.5 py-0.5 text-[10px] font-semibold ${
+                    p.status === "active"
+                      ? "bg-success/15 text-success"
+                      : p.status === "completed"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {p.status}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </Section>
 
       {/* My listings */}
       <Section title={t("my_projects")}>
