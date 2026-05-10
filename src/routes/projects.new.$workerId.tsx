@@ -21,7 +21,7 @@ function NewProjectPage() {
   const { lang } = useI18n();
   const nav = useNavigate();
   const { workerId } = useParams({ from: "/projects/new/$workerId" });
-  const [worker, setWorker] = useState<{ full_name: string | null; avatar_url: string | null; headline?: string | null } | null>(null);
+  const [worker, setWorker] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const create = useServerFn(createProjectRequest);
 
@@ -36,7 +36,7 @@ function NewProjectPage() {
   useEffect(() => {
     void supabase
       .from("profiles")
-      .select("full_name, avatar_url, headline")
+      .select("full_name, avatar_url")
       .eq("id", workerId)
       .maybeSingle()
       .then(({ data }) => setWorker(data));
