@@ -10,8 +10,9 @@ import {
   cancelCompletion,
   confirmCompletion,
   submitRating,
+  respondToProject,
 } from "@/lib/projects.functions";
-import { Camera, CheckCircle2, ChevronDown, ChevronUp, Clock, LogIn, LogOut, Star } from "lucide-react";
+import { Camera, CheckCircle2, ChevronDown, ChevronUp, Clock, LogIn, LogOut, Star, X } from "lucide-react";
 
 interface Project {
   id: string;
