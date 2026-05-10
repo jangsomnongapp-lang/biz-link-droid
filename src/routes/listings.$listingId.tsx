@@ -129,7 +129,9 @@ function ListingDetailPage() {
     toast.success(t("project_finished"));
   }
 
-  async function acceptApplicant(appId: string) {
+  const startProject = useServerFn(createAcceptedProject);
+
+  async function acceptApplicant(appId: string, applicantId: string) {
     const { error } = await supabase
       .from("applications")
       .update({ status: "accepted" })
@@ -139,7 +141,17 @@ function ListingDetailPage() {
       return;
     }
     setApplicants((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "accepted" } : a)));
-    toast.success(t("applicant_accepted"));
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Not signed in");
+      const res = await startProject({
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        data: { workerId: applicantId },
+      });
+      nav({ to: "/projects/$projectId", params: { projectId: res.id } });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to start project");
+    }
   }
 
   async function messageApplicant(applicantId: string) {
