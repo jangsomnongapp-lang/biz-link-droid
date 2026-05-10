@@ -357,47 +357,123 @@ function ProfilePage() {
           </p>
         ) : (
           <div className="space-y-2">
-            {myProjects.map((p) => (
-              <Link
-                key={p.id}
-                to="/projects/$projectId"
-                params={{ projectId: p.id }}
-                className="flex items-center gap-3 rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
-              >
-                <Avatar
-                  name={p.other?.full_name ?? null}
-                  url={p.other?.avatar_url ?? null}
-                  size={36}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-foreground">
-                    {p.other?.full_name ?? "—"}
-                  </div>
-                  <div className="text-[11px] text-muted-foreground">
-                    {p.status === "pending"
-                      ? p.role === "worker"
-                        ? lang === "km" ? "សំណើថ្មី — ចុចដើម្បីបញ្ជាក់" : "New request — tap to confirm"
-                        : lang === "km" ? "កំពុងរង់ចាំការបញ្ជាក់" : "Waiting for confirmation"
-                      : p.status === "active"
-                        ? lang === "km" ? "សកម្ម" : "Active"
-                        : p.status === "completed"
-                          ? lang === "km" ? "បានបញ្ចប់" : "Completed"
-                          : p.status}
-                  </div>
-                </div>
-                <span
-                  className={`shrink-0 rounded-pill px-2.5 py-0.5 text-[10px] font-semibold ${
-                    p.status === "active"
-                      ? "bg-success/15 text-success"
-                      : p.status === "completed"
-                        ? "bg-primary/15 text-primary"
-                        : "bg-muted text-muted-foreground"
-                  }`}
+            {myProjects.map((p) => {
+              const awaitingMyConfirm =
+                p.status === "active" &&
+                !!p.completion_requested_by &&
+                p.completion_requested_by !== user?.id;
+              async function handleConfirm(e: React.MouseEvent) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (projectBusy) return;
+                setProjectBusy(p.id);
+                try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  await confirmCompletionFn({
+                    headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+                    data: { projectId: p.id },
+                  });
+                  toast.success(lang === "km" ? "បានបញ្ជាក់" : "Confirmed");
+                  setMyProjects((prev) =>
+                    prev.map((x) =>
+                      x.id === p.id ? { ...x, status: "completed", completion_requested_by: null } : x,
+                    ),
+                  );
+                } catch (err: any) {
+                  toast.error(err?.message ?? "Failed");
+                } finally {
+                  setProjectBusy(null);
+                }
+              }
+              async function handleReject(e: React.MouseEvent) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (projectBusy) return;
+                setProjectBusy(p.id);
+                try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  await cancelCompletionFn({
+                    headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+                    data: { projectId: p.id },
+                  });
+                  toast.success(lang === "km" ? "បានបដិសេធ" : "Rejected");
+                  setMyProjects((prev) =>
+                    prev.map((x) => (x.id === p.id ? { ...x, completion_requested_by: null } : x)),
+                  );
+                } catch (err: any) {
+                  toast.error(err?.message ?? "Failed");
+                } finally {
+                  setProjectBusy(null);
+                }
+              }
+              return (
+                <Link
+                  key={p.id}
+                  to="/projects/$projectId"
+                  params={{ projectId: p.id }}
+                  className="block rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
                 >
-                  {p.status}
-                </span>
-              </Link>
-            ))}
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      name={p.other?.full_name ?? null}
+                      url={p.other?.avatar_url ?? null}
+                      size={36}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-foreground">
+                        {p.other?.full_name ?? "—"}
+                      </div>
+                      <div className="text-[11px] text-muted-foreground">
+                        {awaitingMyConfirm
+                          ? lang === "km" ? "ស្នើបញ្ចប់ — បញ្ជាក់ ឬ បដិសេធ" : "Finish requested — confirm or reject"
+                          : p.status === "pending"
+                            ? p.role === "worker"
+                              ? lang === "km" ? "សំណើថ្មី — ចុចដើម្បីបញ្ជាក់" : "New request — tap to confirm"
+                              : lang === "km" ? "កំពុងរង់ចាំការបញ្ជាក់" : "Waiting for confirmation"
+                            : p.status === "active"
+                              ? p.completion_requested_by === user?.id
+                                ? lang === "km" ? "កំពុងរង់ចាំការបញ្ជាក់ការបញ្ចប់" : "Waiting for completion confirmation"
+                                : lang === "km" ? "សកម្ម" : "Active"
+                              : p.status === "completed"
+                                ? lang === "km" ? "បានបញ្ចប់" : "Completed"
+                                : p.status}
+                      </div>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-pill px-2.5 py-0.5 text-[10px] font-semibold ${
+                        p.status === "active"
+                          ? "bg-success/15 text-success"
+                          : p.status === "completed"
+                            ? "bg-primary/15 text-primary"
+                            : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {p.status}
+                    </span>
+                  </div>
+                  {awaitingMyConfirm && (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleReject}
+                        disabled={projectBusy === p.id}
+                        className="flex-1 rounded-lg border border-rose-300 bg-rose-50 py-2 text-xs font-semibold text-rose-800 active:scale-[0.99] disabled:opacity-50"
+                      >
+                        {lang === "km" ? "បដិសេធ" : "Reject"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleConfirm}
+                        disabled={projectBusy === p.id}
+                        className="flex-1 rounded-lg bg-primary py-2 text-xs font-semibold text-primary-foreground active:scale-[0.99] disabled:opacity-50"
+                      >
+                        {lang === "km" ? "បញ្ជាក់" : "Confirm"}
+                      </button>
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         )}
       </Section>
