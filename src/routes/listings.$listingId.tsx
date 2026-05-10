@@ -371,7 +371,7 @@ function ListingDetailPage() {
                       </Link>
                       <div className="flex shrink-0 items-center gap-1.5">
                         <button
-                          onClick={() => void acceptApplicant(a.id)}
+                          onClick={() => void acceptApplicant(a.id, a.applicant_id)}
                           className="flex items-center gap-1 rounded-pill bg-success px-3 py-1.5 text-xs font-semibold text-success-foreground active:scale-95"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" />
