@@ -313,6 +313,52 @@ function UserProfilePage() {
           )}
         </Section>
 
+        <Section
+          title={`${lang === "km" ? "ការវាយតម្លៃ" : "Reviews"} (${reviews.length})${
+            reviews.length ? ` · ${avgStars.toFixed(1)}★` : ""
+          }`}
+        >
+          {reviews.length === 0 ? (
+            <p className="text-sm text-text-hint">
+              {lang === "km" ? "មិនទាន់មានការវាយតម្លៃ" : "No reviews yet"}
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {reviews.map((r) => (
+                <div key={r.id} className="rounded-lg border border-border bg-background p-3">
+                  <div className="flex items-center gap-2">
+                    <Avatar
+                      name={r.rater?.full_name ?? null}
+                      url={r.rater?.avatar_url ?? null}
+                      size={32}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-foreground">
+                        {r.rater?.full_name ?? "—"}
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <Star
+                            key={i}
+                            className={`h-3.5 w-3.5 ${
+                              i <= r.stars
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-muted-foreground/40"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  {r.comment && (
+                    <p className="mt-2 text-sm text-foreground">{r.comment}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
         {activeProjects.length > 0 && (
           <Section title={t("active_projects")}>
             <div className="space-y-2">
