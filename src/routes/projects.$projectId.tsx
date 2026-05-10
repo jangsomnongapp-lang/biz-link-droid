@@ -451,7 +451,7 @@ function ProjectSpacePage() {
             <Send className="h-4 w-4" />
           </button>
         </div>
-        {project.status === "active" && !completionRequestedByOther && !completionRequestedByMe && (
+        {project.status === "active" && project.setup_completed && !completionRequestedByOther && !completionRequestedByMe && (
           <button
             onClick={onMarkComplete}
             disabled={busy}
