@@ -220,6 +220,25 @@ function ProjectSpacePage() {
   const completionRequestedByOther = !!project.completion_requested_by && project.completion_requested_by !== user?.id;
   const completionRequestedByMe = project.completion_requested_by === user?.id;
 
+  // === Owner setup screen — full-screen takeover after worker accepts
+  if (project.status === "active" && !project.setup_completed && me === "owner") {
+    return (
+      <SetupScreen
+        worker={worker}
+        busy={busy}
+        onBack={() => nav({ to: "/home" })}
+        onSubmit={async (vals) => {
+          if (busy) return;
+          setBusy(true);
+          try {
+            await configureFn({ headers: await authHeaders(), data: { projectId, ...vals } });
+            toast.success(lang === "km" ? "បានចាប់ផ្តើម" : "Project started");
+          } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); }
+        }}
+      />
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
