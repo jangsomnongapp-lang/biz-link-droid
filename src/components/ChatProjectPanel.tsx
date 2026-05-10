@@ -140,9 +140,15 @@ export function ChatProjectPanel({ otherUserId, otherName, projectId, threadId }
   const myRating = ratings.find((r) => r.rater_id === user.id);
   const otherRating = ratings.find((r) => r.rater_id === otherUserId);
 
+  async function postThreadNote(text: string) {
+    if (!threadId || !user) return;
+    await supabase.from("messages").insert({ thread_id: threadId, sender_id: user.id, content: text });
+  }
   async function recordLog(type: "checkin" | "checkout") {
     const { error } = await supabase.from("project_logs").insert({ project_id: project!.id, user_id: user!.id, log_type: type });
-    if (error) toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
+    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    await postThreadNote(type === "checkin" ? `🟢 Checked in at ${time}` : `🔵 Checked out at ${time}`);
   }
   async function uploadPhoto(file: File) {
     const ext = file.name.split(".").pop() || "jpg";
@@ -151,7 +157,9 @@ export function ChatProjectPanel({ otherUserId, otherName, projectId, threadId }
     if (upErr) { toast.error(upErr.message); return; }
     const { data: pub } = supabase.storage.from("project-photos").getPublicUrl(path);
     const { error } = await supabase.from("project_logs").insert({ project_id: project!.id, user_id: user!.id, log_type: "photo", photo_url: pub.publicUrl });
-    if (error) toast.error(error.message); else toast.success(lang === "km" ? "បានផ្ទុកឡើង" : "Uploaded");
+    if (error) { toast.error(error.message); return; }
+    toast.success(lang === "km" ? "បានផ្ទុកឡើង" : "Uploaded");
+    await postThreadNote(`__ATT__:${JSON.stringify({ kind: "image", url: pub.publicUrl, name: "Project photo" })}`);
   }
 
   const statusBadge =
