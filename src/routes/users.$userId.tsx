@@ -106,17 +106,28 @@ function UserProfilePage() {
       .select("id, photo_url")
       .eq("user_id", userId)
       .then(({ data }) => setPortfolio(data ?? []));
-    void supabase
-      .from("project_ratings")
-      .select("id, stars, comment, created_at, rater:profiles!project_ratings_rater_id_fkey(id, full_name, avatar_url)")
-      .eq("rated_id", userId)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        // Fallback: if FK alias fails, fetch raters separately
-        if (data) {
-          setReviews(data as never);
-        }
-      });
+    void (async () => {
+      const { data: rs } = await supabase
+        .from("project_ratings")
+        .select("id, stars, comment, created_at, rater_id")
+        .eq("rated_id", userId)
+        .order("created_at", { ascending: false });
+      if (!rs) return;
+      const raterIds = Array.from(new Set(rs.map((r) => r.rater_id)));
+      const { data: raters } = raterIds.length
+        ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", raterIds)
+        : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
+      const byId = new Map((raters ?? []).map((p) => [p.id, p]));
+      setReviews(
+        rs.map((r) => ({
+          id: r.id,
+          stars: r.stars,
+          comment: r.comment,
+          created_at: r.created_at,
+          rater: byId.get(r.rater_id) ?? null,
+        })),
+      );
+    })();
   }, [userId]);
 
   async function startConversation() {
