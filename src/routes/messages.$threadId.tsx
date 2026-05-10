@@ -79,7 +79,7 @@ function ConversationPage() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { threadId } = useParams({ from: "/messages/$threadId" });
-  const { project: focusProjectId } = Route.useSearch();
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [other, setOther] = useState<OtherProfile | null>(null);
   const [text, setText] = useState("");
