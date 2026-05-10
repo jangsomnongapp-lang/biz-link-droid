@@ -90,9 +90,6 @@ function NewProjectPage() {
             <Avatar name={worker?.full_name} url={worker?.avatar_url} size={44} />
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-bold">{workerName}</div>
-              {worker?.headline && (
-                <div className="truncate text-xs text-muted-foreground">{worker.headline}</div>
-              )}
             </div>
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
           </div>
