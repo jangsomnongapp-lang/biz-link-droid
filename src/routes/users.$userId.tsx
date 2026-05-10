@@ -316,15 +316,6 @@ function UserProfilePage() {
           >
             {contacting ? t("loading") : t("contact")}
           </button>
-          <Link
-            to="/projects/new/$workerId"
-            params={{ workerId: profile.id }}
-            style={{ backgroundColor: "#0F6E56" }}
-            className="relative flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold text-white active:scale-[0.99]"
-          >
-            {lang === "km" ? "ចាប់ផ្តើមគម្រោង" : "Start a project"}
-            <span className="absolute -top-2 right-2 rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold text-amber-950">NEW</span>
-          </Link>
         </div>
       )}
     </div>
