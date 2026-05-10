@@ -72,22 +72,38 @@ export function ChatProjectPanel({ otherUserId, otherName, projectId, threadId }
     if (!user) return;
     let cancelled = false;
     async function load() {
-      const query = supabase.from("projects").select("*");
-      const { data } = projectId
-        ? await query.eq("id", projectId).maybeSingle()
-        : await query
-            .or(
-              `and(owner_id.eq.${user!.id},worker_id.eq.${otherUserId}),and(owner_id.eq.${otherUserId},worker_id.eq.${user!.id})`,
-            )
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
+      // Always pick the latest non-completed project between the pair so a fresh
+      // project supersedes a previously completed one. Fall back to the explicit
+      // projectId hint, then finally to the most recent project of any status.
+      const pairFilter = `and(owner_id.eq.${user!.id},worker_id.eq.${otherUserId}),and(owner_id.eq.${otherUserId},worker_id.eq.${user!.id})`;
+      let chosen: Project | null = null;
+      const { data: active } = await supabase
+        .from("projects").select("*")
+        .or(pairFilter)
+        .in("status", ["pending", "active"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (active) chosen = active as Project;
+      if (!chosen && projectId) {
+        const { data } = await supabase.from("projects").select("*").eq("id", projectId).maybeSingle();
+        if (data) chosen = data as Project;
+      }
+      if (!chosen) {
+        const { data } = await supabase
+          .from("projects").select("*")
+          .or(pairFilter)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (data) chosen = data as Project;
+      }
       if (cancelled) return;
-      setProject((data as Project) ?? null);
-      if (data?.id) {
+      setProject(chosen);
+      if (chosen?.id) {
         const [{ data: l }, { data: r }] = await Promise.all([
-          supabase.from("project_logs").select("*").eq("project_id", data.id).order("created_at", { ascending: false }).limit(50),
-          supabase.from("project_ratings").select("id, rater_id, rated_id, stars, comment").eq("project_id", data.id),
+          supabase.from("project_logs").select("*").eq("project_id", chosen.id).order("created_at", { ascending: false }).limit(50),
+          supabase.from("project_ratings").select("id, rater_id, rated_id, stars, comment").eq("project_id", chosen.id),
         ]);
         if (cancelled) return;
         setLogs((l ?? []) as LogRow[]);
