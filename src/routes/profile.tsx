@@ -160,6 +160,22 @@ function ProfilePage() {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .then(({ data }) => setMyRentals(data ?? []));
+    void (async () => {
+      const { data: ps } = await supabase
+        .from("projects")
+        .select("id, status, worker_id")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false });
+      if (!ps) return;
+      const ids = Array.from(new Set(ps.map((p) => p.worker_id).filter(Boolean)));
+      const { data: workers } = ids.length
+        ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", ids)
+        : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
+      const byId = new Map((workers ?? []).map((w) => [w.id, w]));
+      setMyProjects(
+        ps.map((p) => ({ id: p.id, status: p.status, worker: byId.get(p.worker_id) ?? null })),
+      );
+    })();
   }, [user]);
 
   const roleLabels: string[] = [];
