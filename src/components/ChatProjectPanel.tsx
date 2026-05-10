@@ -65,6 +65,7 @@ export function ChatProjectPanel({ otherUserId, otherName }: { otherUserId: stri
   const cancelFn = useServerFn(cancelCompletion);
   const confirmFn = useServerFn(confirmCompletion);
   const rateFn = useServerFn(submitRating);
+  const respondFn = useServerFn(respondToProject);
 
   // Find latest project between the two users
   useEffect(() => {
