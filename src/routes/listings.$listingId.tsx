@@ -127,7 +127,7 @@ function ListingDetailPage() {
     toast.success(t("project_finished"));
   }
 
-  const startProject = useServerFn(createAcceptedProject);
+  
 
   async function acceptApplicant(appId: string, applicantId: string) {
     const { error } = await supabase
