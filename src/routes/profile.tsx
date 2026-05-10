@@ -321,6 +321,75 @@ function ProfilePage() {
         </Section>
       )}
 
+      {/* Project control: pick a worker, send request, track progress */}
+      <Section title={lang === "km" ? "ការគ្រប់គ្រងគម្រោង" : "Project control"}>
+        <Link
+          to="/find-worker"
+          className="mb-3 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 active:scale-[0.99]"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
+            +
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-foreground">
+              {lang === "km" ? "ចាប់ផ្តើមគម្រោងជាមួយអ្នកធ្វើការ" : "Start a project with a worker"}
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              {lang === "km"
+                ? "ជ្រើសរើសអ្នកធ្វើការ ហើយផ្ញើសំណើ"
+                : "Pick a worker and send a request"}
+            </div>
+          </div>
+        </Link>
+        {myProjects.length === 0 ? (
+          <p className="text-sm text-text-hint">
+            {lang === "km" ? "មិនទាន់មានគម្រោង" : "No projects yet"}
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {myProjects.map((p) => (
+              <Link
+                key={p.id}
+                to="/projects/$projectId"
+                params={{ projectId: p.id }}
+                className="flex items-center gap-3 rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
+              >
+                <Avatar
+                  name={p.worker?.full_name ?? null}
+                  url={p.worker?.avatar_url ?? null}
+                  size={36}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium text-foreground">
+                    {p.worker?.full_name ?? "—"}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {p.status === "pending"
+                      ? lang === "km" ? "កំពុងរង់ចាំ" : "Pending"
+                      : p.status === "active"
+                        ? lang === "km" ? "សកម្ម" : "Active"
+                        : p.status === "completed"
+                          ? lang === "km" ? "បានបញ្ចប់" : "Completed"
+                          : p.status}
+                  </div>
+                </div>
+                <span
+                  className={`shrink-0 rounded-pill px-2.5 py-0.5 text-[10px] font-semibold ${
+                    p.status === "active"
+                      ? "bg-success/15 text-success"
+                      : p.status === "completed"
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {p.status}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </Section>
+
       {/* My listings */}
       <Section title={t("my_projects")}>
         {myListings.length === 0 ? (
