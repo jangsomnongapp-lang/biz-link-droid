@@ -220,6 +220,25 @@ function ProjectSpacePage() {
   const completionRequestedByOther = !!project.completion_requested_by && project.completion_requested_by !== user?.id;
   const completionRequestedByMe = project.completion_requested_by === user?.id;
 
+  // === Owner setup screen — full-screen takeover after worker accepts
+  if (project.status === "active" && !project.setup_completed && me === "owner") {
+    return (
+      <SetupScreen
+        worker={worker}
+        busy={busy}
+        onBack={() => nav({ to: "/home" })}
+        onSubmit={async (vals) => {
+          if (busy) return;
+          setBusy(true);
+          try {
+            await configureFn({ headers: await authHeaders(), data: { projectId, ...vals } });
+            toast.success(lang === "km" ? "បានចាប់ផ្តើម" : "Project started");
+          } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); }
+        }}
+      />
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
@@ -285,21 +304,7 @@ function ProjectSpacePage() {
           </div>
         )}
 
-        {/* Setup pending — owner sets project details after worker accepted */}
-        {project.status === "active" && !project.setup_completed && me === "owner" && (
-          <SetupPanel
-            busy={busy}
-            workerName={worker?.full_name ?? "—"}
-            onSubmit={async (vals) => {
-              if (busy) return;
-              setBusy(true);
-              try {
-                await configureFn({ headers: await authHeaders(), data: { projectId, ...vals } });
-                toast.success(lang === "km" ? "បានរក្សាទុក" : "Saved");
-              } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); }
-            }}
-          />
-        )}
+        {/* Owner setup is handled by full-screen takeover above */}
         {project.status === "active" && !project.setup_completed && me === "worker" && (
           <Card>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -648,9 +653,9 @@ interface SetupValues {
   duration: string | null;
 }
 
-function SetupPanel({
-  workerName, busy, onSubmit,
-}: { workerName: string; busy: boolean; onSubmit: (vals: SetupValues) => Promise<void> }) {
+function SetupScreen({
+  worker, busy, onBack, onSubmit,
+}: { worker: PartProfile | null; busy: boolean; onBack: () => void; onSubmit: (vals: SetupValues) => Promise<void> }) {
   const { lang } = useI18n();
   const [hasPrice, setHasPrice] = useState(false);
   const [price, setPrice] = useState<string>("");
@@ -660,81 +665,103 @@ function SetupPanel({
   const [startDate, setStartDate] = useState<string>("");
   const [duration, setDuration] = useState<string>("");
 
+  const workerName = worker?.full_name ?? "—";
+
   return (
-    <div className="space-y-4 rounded-xl border border-emerald-200 bg-white p-4 shadow-sm">
-      <div>
-        <div className="text-base font-bold text-foreground">
-          {lang === "km" ? "កំណត់គម្រោង" : "Set up the project"}
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {lang === "km"
-            ? `${workerName} បានទទួលយក។ កំណត់លក្ខខណ្ឌដើម្បីចាប់ផ្តើម (ស្រេចចិត្តទាំងអស់)។`
-            : `${workerName} accepted. Set conditions to begin (all optional).`}
-        </p>
-      </div>
+    <div className="flex min-h-screen flex-col bg-white text-foreground">
+      <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
+        <button onClick={onBack} className="rounded-full p-2 active:bg-white/10">
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <h1 className="flex-1 text-center text-base font-semibold">
+          {lang === "km" ? "ចាប់ផ្តើមគម្រោង" : "Start a project"}
+        </h1>
+        <span className="w-9" />
+      </header>
 
-      <div>
-        <SLabel>{lang === "km" ? "តម្លៃយល់ព្រម" : "Agreed price"}</SLabel>
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          <SToggle on={hasPrice} onClick={() => setHasPrice(true)} label={lang === "km" ? "បាទ" : "Yes — set price"} />
-          <SToggle on={!hasPrice} onClick={() => setHasPrice(false)} label={lang === "km" ? "មិនកំណត់" : "No price"} />
-        </div>
-        {hasPrice && (
-          <div className="mt-2 flex h-11 items-center gap-2 rounded-xl border border-border bg-surface px-3">
-            <span className="text-sm text-muted-foreground">$</span>
-            <input inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="1,200" className="flex-1 bg-transparent text-sm outline-none" />
+      <div className="flex-1 space-y-5 p-4 pb-32">
+        <div>
+          <SLabel>{lang === "km" ? "ជ្រើសរើសកម្មករ" : "Selected worker"}</SLabel>
+          <div className="mt-2 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/40 p-3">
+            <Avatar name={worker?.full_name} url={worker?.avatar_url} size={44} />
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-bold">{workerName}</div>
+              <div className="truncate text-xs text-muted-foreground">
+                {lang === "km" ? "បានទទួលយក" : "Accepted your request"}
+              </div>
+            </div>
+            <CheckCircle2 className="h-5 w-5 text-emerald-600" />
           </div>
-        )}
-      </div>
-
-      <div>
-        <SLabel>{lang === "km" ? "តាមដានវត្តមាន" : "Attendance tracking"}</SLabel>
-        <SSwitch label={lang === "km" ? "ចូលធ្វើការ" : "Check-in on arrival"} on={checkin} onChange={setCheckin} />
-        <SSwitch label={lang === "km" ? "ចេញពីការងារ" : "Check-out on leave"} on={checkout} onChange={setCheckout} />
-      </div>
-
-      <div>
-        <SLabel>{lang === "km" ? "រូបភាពវឌ្ឍនភាព" : "Daily progress photos"}</SLabel>
-        <div className="mt-2 grid grid-cols-2 gap-2">
-          {(["none", "morning", "midday", "endofday"] as const).map((opt) => (
-            <SToggle key={opt} on={photo === opt} onClick={() => setPhoto(opt)} label={
-              opt === "none" ? (lang === "km" ? "មិនត្រូវការ" : "None") :
-              opt === "morning" ? (lang === "km" ? "ព្រឹក" : "Morning") :
-              opt === "midday" ? (lang === "km" ? "ថ្ងៃត្រង់" : "Midday") :
-              (lang === "km" ? "ល្ងាច" : "End of day")
-            } />
-          ))}
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-3">
         <div>
-          <SLabel>{lang === "km" ? "ថ្ងៃចាប់ផ្តើម" : "Start date"}</SLabel>
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none" />
+          <SLabel>{lang === "km" ? "តម្លៃយល់ព្រម" : "Agreed price"}</SLabel>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <SToggle on={hasPrice} onClick={() => setHasPrice(true)} label={lang === "km" ? "បាទ — កំណត់តម្លៃ" : "Yes — set price"} />
+            <SToggle on={!hasPrice} onClick={() => setHasPrice(false)} label={lang === "km" ? "មិនកំណត់" : "No price"} />
+          </div>
+          {hasPrice && (
+            <div className="mt-2 flex h-11 items-center gap-2 rounded-xl border border-border bg-surface px-3">
+              <span className="text-sm text-muted-foreground">$</span>
+              <input inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="1,200" className="flex-1 bg-transparent text-sm outline-none" />
+            </div>
+          )}
         </div>
+
         <div>
-          <SLabel>{lang === "km" ? "រយៈពេល" : "Duration"}</SLabel>
-          <input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder={lang === "km" ? "៣ សប្តាហ៍" : "3 weeks"} className="mt-2 h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none" />
+          <SLabel>{lang === "km" ? "តាមដានវត្តមាន" : "Attendance tracking"}</SLabel>
+          <SSwitch label={lang === "km" ? "ចូលធ្វើការ" : "Check-in on arrival"} on={checkin} onChange={setCheckin} />
+          <SSwitch label={lang === "km" ? "ចេញពីការងារ" : "Check-out on leave"} on={checkout} onChange={setCheckout} />
+        </div>
+
+        <div>
+          <SLabel>{lang === "km" ? "រូបភាពវឌ្ឍនភាពប្រចាំថ្ងៃ" : "Daily progress photos"}</SLabel>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {(["none", "morning", "midday", "endofday"] as const).map((opt) => (
+              <SToggle key={opt} on={photo === opt} onClick={() => setPhoto(opt)} label={
+                opt === "none" ? (lang === "km" ? "មិនត្រូវការ" : "None") :
+                opt === "morning" ? (lang === "km" ? "ព្រឹក" : "Morning") :
+                opt === "midday" ? (lang === "km" ? "ថ្ងៃត្រង់" : "Midday") :
+                (lang === "km" ? "ល្ងាច" : "End of day")
+              } />
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <SLabel>{lang === "km" ? "ថ្ងៃចាប់ផ្តើម" : "Start date"}</SLabel>
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none" />
+          </div>
+          <div>
+            <SLabel>{lang === "km" ? "រយៈពេល" : "Duration"}</SLabel>
+            <input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder={lang === "km" ? "៣ សប្តាហ៍" : "3 weeks"} className="mt-2 h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none" />
+          </div>
         </div>
       </div>
 
-      <button
-        disabled={busy}
-        onClick={() =>
-          onSubmit({
-            agreedPrice: hasPrice && price ? Number(price) : null,
-            checkinRequired: checkin,
-            checkoutRequired: checkout,
-            photoFrequency: photo === "none" ? null : photo,
-            startDate: startDate || null,
-            duration: duration || null,
-          })
-        }
-        style={{ backgroundColor: "#0F6E56" }}
-        className="flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold text-white active:scale-[0.99] disabled:opacity-60"
-      >
-        {busy ? (lang === "km" ? "កំពុងរក្សាទុក..." : "Saving...") : (lang === "km" ? "ចាប់ផ្តើមគម្រោង" : "Start project")}
-      </button>
+      <div className="sticky bottom-0 border-t border-border bg-white p-3">
+        <button
+          disabled={busy}
+          onClick={() =>
+            onSubmit({
+              agreedPrice: hasPrice && price ? Number(price) : null,
+              checkinRequired: checkin,
+              checkoutRequired: checkout,
+              photoFrequency: photo === "none" ? null : photo,
+              startDate: startDate || null,
+              duration: duration || null,
+            })
+          }
+          style={{ backgroundColor: "#0F6E56" }}
+          className="flex h-14 w-full flex-col items-center justify-center rounded-xl text-sm font-semibold text-white active:scale-[0.99] disabled:opacity-60"
+        >
+          <span>{busy ? (lang === "km" ? "កំពុងផ្ញើ..." : "Sending...") : `${lang === "km" ? "ផ្ញើទៅ" : "Send to"} ${workerName}`}</span>
+          <span className="text-[11px] font-normal opacity-90">
+            {lang === "km" ? "ចាប់ផ្តើមគម្រោង" : "Start the project"}
+          </span>
+        </button>
+      </div>
     </div>
   );
 }
