@@ -530,3 +530,93 @@ function RateSheet({ name, onClose, onSubmit }: { name: string; onClose: () => v
     </div>
   );
 }
+
+function ProjectRequestReview({
+  ownerName,
+  project,
+  busy,
+  onAccept,
+  onDecline,
+}: {
+  ownerName: string;
+  project: Project;
+  busy: boolean;
+  onAccept: () => void;
+  onDecline: () => void;
+}) {
+  const { lang } = useI18n();
+  const fmtDate = (s: string | null) => {
+    if (!s) return "—";
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? s : d.toLocaleDateString(lang === "km" ? "km-KH" : undefined, { year: "numeric", month: "short", day: "numeric" });
+  };
+  const photoLabel =
+    project.photo_frequency === "morning" ? (lang === "km" ? "រូបព្រឹក" : "Morning photo") :
+    project.photo_frequency === "midday" ? (lang === "km" ? "រូបថ្ងៃត្រង់" : "Midday photo") :
+    project.photo_frequency === "endofday" ? (lang === "km" ? "រូបល្ងាច" : "End-of-day photo") : null;
+
+  return (
+    <div className="space-y-3 rounded-lg border border-border bg-white p-3">
+      <div className="rounded-lg bg-muted/40 p-2.5">
+        <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+          {lang === "km" ? "សេចក្តីសង្ខេបគម្រោង" : "Project summary"}
+        </div>
+        <div className="mt-2 space-y-1.5 text-xs">
+          <Row label={lang === "km" ? "តម្លៃ" : "Agreed price"} value={project.agreed_price != null ? `$${project.agreed_price}` : (lang === "km" ? "មិនកំណត់" : "No price")} />
+          <Row label={lang === "km" ? "ថ្ងៃចាប់ផ្តើម" : "Start date"} value={fmtDate(project.start_date)} />
+          <Row label={lang === "km" ? "រយៈពេល" : "Duration"} value={project.duration || "—"} />
+          <div className="pt-1">
+            <div className="text-[11px] text-muted-foreground">{lang === "km" ? "តម្រូវការ" : "Requirements"}</div>
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {project.checkin_required && <Chip>{lang === "km" ? "តម្រូវឱ្យចូល" : "Check-in required"}</Chip>}
+              {project.checkout_required && <Chip>{lang === "km" ? "តម្រូវឱ្យចេញ" : "Check-out required"}</Chip>}
+              {photoLabel && <Chip>{photoLabel}</Chip>}
+              {!project.checkin_required && !project.checkout_required && !photoLabel && (
+                <span className="text-[11px] text-muted-foreground">{lang === "km" ? "គ្មាន" : "None"}</span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        {lang === "km"
+          ? `ពិនិត្យដោយប្រុងប្រយ័ត្ន — អ្នកនិង ${ownerName} គួរតែបានពិភាក្សាលក្ខខណ្ឌទាំងនេះរួចហើយ`
+          : `Review carefully — you and ${ownerName} should have discussed these conditions already`}
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={onDecline}
+          disabled={busy}
+          className="flex h-10 items-center justify-center gap-1.5 rounded-lg border border-rose-300 bg-rose-50 text-xs font-semibold text-rose-800 disabled:opacity-60"
+        >
+          <X className="h-3.5 w-3.5" /> {lang === "km" ? "បដិសេធ" : "Decline"}
+        </button>
+        <button
+          onClick={onAccept}
+          disabled={busy}
+          style={{ backgroundColor: "#0F6E56" }}
+          className="flex h-10 items-center justify-center gap-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-60"
+        >
+          <CheckCircle2 className="h-3.5 w-3.5" /> {lang === "km" ? "ទទួលយកគម្រោង" : "Accept project"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-semibold text-foreground">{value}</span>
+    </div>
+  );
+}
+
+function Chip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+      {children}
+    </span>
+  );
+}
