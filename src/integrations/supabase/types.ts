@@ -865,6 +865,7 @@ export type Database = {
           id: string
           owner_id: string
           photo_frequency: string | null
+          setup_completed: boolean
           start_date: string | null
           status: string
           updated_at: string
@@ -880,6 +881,7 @@ export type Database = {
           id?: string
           owner_id: string
           photo_frequency?: string | null
+          setup_completed?: boolean
           start_date?: string | null
           status?: string
           updated_at?: string
@@ -895,6 +897,7 @@ export type Database = {
           id?: string
           owner_id?: string
           photo_frequency?: string | null
+          setup_completed?: boolean
           start_date?: string | null
           status?: string
           updated_at?: string
