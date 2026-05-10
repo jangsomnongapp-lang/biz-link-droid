@@ -304,21 +304,7 @@ function ProjectSpacePage() {
           </div>
         )}
 
-        {/* Setup pending — owner sets project details after worker accepted */}
-        {project.status === "active" && !project.setup_completed && me === "owner" && (
-          <SetupPanel
-            busy={busy}
-            workerName={worker?.full_name ?? "—"}
-            onSubmit={async (vals) => {
-              if (busy) return;
-              setBusy(true);
-              try {
-                await configureFn({ headers: await authHeaders(), data: { projectId, ...vals } });
-                toast.success(lang === "km" ? "បានរក្សាទុក" : "Saved");
-              } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); }
-            }}
-          />
-        )}
+        {/* Owner setup is handled by full-screen takeover above */}
         {project.status === "active" && !project.setup_completed && me === "worker" && (
           <Card>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
