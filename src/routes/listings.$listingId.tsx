@@ -9,8 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
 import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { useServerFn } from "@tanstack/react-start";
-import { createAcceptedProject } from "@/lib/projects.functions";
 
 export const Route = createFileRoute("/listings/$listingId")({
   component: () => (
@@ -129,7 +127,7 @@ function ListingDetailPage() {
     toast.success(t("project_finished"));
   }
 
-  const startProject = useServerFn(createAcceptedProject);
+  
 
   async function acceptApplicant(appId: string, applicantId: string) {
     const { error } = await supabase
@@ -141,14 +139,9 @@ function ListingDetailPage() {
       return;
     }
     setApplicants((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "accepted" } : a)));
+    // Just open a normal chat. Project tracking is optional and started
+    // separately from the worker's profile via "Start a project".
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Not signed in");
-      const project = await startProject({
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        data: { workerId: applicantId },
-      });
-      // Open the chat thread — the project panel lives inside the chat now.
       if (!user) return;
       const [a, b] = [user.id, applicantId].sort();
       const { data: existing } = await supabase
@@ -167,9 +160,9 @@ function ListingDetailPage() {
         if (error) throw error;
         threadId = created.id;
       }
-      nav({ to: "/messages/$threadId", params: { threadId }, search: { project: project.id } });
+      nav({ to: "/messages/$threadId", params: { threadId } });
     } catch (e: any) {
-      toast.error(e?.message ?? "Failed to start project");
+      toast.error(e?.message ?? "Failed to open chat");
     }
   }
 
