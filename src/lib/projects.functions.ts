@@ -4,13 +4,34 @@ import { z } from "zod";
 
 export const createProjectRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ workerId: z.string().uuid() }).parse(d))
+  .inputValidator((d) =>
+    z.object({
+      workerId: z.string().uuid(),
+      agreedPrice: z.number().nullable().optional(),
+      checkinRequired: z.boolean().optional(),
+      checkoutRequired: z.boolean().optional(),
+      photoFrequency: z.enum(["morning", "midday", "endofday"]).nullable().optional(),
+      startDate: z.string().nullable().optional(),
+      duration: z.string().nullable().optional(),
+    }).parse(d),
+  )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     if (data.workerId === userId) throw new Error("You cannot start a project with yourself");
     const { data: row, error } = await supabase
       .from("projects")
-      .insert({ owner_id: userId, worker_id: data.workerId })
+      .insert({
+        owner_id: userId,
+        worker_id: data.workerId,
+        status: "pending",
+        agreed_price: data.agreedPrice ?? null,
+        checkin_required: !!data.checkinRequired,
+        checkout_required: !!data.checkoutRequired,
+        photo_frequency: data.photoFrequency ?? null,
+        start_date: data.startDate || null,
+        duration: data.duration || null,
+        setup_completed: true,
+      })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
