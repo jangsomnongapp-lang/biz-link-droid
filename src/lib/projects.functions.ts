@@ -115,11 +115,16 @@ export const requestCompletion = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ projectId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
+    const { data: p, error: gerr } = await supabase
+      .from("projects").select("owner_id, worker_id, status").eq("id", data.projectId).maybeSingle();
+    if (gerr) throw new Error(gerr.message);
+    if (!p) throw new Error("Not found");
+    if (p.owner_id !== userId && p.worker_id !== userId) throw new Error("Not a participant");
+    if (p.status !== "active") throw new Error("Project must be active");
     const { error } = await supabase
       .from("projects")
-      .update({ completion_requested_by: userId })
-      .eq("id", data.projectId)
-      .eq("status", "active");
+      .update({ status: "completed", completion_requested_by: userId })
+      .eq("id", data.projectId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
