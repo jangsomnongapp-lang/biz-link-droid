@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
 import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { createAcceptedProject } from "@/lib/projects.functions";
 
 export const Route = createFileRoute("/listings/$listingId")({
   component: () => (
@@ -127,7 +129,9 @@ function ListingDetailPage() {
     toast.success(t("project_finished"));
   }
 
-  async function acceptApplicant(appId: string) {
+  const startProject = useServerFn(createAcceptedProject);
+
+  async function acceptApplicant(appId: string, applicantId: string) {
     const { error } = await supabase
       .from("applications")
       .update({ status: "accepted" })
@@ -137,7 +141,17 @@ function ListingDetailPage() {
       return;
     }
     setApplicants((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "accepted" } : a)));
-    toast.success(t("applicant_accepted"));
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Not signed in");
+      const res = await startProject({
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        data: { workerId: applicantId },
+      });
+      nav({ to: "/projects/$projectId", params: { projectId: res.id } });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to start project");
+    }
   }
 
   async function messageApplicant(applicantId: string) {
@@ -357,7 +371,7 @@ function ListingDetailPage() {
                       </Link>
                       <div className="flex shrink-0 items-center gap-1.5">
                         <button
-                          onClick={() => void acceptApplicant(a.id)}
+                          onClick={() => void acceptApplicant(a.id, a.applicant_id)}
                           className="flex items-center gap-1 rounded-pill bg-success px-3 py-1.5 text-xs font-semibold text-success-foreground active:scale-95"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" />
