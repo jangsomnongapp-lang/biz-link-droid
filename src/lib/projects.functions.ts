@@ -144,7 +144,7 @@ export const requestCompletion = createServerFn({ method: "POST" })
     if (p.status !== "active") throw new Error("Project must be active");
     const { error } = await supabase
       .from("projects")
-      .update({ status: "completed", completion_requested_by: userId })
+      .update({ completion_requested_by: userId })
       .eq("id", data.projectId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -172,11 +172,11 @@ export const confirmCompletion = createServerFn({ method: "POST" })
       .from("projects").select("completion_requested_by, owner_id, worker_id, status").eq("id", data.projectId).maybeSingle();
     if (gerr) throw new Error(gerr.message);
     if (!p) throw new Error("Not found");
-    if (p.status !== "active") throw new Error("Not active");
+    if (p.status !== "active" && !(p.status === "completed" && p.completion_requested_by)) throw new Error("Not active");
     if (!p.completion_requested_by) throw new Error("Nothing to confirm");
     if (p.completion_requested_by === userId) throw new Error("The other party must confirm");
     const { error } = await supabase
-      .from("projects").update({ status: "completed" }).eq("id", data.projectId);
+      .from("projects").update({ status: "completed", completion_requested_by: null }).eq("id", data.projectId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
