@@ -17,6 +17,36 @@ export const createProjectRequest = createServerFn({ method: "POST" })
     return { id: row.id };
   });
 
+// Owner-initiated: created already-active so the owner is taken straight to setup.
+export const createAcceptedProject = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ workerId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    if (data.workerId === userId) throw new Error("You cannot start a project with yourself");
+    // Reuse an existing active+unfinished project between this owner & worker if any.
+    const { data: existing } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("owner_id", userId)
+      .eq("worker_id", data.workerId)
+      .in("status", ["pending", "active"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existing?.id) {
+      await supabase.from("projects").update({ status: "active" }).eq("id", existing.id);
+      return { id: existing.id };
+    }
+    const { data: row, error } = await supabase
+      .from("projects")
+      .insert({ owner_id: userId, worker_id: data.workerId, status: "active" })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: row.id };
+  });
+
 const configureSchema = z.object({
   projectId: z.string().uuid(),
   agreedPrice: z.number().nullable().optional(),
