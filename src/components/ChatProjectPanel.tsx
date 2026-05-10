@@ -49,7 +49,7 @@ async function authHeaders() {
   return { Authorization: `Bearer ${session?.access_token ?? ""}` };
 }
 
-export function ChatProjectPanel({ otherUserId, otherName, projectId }: { otherUserId: string; otherName: string; projectId?: string }) {
+export function ChatProjectPanel({ otherUserId, otherName, projectId, threadId }: { otherUserId: string; otherName: string; projectId?: string; threadId?: string }) {
   const { user } = useAuth();
   const { lang } = useI18n();
   const [project, setProject] = useState<Project | null>(null);
