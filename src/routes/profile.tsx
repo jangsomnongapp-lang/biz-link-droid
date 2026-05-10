@@ -11,6 +11,7 @@ import { Camera, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
 import { requestFreeHelp } from "@/lib/help-request.functions";
+import { confirmCompletion, cancelCompletion } from "@/lib/projects.functions";
 
 export const Route = createFileRoute("/profile")({
   component: ProfileRoute,
