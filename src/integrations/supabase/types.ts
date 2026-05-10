@@ -749,6 +749,159 @@ export type Database = {
           },
         ]
       }
+      project_logs: {
+        Row: {
+          created_at: string
+          id: string
+          log_type: string
+          photo_url: string | null
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          log_type: string
+          photo_url?: string | null
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          log_type?: string
+          photo_url?: string | null
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_logs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          project_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          project_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_messages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          project_id: string
+          rated_id: string
+          rater_id: string
+          stars: number
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          project_id: string
+          rated_id: string
+          rater_id: string
+          stars: number
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          project_id?: string
+          rated_id?: string
+          rater_id?: string
+          stars?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_ratings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          agreed_price: number | null
+          checkin_required: boolean
+          checkout_required: boolean
+          completion_requested_by: string | null
+          created_at: string
+          duration: string | null
+          id: string
+          owner_id: string
+          photo_frequency: string | null
+          start_date: string | null
+          status: string
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          agreed_price?: number | null
+          checkin_required?: boolean
+          checkout_required?: boolean
+          completion_requested_by?: string | null
+          created_at?: string
+          duration?: string | null
+          id?: string
+          owner_id: string
+          photo_frequency?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          agreed_price?: number | null
+          checkin_required?: boolean
+          checkout_required?: boolean
+          completion_requested_by?: string | null
+          created_at?: string
+          duration?: string | null
+          id?: string
+          owner_id?: string
+          photo_frequency?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: []
+      }
       rental_comment_likes: {
         Row: {
           comment_id: string
@@ -1343,6 +1496,10 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: { _uid: string }; Returns: boolean }
+      is_project_participant: {
+        Args: { _pid: string; _uid: string }
+        Returns: boolean
+      }
       notify_telegram: {
         Args: { _kind: string; _payload: Json }
         Returns: undefined

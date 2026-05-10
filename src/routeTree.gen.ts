@@ -35,6 +35,7 @@ import { Route as StoryViewRouteImport } from './routes/story.view'
 import { Route as StoryNewRouteImport } from './routes/story.new'
 import { Route as RentalsNewRouteImport } from './routes/rentals.new'
 import { Route as RentalsRentalIdRouteImport } from './routes/rentals.$rentalId'
+import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
 import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
@@ -47,6 +48,7 @@ import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
 import { Route as SuppliersStoreIdEditRouteImport } from './routes/suppliers.$storeId.edit'
 import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
+import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
 import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
 
 const TermsRoute = TermsRouteImport.update({
@@ -179,6 +181,11 @@ const RentalsRentalIdRoute = RentalsRentalIdRouteImport.update({
   path: '/rentals/$rentalId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
+  id: '/projects/$projectId',
+  path: '/projects/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfilePortfolioRoute = ProfilePortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
@@ -239,6 +246,11 @@ const SupplierJoinTokenRoute = SupplierJoinTokenRouteImport.update({
   path: '/supplier/join/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsNewWorkerIdRoute = ProjectsNewWorkerIdRouteImport.update({
+  id: '/projects/new/$workerId',
+  path: '/projects/new/$workerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTelegramNotifyRoute = ApiPublicTelegramNotifyRouteImport.update({
   id: '/api/public/telegram-notify',
   path: '/api/public/telegram-notify',
@@ -272,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/rentals/$rentalId': typeof RentalsRentalIdRoute
   '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
@@ -283,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
+  '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
@@ -313,6 +327,7 @@ export interface FileRoutesByTo {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/rentals/$rentalId': typeof RentalsRentalIdRoute
   '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
@@ -324,6 +339,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
+  '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
@@ -355,6 +371,7 @@ export interface FileRoutesById {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
+  '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/rentals/$rentalId': typeof RentalsRentalIdRoute
   '/rentals/new': typeof RentalsNewRoute
   '/story/new': typeof StoryNewRoute
@@ -366,6 +383,7 @@ export interface FileRoutesById {
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
+  '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
@@ -398,6 +416,7 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/projects/$projectId'
     | '/rentals/$rentalId'
     | '/rentals/new'
     | '/story/new'
@@ -409,6 +428,7 @@ export interface FileRouteTypes {
     | '/messages/'
     | '/suppliers/'
     | '/api/public/telegram-notify'
+    | '/projects/new/$workerId'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -439,6 +459,7 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/projects/$projectId'
     | '/rentals/$rentalId'
     | '/rentals/new'
     | '/story/new'
@@ -450,6 +471,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/suppliers'
     | '/api/public/telegram-notify'
+    | '/projects/new/$workerId'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
   id:
@@ -480,6 +502,7 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/profile/edit'
     | '/profile/portfolio'
+    | '/projects/$projectId'
     | '/rentals/$rentalId'
     | '/rentals/new'
     | '/story/new'
@@ -491,6 +514,7 @@ export interface FileRouteTypes {
     | '/messages/'
     | '/suppliers/'
     | '/api/public/telegram-notify'
+    | '/projects/new/$workerId'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
   fileRoutesById: FileRoutesById
@@ -520,6 +544,7 @@ export interface RootRouteChildren {
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
+  ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
   RentalsRentalIdRoute: typeof RentalsRentalIdRoute
   RentalsNewRoute: typeof RentalsNewRoute
   StoryNewRoute: typeof StoryNewRoute
@@ -531,6 +556,7 @@ export interface RootRouteChildren {
   MessagesIndexRoute: typeof MessagesIndexRoute
   SuppliersIndexRoute: typeof SuppliersIndexRoute
   ApiPublicTelegramNotifyRoute: typeof ApiPublicTelegramNotifyRoute
+  ProjectsNewWorkerIdRoute: typeof ProjectsNewWorkerIdRoute
   SupplierJoinTokenRoute: typeof SupplierJoinTokenRoute
 }
 
@@ -718,6 +744,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RentalsRentalIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/$projectId': {
+      id: '/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof ProjectsProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/portfolio': {
       id: '/profile/portfolio'
       path: '/portfolio'
@@ -802,6 +835,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupplierJoinTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/new/$workerId': {
+      id: '/projects/new/$workerId'
+      path: '/projects/new/$workerId'
+      fullPath: '/projects/new/$workerId'
+      preLoaderRoute: typeof ProjectsNewWorkerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/telegram-notify': {
       id: '/api/public/telegram-notify'
       path: '/api/public/telegram-notify'
@@ -861,6 +901,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
+  ProjectsProjectIdRoute: ProjectsProjectIdRoute,
   RentalsRentalIdRoute: RentalsRentalIdRoute,
   RentalsNewRoute: RentalsNewRoute,
   StoryNewRoute: StoryNewRoute,
@@ -872,17 +913,9 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesIndexRoute: MessagesIndexRoute,
   SuppliersIndexRoute: SuppliersIndexRoute,
   ApiPublicTelegramNotifyRoute: ApiPublicTelegramNotifyRoute,
+  ProjectsNewWorkerIdRoute: ProjectsNewWorkerIdRoute,
   SupplierJoinTokenRoute: SupplierJoinTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

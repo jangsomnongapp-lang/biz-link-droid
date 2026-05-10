@@ -1,0 +1,129 @@
+import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { z } from "zod";
+
+const createSchema = z.object({
+  workerId: z.string().uuid(),
+  agreedPrice: z.number().nullable().optional(),
+  checkinRequired: z.boolean().optional(),
+  checkoutRequired: z.boolean().optional(),
+  photoFrequency: z.enum(["morning", "midday", "endofday"]).nullable().optional(),
+  startDate: z.string().nullable().optional(),
+  duration: z.string().nullable().optional(),
+});
+
+export const createProjectRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => createSchema.parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    if (data.workerId === userId) throw new Error("You cannot start a project with yourself");
+    const { data: row, error } = await supabase
+      .from("projects")
+      .insert({
+        owner_id: userId,
+        worker_id: data.workerId,
+        agreed_price: data.agreedPrice ?? null,
+        checkin_required: !!data.checkinRequired,
+        checkout_required: !!data.checkoutRequired,
+        photo_frequency: data.photoFrequency ?? null,
+        start_date: data.startDate || null,
+        duration: data.duration || null,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: row.id };
+  });
+
+export const respondToProject = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ projectId: z.string().uuid(), accept: z.boolean() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { data: p, error: gerr } = await supabase
+      .from("projects").select("worker_id, status").eq("id", data.projectId).maybeSingle();
+    if (gerr) throw new Error(gerr.message);
+    if (!p) throw new Error("Not found");
+    if (p.worker_id !== userId) throw new Error("Only the worker can respond");
+    if (p.status !== "pending") throw new Error("Already handled");
+    const { error } = await supabase
+      .from("projects")
+      .update({ status: data.accept ? "active" : "declined" })
+      .eq("id", data.projectId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const requestCompletion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ projectId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("projects")
+      .update({ completion_requested_by: userId })
+      .eq("id", data.projectId)
+      .eq("status", "active");
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const cancelCompletion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ projectId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase } = context;
+    const { error } = await supabase
+      .from("projects")
+      .update({ completion_requested_by: null })
+      .eq("id", data.projectId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const confirmCompletion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ projectId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { data: p, error: gerr } = await supabase
+      .from("projects").select("completion_requested_by, owner_id, worker_id, status").eq("id", data.projectId).maybeSingle();
+    if (gerr) throw new Error(gerr.message);
+    if (!p) throw new Error("Not found");
+    if (p.status !== "active") throw new Error("Not active");
+    if (!p.completion_requested_by) throw new Error("Nothing to confirm");
+    if (p.completion_requested_by === userId) throw new Error("The other party must confirm");
+    const { error } = await supabase
+      .from("projects").update({ status: "completed" }).eq("id", data.projectId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const submitRating = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      projectId: z.string().uuid(),
+      stars: z.number().int().min(1).max(5),
+      comment: z.string().max(100).nullable().optional(),
+    }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { data: p, error: gerr } = await supabase
+      .from("projects").select("owner_id, worker_id, status").eq("id", data.projectId).maybeSingle();
+    if (gerr) throw new Error(gerr.message);
+    if (!p) throw new Error("Not found");
+    if (p.status !== "completed") throw new Error("Project not completed");
+    const ratedId = userId === p.owner_id ? p.worker_id : p.owner_id;
+    const { error } = await supabase.from("project_ratings").insert({
+      project_id: data.projectId,
+      rater_id: userId,
+      rated_id: ratedId,
+      stars: data.stars,
+      comment: data.comment || null,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
