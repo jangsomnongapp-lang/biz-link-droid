@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
 import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { createAcceptedProject } from "@/lib/projects.functions";
 
 export const Route = createFileRoute("/listings/$listingId")({
   component: () => (
