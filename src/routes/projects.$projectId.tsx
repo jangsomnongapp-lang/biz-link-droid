@@ -653,9 +653,9 @@ interface SetupValues {
   duration: string | null;
 }
 
-function SetupPanel({
-  workerName, busy, onSubmit,
-}: { workerName: string; busy: boolean; onSubmit: (vals: SetupValues) => Promise<void> }) {
+function SetupScreen({
+  worker, busy, onBack, onSubmit,
+}: { worker: PartProfile | null; busy: boolean; onBack: () => void; onSubmit: (vals: SetupValues) => Promise<void> }) {
   const { lang } = useI18n();
   const [hasPrice, setHasPrice] = useState(false);
   const [price, setPrice] = useState<string>("");
