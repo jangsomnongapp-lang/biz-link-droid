@@ -35,7 +35,11 @@ export const createAcceptedProject = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
     if (existing?.id) {
-      await supabase.from("projects").update({ status: "active" }).eq("id", existing.id);
+      const { error } = await supabase
+        .from("projects")
+        .update({ status: "active", setup_completed: false, completion_requested_by: null })
+        .eq("id", existing.id);
+      if (error) throw new Error(error.message);
       return { id: existing.id };
     }
     const { data: row, error } = await supabase
