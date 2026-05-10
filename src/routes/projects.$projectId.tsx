@@ -12,6 +12,7 @@ import {
   cancelCompletion,
   confirmCompletion,
   submitRating,
+  configureProject,
 } from "@/lib/projects.functions";
 import { ArrowLeft, Camera, CheckCircle2, Clock, Send, Star, LogIn, LogOut } from "lucide-react";
 import { toast } from "sonner";
