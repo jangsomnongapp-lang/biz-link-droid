@@ -141,14 +141,9 @@ function ListingDetailPage() {
       return;
     }
     setApplicants((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "accepted" } : a)));
+    // Just open a normal chat. Project tracking is optional and started
+    // separately from the worker's profile via "Start a project".
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Not signed in");
-      const project = await startProject({
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        data: { workerId: applicantId },
-      });
-      // Open the chat thread — the project panel lives inside the chat now.
       if (!user) return;
       const [a, b] = [user.id, applicantId].sort();
       const { data: existing } = await supabase
@@ -167,9 +162,9 @@ function ListingDetailPage() {
         if (error) throw error;
         threadId = created.id;
       }
-      nav({ to: "/messages/$threadId", params: { threadId }, search: { project: project.id } });
+      nav({ to: "/messages/$threadId", params: { threadId } });
     } catch (e: any) {
-      toast.error(e?.message ?? "Failed to start project");
+      toast.error(e?.message ?? "Failed to open chat");
     }
   }
 
