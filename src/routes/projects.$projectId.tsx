@@ -285,8 +285,34 @@ function ProjectSpacePage() {
           </div>
         )}
 
-        {/* Worker / Owner panels (active) */}
-        {project.status === "active" && me === "worker" && (
+        {/* Setup pending — owner sets project details after worker accepted */}
+        {project.status === "active" && !project.setup_completed && me === "owner" && (
+          <SetupPanel
+            busy={busy}
+            workerName={worker?.full_name ?? "—"}
+            onSubmit={async (vals) => {
+              if (busy) return;
+              setBusy(true);
+              try {
+                await configureFn({ headers: await authHeaders(), data: { projectId, ...vals } });
+                toast.success(lang === "km" ? "បានរក្សាទុក" : "Saved");
+              } catch (e: any) { toast.error(e?.message ?? "Failed"); } finally { setBusy(false); }
+            }}
+          />
+        )}
+        {project.status === "active" && !project.setup_completed && me === "worker" && (
+          <Card>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              {lang === "km"
+                ? `កំពុងរង់ចាំ ${owner?.full_name ?? "—"} កំណត់លក្ខខណ្ឌគម្រោង...`
+                : `Waiting for ${owner?.full_name ?? "—"} to set up the project details...`}
+            </div>
+          </Card>
+        )}
+
+        {/* Worker / Owner panels (active and configured) */}
+        {project.status === "active" && project.setup_completed && me === "worker" && (
           <div className="space-y-2">
             {project.checkin_required && (
               <BigButton
@@ -327,7 +353,7 @@ function ProjectSpacePage() {
           </div>
         )}
 
-        {project.status === "active" && me === "owner" && (latestPhoto || project.checkin_required || project.photo_frequency) && (
+        {project.status === "active" && project.setup_completed && me === "owner" && (latestPhoto || project.checkin_required || project.photo_frequency) && (
           <Card>
             <div className="text-xs font-semibold uppercase text-muted-foreground">{lang === "km" ? "សកម្មភាពថ្មីៗ" : "Latest activity"}</div>
             {latestPhoto && (
