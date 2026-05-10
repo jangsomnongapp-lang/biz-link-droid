@@ -144,11 +144,30 @@ function ListingDetailPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) throw new Error("Not signed in");
-      const res = await startProject({
+      await startProject({
         headers: { Authorization: `Bearer ${session.access_token}` },
         data: { workerId: applicantId },
       });
-      nav({ to: "/projects/$projectId", params: { projectId: res.id } });
+      // Open the chat thread — the project panel lives inside the chat now.
+      if (!user) return;
+      const [a, b] = [user.id, applicantId].sort();
+      const { data: existing } = await supabase
+        .from("message_threads")
+        .select("id")
+        .eq("participant_a", a)
+        .eq("participant_b", b)
+        .maybeSingle();
+      let threadId = existing?.id;
+      if (!threadId) {
+        const { data: created, error } = await supabase
+          .from("message_threads")
+          .insert({ participant_a: a, participant_b: b })
+          .select("id")
+          .single();
+        if (error) throw error;
+        threadId = created.id;
+      }
+      nav({ to: "/messages/$threadId", params: { threadId } });
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to start project");
     }
