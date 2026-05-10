@@ -22,6 +22,9 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/messages/$threadId")({
+  validateSearch: (s: Record<string, unknown>): { project?: string } => ({
+    project: typeof s.project === "string" ? s.project : undefined,
+  }),
   component: () => (
     <RequireAuth>
       <ConversationPage />
@@ -76,6 +79,7 @@ function ConversationPage() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { threadId } = useParams({ from: "/messages/$threadId" });
+  const { project: focusProjectId } = Route.useSearch();
   const [messages, setMessages] = useState<Message[]>([]);
   const [other, setOther] = useState<OtherProfile | null>(null);
   const [text, setText] = useState("");
@@ -307,7 +311,7 @@ function ConversationPage() {
       </header>
 
       {other?.id && (
-        <ChatProjectPanel otherUserId={other.id} otherName={other.full_name ?? "—"} />
+        <ChatProjectPanel otherUserId={other.id} otherName={other.full_name ?? "—"} projectId={focusProjectId} />
       )}
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
