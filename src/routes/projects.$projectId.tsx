@@ -638,3 +638,126 @@ function RateSheet({ name, onClose, onSubmit }: { name: string; onClose: () => v
     </div>
   );
 }
+
+interface SetupValues {
+  agreedPrice: number | null;
+  checkinRequired: boolean;
+  checkoutRequired: boolean;
+  photoFrequency: "morning" | "midday" | "endofday" | null;
+  startDate: string | null;
+  duration: string | null;
+}
+
+function SetupPanel({
+  workerName, busy, onSubmit,
+}: { workerName: string; busy: boolean; onSubmit: (vals: SetupValues) => Promise<void> }) {
+  const { lang } = useI18n();
+  const [hasPrice, setHasPrice] = useState(false);
+  const [price, setPrice] = useState<string>("");
+  const [checkin, setCheckin] = useState(false);
+  const [checkout, setCheckout] = useState(false);
+  const [photo, setPhoto] = useState<"none" | "morning" | "midday" | "endofday">("none");
+  const [startDate, setStartDate] = useState<string>("");
+  const [duration, setDuration] = useState<string>("");
+
+  return (
+    <div className="space-y-4 rounded-xl border border-emerald-200 bg-white p-4 shadow-sm">
+      <div>
+        <div className="text-base font-bold text-foreground">
+          {lang === "km" ? "កំណត់គម្រោង" : "Set up the project"}
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {lang === "km"
+            ? `${workerName} បានទទួលយក។ កំណត់លក្ខខណ្ឌដើម្បីចាប់ផ្តើម (ស្រេចចិត្តទាំងអស់)។`
+            : `${workerName} accepted. Set conditions to begin (all optional).`}
+        </p>
+      </div>
+
+      <div>
+        <SLabel>{lang === "km" ? "តម្លៃយល់ព្រម" : "Agreed price"}</SLabel>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <SToggle on={hasPrice} onClick={() => setHasPrice(true)} label={lang === "km" ? "បាទ" : "Yes — set price"} />
+          <SToggle on={!hasPrice} onClick={() => setHasPrice(false)} label={lang === "km" ? "មិនកំណត់" : "No price"} />
+        </div>
+        {hasPrice && (
+          <div className="mt-2 flex h-11 items-center gap-2 rounded-xl border border-border bg-surface px-3">
+            <span className="text-sm text-muted-foreground">$</span>
+            <input inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="1,200" className="flex-1 bg-transparent text-sm outline-none" />
+          </div>
+        )}
+      </div>
+
+      <div>
+        <SLabel>{lang === "km" ? "តាមដានវត្តមាន" : "Attendance tracking"}</SLabel>
+        <SSwitch label={lang === "km" ? "ចូលធ្វើការ" : "Check-in on arrival"} on={checkin} onChange={setCheckin} />
+        <SSwitch label={lang === "km" ? "ចេញពីការងារ" : "Check-out on leave"} on={checkout} onChange={setCheckout} />
+      </div>
+
+      <div>
+        <SLabel>{lang === "km" ? "រូបភាពវឌ្ឍនភាព" : "Daily progress photos"}</SLabel>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {(["none", "morning", "midday", "endofday"] as const).map((opt) => (
+            <SToggle key={opt} on={photo === opt} onClick={() => setPhoto(opt)} label={
+              opt === "none" ? (lang === "km" ? "មិនត្រូវការ" : "None") :
+              opt === "morning" ? (lang === "km" ? "ព្រឹក" : "Morning") :
+              opt === "midday" ? (lang === "km" ? "ថ្ងៃត្រង់" : "Midday") :
+              (lang === "km" ? "ល្ងាច" : "End of day")
+            } />
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <SLabel>{lang === "km" ? "ថ្ងៃចាប់ផ្តើម" : "Start date"}</SLabel>
+          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-2 h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none" />
+        </div>
+        <div>
+          <SLabel>{lang === "km" ? "រយៈពេល" : "Duration"}</SLabel>
+          <input value={duration} onChange={(e) => setDuration(e.target.value)} placeholder={lang === "km" ? "៣ សប្តាហ៍" : "3 weeks"} className="mt-2 h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none" />
+        </div>
+      </div>
+
+      <button
+        disabled={busy}
+        onClick={() =>
+          onSubmit({
+            agreedPrice: hasPrice && price ? Number(price) : null,
+            checkinRequired: checkin,
+            checkoutRequired: checkout,
+            photoFrequency: photo === "none" ? null : photo,
+            startDate: startDate || null,
+            duration: duration || null,
+          })
+        }
+        style={{ backgroundColor: "#0F6E56" }}
+        className="flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold text-white active:scale-[0.99] disabled:opacity-60"
+      >
+        {busy ? (lang === "km" ? "កំពុងរក្សាទុក..." : "Saving...") : (lang === "km" ? "ចាប់ផ្តើមគម្រោង" : "Start project")}
+      </button>
+    </div>
+  );
+}
+
+function SLabel({ children }: { children: React.ReactNode }) {
+  return <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{children}</div>;
+}
+function SToggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
+  return (
+    <button type="button" onClick={onClick}
+      className={`h-11 rounded-xl border text-sm font-semibold transition-colors ${on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-foreground"}`}>
+      {label}
+    </button>
+  );
+}
+function SSwitch({ label, on, onChange }: { label: string; on: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button type="button" onClick={() => onChange(!on)}
+      className="mt-2 flex h-12 w-full items-center justify-between rounded-xl border border-border bg-surface px-3 text-sm">
+      <span>{label}</span>
+      <span className={`relative h-6 w-11 rounded-full transition-colors ${on ? "bg-primary" : "bg-muted"}`}>
+        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? "left-[22px]" : "left-0.5"}`} />
+      </span>
+    </button>
+  );
+}
