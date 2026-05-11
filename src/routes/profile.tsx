@@ -518,7 +518,7 @@ function ProfilePage() {
           </p>
         ) : (
           <div className="space-y-2">
-            {myListings.map((l) => (
+            {(showAllListings ? myListings : myListings.slice(0, 3)).map((l) => (
               <Link
                 key={l.id}
                 to="/listings/$listingId"
