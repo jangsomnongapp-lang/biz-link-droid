@@ -58,6 +58,7 @@ function ProfilePage() {
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [myProjects, setMyProjects] = useState<{ id: string; status: string; role: "owner" | "worker"; completion_requested_by: string | null; other: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
   const [projectBusy, setProjectBusy] = useState<string | null>(null);
+  const [showAllProjects, setShowAllProjects] = useState(false);
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -332,7 +333,22 @@ function ProfilePage() {
       )}
 
       {/* Project control: pick a worker, send request, track progress */}
-      <Section title={lang === "km" ? "ការគ្រប់គ្រងគម្រោង" : "Project control"}>
+      <Section
+        title={lang === "km" ? "ការគ្រប់គ្រងគម្រោង" : "Project control"}
+        action={
+          myProjects.length > 3 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllProjects((v) => !v)}
+              className="text-xs font-semibold text-primary active:opacity-70"
+            >
+              {showAllProjects
+                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                : lang === "km" ? `មើលទាំងអស់ (${myProjects.length})` : `See all (${myProjects.length})`}
+            </button>
+          ) : null
+        }
+      >
         <Link
           to="/find-worker"
           className="mb-3 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 active:scale-[0.99]"
@@ -357,7 +373,7 @@ function ProfilePage() {
           </p>
         ) : (
           <div className="space-y-2">
-            {myProjects.map((p) => {
+            {(showAllProjects ? myProjects : myProjects.slice(0, 3)).map((p) => {
               const awaitingMyConfirm =
                 p.status === "active" &&
                 !!p.completion_requested_by &&
@@ -649,10 +665,13 @@ function ProfilePage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
     <div className="mt-2 bg-surface p-4 shadow-card">
-      <h3 className="mb-2 text-sm font-bold text-foreground">{title}</h3>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h3 className="text-sm font-bold text-foreground">{title}</h3>
+        {action}
+      </div>
       {children}
     </div>
   );
