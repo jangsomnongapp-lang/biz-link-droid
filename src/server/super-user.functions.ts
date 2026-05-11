@@ -16,10 +16,9 @@ async function assertSuperUser(userId: string) {
     .eq("id", userId)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (data?.is_super_user || data?.is_admin) {
-    if (!data.is_super_user) {
-      await supabaseAdmin.from("profiles").update({ is_super_user: true }).eq("id", data.id);
-    }
+  // Only explicit super users may use the super-user surface.
+  // Admins are NOT auto-promoted; granting super-user must be a deliberate action.
+  if (data?.is_super_user) {
     return data.id;
   }
   if (data?.master_account_id) {

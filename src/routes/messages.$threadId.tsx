@@ -183,10 +183,8 @@ function ConversationPage() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5MB");
-      return;
-    }
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(file)) return;
     setSending(true);
     setShowAttach(false);
     try {
@@ -201,6 +199,20 @@ function ConversationPage() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    const ALLOWED_DOC_TYPES = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-powerpoint",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "text/plain",
+    ];
+    if (file.type && !ALLOWED_DOC_TYPES.includes(file.type)) {
+      toast.error("Unsupported file type");
+      return;
+    }
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File must be under 5MB");
       return;
@@ -236,8 +248,13 @@ function ConversationPage() {
         stream.getTracks().forEach((tr) => tr.stop());
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
         const duration = (Date.now() - recordStartRef.current) / 1000;
-        if (blob.size > 5 * 1024 * 1024) {
-          toast.error("Voice message too long");
+        // Cap voice messages: 2 MB and 2 minutes
+        if (blob.size > 2 * 1024 * 1024) {
+          toast.error("Voice message too large (max 2 MB)");
+          return;
+        }
+        if (duration > 120) {
+          toast.error("Voice message too long (max 2 minutes)");
           return;
         }
         setSending(true);
