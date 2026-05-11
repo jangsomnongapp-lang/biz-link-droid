@@ -649,10 +649,13 @@ function ProfilePage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
     <div className="mt-2 bg-surface p-4 shadow-card">
-      <h3 className="mb-2 text-sm font-bold text-foreground">{title}</h3>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h3 className="text-sm font-bold text-foreground">{title}</h3>
+        {action}
+      </div>
       {children}
     </div>
   );
