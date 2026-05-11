@@ -60,6 +60,8 @@ function ProfilePage() {
   const [projectBusy, setProjectBusy] = useState<string | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [showAllListings, setShowAllListings] = useState(false);
+  const [showAllPortfolio, setShowAllPortfolio] = useState(false);
+  const [showAllRentals, setShowAllRentals] = useState(false);
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -292,14 +294,29 @@ function ProfilePage() {
       </Section>
 
       {/* Portfolio */}
-      <Section title={`${t("portfolio")} (${portfolio.length})`}>
+      <Section
+        title={`${t("portfolio")} (${portfolio.length})`}
+        action={
+          portfolio.length > 6 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllPortfolio((v) => !v)}
+              className="text-xs font-semibold text-primary active:opacity-70"
+            >
+              {showAllPortfolio
+                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                : lang === "km" ? `មើលទាំងអស់ (${portfolio.length})` : `See all (${portfolio.length})`}
+            </button>
+          ) : null
+        }
+      >
         {portfolio.length === 0 ? (
           <p className="text-sm text-text-hint">
             {lang === "km" ? "មិនទាន់មានរូបថត" : "No photos yet"}
           </p>
         ) : (
           <div className="grid grid-cols-3 gap-1.5">
-            {portfolio.map((p) => (
+            {(showAllPortfolio ? portfolio : portfolio.slice(0, 6)).map((p) => (
               <img key={p.id} src={p.photo_url} className="aspect-square w-full rounded-lg object-cover" alt="" />
             ))}
           </div>
@@ -627,12 +644,27 @@ function ProfilePage() {
       </div>
 
       {/* My rentals */}
-      <Section title={`${t("my_rentals")} (${myRentals.length})`}>
+      <Section
+        title={`${t("my_rentals")} (${myRentals.length})`}
+        action={
+          myRentals.length > 3 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllRentals((v) => !v)}
+              className="text-xs font-semibold text-primary active:opacity-70"
+            >
+              {showAllRentals
+                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                : lang === "km" ? `មើលទាំងអស់ (${myRentals.length})` : `See all (${myRentals.length})`}
+            </button>
+          ) : null
+        }
+      >
         {myRentals.length === 0 ? (
           <p className="text-sm text-text-hint">{t("no_rentals")}</p>
         ) : (
           <div className="space-y-2">
-            {myRentals.map((r) => (
+            {(showAllRentals ? myRentals : myRentals.slice(0, 3)).map((r) => (
               <Link
                 key={r.id}
                 to="/rentals/$rentalId"
