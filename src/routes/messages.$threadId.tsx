@@ -471,7 +471,28 @@ function ConversationPage() {
   );
 }
 
+function isSafeUrl(url: string): boolean {
+  if (typeof url !== "string") return false;
+  return (
+    url.startsWith("https://") ||
+    url.startsWith("http://") ||
+    url.startsWith("data:image/") ||
+    url.startsWith("data:audio/") ||
+    url.startsWith("data:application/pdf") ||
+    url.startsWith("data:application/msword") ||
+    url.startsWith("data:application/vnd.") ||
+    url.startsWith("data:text/plain")
+  );
+}
+
 function AttachmentView({ att, mine }: { att: Attachment; mine: boolean }) {
+  if (!isSafeUrl(att.url)) {
+    return (
+      <div className="rounded-lg bg-muted p-2 text-xs text-muted-foreground">
+        Unsupported attachment
+      </div>
+    );
+  }
   if (att.kind === "image") {
     return (
       <a href={att.url} target="_blank" rel="noreferrer" className="block">
