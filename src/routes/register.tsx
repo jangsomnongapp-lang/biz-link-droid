@@ -101,17 +101,12 @@ function RegisterFlow() {
         const rows = Array.from(selectedCats).map((cid) => ({ user_id: userId, category_id: cid }));
         await supabase.from("user_categories").insert(rows);
       }
-      // Record invite join if user came from a referral link
+      // Record invite join if user came from a referral link (validated server-side)
       if (userId && typeof window !== "undefined") {
         try {
           const ref = localStorage.getItem("invite_ref");
           if (ref) {
-            const { data: inviterId } = await supabase.rpc("resolve_invite_code", { _code: ref });
-            if (inviterId && inviterId !== userId) {
-              await supabase
-                .from("invite_joins")
-                .insert({ inviter_id: inviterId, invitee_id: userId, code: ref });
-            }
+            await supabase.rpc("record_invite_join", { _code: ref });
             localStorage.removeItem("invite_ref");
           }
         } catch {
