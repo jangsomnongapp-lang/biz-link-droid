@@ -325,10 +325,29 @@ function ProfilePage() {
       </Section>
 
       {/* Currently doing */}
-      {doingListings.length > 0 && (
-        <Section title={t("currently_working")}>
+      <Section
+        title={t("currently_working")}
+        action={
+          doingListings.length > 3 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllDoing((v) => !v)}
+              className="text-xs font-semibold text-primary active:opacity-70"
+            >
+              {showAllDoing
+                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                : lang === "km" ? `មើលទាំងអស់ (${doingListings.length})` : `See all (${doingListings.length})`}
+            </button>
+          ) : null
+        }
+      >
+        {doingListings.length === 0 ? (
+          <p className="text-sm text-text-hint">
+            {lang === "km" ? "មិនទាន់មានគម្រោងកំពុងធ្វើ" : "Not working on any project yet"}
+          </p>
+        ) : (
           <div className="space-y-2">
-            {doingListings.map((l) => (
+            {(showAllDoing ? doingListings : doingListings.slice(0, 3)).map((l) => (
               <Link
                 key={l.id}
                 to="/listings/$listingId"
@@ -348,8 +367,9 @@ function ProfilePage() {
               </Link>
             ))}
           </div>
-        </Section>
-      )}
+        )}
+      </Section>
+
 
       {/* Project control: pick a worker, send request, track progress */}
       <Section
