@@ -59,6 +59,7 @@ function ProfilePage() {
   const [myProjects, setMyProjects] = useState<{ id: string; status: string; role: "owner" | "worker"; completion_requested_by: string | null; other: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
   const [projectBusy, setProjectBusy] = useState<string | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const [showAllListings, setShowAllListings] = useState(false);
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -495,14 +496,29 @@ function ProfilePage() {
       </Section>
 
       {/* My listings */}
-      <Section title={t("my_projects")}>
+      <Section
+        title={t("my_projects")}
+        action={
+          myListings.length > 3 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllListings((v) => !v)}
+              className="text-xs font-semibold text-primary active:opacity-70"
+            >
+              {showAllListings
+                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                : lang === "km" ? `មើលទាំងអស់ (${myListings.length})` : `See all (${myListings.length})`}
+            </button>
+          ) : null
+        }
+      >
         {myListings.length === 0 ? (
           <p className="text-sm text-text-hint">
             {lang === "km" ? "មិនទាន់មានការងារ" : "No projects yet"}
           </p>
         ) : (
           <div className="space-y-2">
-            {myListings.map((l) => (
+            {(showAllListings ? myListings : myListings.slice(0, 3)).map((l) => (
               <Link
                 key={l.id}
                 to="/listings/$listingId"
