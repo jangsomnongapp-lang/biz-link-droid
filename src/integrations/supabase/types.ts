@@ -1508,6 +1508,7 @@ export type Database = {
         Returns: undefined
       }
       record_invite_click: { Args: { _code: string }; Returns: undefined }
+      record_invite_join: { Args: { _code: string }; Returns: string }
       resolve_invite_code: { Args: { _code: string }; Returns: string }
     }
     Enums: {
