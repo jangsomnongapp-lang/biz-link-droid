@@ -333,7 +333,22 @@ function ProfilePage() {
       )}
 
       {/* Project control: pick a worker, send request, track progress */}
-      <Section title={lang === "km" ? "ការគ្រប់គ្រងគម្រោង" : "Project control"}>
+      <Section
+        title={lang === "km" ? "ការគ្រប់គ្រងគម្រោង" : "Project control"}
+        action={
+          myProjects.length > 3 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllProjects((v) => !v)}
+              className="text-xs font-semibold text-primary active:opacity-70"
+            >
+              {showAllProjects
+                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                : lang === "km" ? `មើលទាំងអស់ (${myProjects.length})` : `See all (${myProjects.length})`}
+            </button>
+          ) : null
+        }
+      >
         <Link
           to="/find-worker"
           className="mb-3 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 active:scale-[0.99]"
