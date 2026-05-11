@@ -82,7 +82,7 @@ export const claimInviteRewards = createServerFn({ method: "POST" })
         joined: 0,
         newlyClaimed: [] as number[],
         rewards: [] as { tier: number; status: string; sent_at: string | null }[],
-        error: err instanceof Error ? err.message : "Unknown error",
+        error: "Failed to claim rewards. Please try again.",
       };
     }
   });
