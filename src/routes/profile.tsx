@@ -373,7 +373,7 @@ function ProfilePage() {
           </p>
         ) : (
           <div className="space-y-2">
-            {myProjects.map((p) => {
+            {(showAllProjects ? myProjects : myProjects.slice(0, 3)).map((p) => {
               const awaitingMyConfirm =
                 p.status === "active" &&
                 !!p.completion_requested_by &&
