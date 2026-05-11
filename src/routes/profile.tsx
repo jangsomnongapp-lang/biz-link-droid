@@ -58,6 +58,7 @@ function ProfilePage() {
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [myProjects, setMyProjects] = useState<{ id: string; status: string; role: "owner" | "worker"; completion_requested_by: string | null; other: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
   const [projectBusy, setProjectBusy] = useState<string | null>(null);
+  const [showAllProjects, setShowAllProjects] = useState(false);
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
