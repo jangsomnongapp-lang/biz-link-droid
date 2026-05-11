@@ -495,7 +495,22 @@ function ProfilePage() {
       </Section>
 
       {/* My listings */}
-      <Section title={t("my_projects")}>
+      <Section
+        title={t("my_projects")}
+        action={
+          myListings.length > 3 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllListings((v) => !v)}
+              className="text-xs font-semibold text-primary active:opacity-70"
+            >
+              {showAllListings
+                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                : lang === "km" ? `មើលទាំងអស់ (${myListings.length})` : `See all (${myListings.length})`}
+            </button>
+          ) : null
+        }
+      >
         {myListings.length === 0 ? (
           <p className="text-sm text-text-hint">
             {lang === "km" ? "មិនទាន់មានការងារ" : "No projects yet"}
