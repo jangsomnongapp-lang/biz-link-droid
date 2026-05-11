@@ -62,6 +62,7 @@ function ProfilePage() {
   const [showAllListings, setShowAllListings] = useState(false);
   const [showAllPortfolio, setShowAllPortfolio] = useState(false);
   const [showAllRentals, setShowAllRentals] = useState(false);
+  const [showAllDoing, setShowAllDoing] = useState(false);
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
