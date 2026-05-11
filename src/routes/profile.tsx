@@ -60,6 +60,8 @@ function ProfilePage() {
   const [projectBusy, setProjectBusy] = useState<string | null>(null);
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [showAllListings, setShowAllListings] = useState(false);
+  const [showAllPortfolio, setShowAllPortfolio] = useState(false);
+  const [showAllRentals, setShowAllRentals] = useState(false);
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
