@@ -294,14 +294,29 @@ function ProfilePage() {
       </Section>
 
       {/* Portfolio */}
-      <Section title={`${t("portfolio")} (${portfolio.length})`}>
+      <Section
+        title={`${t("portfolio")} (${portfolio.length})`}
+        action={
+          portfolio.length > 6 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllPortfolio((v) => !v)}
+              className="text-xs font-semibold text-primary active:opacity-70"
+            >
+              {showAllPortfolio
+                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                : lang === "km" ? `មើលទាំងអស់ (${portfolio.length})` : `See all (${portfolio.length})`}
+            </button>
+          ) : null
+        }
+      >
         {portfolio.length === 0 ? (
           <p className="text-sm text-text-hint">
             {lang === "km" ? "មិនទាន់មានរូបថត" : "No photos yet"}
           </p>
         ) : (
           <div className="grid grid-cols-3 gap-1.5">
-            {portfolio.map((p) => (
+            {(showAllPortfolio ? portfolio : portfolio.slice(0, 6)).map((p) => (
               <img key={p.id} src={p.photo_url} className="aspect-square w-full rounded-lg object-cover" alt="" />
             ))}
           </div>
