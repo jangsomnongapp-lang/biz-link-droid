@@ -644,12 +644,27 @@ function ProfilePage() {
       </div>
 
       {/* My rentals */}
-      <Section title={`${t("my_rentals")} (${myRentals.length})`}>
+      <Section
+        title={`${t("my_rentals")} (${myRentals.length})`}
+        action={
+          myRentals.length > 3 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllRentals((v) => !v)}
+              className="text-xs font-semibold text-primary active:opacity-70"
+            >
+              {showAllRentals
+                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                : lang === "km" ? `មើលទាំងអស់ (${myRentals.length})` : `See all (${myRentals.length})`}
+            </button>
+          ) : null
+        }
+      >
         {myRentals.length === 0 ? (
           <p className="text-sm text-text-hint">{t("no_rentals")}</p>
         ) : (
           <div className="space-y-2">
-            {myRentals.map((r) => (
+            {(showAllRentals ? myRentals : myRentals.slice(0, 3)).map((r) => (
               <Link
                 key={r.id}
                 to="/rentals/$rentalId"
