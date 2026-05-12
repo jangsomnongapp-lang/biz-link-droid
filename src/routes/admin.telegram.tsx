@@ -182,7 +182,7 @@ function AdminTelegramPage() {
               <input
                 value={secret}
                 onChange={(e) => setSecret(e.target.value)}
-                placeholder="shared secret"
+                placeholder="Leave blank to keep existing secret"
                 className="h-11 flex-1 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
               />
               <button
@@ -194,6 +194,7 @@ function AdminTelegramPage() {
               </button>
             </div>
             <span className="mt-1 block text-[11px] text-muted-foreground">
+              The stored secret is hidden after save. Enter a value here only to rotate it.
               Must also be saved as the <code>TELEGRAM_WEBHOOK_SECRET</code> server secret.
             </span>
           </label>
