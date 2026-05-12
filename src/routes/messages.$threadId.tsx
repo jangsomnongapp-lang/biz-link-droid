@@ -336,6 +336,13 @@ function ConversationPage() {
           const mine = m.sender_id === user?.id;
           const time = new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
           const att = decodeAttachment(m.content);
+          if (m.content.startsWith("[material_request] ")) {
+            return (
+              <div key={m.id} className="mx-auto max-w-[90%] rounded-xl border-2 border-[#c87000] bg-[#c87000]/10 px-3 py-2 text-center text-xs font-semibold text-[#c87000]">
+                📦 {m.content.replace("[material_request] ", "")}
+              </div>
+            );
+          }
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div
