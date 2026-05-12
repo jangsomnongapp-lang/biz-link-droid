@@ -178,9 +178,9 @@ function ProjectSpacePage() {
     const path = `${user.id}/${projectId}/${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from("project-photos").upload(path, file, { upsert: false });
     if (upErr) { toast.error(upErr.message); return; }
-    const { data: pub } = supabase.storage.from("project-photos").getPublicUrl(path);
+    // Bucket is private; store the path and read via signed URLs at render time.
     const { error } = await supabase.from("project_logs").insert({
-      project_id: projectId, user_id: user.id, log_type: "photo", photo_url: pub.publicUrl,
+      project_id: projectId, user_id: user.id, log_type: "photo", photo_url: path,
     });
     if (error) toast.error(error.message);
     else toast.success(lang === "km" ? "បានផ្ទុកឡើង" : "Uploaded");
@@ -363,7 +363,7 @@ function ProjectSpacePage() {
             <div className="text-xs font-semibold uppercase text-muted-foreground">{lang === "km" ? "សកម្មភាពថ្មីៗ" : "Latest activity"}</div>
             {latestPhoto && (
               <div className="mt-2 overflow-hidden rounded-lg bg-muted">
-                <img src={latestPhoto.photo_url ?? ""} alt="" className="aspect-video w-full object-cover" />
+                <SignedImage bucket="project-photos" src={latestPhoto.photo_url} alt="" className="aspect-video w-full object-cover" />
               </div>
             )}
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">

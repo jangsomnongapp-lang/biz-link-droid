@@ -155,11 +155,11 @@ export function ChatProjectPanel({ otherUserId, otherName, projectId, threadId }
     const path = `${user!.id}/${project!.id}/${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from("project-photos").upload(path, file, { upsert: false });
     if (upErr) { toast.error(upErr.message); return; }
-    const { data: pub } = supabase.storage.from("project-photos").getPublicUrl(path);
-    const { error } = await supabase.from("project_logs").insert({ project_id: project!.id, user_id: user!.id, log_type: "photo", photo_url: pub.publicUrl });
+    // Private bucket — store the path; render via signed URLs.
+    const { error } = await supabase.from("project_logs").insert({ project_id: project!.id, user_id: user!.id, log_type: "photo", photo_url: path });
     if (error) { toast.error(error.message); return; }
     toast.success(lang === "km" ? "បានផ្ទុកឡើង" : "Uploaded");
-    await postThreadNote(`__ATT__:${JSON.stringify({ kind: "image", url: pub.publicUrl, name: "Project photo" })}`);
+    await postThreadNote(lang === "km" ? "📸 បានផ្ទុករូបភាព" : "📸 Posted a project photo");
   }
 
   const statusBadge =

@@ -70,8 +70,8 @@ function NewMaterialPage() {
         .from("material-photos")
         .upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("material-photos").getPublicUrl(path);
-      setPhotos((p) => [...p, pub.publicUrl]);
+      // Store the storage PATH (not a public URL); bucket is private and reads use signed URLs.
+      setPhotos((p) => [...p, path]);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed");
     }
