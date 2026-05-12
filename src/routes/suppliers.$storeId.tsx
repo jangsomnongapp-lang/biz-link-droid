@@ -60,6 +60,18 @@ function SupplierProfilePage() {
   const [posts, setPosts] = useState<RecentPost[]>([]);
   const [postsCount, setPostsCount] = useState(0);
   const [contacting, setContacting] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState(0);
+
+  useEffect(() => {
+    if (!user || !store || user.id !== store.user_id) return;
+    void supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("kind", "material_request")
+      .is("read_at", null)
+      .then(({ count }) => setPendingRequests(count ?? 0));
+  }, [user, store]);
 
   useEffect(() => {
     void (async () => {
