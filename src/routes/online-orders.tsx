@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar } from "@/components/Avatar";
+import { SignedImage } from "@/components/SignedImage";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/format";
 import { ArrowLeft, Settings as SettingsIcon, Inbox } from "lucide-react";
@@ -216,9 +217,12 @@ function OnlineOrdersPage() {
                       return (
                         <div key={i} className="aspect-square overflow-hidden rounded-xl bg-muted">
                           {url ? (
-                            <a href={url} target="_blank" rel="noreferrer">
-                              <img src={url} alt="" className="h-full w-full object-cover" />
-                            </a>
+                            <SignedImage
+                              bucket="material-photos"
+                              src={url}
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center text-2xl text-muted-foreground/40">🖼️</div>
                           )}
