@@ -145,6 +145,7 @@ export const markRewardSent = createServerFn({ method: "POST" })
  * Computed server-side from invite_joins so clients can't fake counts.
  */
 export const getMonthlyLeaderboard = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { limit?: number; month?: string } | undefined) => ({
     limit: Math.min(Math.max(input?.limit ?? 10, 1), 50),
     month: input?.month,
