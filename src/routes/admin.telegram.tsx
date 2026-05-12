@@ -65,20 +65,28 @@ function AdminTelegramPage() {
 
   async function save() {
     setSaving(true);
-    const { error } = await supabase
-      .from("app_settings")
-      .upsert({
-        id: 1,
-        telegram_chat_id: chatId.trim() || null,
-        telegram_webhook_url: webhookUrl.trim() || null,
-        telegram_webhook_secret: secret.trim() || null,
-        updated_at: new Date().toISOString(),
-      });
+    // Only include the secret if the admin entered a new value — otherwise we'd
+    // wipe the stored secret (the input is empty on load because we never read it back).
+    const patch: {
+      id: number;
+      telegram_chat_id: string | null;
+      telegram_webhook_url: string | null;
+      telegram_webhook_secret?: string | null;
+      updated_at: string;
+    } = {
+      id: 1,
+      telegram_chat_id: chatId.trim() || null,
+      telegram_webhook_url: webhookUrl.trim() || null,
+      updated_at: new Date().toISOString(),
+    };
+    if (secret.trim()) patch.telegram_webhook_secret = secret.trim();
+    const { error } = await supabase.from("app_settings").upsert(patch);
     setSaving(false);
     if (error) {
       toast.error(error.message);
       return;
     }
+    setSecret("");
     toast.success("Saved");
   }
 
