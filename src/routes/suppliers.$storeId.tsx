@@ -242,6 +242,25 @@ function SupplierProfilePage() {
         <Stat value={store.contact_count ?? 0} label={t("contacts_label")} divider />
       </div>
 
+      {/* Online orders (owner only) */}
+      {isOwner && (
+        <div className="border-b border-border bg-surface px-5 py-3">
+          <Link
+            to="/online-orders"
+            className="flex items-center justify-between rounded-xl bg-[#c87000] px-4 py-3 text-sm font-bold text-white active:scale-[0.98]"
+          >
+            <span className="flex items-center gap-2">
+              📦 {lang === "km" ? "ការបញ្ជាទិញតាមអ៊ីនធឺណិត" : "Online orders"}
+            </span>
+            {pendingRequests > 0 && (
+              <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-[#c87000]">
+                {pendingRequests}
+              </span>
+            )}
+          </Link>
+        </div>
+      )}
+
       {/* About */}
       {(store.description || store.phone) && (
         <div className="border-b border-border bg-surface px-5 py-4">
