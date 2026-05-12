@@ -73,13 +73,21 @@ function OnlineOrdersPage() {
       .select("id, user_id, category, quantity, note, created_at, lat, lng, location_filter")
       .eq("status", "active")
       .order("created_at", { ascending: false });
-    const list = (reqs ?? []) as Omit<RequestRow, "profile">[];
+    const list = (reqs ?? []) as Omit<RequestRow, "profile" | "photos">[];
     const userIds = Array.from(new Set(list.map((r) => r.user_id)));
-    const { data: profs } = userIds.length
-      ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", userIds)
-      : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
+    const reqIds = list.map((r) => r.id);
+    const [{ data: profs }, { data: phs }] = await Promise.all([
+      userIds.length
+        ? supabase.from("profiles").select("id, full_name, avatar_url").in("id", userIds)
+        : Promise.resolve({ data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] }),
+      reqIds.length
+        ? supabase.from("material_request_photos").select("request_id, photo_url, sort_order").in("request_id", reqIds).order("sort_order")
+        : Promise.resolve({ data: [] as { request_id: string; photo_url: string; sort_order: number }[] }),
+    ]);
     const pMap = new Map((profs ?? []).map((p) => [p.id, p]));
-    setRequests(list.map((r) => ({ ...r, profile: pMap.get(r.user_id) ?? null })));
+    const photoMap: Record<string, string[]> = {};
+    for (const ph of phs ?? []) (photoMap[ph.request_id] ||= []).push(ph.photo_url);
+    setRequests(list.map((r) => ({ ...r, profile: pMap.get(r.user_id) ?? null, photos: photoMap[r.id] ?? [] })));
 
     if (list.length) {
       const { data: my } = await supabase
