@@ -92,7 +92,7 @@ function AdminTelegramPage() {
 
   async function sendTest() {
     if (!webhookUrl || !secret) {
-      toast.error("Save URL & secret first");
+      toast.error("Enter the secret to send a test (it is hidden after save).");
       return;
     }
     try {
