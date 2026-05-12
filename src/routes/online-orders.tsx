@@ -40,6 +40,7 @@ interface RequestRow {
   lng: number | null;
   location_filter: string;
   profile: { full_name: string | null; avatar_url: string | null } | null;
+  photos: string[];
 }
 
 function OnlineOrdersPage() {
@@ -72,13 +73,21 @@ function OnlineOrdersPage() {
       .select("id, user_id, category, quantity, note, created_at, lat, lng, location_filter")
       .eq("status", "active")
       .order("created_at", { ascending: false });
-    const list = (reqs ?? []) as Omit<RequestRow, "profile">[];
+    const list = (reqs ?? []) as Omit<RequestRow, "profile" | "photos">[];
     const userIds = Array.from(new Set(list.map((r) => r.user_id)));
-    const { data: profs } = userIds.length
-      ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", userIds)
-      : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
+    const reqIds = list.map((r) => r.id);
+    const [{ data: profs }, { data: phs }] = await Promise.all([
+      userIds.length
+        ? supabase.from("profiles").select("id, full_name, avatar_url").in("id", userIds)
+        : Promise.resolve({ data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] }),
+      reqIds.length
+        ? supabase.from("material_request_photos").select("request_id, photo_url, sort_order").in("request_id", reqIds).order("sort_order")
+        : Promise.resolve({ data: [] as { request_id: string; photo_url: string; sort_order: number }[] }),
+    ]);
     const pMap = new Map((profs ?? []).map((p) => [p.id, p]));
-    setRequests(list.map((r) => ({ ...r, profile: pMap.get(r.user_id) ?? null })));
+    const photoMap: Record<string, string[]> = {};
+    for (const ph of phs ?? []) (photoMap[ph.request_id] ||= []).push(ph.photo_url);
+    setRequests(list.map((r) => ({ ...r, profile: pMap.get(r.user_id) ?? null, photos: photoMap[r.id] ?? [] })));
 
     if (list.length) {
       const { data: my } = await supabase
@@ -174,48 +183,93 @@ function OnlineOrdersPage() {
           )}
           {requests.map((r) => {
             const cat = CATS.find((c) => c.id === r.category);
+            const catLabel = cat ? (lang === "km" ? cat.km : cat.en) : r.category;
             const done = responded.has(r.id);
+            const slots = [0, 1, 2];
+            const locLabel = r.location_filter === "near_me"
+              ? (lang === "km" ? "ក្នុង ២០គម" : "Within 20km")
+              : (lang === "km" ? "គ្រប់ទីកន្លែង" : "Anywhere");
             return (
-              <div key={r.id} className="rounded-2xl bg-surface p-3 shadow-card">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{cat?.emoji}</span>
-                    <span className="text-sm font-bold text-foreground">
-                      {cat ? (lang === "km" ? cat.km : cat.en) : r.category}
-                    </span>
+              <div key={r.id} className="overflow-hidden rounded-2xl bg-surface shadow-card">
+                {/* Header — requester */}
+                <div className="flex items-center gap-3 border-b border-border/60 p-3">
+                  <Avatar name={r.profile?.full_name} url={r.profile?.avatar_url} size={40} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-bold text-foreground">
+                      {r.profile?.full_name ?? "User"}
+                    </div>
+                    <div className="truncate text-[11px] text-muted-foreground">
+                      {lang === "km" ? "កំពុងស្វែងរក" : "Looking for"} · {cat?.emoji} {catLabel} · 📍 {r.location_filter === "near_me" ? (lang === "km" ? "នៅជិតខ្ញុំ (២០គម)" : "Near me (20km)") : (lang === "km" ? "គ្រប់ទីកន្លែង" : "Anywhere")}
+                    </div>
                   </div>
                   <span className="text-[10px] text-muted-foreground">{timeAgo(r.created_at, t)}</span>
                 </div>
-                <div className="mt-2 flex items-center gap-2">
-                  <Avatar name={r.profile?.full_name} url={r.profile?.avatar_url} size={32} />
-                  <div className="flex-1 text-xs text-foreground">
-                    <div className="font-semibold">{r.profile?.full_name ?? "User"}</div>
-                    <div className="text-muted-foreground">
-                      {r.quantity} {lang === "km" ? "ឯកតា" : "units"}
-                      {r.location_filter === "near_me" ? " · 📍" : " · 🌍"}
-                    </div>
+
+                {/* Photos */}
+                <div className="px-3 pt-3">
+                  <p className="mb-2 text-[11px] font-semibold text-muted-foreground">
+                    {lang === "km" ? `រូបផលិតផល · ${r.photos.length} មុំ` : `Product photos · ${r.photos.length} angle${r.photos.length === 1 ? "" : "s"}`}
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {slots.map((i) => {
+                      const url = r.photos[i];
+                      return (
+                        <div key={i} className="aspect-square overflow-hidden rounded-xl bg-muted">
+                          {url ? (
+                            <a href={url} target="_blank" rel="noreferrer">
+                              <img src={url} alt="" className="h-full w-full object-cover" />
+                            </a>
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-2xl text-muted-foreground/40">🖼️</div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-                {r.note && <p className="mt-2 rounded-lg bg-muted p-2 text-xs text-foreground">{r.note}</p>}
+
+                {/* Details */}
+                <div className="m-3 rounded-xl bg-muted/40 p-3">
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {lang === "km" ? "ព័ត៌មានលម្អិតសំណើ" : "Request details"}
+                  </p>
+                  <DetailRow label={lang === "km" ? "ប្រភេទ" : "Category"} value={`${cat?.emoji ?? ""} ${catLabel}`} />
+                  <DetailRow label={lang === "km" ? "ចំនួន" : "Quantity needed"} value={`${r.quantity} ${lang === "km" ? "ឯកតា" : "units"}`} />
+                  <DetailRow label={lang === "km" ? "ទីតាំង" : "Location"} value={`📍 ${locLabel}`} />
+                  {r.note && (
+                    <div className="mt-2 border-t border-border/50 pt-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        {lang === "km" ? "កំណត់ចំណាំ" : "Note"}
+                      </p>
+                      <p className="mt-1 text-xs italic text-foreground">"{r.note}"</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
                 {!done ? (
-                  <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2 px-3 pb-3">
                     <button
                       onClick={() => void respond(r.id, "unavailable", r.user_id)}
                       disabled={busy === r.id}
-                      className="rounded-xl bg-muted py-2.5 text-xs font-bold text-foreground active:bg-border disabled:opacity-50"
+                      className="flex flex-col items-center justify-center rounded-xl bg-muted py-2.5 text-foreground active:bg-border disabled:opacity-50"
                     >
-                      😕 {lang === "km" ? "សូមអភ័យទោស" : "Sorry"}
+                      <span className="text-xs font-bold">😕 {lang === "km" ? "សូមអភ័យទោស" : "Sorry"}</span>
+                      <span className="text-[10px] text-muted-foreground">{lang === "km" ? "មិនមាន" : "Not available"}</span>
                     </button>
                     <button
                       onClick={() => void respond(r.id, "available", r.user_id)}
                       disabled={busy === r.id}
-                      className="rounded-xl bg-[#c87000] py-2.5 text-xs font-bold text-white disabled:opacity-50"
+                      className="flex flex-col items-center justify-center rounded-xl bg-[#c87000] py-2.5 text-white disabled:opacity-50"
                     >
-                      ✅ {lang === "km" ? "ខ្ញុំមាន" : "I have it"}
+                      <span className="text-xs font-bold">✅ {lang === "km" ? "ខ្ញុំមាន — ទាក់ទង" : "I have it — contact"}</span>
+                      <span className="text-[10px] text-white/80">
+                        {lang === "km" ? "បើកការសន្ទនា" : `Open chat with ${(r.profile?.full_name ?? "user").split(" ")[0]}`}
+                      </span>
                     </button>
                   </div>
                 ) : (
-                  <div className="mt-3 rounded-xl bg-muted py-2 text-center text-xs font-semibold text-muted-foreground">
+                  <div className="mx-3 mb-3 rounded-xl bg-muted py-2 text-center text-xs font-semibold text-muted-foreground">
                     {lang === "km" ? "បានឆ្លើយតប" : "Responded"}
                   </div>
                 )}
@@ -276,6 +330,15 @@ function OnlineOrdersPage() {
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between py-1 text-xs">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-semibold text-foreground">{value}</span>
     </div>
   );
 }
