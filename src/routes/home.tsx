@@ -385,14 +385,23 @@ function HomePage() {
         </Link>
       </div>
 
-      {/* Invite friends banner */}
-      <Link
-        to="/invitations"
-        className="mt-2 flex items-center justify-center gap-2 bg-primary/10 px-3 py-3 text-sm font-semibold text-primary shadow-card active:bg-primary/15 rounded-sm"
-      >
-        <UserPlus className="h-4 w-4" />
-        {t("invite_friends_earn")}
-      </Link>
+      {/* Top bar: Invite friends + Find my material */}
+      <div className="mt-2 grid grid-cols-2 gap-2 px-2">
+        <Link
+          to="/invitations"
+          className="flex items-center justify-center gap-2 rounded-xl bg-primary/10 px-3 py-3 text-sm font-semibold text-primary shadow-card active:bg-primary/15"
+        >
+          <UserPlus className="h-4 w-4" />
+          {t("invite_friends_earn")}
+        </Link>
+        <Link
+          to="/find-material"
+          className="flex items-center justify-center gap-2 rounded-xl bg-[#c87000] px-3 py-3 text-sm font-semibold text-white shadow-card active:opacity-90"
+        >
+          <Sparkles className="h-4 w-4" />
+          {lang === "km" ? "រកសម្ភារៈ" : "Find my material"}
+        </Link>
+      </div>
 
       {/* Stories row */}
       <div className="no-scrollbar mt-2 flex gap-3 overflow-x-auto bg-surface px-3 py-3 shadow-card">

@@ -16,12 +16,14 @@ import { Route as ReportRouteImport } from './routes/report'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as OnlineOrdersRouteImport } from './routes/online-orders'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as InvitationsRouteImport } from './routes/invitations'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FindWorkerRouteImport } from './routes/find-worker'
+import { Route as FindMaterialRouteImport } from './routes/find-material'
 import { Route as AnnounceRouteImport } from './routes/announce'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
@@ -41,6 +43,8 @@ import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
 import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
+import { Route as FindMaterialNewRouteImport } from './routes/find-material.new'
+import { Route as FindMaterialMineRouteImport } from './routes/find-material.mine'
 import { Route as AdminTelegramRouteImport } from './routes/admin.telegram'
 import { Route as AdminSuppliersRouteImport } from './routes/admin.suppliers'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
@@ -86,6 +90,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnlineOrdersRoute = OnlineOrdersRouteImport.update({
+  id: '/online-orders',
+  path: '/online-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -114,6 +123,11 @@ const HelpRoute = HelpRouteImport.update({
 const FindWorkerRoute = FindWorkerRouteImport.update({
   id: '/find-worker',
   path: '/find-worker',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindMaterialRoute = FindMaterialRouteImport.update({
+  id: '/find-material',
+  path: '/find-material',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnnounceRoute = AnnounceRouteImport.update({
@@ -211,6 +225,16 @@ const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
   path: '/listings/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FindMaterialNewRoute = FindMaterialNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => FindMaterialRoute,
+} as any)
+const FindMaterialMineRoute = FindMaterialMineRouteImport.update({
+  id: '/mine',
+  path: '/mine',
+  getParentRoute: () => FindMaterialRoute,
+} as any)
 const AdminTelegramRoute = AdminTelegramRouteImport.update({
   id: '/admin/telegram',
   path: '/admin/telegram',
@@ -261,12 +285,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/online-orders': typeof OnlineOrdersRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
@@ -279,6 +305,8 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
   '/admin/telegram': typeof AdminTelegramRoute
+  '/find-material/mine': typeof FindMaterialMineRoute
+  '/find-material/new': typeof FindMaterialNewRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -304,12 +332,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/online-orders': typeof OnlineOrdersRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
@@ -322,6 +352,8 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
   '/admin/telegram': typeof AdminTelegramRoute
+  '/find-material/mine': typeof FindMaterialMineRoute
+  '/find-material/new': typeof FindMaterialNewRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -348,12 +380,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/online-orders': typeof OnlineOrdersRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
@@ -366,6 +400,8 @@ export interface FileRoutesById {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
   '/admin/telegram': typeof AdminTelegramRoute
+  '/find-material/mine': typeof FindMaterialMineRoute
+  '/find-material/new': typeof FindMaterialNewRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -393,12 +429,14 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/announce'
+    | '/find-material'
     | '/find-worker'
     | '/help'
     | '/home'
     | '/invitations'
     | '/join'
     | '/login'
+    | '/online-orders'
     | '/privacy'
     | '/profile'
     | '/register'
@@ -411,6 +449,8 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/suppliers'
     | '/admin/telegram'
+    | '/find-material/mine'
+    | '/find-material/new'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -436,12 +476,14 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/announce'
+    | '/find-material'
     | '/find-worker'
     | '/help'
     | '/home'
     | '/invitations'
     | '/join'
     | '/login'
+    | '/online-orders'
     | '/privacy'
     | '/profile'
     | '/register'
@@ -454,6 +496,8 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/suppliers'
     | '/admin/telegram'
+    | '/find-material/mine'
+    | '/find-material/new'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -479,12 +523,14 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/announce'
+    | '/find-material'
     | '/find-worker'
     | '/help'
     | '/home'
     | '/invitations'
     | '/join'
     | '/login'
+    | '/online-orders'
     | '/privacy'
     | '/profile'
     | '/register'
@@ -497,6 +543,8 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/suppliers'
     | '/admin/telegram'
+    | '/find-material/mine'
+    | '/find-material/new'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -523,12 +571,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AnnounceRoute: typeof AnnounceRoute
+  FindMaterialRoute: typeof FindMaterialRouteWithChildren
   FindWorkerRoute: typeof FindWorkerRoute
   HelpRoute: typeof HelpRoute
   HomeRoute: typeof HomeRoute
   InvitationsRoute: typeof InvitationsRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
+  OnlineOrdersRoute: typeof OnlineOrdersRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRouteWithChildren
   RegisterRoute: typeof RegisterRoute
@@ -611,6 +661,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/online-orders': {
+      id: '/online-orders'
+      path: '/online-orders'
+      fullPath: '/online-orders'
+      preLoaderRoute: typeof OnlineOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -651,6 +708,13 @@ declare module '@tanstack/react-router' {
       path: '/find-worker'
       fullPath: '/find-worker'
       preLoaderRoute: typeof FindWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find-material': {
+      id: '/find-material'
+      path: '/find-material'
+      fullPath: '/find-material'
+      preLoaderRoute: typeof FindMaterialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/announce': {
@@ -786,6 +850,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/find-material/new': {
+      id: '/find-material/new'
+      path: '/new'
+      fullPath: '/find-material/new'
+      preLoaderRoute: typeof FindMaterialNewRouteImport
+      parentRoute: typeof FindMaterialRoute
+    }
+    '/find-material/mine': {
+      id: '/find-material/mine'
+      path: '/mine'
+      fullPath: '/find-material/mine'
+      preLoaderRoute: typeof FindMaterialMineRouteImport
+      parentRoute: typeof FindMaterialRoute
+    }
     '/admin/telegram': {
       id: '/admin/telegram'
       path: '/admin/telegram'
@@ -852,6 +930,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface FindMaterialRouteChildren {
+  FindMaterialMineRoute: typeof FindMaterialMineRoute
+  FindMaterialNewRoute: typeof FindMaterialNewRoute
+}
+
+const FindMaterialRouteChildren: FindMaterialRouteChildren = {
+  FindMaterialMineRoute: FindMaterialMineRoute,
+  FindMaterialNewRoute: FindMaterialNewRoute,
+}
+
+const FindMaterialRouteWithChildren = FindMaterialRoute._addFileChildren(
+  FindMaterialRouteChildren,
+)
+
 interface ProfileRouteChildren {
   ProfileEditRoute: typeof ProfileEditRoute
   ProfilePortfolioRoute: typeof ProfilePortfolioRoute
@@ -880,12 +972,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AnnounceRoute: AnnounceRoute,
+  FindMaterialRoute: FindMaterialRouteWithChildren,
   FindWorkerRoute: FindWorkerRoute,
   HelpRoute: HelpRoute,
   HomeRoute: HomeRoute,
   InvitationsRoute: InvitationsRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
+  OnlineOrdersRoute: OnlineOrdersRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRouteWithChildren,
   RegisterRoute: RegisterRoute,
