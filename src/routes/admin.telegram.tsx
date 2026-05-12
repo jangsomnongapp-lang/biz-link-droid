@@ -35,9 +35,11 @@ function AdminTelegramPage() {
       setIsAdmin(admin);
       if (!admin) return;
 
+      // Note: telegram_webhook_secret is intentionally NOT selected — it is hidden
+      // from client roles. Admins can rotate it by entering a new value below.
       const { data } = await supabase
         .from("app_settings")
-        .select("telegram_chat_id, telegram_webhook_url, telegram_webhook_secret")
+        .select("telegram_chat_id, telegram_webhook_url")
         .eq("id", 1)
         .maybeSingle();
       if (data) {
@@ -45,7 +47,6 @@ function AdminTelegramPage() {
         setWebhookUrl(
           data.telegram_webhook_url ?? `${window.location.origin}/api/public/telegram-notify`
         );
-        setSecret(data.telegram_webhook_secret ?? "");
       } else {
         setWebhookUrl(`${window.location.origin}/api/public/telegram-notify`);
       }
@@ -64,26 +65,34 @@ function AdminTelegramPage() {
 
   async function save() {
     setSaving(true);
-    const { error } = await supabase
-      .from("app_settings")
-      .upsert({
-        id: 1,
-        telegram_chat_id: chatId.trim() || null,
-        telegram_webhook_url: webhookUrl.trim() || null,
-        telegram_webhook_secret: secret.trim() || null,
-        updated_at: new Date().toISOString(),
-      });
+    // Only include the secret if the admin entered a new value — otherwise we'd
+    // wipe the stored secret (the input is empty on load because we never read it back).
+    const patch: {
+      id: number;
+      telegram_chat_id: string | null;
+      telegram_webhook_url: string | null;
+      telegram_webhook_secret?: string | null;
+      updated_at: string;
+    } = {
+      id: 1,
+      telegram_chat_id: chatId.trim() || null,
+      telegram_webhook_url: webhookUrl.trim() || null,
+      updated_at: new Date().toISOString(),
+    };
+    if (secret.trim()) patch.telegram_webhook_secret = secret.trim();
+    const { error } = await supabase.from("app_settings").upsert(patch);
     setSaving(false);
     if (error) {
       toast.error(error.message);
       return;
     }
+    setSecret("");
     toast.success("Saved");
   }
 
   async function sendTest() {
     if (!webhookUrl || !secret) {
-      toast.error("Save URL & secret first");
+      toast.error("Enter the secret to send a test (it is hidden after save).");
       return;
     }
     try {
@@ -173,7 +182,7 @@ function AdminTelegramPage() {
               <input
                 value={secret}
                 onChange={(e) => setSecret(e.target.value)}
-                placeholder="shared secret"
+                placeholder="Leave blank to keep existing secret"
                 className="h-11 flex-1 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
               />
               <button
@@ -185,6 +194,7 @@ function AdminTelegramPage() {
               </button>
             </div>
             <span className="mt-1 block text-[11px] text-muted-foreground">
+              The stored secret is hidden after save. Enter a value here only to rotate it.
               Must also be saved as the <code>TELEGRAM_WEBHOOK_SECRET</code> server secret.
             </span>
           </label>
