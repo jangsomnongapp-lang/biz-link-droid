@@ -40,6 +40,7 @@ interface RequestRow {
   lng: number | null;
   location_filter: string;
   profile: { full_name: string | null; avatar_url: string | null } | null;
+  photos: string[];
 }
 
 function OnlineOrdersPage() {
