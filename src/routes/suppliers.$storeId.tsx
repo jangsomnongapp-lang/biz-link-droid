@@ -60,6 +60,18 @@ function SupplierProfilePage() {
   const [posts, setPosts] = useState<RecentPost[]>([]);
   const [postsCount, setPostsCount] = useState(0);
   const [contacting, setContacting] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState(0);
+
+  useEffect(() => {
+    if (!user || !store || user.id !== store.user_id) return;
+    void supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("kind", "material_request")
+      .is("read_at", null)
+      .then(({ count }) => setPendingRequests(count ?? 0));
+  }, [user, store]);
 
   useEffect(() => {
     void (async () => {
@@ -229,6 +241,25 @@ function SupplierProfilePage() {
         <Stat value={store.view_count ?? 0} label={t("views_label")} divider />
         <Stat value={store.contact_count ?? 0} label={t("contacts_label")} divider />
       </div>
+
+      {/* Online orders (owner only) */}
+      {isOwner && (
+        <div className="border-b border-border bg-surface px-5 py-3">
+          <Link
+            to="/online-orders"
+            className="flex items-center justify-between rounded-xl bg-[#c87000] px-4 py-3 text-sm font-bold text-white active:scale-[0.98]"
+          >
+            <span className="flex items-center gap-2">
+              📦 {lang === "km" ? "ការបញ្ជាទិញតាមអ៊ីនធឺណិត" : "Online orders"}
+            </span>
+            {pendingRequests > 0 && (
+              <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-[#c87000]">
+                {pendingRequests}
+              </span>
+            )}
+          </Link>
+        </div>
+      )}
 
       {/* About */}
       {(store.description || store.phone) && (
