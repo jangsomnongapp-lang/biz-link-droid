@@ -344,6 +344,112 @@ export type Database = {
           },
         ]
       }
+      material_request_photos: {
+        Row: {
+          created_at: string
+          id: string
+          photo_url: string
+          request_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          photo_url: string
+          request_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          photo_url?: string
+          request_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_request_photos_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "material_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_request_responses: {
+        Row: {
+          created_at: string
+          id: string
+          request_id: string
+          response: string
+          supplier_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          request_id: string
+          response: string
+          supplier_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          request_id?: string
+          response?: string
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_request_responses_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "material_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_requests: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          lat: number | null
+          lng: number | null
+          location_filter: string
+          note: string | null
+          quantity: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          location_filter?: string
+          note?: string | null
+          quantity: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          location_filter?: string
+          note?: string | null
+          quantity?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_threads: {
         Row: {
           created_at: string
@@ -1324,6 +1430,30 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_settings: {
+        Row: {
+          categories: string[]
+          id: string
+          min_quantity: number
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          categories?: string[]
+          id?: string
+          min_quantity?: number
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          categories?: string[]
+          id?: string
+          min_quantity?: number
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       supplier_store_categories: {
         Row: {
           category_id: string
@@ -1510,6 +1640,14 @@ export type Database = {
       record_invite_click: { Args: { _code: string }; Returns: undefined }
       record_invite_join: { Args: { _code: string }; Returns: string }
       resolve_invite_code: { Args: { _code: string }; Returns: string }
+      start_material_chat: {
+        Args: { _request_id: string; _supplier_id: string }
+        Returns: string
+      }
+      supplier_can_see_request: {
+        Args: { _req_id: string; _uid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

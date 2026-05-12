@@ -200,6 +200,37 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
     );
   }
 
+  // Material request fan-out → supplier panel
+  if (n.kind === "material_request") {
+    return (
+      <Link to="/online-orders" className={`${cls} active:opacity-60`}>
+        {avatar}
+        {body}
+        {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+      </Link>
+    );
+  }
+  // Supplier said "I have it" → open chat with supplier
+  if (n.kind === "material_available" && n.related_user_id) {
+    return (
+      <button onClick={() => void openChatWith(n.related_user_id!)} className={`${cls} w-full text-left active:opacity-60`}>
+        {avatar}
+        {body}
+        {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+      </button>
+    );
+  }
+  // Anonymous "Sorry" → just go to my searches
+  if (n.kind === "material_unavailable") {
+    return (
+      <Link to="/find-material/mine" className={`${cls} active:opacity-60`}>
+        {avatar}
+        {body}
+        {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+      </Link>
+    );
+  }
+
   return (
     <div className={cls}>
       {n.related_user_id ? (
