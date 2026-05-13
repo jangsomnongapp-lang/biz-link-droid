@@ -23,6 +23,7 @@ function NewProjectPage() {
   const { workerId } = useParams({ from: "/projects/new/$workerId" });
   const [worker, setWorker] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [step, setStep] = useState<2 | 3>(2);
   const create = useServerFn(createProjectRequest);
 
   const [hasPrice, setHasPrice] = useState(true);
@@ -32,6 +33,12 @@ function NewProjectPage() {
   const [photo, setPhoto] = useState<"none" | "morning" | "midday" | "endofday">("none");
   const [startDate, setStartDate] = useState("");
   const [duration, setDuration] = useState("");
+
+  const photoLabel = (opt: typeof photo) =>
+    opt === "none" ? (lang === "km" ? "មិនត្រូវការ" : "None") :
+    opt === "morning" ? (lang === "km" ? "ព្រឹក" : "Morning") :
+    opt === "midday" ? (lang === "km" ? "ថ្ងៃត្រង់" : "Midday") :
+    (lang === "km" ? "ល្ងាច" : "End of day");
 
   useEffect(() => {
     void supabase
