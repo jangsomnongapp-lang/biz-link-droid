@@ -73,15 +73,12 @@ function RewardsPage() {
     setTodayCheck({ available });
     if (available) {
       setBoom(true);
-      // Refresh tickets + streak
-      const today = todayISO();
       const [tix, str] = await Promise.all([
         supabase.from("lottery_tickets").select("*").eq("user_id", user.id).eq("status", "active").order("created_at", { ascending: false }),
         supabase.from("streak_tracker").select("*").eq("user_id", user.id).maybeSingle(),
       ]);
       setTickets((tix.data ?? []) as TicketRow[]);
       if (str.data) setStreak(str.data as Streak);
-      void today;
     } else {
       toast(lang === "km" ? "ជួបគ្នាស្អែក!" : "See you tomorrow!");
       setStreak((s) => ({ ...s, current_streak: 0, last_check_date: todayISO() }));
