@@ -51,6 +51,7 @@ import { Route as AdminSuppliersRouteImport } from './routes/admin.suppliers'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
+import { Route as AdminDrawsRouteImport } from './routes/admin.draws'
 import { Route as SuppliersStoreIdEditRouteImport } from './routes/suppliers.$storeId.edit'
 import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
 import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
@@ -266,6 +267,11 @@ const AdminInvitationsRoute = AdminInvitationsRouteImport.update({
   path: '/admin/invitations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDrawsRoute = AdminDrawsRouteImport.update({
+  id: '/admin/draws',
+  path: '/admin/draws',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuppliersStoreIdEditRoute = SuppliersStoreIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -307,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/admin/draws': typeof AdminDrawsRoute
   '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -355,6 +362,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/admin/draws': typeof AdminDrawsRoute
   '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -404,6 +412,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
+  '/admin/draws': typeof AdminDrawsRoute
   '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -454,6 +463,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/terms'
+    | '/admin/draws'
     | '/admin/invitations'
     | '/admin/posts'
     | '/admin/reports'
@@ -502,6 +512,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/terms'
+    | '/admin/draws'
     | '/admin/invitations'
     | '/admin/posts'
     | '/admin/reports'
@@ -550,6 +561,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/terms'
+    | '/admin/draws'
     | '/admin/invitations'
     | '/admin/posts'
     | '/admin/reports'
@@ -599,6 +611,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
+  AdminDrawsRoute: typeof AdminDrawsRoute
   AdminInvitationsRoute: typeof AdminInvitationsRoute
   AdminPostsRoute: typeof AdminPostsRoute
   AdminReportsRoute: typeof AdminReportsRoute
@@ -919,6 +932,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInvitationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/draws': {
+      id: '/admin/draws'
+      path: '/admin/draws'
+      fullPath: '/admin/draws'
+      preLoaderRoute: typeof AdminDrawsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/suppliers/$storeId/edit': {
       id: '/suppliers/$storeId/edit'
       path: '/edit'
@@ -1008,6 +1028,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
+  AdminDrawsRoute: AdminDrawsRoute,
   AdminInvitationsRoute: AdminInvitationsRoute,
   AdminPostsRoute: AdminPostsRoute,
   AdminReportsRoute: AdminReportsRoute,
