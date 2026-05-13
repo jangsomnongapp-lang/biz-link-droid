@@ -2,6 +2,7 @@ import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-r
 import { I18nProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
+import { DailyTicketGate } from "@/components/DailyTicketGate";
 
 import appCss from "../styles.css?url";
 
@@ -58,6 +59,7 @@ function RootComponent() {
         <div className="mx-auto min-h-screen max-w-[480px] bg-background">
           <Outlet />
         </div>
+        <DailyTicketGate />
         <Toaster position="top-center" />
       </AuthProvider>
     </I18nProvider>
