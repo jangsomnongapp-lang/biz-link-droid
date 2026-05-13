@@ -142,6 +142,30 @@ export type Database = {
           },
         ]
       }
+      daily_availability: {
+        Row: {
+          available: boolean
+          created_at: string
+          date: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          available: boolean
+          created_at?: string
+          date?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          available?: boolean
+          created_at?: string
+          date?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       invite_clicks: {
         Row: {
           code: string
@@ -343,6 +367,89 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lottery_draws: {
+        Row: {
+          created_at: string
+          draw_date: string
+          draw_type: string
+          drawn_at: string | null
+          id: string
+          prize_description: string | null
+          prize_image_url: string | null
+          prize_title: string
+          published_at: string | null
+          status: string
+          winner_user_id: string | null
+          winning_ticket_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          draw_date: string
+          draw_type: string
+          drawn_at?: string | null
+          id?: string
+          prize_description?: string | null
+          prize_image_url?: string | null
+          prize_title: string
+          published_at?: string | null
+          status?: string
+          winner_user_id?: string | null
+          winning_ticket_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          draw_date?: string
+          draw_type?: string
+          drawn_at?: string | null
+          id?: string
+          prize_description?: string | null
+          prize_image_url?: string | null
+          prize_title?: string
+          published_at?: string | null
+          status?: string
+          winner_user_id?: string | null
+          winning_ticket_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lottery_draws_winning_ticket_id_fkey"
+            columns: ["winning_ticket_id"]
+            isOneToOne: false
+            referencedRelation: "lottery_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lottery_tickets: {
+        Row: {
+          created_at: string
+          draw_period_start: string
+          id: string
+          source: string
+          status: string
+          ticket_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          draw_period_start: string
+          id?: string
+          source?: string
+          status?: string
+          ticket_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          draw_period_start?: string
+          id?: string
+          source?: string
+          status?: string
+          ticket_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       material_request_photos: {
         Row: {
@@ -771,6 +878,44 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prize_claims: {
+        Row: {
+          claimed_at: string | null
+          created_at: string
+          draw_id: string
+          expires_at: string
+          id: string
+          status: string
+          winner_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          created_at?: string
+          draw_id: string
+          expires_at: string
+          id?: string
+          status?: string
+          winner_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          created_at?: string
+          draw_id?: string
+          expires_at?: string
+          id?: string
+          status?: string
+          winner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prize_claims_draw_id_fkey"
+            columns: ["draw_id"]
+            isOneToOne: false
+            referencedRelation: "lottery_draws"
             referencedColumns: ["id"]
           },
         ]
@@ -1316,6 +1461,30 @@ export type Database = {
           },
         ]
       }
+      streak_tracker: {
+        Row: {
+          current_streak: number
+          last_check_date: string | null
+          longest_streak: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          last_check_date?: string | null
+          longest_streak?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          last_check_date?: string | null
+          longest_streak?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       super_user_identities: {
         Row: {
           avatar_shape: string
@@ -1610,6 +1779,8 @@ export type Database = {
     Functions: {
       consume_supplier_invite: { Args: { _token: string }; Returns: string }
       current_master_user_id: { Args: never; Returns: string }
+      current_month_start: { Args: never; Returns: string }
+      current_week_start: { Args: never; Returns: string }
       get_supplier_invite_by_token: {
         Args: { _token: string }
         Returns: {
@@ -1633,6 +1804,7 @@ export type Database = {
         Args: { _pid: string; _uid: string }
         Returns: boolean
       }
+      mark_daily_availability: { Args: { _available: boolean }; Returns: Json }
       notify_telegram: {
         Args: { _kind: string; _payload: Json }
         Returns: undefined

@@ -687,6 +687,25 @@ function ProfilePage() {
             </div>
           </div>
         </Link>
+        <Link
+          to="/rewards"
+          className="relative mt-2 flex items-center gap-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 p-3 text-white active:scale-[0.99]"
+        >
+          <span className="absolute right-2 top-2 rounded-full bg-white px-1.5 py-0.5 text-[9px] font-bold leading-none text-orange-600">
+            NEW
+          </span>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/25 text-base font-bold">
+            🎁
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold">
+              {lang === "km" ? "BuildHub Rewards" : "BuildHub Rewards"}
+            </div>
+            <div className="text-[11px] text-white/90">
+              {lang === "km" ? "ឆែកវត្តមានរាល់ថ្ងៃ · ឈ្នះរង្វាន់" : "Daily check-in · win prizes"}
+            </div>
+          </div>
+        </Link>
         {(() => {
           const hasActive = myListings.some((l) => l.status === "active");
           const isClient = !!profile?.is_client;
