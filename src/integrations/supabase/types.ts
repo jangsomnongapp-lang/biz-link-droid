@@ -1787,6 +1787,8 @@ export type Database = {
       current_master_user_id: { Args: never; Returns: string }
       current_month_start: { Args: never; Returns: string }
       current_week_start: { Args: never; Returns: string }
+      ensure_scheduled_draws: { Args: never; Returns: undefined }
+      expire_overdue_claims: { Args: never; Returns: number }
       get_supplier_invite_by_token: {
         Args: { _token: string }
         Returns: {
@@ -1818,6 +1820,7 @@ export type Database = {
       record_invite_click: { Args: { _code: string }; Returns: undefined }
       record_invite_join: { Args: { _code: string }; Returns: string }
       resolve_invite_code: { Args: { _code: string }; Returns: string }
+      run_lottery_draw: { Args: { _draw_id: string }; Returns: Json }
       start_material_chat: {
         Args: { _request_id: string; _supplier_id: string }
         Returns: string
