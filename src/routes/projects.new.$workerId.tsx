@@ -284,3 +284,12 @@ function SSwitch({ label, on, onChange }: { label: string; on: boolean; onChange
     </button>
   );
 }
+
+function SummaryRow({ label, value, last }: { label: string; value: string; last?: boolean }) {
+  return (
+    <div className={`flex items-center justify-between px-4 py-3 ${last ? "" : "border-b border-border"}`}>
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm font-semibold text-foreground">{value}</span>
+    </div>
+  );
+}
