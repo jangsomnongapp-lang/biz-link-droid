@@ -123,20 +123,20 @@ function PortfolioPage() {
       <div className="flex-1 space-y-3 p-3 pb-24">
         {/* Portfolio */}
         <div className="rounded-xl bg-surface p-4 shadow-card">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex items-center justify-between gap-2">
             <h3 className="text-sm font-bold text-foreground">
               {t("portfolio")} ({photos.length})
             </h3>
             <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={onPickFile} />
+            <button
+              onClick={() => fileInput.current?.click()}
+              disabled={adding}
+              className="flex h-8 shrink-0 items-center gap-1 rounded-pill bg-primary px-3 text-[12px] font-semibold text-primary-foreground shadow-card active:scale-[0.99] disabled:opacity-60"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {adding ? t("loading") : t("add_photos")}
+            </button>
           </div>
-          <button
-            onClick={() => fileInput.current?.click()}
-            disabled={adding}
-            className="mb-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-card active:scale-[0.99] disabled:opacity-60"
-          >
-            <Plus className="h-4 w-4" />
-            {adding ? t("loading") : t("add_photos")}
-          </button>
           <div className="grid grid-cols-3 gap-2">
             {photos.map((p) => (
               <div key={p.id} className="relative aspect-square">
