@@ -59,6 +59,7 @@ function RootComponent() {
         <div className="mx-auto min-h-screen max-w-[480px] bg-background">
           <Outlet />
         </div>
+        <DailyTicketGate />
         <Toaster position="top-center" />
       </AuthProvider>
     </I18nProvider>
