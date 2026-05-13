@@ -334,17 +334,37 @@ function ProfilePage() {
       <Section
         title={`${t("portfolio")} (${portfolio.length})`}
         action={
-          portfolio.length > 6 ? (
+          <div className="flex items-center gap-3">
+            <input
+              ref={portfolioInput}
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={onAddPortfolioPhotos}
+            />
             <button
               type="button"
-              onClick={() => setShowAllPortfolio((v) => !v)}
-              className="text-xs font-semibold text-primary active:opacity-70"
+              onClick={() => portfolioInput.current?.click()}
+              disabled={addingPhotos}
+              className="text-xs font-semibold text-primary active:opacity-70 disabled:opacity-60"
             >
-              {showAllPortfolio
-                ? lang === "km" ? "បង្ហាញតិច" : "Show less"
-                : lang === "km" ? `មើលទាំងអស់ (${portfolio.length})` : `See all (${portfolio.length})`}
+              {addingPhotos
+                ? t("loading")
+                : lang === "km" ? "+ បន្ថែមរូបថត" : "+ Add photo"}
             </button>
-          ) : null
+            {portfolio.length > 6 ? (
+              <button
+                type="button"
+                onClick={() => setShowAllPortfolio((v) => !v)}
+                className="text-xs font-semibold text-primary active:opacity-70"
+              >
+                {showAllPortfolio
+                  ? lang === "km" ? "បង្ហាញតិច" : "Show less"
+                  : lang === "km" ? `មើលទាំងអស់ (${portfolio.length})` : `See all (${portfolio.length})`}
+              </button>
+            ) : null}
+          </div>
         }
       >
         {portfolio.length === 0 ? (
