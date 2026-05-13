@@ -62,7 +62,7 @@ function RewardsPage() {
   async function mark(available: boolean) {
     if (submitting || !user) return;
     setSubmitting(true);
-    const { data, error } = await supabase.rpc("mark_daily_availability", { _available: available });
+    const { data, error } = await supabase.rpc("mark_daily_availability", { _status: available ? "available" : "busy" });
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
     const res = data as { already?: boolean; available?: boolean; streak?: number };
