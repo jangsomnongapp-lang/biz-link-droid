@@ -126,7 +126,32 @@ function RewardsPage() {
                 <div className="mt-1 flex items-center gap-1 text-xs text-emerald-800">
                   <Clock className="h-3 w-3" /> {lang === "km" ? "ផុតកំណត់" : "Expires"} {new Date(activeClaim.expires_at).toLocaleString()}
                 </div>
-                <button className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow active:scale-95">
+                <button
+                  onClick={async () => {
+                    if (!user) return;
+                    const { data: rewards } = await supabase
+                      .from("profiles")
+                      .select("id")
+                      .eq("is_super_user", true)
+                      .ilike("full_name", "BuildHub Rewards")
+                      .maybeSingle();
+                    if (!rewards) return;
+                    const a = rewards.id < user.id ? rewards.id : user.id;
+                    const b = rewards.id < user.id ? user.id : rewards.id;
+                    let { data: thread } = await supabase
+                      .from("message_threads")
+                      .select("id")
+                      .eq("participant_a", a)
+                      .eq("participant_b", b)
+                      .maybeSingle();
+                    if (!thread) {
+                      const ins = await supabase.from("message_threads").insert({ participant_a: a, participant_b: b }).select("id").single();
+                      thread = ins.data;
+                    }
+                    if (thread) nav({ to: "/messages/$threadId", params: { threadId: thread.id } });
+                  }}
+                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow active:scale-95"
+                >
                   <MessageCircle className="h-4 w-4" /> {lang === "km" ? "ជជែកជាមួយ Rewards" : "Chat with Rewards"}
                 </button>
               </div>
