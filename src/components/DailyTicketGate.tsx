@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Check, X, Sparkles, Trophy, Flame } from "lucide-react";
+import { X, Sparkles, Flame, ChevronDown, Check, Clock, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 
 const DISMISS_KEY = "buildhub:ticket_gate_dismissed_on";
@@ -12,30 +11,35 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
+type Status = "available" | "busy" | "available_soon";
+
 /**
- * Auto-loads on app open for workers (is_provider or is_specialist).
- * Shows a lottery-ticket-style daily availability gate. One check per day.
+ * Two-screen daily gate for workers (is_provider or is_specialist).
+ * Step 1: BOOM lottery ticket. Step 2: 3-state availability picker.
+ * Skipped if user already checked in today or dismissed today.
  */
 export function DailyTicketGate() {
   const { user, loading } = useAuth();
   const { lang } = useI18n();
-  const nav = useNavigate();
   const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
   const [submitting, setSubmitting] = useState(false);
-  const [ticketNumber, setTicketNumber] = useState<number | null>(null);
-  const [boom, setBoom] = useState<{ streak: number } | null>(null);
+  const [previewNumber, setPreviewNumber] = useState<number | null>(null);
+  const [assignedNumber, setAssignedNumber] = useState<number | null>(null);
+  const [streak, setStreak] = useState<number>(0);
+  const [boom, setBoom] = useState(false);
+  const [profileName, setProfileName] = useState<string>("");
 
   useEffect(() => {
     if (loading || !user) return;
     let cancelled = false;
     (async () => {
       const today = todayISO();
-      // Don't re-show if dismissed today
       if (typeof window !== "undefined" && localStorage.getItem(DISMISS_KEY) === today) return;
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("is_provider, is_specialist, member_number")
+        .select("is_provider, is_specialist, full_name, member_number")
         .eq("id", user.id)
         .maybeSingle();
       if (cancelled || !profile) return;
@@ -49,7 +53,20 @@ export function DailyTicketGate() {
         .maybeSingle();
       if (cancelled || check) return;
 
-      setTicketNumber(profile.member_number ?? null);
+      // Peek: next ticket number for today (display only)
+      const { data: maxRow } = await supabase
+        .from("lottery_tickets")
+        .select("ticket_number")
+        .eq("ticket_type", "daily")
+        .eq("draw_period_start", today)
+        .order("ticket_number", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const next = (maxRow?.ticket_number ?? 999) + 1;
+
+      setProfileName(profile.full_name ?? "");
+      setPreviewNumber(next);
+      setStep(1);
       setOpen(true);
     })();
     return () => {
@@ -57,68 +74,144 @@ export function DailyTicketGate() {
     };
   }, [user, loading]);
 
-  async function answer(available: boolean) {
+  async function submit(status: Status) {
     if (submitting || !user) return;
     setSubmitting(true);
-    const { data, error } = await supabase.rpc("mark_daily_availability", { _available: available });
+    const { data, error } = await supabase.rpc("mark_daily_availability", { _status: status });
     setSubmitting(false);
     localStorage.setItem(DISMISS_KEY, todayISO());
     if (error) {
       toast.error(error.message);
       return;
     }
-    if (available) {
-      const res = data as { streak?: number };
-      setBoom({ streak: res?.streak ?? 1 });
-    } else {
-      setOpen(false);
+    const res = (data ?? {}) as { ticket_number?: number; streak?: number };
+    if (status === "busy") {
       toast(lang === "km" ? "ជួបគ្នាស្អែក!" : "See you tomorrow!");
+      setOpen(false);
+      return;
     }
+    setAssignedNumber(res.ticket_number ?? previewNumber ?? null);
+    setStreak(res.streak ?? 1);
+    setBoom(true);
   }
 
   function close() {
     localStorage.setItem(DISMISS_KEY, todayISO());
     setOpen(false);
-    setBoom(null);
+    setBoom(false);
+  }
+
+  function skip() {
+    close();
   }
 
   if (!open) return null;
 
+  // BOOM celebration after availability submitted
   if (boom) {
+    const num = assignedNumber ? `#${String(assignedNumber).padStart(4, "0")}` : "#----";
     return (
       <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 p-6 text-white">
         <div className="animate-bounce text-7xl font-black drop-shadow-lg">BOOM!</div>
-        <div className="mt-3 text-2xl font-bold">{lang === "km" ? "+៣ សំបុត្រ" : "+3 tickets!"}</div>
-        <div className="mt-1 text-sm opacity-90">{lang === "km" ? "ប្រចាំថ្ងៃ · សប្តាហ៍ · ខែ" : "Daily · Weekly · Monthly"}</div>
-        {boom.streak > 1 && (
+        <div className="mt-3 text-2xl font-bold">{num}</div>
+        <div className="mt-1 text-sm opacity-90">
+          {lang === "km" ? "សំបុត្ររបស់អ្នកត្រូវបានបញ្ជាក់" : "Your ticket is validated"}
+        </div>
+        {streak > 1 && (
           <div className="mt-6 flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
             <Flame className="h-5 w-5" />
             <span className="font-bold">
-              {boom.streak} {lang === "km" ? "ថ្ងៃជាប់គ្នា" : "day streak"}
+              {streak} {lang === "km" ? "ថ្ងៃជាប់គ្នា" : "day streak"}
             </span>
           </div>
         )}
-        <div className="mt-10 flex gap-3">
+        <button
+          onClick={close}
+          className="mt-10 rounded-full bg-white px-8 py-3 font-bold text-orange-600 shadow-lg active:scale-95"
+        >
+          {lang === "km" ? "បន្ត" : "Continue"}
+        </button>
+      </div>
+    );
+  }
+
+  // Step 2 — Availability picker
+  if (step === 2) {
+    const greet = lang === "km" ? "សួស្តី" : "Good morning";
+    const name = profileName.split(" ")[0] || (lang === "km" ? "" : "");
+    return (
+      <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#0f1117] p-4">
+        <div className="mx-auto w-full max-w-sm pt-6">
           <button
-            onClick={() => {
-              close();
-              nav({ to: "/rewards" });
-            }}
-            className="rounded-full bg-white px-6 py-3 font-bold text-orange-600 shadow-lg active:scale-95"
+            onClick={skip}
+            aria-label="Close"
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white active:scale-95"
           >
-            {lang === "km" ? "មើលរង្វាន់" : "View rewards"}
+            <X className="h-4 w-4" />
           </button>
+          <div className="text-center">
+            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[#0F6E56] text-2xl font-bold text-white">
+              {(profileName[0] ?? "?").toUpperCase()}
+            </div>
+            <h2 className="text-xl font-bold text-white">
+              {greet}{name ? `, ${name}` : ""} 👋
+            </h2>
+            <p className="mt-1 text-xs text-white/60">
+              {lang === "km" ? "តើអ្នកមានវត្តមានយ៉ាងណាថ្ងៃនេះ?" : "What is your availability today?"}
+            </p>
+          </div>
+
+          <div className="mt-5 space-y-2.5">
+            <StatusButton
+              icon={<Check className="h-5 w-5" />}
+              title={lang === "km" ? "មានពេលថ្ងៃនេះ" : "Available today"}
+              subtitle={lang === "km" ? "ខ្ញុំទំនេរ និងរកការងារ" : "I am free and looking for work"}
+              color="#0F6E56"
+              onClick={() => submit("available")}
+              disabled={submitting}
+            />
+            <StatusButton
+              icon={<Briefcase className="h-5 w-5" />}
+              title={lang === "km" ? "រវល់ថ្ងៃនេះ" : "Busy today"}
+              subtitle={lang === "km" ? "ខ្ញុំមានការងារធ្វើ" : "I have work today"}
+              color="#7c2d2d"
+              onClick={() => submit("busy")}
+              disabled={submitting}
+            />
+            <StatusButton
+              icon={<Clock className="h-5 w-5" />}
+              title={lang === "km" ? "មានពេលឆាប់ៗ" : "Available soon"}
+              subtitle={lang === "km" ? "ទំនេរចាប់ពីថ្ងៃណាមួយ" : "Free from a specific date"}
+              color="#EF9F27"
+              onClick={() => submit("available_soon")}
+              disabled={submitting}
+            />
+          </div>
+
+          <div className="mt-5 rounded-xl border border-white/10 bg-white/5 p-3 text-center">
+            <div className="flex items-center justify-center gap-2 text-xs text-white/80">
+              <span>🎁</span>
+              <span className="font-semibold">
+                {lang === "km" ? "ឆែក = ចូលឆ្នោតថ្ងៃនេះ" : "Mark status = enter today's draw"}
+              </span>
+            </div>
+            <div className="mt-1 text-[11px] text-white/55">
+              {lang === "km" ? "រង្វាន់ថ្ងៃនេះ" : "Prize today"}: 2🍺 · {lang === "km" ? "សប្តាហ៍" : "Weekly"} $15 · {lang === "km" ? "ខែ" : "Monthly"} $40
+            </div>
+          </div>
+
           <button
-            onClick={close}
-            className="rounded-full border-2 border-white/70 px-6 py-3 font-bold text-white active:scale-95"
+            onClick={skip}
+            className="mx-auto mt-4 block text-xs text-white/50 underline-offset-2 hover:underline"
           >
-            {lang === "km" ? "បិទ" : "Close"}
+            {lang === "km" ? "រំលងថ្ងៃនេះ — មិនចូលឆ្នោត" : "Skip for today — no prize entry"}
           </button>
         </div>
       </div>
     );
   }
 
+  // Step 1 — BOOM lottery ticket
   const today = new Date();
   const dateStr = today.toLocaleDateString(lang === "km" ? "km-KH" : "en-US", {
     weekday: "long",
@@ -126,116 +219,132 @@ export function DailyTicketGate() {
     day: "numeric",
     year: "numeric",
   });
-  const ticketNo = ticketNumber ? `#${String(ticketNumber).padStart(4, "0")}` : "#----";
+  const ticketNo = previewNumber ? `#${String(previewNumber).padStart(4, "0")}` : "#----";
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="relative w-full max-w-sm">
-        {/* Close */}
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#0f1117] p-4">
+      <div className="mx-auto w-full max-w-sm pt-2">
         <button
-          onClick={close}
+          onClick={skip}
           aria-label="Close"
-          className="absolute -top-3 -right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-700 shadow-lg active:scale-95"
+          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white active:scale-95"
         >
           <X className="h-4 w-4" />
         </button>
 
-        {/* Header */}
         <div className="mb-3 text-center">
-          <div className="mx-auto mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-400/20 text-2xl">
-            🎉
-          </div>
+          <div className="mb-1 text-3xl">🎉</div>
           <h2 className="text-xl font-bold text-white">
             {lang === "km" ? "សំបុត្រថ្ងៃនេះមកដល់ហើយ!" : "Today's ticket is yours!"}
           </h2>
-          <p className="mt-1 text-xs text-white/70">
+          <p className="mt-1 text-xs text-white/60">
             {lang === "km" ? "បញ្ជាក់ឥឡូវ — ឆែកវត្តមានរបស់អ្នក" : "Validate it now — mark your availability"}
           </p>
         </div>
 
-        {/* Ticket */}
-        <div className="overflow-hidden rounded-2xl bg-yellow-300 shadow-2xl">
-          {/* Top band */}
-          <div className="flex items-center justify-between bg-orange-500 px-4 py-2 text-white">
-            <span className="text-sm font-bold">សំណាង</span>
+        {/* Lottery Ticket */}
+        <div className="overflow-hidden rounded-2xl border-2 border-[#c4b800] bg-[#f5e642] shadow-2xl">
+          <div className="flex items-center justify-between bg-[#c87000] px-4 py-2 text-white">
+            <span className="text-sm font-bold">ជាងសំណង់</span>
             <span className="text-xs font-black tracking-widest">BUILDHUB</span>
           </div>
-          {/* Stars + label */}
           <div className="px-4 pt-3 text-center">
-            <div className="text-orange-500">★ ★ ★ ★ ★</div>
-            <div className="mt-1 text-[11px] font-bold tracking-widest text-orange-700">
+            <div className="text-[#c87000]">★ ★ ★ ★ ★</div>
+            <div className="mt-1 text-[11px] font-bold tracking-widest text-[#7a4500]">
               {lang === "km" ? "សំបុត្រឆ្នោតផ្លូវការ" : "OFFICIAL LOTTERY TICKET"}
             </div>
           </div>
-          {/* Dashed divider */}
-          <div className="my-2 border-t-2 border-dashed border-orange-400/70 mx-4" />
-          {/* Number */}
-          <div className="mx-4 rounded-lg border border-orange-300 bg-white px-3 py-3 text-center">
-            <div className="text-[10px] tracking-widest text-orange-600">
+          <div className="my-2 mx-4 border-t-2 border-dashed border-[#c87000]/70" />
+          <div className="mx-4 rounded-lg border border-[#c87000]/40 bg-white px-3 py-3 text-center">
+            <div className="text-[10px] tracking-widest text-[#c87000]">
               {lang === "km" ? "លេខសំបុត្រ" : "TICKET NUMBER"}
             </div>
-            <div className="text-4xl font-black text-orange-600">{ticketNo}</div>
+            <div className="text-5xl font-black text-[#c87000]">{ticketNo}</div>
             <div className="mt-1 text-[11px] text-slate-500">{dateStr}</div>
           </div>
-          {/* Three prizes */}
           <div className="grid grid-cols-3 gap-2 p-3">
             <PrizeCell icon="🍺" label={lang === "km" ? "ប្រចាំថ្ងៃ" : "Daily"} value="$1" />
             <PrizeCell icon="💵" label={lang === "km" ? "សប្តាហ៍" : "Weekly"} value="$15" />
             <PrizeCell icon="🏆" label={lang === "km" ? "ខែ" : "Monthly"} value="$40" />
           </div>
-          {/* Footer band */}
-          <div className="flex items-center justify-center gap-1 bg-orange-500 px-4 py-2 text-[11px] font-semibold text-white">
-            <Sparkles className="h-3 w-3" /> BuildHub Rewards
+          <div className="flex items-center justify-center gap-1 bg-[#c87000] px-4 py-2 text-[11px] font-semibold text-white">
+            <Sparkles className="h-3 w-3" /> 🎁 BuildHub Rewards · Siem Reap 2026
           </div>
         </div>
 
-        {/* Validate strip */}
-        <div className="mt-3 flex items-center justify-between rounded-xl bg-yellow-300 px-4 py-3 shadow-lg">
+        {/* Stub */}
+        <div className="my-2 mx-2 border-t-2 border-dashed border-white/30" />
+        <div className="mx-2 flex items-center justify-between rounded-xl bg-[#f5e642] px-4 py-3 shadow-lg">
           <div>
-            <div className="text-[11px] font-black tracking-widest text-orange-700">
+            <div className="text-[11px] font-black tracking-widest text-[#7a4500]">
               {lang === "km" ? "បញ្ជាក់ដើម្បីចូលរួម" : "VALIDATE TO ENTER"}
             </div>
-            <div className="text-[11px] text-orange-600">
+            <div className="text-[11px] text-[#c87000]">
               {lang === "km" ? "ឆែកវត្តមានខាងក្រោម" : "Mark availability below"}
             </div>
           </div>
-          <div className="text-2xl font-black text-orange-600">{ticketNo}</div>
+          <div className="text-2xl font-black text-[#c87000]">{ticketNo}</div>
         </div>
 
-        {/* Question */}
-        <p className="mt-4 text-center text-sm text-white/90">
-          {lang === "km" ? "តើអ្នកអាចធ្វើការថ្ងៃនេះទេ?" : "Are you available to work today?"}
+        <p className="mt-4 text-center text-xs text-white/70">
+          {lang === "km" ? "ចុចខាងក្រោមដើម្បីបញ្ជាក់សំបុត្ររបស់អ្នក" : "Tap below to validate your ticket"}
         </p>
 
-        {/* Buttons */}
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          <button
-            disabled={submitting}
-            onClick={() => answer(false)}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-white/30 bg-white/10 py-3 text-sm font-semibold text-white backdrop-blur active:scale-[0.98] disabled:opacity-50"
-          >
-            <X className="h-4 w-4" /> {lang === "km" ? "មិនទាន់" : "Not today"}
-          </button>
-          <button
-            disabled={submitting}
-            onClick={() => answer(true)}
-            style={{ backgroundColor: "#0F6E56" }}
-            className="flex items-center justify-center gap-1.5 rounded-xl py-3 text-sm font-bold text-white shadow-lg active:scale-[0.98] disabled:opacity-50"
-          >
-            <Check className="h-4 w-4" /> {lang === "km" ? "បាទ/ចាស!" : "Yes, available!"}
-          </button>
-        </div>
+        <button
+          onClick={() => setStep(2)}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F6E56] py-4 text-base font-bold text-white shadow-lg active:scale-[0.98]"
+        >
+          {lang === "km" ? "បន្តទៅឆែកវត្តមាន" : "Continue to availability"}
+          <ChevronDown className="h-5 w-5" />
+        </button>
       </div>
     </div>
   );
 }
 
+function StatusButton({
+  icon,
+  title,
+  subtitle,
+  color,
+  onClick,
+  disabled,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  color: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-left active:scale-[0.99] disabled:opacity-50"
+    >
+      <div
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
+        style={{ backgroundColor: color }}
+      >
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-bold" style={{ color }}>
+          {title}
+        </div>
+        <div className="text-[11px] text-white/55">{subtitle}</div>
+      </div>
+    </button>
+  );
+}
+
 function PrizeCell({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-orange-200 bg-white py-2 text-center">
+    <div className="rounded-lg border border-[#c87000]/30 bg-white py-2 text-center">
       <div className="text-xl">{icon}</div>
       <div className="text-[10px] font-bold uppercase tracking-wide text-slate-700">{label}</div>
-      <div className="text-xs font-bold text-orange-600">{value}</div>
+      <div className="text-xs font-bold text-[#c87000]">{value}</div>
     </div>
   );
 }
