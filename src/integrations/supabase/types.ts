@@ -148,6 +148,7 @@ export type Database = {
           created_at: string
           date: string
           id: string
+          status: string
           user_id: string
         }
         Insert: {
@@ -155,6 +156,7 @@ export type Database = {
           created_at?: string
           date?: string
           id?: string
+          status: string
           user_id: string
         }
         Update: {
@@ -162,6 +164,7 @@ export type Database = {
           created_at?: string
           date?: string
           id?: string
+          status?: string
           user_id?: string
         }
         Relationships: []
@@ -428,6 +431,7 @@ export type Database = {
           id: string
           source: string
           status: string
+          ticket_number: number | null
           ticket_type: string
           user_id: string
         }
@@ -437,6 +441,7 @@ export type Database = {
           id?: string
           source?: string
           status?: string
+          ticket_number?: number | null
           ticket_type: string
           user_id: string
         }
@@ -446,6 +451,7 @@ export type Database = {
           id?: string
           source?: string
           status?: string
+          ticket_number?: number | null
           ticket_type?: string
           user_id?: string
         }
@@ -1804,7 +1810,7 @@ export type Database = {
         Args: { _pid: string; _uid: string }
         Returns: boolean
       }
-      mark_daily_availability: { Args: { _available: boolean }; Returns: Json }
+      mark_daily_availability: { Args: { _status: string }; Returns: Json }
       notify_telegram: {
         Args: { _kind: string; _payload: Json }
         Returns: undefined
