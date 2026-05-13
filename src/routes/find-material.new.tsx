@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, X, MapPin, Globe2 } from "lucide-react";
+import { SignedImage } from "@/components/SignedImage";
 
 export const Route = createFileRoute("/find-material/new")({
   component: () => (
@@ -193,8 +194,14 @@ function NewMaterialPage() {
             const url = photos[i];
             if (url) {
               return (
-                <div key={i} className="relative aspect-square overflow-hidden rounded-xl">
-                  <img src={url} alt="" className="h-full w-full object-cover" />
+                <div key={i} className="relative aspect-square overflow-hidden rounded-xl bg-muted">
+                  <SignedImage
+                    bucket="material-photos"
+                    src={url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    fallback={<div className="flex h-full w-full items-center justify-center text-muted-foreground/40">…</div>}
+                  />
                   <button
                     type="button"
                     onClick={() => setPhotos((p) => p.filter((_, idx) => idx !== i))}
