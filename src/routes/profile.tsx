@@ -66,9 +66,45 @@ function ProfilePage() {
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [addingPhotos, setAddingPhotos] = useState(false);
   const [requestingHelp, setRequestingHelp] = useState(false);
   const requestFreeHelpFn = useServerFn(requestFreeHelp);
   const fileInput = useRef<HTMLInputElement>(null);
+  const portfolioInput = useRef<HTMLInputElement>(null);
+
+  async function onAddPortfolioPhotos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (!files.length || !user) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    const valid = files.filter((f) => validateImageFile(f));
+    if (!valid.length) return;
+    setAddingPhotos(true);
+    try {
+      const rows = await Promise.all(
+        valid.map(
+          (file) =>
+            new Promise<{ user_id: string; photo_url: string }>((resolve, reject) => {
+              const r = new FileReader();
+              r.onload = () => resolve({ user_id: user.id, photo_url: String(r.result) });
+              r.onerror = reject;
+              r.readAsDataURL(file);
+            }),
+        ),
+      );
+      const { error, data } = await supabase
+        .from("portfolio_photos")
+        .insert(rows)
+        .select("id, photo_url");
+      if (error) throw error;
+      setPortfolio((prev) => [...(data ?? []), ...prev]);
+      toast.success(`${rows.length} photo${rows.length > 1 ? "s" : ""} added`);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Upload failed");
+    } finally {
+      setAddingPhotos(false);
+    }
+  }
 
   async function onClickFreeHelp() {
     if (requestingHelp) return;
