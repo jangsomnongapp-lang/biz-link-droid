@@ -209,6 +209,13 @@ function SettingsPage() {
             label={t("admin_invitations")}
           />
           <Row
+            to="/admin/draws"
+            icon={Ticket}
+            iconBg="bg-orange-100"
+            iconColor="text-orange-600"
+            label={lang === "km" ? "គ្រប់គ្រងការចាប់ឆ្នោត" : "Lottery draws"}
+          />
+          <Row
             to="/admin/suppliers"
             icon={Store}
             iconBg="bg-emerald-100"
