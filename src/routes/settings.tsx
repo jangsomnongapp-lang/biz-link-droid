@@ -25,6 +25,8 @@ import {
   Store,
   Send,
   UserCog,
+  Gift,
+  Ticket,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
