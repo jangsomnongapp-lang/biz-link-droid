@@ -95,145 +95,141 @@ function RewardsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-12">
+    <div className="min-h-screen bg-white pb-12 text-zinc-900">
       <div className="mx-auto max-w-md px-4 pt-4">
-        {/* Card container (dark) */}
-        <div className="rounded-3xl bg-[#1b1b3a] p-4 text-white shadow-xl">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-rose-500 shadow">
-                <Gift className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <div className="text-base font-bold leading-tight">{lang === "km" ? "រង្វាន់របស់ខ្ញុំ" : "My rewards"}</div>
-                <div className="text-[11px] text-white/60">Mis premios y boletos</div>
-              </div>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-rose-500 shadow">
+              <Gift className="h-5 w-5 text-white" />
             </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-bold text-white shadow">
-              Day {streak.current_streak} <Flame className="h-3.5 w-3.5" />
+            <div>
+              <div className="text-base font-bold leading-tight">{lang === "km" ? "រង្វាន់របស់ខ្ញុំ" : "My rewards"}</div>
+              <div className="text-[11px] text-zinc-500">Mis premios y boletos</div>
             </div>
           </div>
+          <div className="flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-bold text-white shadow">
+            Day {streak.current_streak} <Flame className="h-3.5 w-3.5" />
+          </div>
+        </div>
 
-          {loading ? (
-            <div className="py-12 text-center text-sm text-white/60">{lang === "km" ? "កំពុងផ្ទុក..." : "Loading..."}</div>
-          ) : (
-            <>
-              {/* Today's active ticket label */}
-              <div className="mt-5 text-[12px] text-white/70">
-                {lang === "km" ? "សំបុត្រសកម្មថ្ងៃនេះ" : "Today's active ticket"} · Boleto activo hoy
+        {loading ? (
+          <div className="py-12 text-center text-sm text-zinc-500">{lang === "km" ? "កំពុងផ្ទុក..." : "Loading..."}</div>
+        ) : (
+          <>
+            {/* Today's active ticket label */}
+            <div className="mt-5 text-[12px] text-zinc-500">
+              {lang === "km" ? "សំបុត្រសកម្មថ្ងៃនេះ" : "Today's active ticket"} · Boleto activo hoy
+            </div>
+
+            {/* Lottery ticket (yellow) */}
+            <div className="mt-2 overflow-hidden rounded-2xl bg-yellow-300 text-zinc-900 shadow-lg ring-1 ring-orange-200">
+              <div className="flex items-center justify-between bg-orange-500 px-4 py-2 text-white">
+                <span className="text-sm font-bold">{lang === "km" ? "ទាស់លាភ" : "TICKET"}</span>
+                <span className="text-xs font-extrabold tracking-widest">BUILDHUB</span>
               </div>
-
-              {/* Lottery ticket (yellow) */}
-              <div className="mt-2 overflow-hidden rounded-2xl bg-yellow-300 text-zinc-900 shadow-lg">
-                <div className="flex items-center justify-between bg-orange-500 px-4 py-2 text-white">
-                  <span className="text-sm font-bold">{lang === "km" ? "ទាស់លាភ" : "TICKET"}</span>
-                  <span className="text-xs font-extrabold tracking-widest">BUILDHUB</span>
+              <div className="flex items-center gap-3 p-4">
+                <div className="flex-1">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-orange-700">
+                    {lang === "km" ? "លេខសំបុត្រ" : "Ticket Number"}
+                  </div>
+                  <div className="mt-1 font-mono text-4xl font-black text-orange-600">#{ticketDisplay}</div>
+                  <div className="mt-1 text-[11px] text-zinc-700">{todayLabel}</div>
                 </div>
-                <div className="flex items-center gap-3 p-4">
-                  <div className="flex-1">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-orange-700">
-                      {lang === "km" ? "លេខសំបុត្រ" : "Ticket Number"}
+                <div className="flex w-24 flex-col items-center rounded-lg bg-yellow-100 p-2 text-center ring-1 ring-orange-300/50">
+                  <Beer className="h-7 w-7 text-orange-500" />
+                  <div className="mt-1 text-[10px] leading-tight text-zinc-700">
+                    Daily $1<br />Weekly $15<br />Monthly $40
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between border-t-2 border-dashed border-orange-300 bg-yellow-300 px-4 py-2 text-sm font-bold text-zinc-900">
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-600" />
+                  {ticketNum !== null ? "Validated ✓" : (lang === "km" ? "មិនទាន់ឆែក" : "Not checked in")}
+                </span>
+                <span className="font-mono text-orange-700">#{ticketDisplay}</span>
+              </div>
+            </div>
+
+            {/* Streak */}
+            <div className="mt-4 rounded-2xl bg-zinc-50 p-4 ring-1 ring-zinc-200">
+              <div className="flex items-end justify-between">
+                <div>
+                  <div className="text-[11px] uppercase tracking-wide text-zinc-500">Streak · Racha</div>
+                  <div className="mt-1 text-lg font-bold">
+                    <span className="text-orange-500">{cur}</span>
+                    <span className="text-zinc-500 text-sm"> / {goal} days</span>
+                  </div>
+                </div>
+                <div className="text-[11px] text-zinc-500">
+                  {remaining > 0 ? `${remaining} more → monthly ticket` : "Monthly ticket unlocked!"}
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-1.5">
+                {Array.from({ length: goal }).map((_, i) => {
+                  const hit = i < cur;
+                  return (
+                    <div key={i} className={`flex h-9 flex-1 items-center justify-center rounded-full text-xs font-bold ${
+                      hit ? "bg-emerald-500 text-white shadow" : "border border-zinc-300 bg-white text-zinc-400"
+                    }`}>
+                      {hit ? <Check className="h-4 w-4" /> : i + 1}
                     </div>
-                    <div className="mt-1 font-mono text-4xl font-black text-orange-600">#{ticketDisplay}</div>
-                    <div className="mt-1 text-[11px] text-zinc-700">{todayLabel}</div>
-                  </div>
-                  <div className="flex w-24 flex-col items-center rounded-lg bg-yellow-100 p-2 text-center ring-1 ring-orange-300/50">
-                    <Beer className="h-7 w-7 text-orange-500" />
-                    <div className="mt-1 text-[10px] leading-tight text-zinc-700">
-                      Daily $1<br />Weekly $15<br />Monthly $40
-                    </div>
-                  </div>
-                </div>
-                {/* Validated strip */}
-                <div className="flex items-center justify-between border-t-2 border-dashed border-orange-300 bg-yellow-300 px-4 py-2 text-sm font-bold text-zinc-900">
-                  <span className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-emerald-600" />
-                    {ticketNum !== null ? "Validated ✓" : (lang === "km" ? "មិនទាន់ឆែក" : "Not checked in")}
-                  </span>
-                  <span className="font-mono text-orange-700">#{ticketDisplay}</span>
-                </div>
+                  );
+                })}
               </div>
+            </div>
 
-              {/* Streak */}
-              <div className="mt-4 rounded-2xl bg-[#262649] p-4">
-                <div className="flex items-end justify-between">
-                  <div>
-                    <div className="text-[11px] uppercase tracking-wide text-white/60">Streak · Racha</div>
-                    <div className="mt-1 text-lg font-bold">
-                      <span className="text-orange-400">{cur}</span>
-                      <span className="text-white/70 text-sm"> / {goal} days</span>
-                    </div>
-                  </div>
-                  <div className="text-[11px] text-white/60">
-                    {remaining > 0 ? `${remaining} more → monthly ticket` : "Monthly ticket unlocked!"}
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center justify-between gap-1.5">
-                  {Array.from({ length: goal }).map((_, i) => {
-                    const hit = i < cur;
-                    return (
-                      <div key={i} className={`flex h-9 flex-1 items-center justify-center rounded-full text-xs font-bold ${
-                        hit ? "bg-emerald-600 text-white shadow-md" : "border border-white/15 bg-white/5 text-white/40"
-                      }`}>
-                        {hit ? <Check className="h-4 w-4" /> : i + 1}
-                      </div>
-                    );
-                  })}
-                </div>
+            {/* Active tickets */}
+            <div className="mt-4 rounded-2xl bg-zinc-50 p-4 ring-1 ring-zinc-200">
+              <div className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Active tickets</div>
+              <div className="mt-3 space-y-3">
+                <DrawRowItem
+                  title={lang === "km" ? "ឆ្នោតប្រចាំសប្តាហ៍" : "Weekly draw"}
+                  sub={weeklyDraw ? `${new Date(weeklyDraw.draw_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })} · 11:00am · $15` : "Sunday · $15"}
+                  count={weeklyTickets.length}
+                />
+                <DrawRowItem
+                  title={lang === "km" ? "ឆ្នោតប្រចាំខែ" : "Monthly draw"}
+                  sub={monthlyDraw ? `${new Date(monthlyDraw.draw_date).toLocaleDateString("en-US", { month: "long", day: "numeric" })} · $40` : "Month end · $40"}
+                  count={monthlyTickets.length}
+                />
               </div>
+            </div>
 
-              {/* Active tickets */}
-              <div className="mt-4 rounded-2xl bg-[#262649] p-4">
-                <div className="text-[11px] font-bold uppercase tracking-widest text-white/60">Active tickets</div>
-                <div className="mt-3 space-y-3">
-                  <DrawRowItem
-                    title={lang === "km" ? "ឆ្នោតប្រចាំសប្តាហ៍" : "Weekly draw"}
-                    sub={weeklyDraw ? `${new Date(weeklyDraw.draw_date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })} · 11:00am · $15` : "Sunday · $15"}
-                    count={weeklyTickets.length}
-                  />
-                  <DrawRowItem
-                    title={lang === "km" ? "ឆ្នោតប្រចាំខែ" : "Monthly draw"}
-                    sub={monthlyDraw ? `${new Date(monthlyDraw.draw_date).toLocaleDateString("en-US", { month: "long", day: "numeric" })} · $40` : "Month end · $40"}
-                    count={monthlyTickets.length}
-                  />
-                </div>
-              </div>
-
-              {/* Won card */}
-              {activeClaim && (
-                <button
-                  onClick={openRewardsChat}
-                  className="mt-4 flex w-full items-center gap-3 rounded-2xl border-2 border-orange-400 bg-gradient-to-br from-[#3a2a1a] to-[#2a1f12] p-3 text-left shadow-md active:scale-[0.99]"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500">
-                    <Beer className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-bold text-orange-300">You won today's draw!</div>
-                    <div className="text-[11px] text-orange-200/80">2 beers waiting · {hoursLeft(activeClaim.expires_at)}h left to claim</div>
-                  </div>
-                  <span className="rounded-full bg-orange-500 px-3 py-1.5 text-xs font-bold text-white">Claim</span>
-                </button>
-              )}
-
-              {/* BuildHub Rewards chat */}
+            {/* Won card */}
+            {activeClaim && (
               <button
                 onClick={openRewardsChat}
-                className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-[#262649] p-3 text-left active:scale-[0.99]"
+                className="mt-4 flex w-full items-center gap-3 rounded-2xl border-2 border-orange-400 bg-orange-50 p-3 text-left shadow-sm active:scale-[0.99]"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-rose-500">
-                  <Gift className="h-5 w-5 text-white" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500">
+                  <Beer className="h-5 w-5 text-white" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-bold">BuildHub Rewards</div>
-                  <div className="text-[11px] text-white/60">Questions about prizes? Chat with us</div>
+                  <div className="text-sm font-bold text-orange-700">You won today's draw!</div>
+                  <div className="text-[11px] text-orange-600">2 beers waiting · {hoursLeft(activeClaim.expires_at)}h left to claim</div>
                 </div>
-                <ChevronRight className="h-4 w-4 text-white/50" />
+                <span className="rounded-full bg-orange-500 px-3 py-1.5 text-xs font-bold text-white">Claim</span>
               </button>
-            </>
-          )}
-        </div>
+            )}
+
+            {/* BuildHub Rewards chat */}
+            <button
+              onClick={openRewardsChat}
+              className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-zinc-50 p-3 text-left ring-1 ring-zinc-200 active:scale-[0.99]"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-rose-500">
+                <Gift className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="text-sm font-bold">BuildHub Rewards</div>
+                <div className="text-[11px] text-zinc-500">Questions about prizes? Chat with us</div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-zinc-400" />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -244,7 +240,7 @@ function DrawRowItem({ title, sub, count }: { title: string; sub: string; count:
     <div className="flex items-center justify-between">
       <div className="min-w-0">
         <div className="text-sm font-semibold">{title}</div>
-        <div className="text-[11px] text-white/60">{sub}</div>
+        <div className="text-[11px] text-zinc-500">{sub}</div>
       </div>
       <span className="rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white shadow">
         {count} {count === 1 ? "ticket" : "tickets"}
