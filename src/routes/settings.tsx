@@ -25,6 +25,8 @@ import {
   Store,
   Send,
   UserCog,
+  Gift,
+  Ticket,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
@@ -145,6 +147,7 @@ function SettingsPage() {
             <Row to="/profile/portfolio" icon={ImageIcon} iconBg="bg-emerald-100" iconColor="text-emerald-600" label={t("update_profile")} />
           </>
         )}
+        <Row to="/rewards" icon={Gift} iconBg="bg-orange-100" iconColor="text-orange-600" label={lang === "km" ? "BuildHub Rewards" : "BuildHub Rewards"} />
         <Row icon={Lock} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("change_password")} />
         <Row icon={Smartphone} iconBg="bg-slate-200" iconColor="text-slate-700" label={t("change_phone")} />
       </Group>
@@ -204,6 +207,13 @@ function SettingsPage() {
             iconBg="bg-violet-100"
             iconColor="text-violet-600"
             label={t("admin_invitations")}
+          />
+          <Row
+            to="/admin/draws"
+            icon={Ticket}
+            iconBg="bg-orange-100"
+            iconColor="text-orange-600"
+            label={lang === "km" ? "គ្រប់គ្រងការចាប់ឆ្នោត" : "Lottery draws"}
           />
           <Row
             to="/admin/suppliers"
