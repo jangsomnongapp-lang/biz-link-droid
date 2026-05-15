@@ -122,45 +122,33 @@ function RewardsPage() {
               {lang === "km" ? "សំបុត្រសកម្មថ្ងៃនេះ" : "Today's active ticket"} · Boleto activo hoy
             </div>
 
-            {/* Lottery ticket — admin-style dark card */}
-            <div className="mt-2 overflow-hidden rounded-2xl bg-[#1a1530] text-white shadow-xl ring-1 ring-orange-500/40">
-              <div className="border-b border-white/5 px-5 py-3 text-center">
-                <div className="text-base font-bold">{lang === "km" ? "សំបុត្ររបស់អ្នក" : "Your ticket"}</div>
-                <div className="text-[11px] text-zinc-400">{todayLabel}</div>
+            {/* Lottery ticket (yellow) */}
+            <div className="mt-2 overflow-hidden rounded-2xl bg-yellow-300 text-zinc-900 shadow-lg ring-1 ring-orange-200">
+              <div className="flex items-center justify-between bg-orange-500 px-4 py-2 text-white">
+                <span className="text-sm font-bold">{lang === "km" ? "ទាស់លាភ" : "TICKET"}</span>
+                <span className="text-xs font-extrabold tracking-widest">BUILDHUB</span>
               </div>
-
-              <div className="px-5 py-4">
-                <div className="text-center text-[11px] uppercase tracking-widest text-emerald-400">
-                  {ticketNum !== null ? (lang === "km" ? "សំបុត្រសកម្ម" : "Ticket active") : (lang === "km" ? "មិនទាន់ឆែក" : "Not checked in")}
+              <div className="flex items-center gap-3 p-4">
+                <div className="flex-1">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-orange-700">
+                    {lang === "km" ? "លេខសំបុត្រ" : "Ticket Number"}
+                  </div>
+                  <div className="mt-1 font-mono text-4xl font-black text-orange-600">#{ticketDisplay}</div>
+                  <div className="mt-1 text-[11px] text-zinc-700">{todayLabel}</div>
                 </div>
-                <div className="mt-1 text-center font-mono text-5xl font-black text-orange-400">
-                  #{ticketDisplay}
-                </div>
-                <div className="mt-1 text-center text-xs text-zinc-300">BuildHub Rewards</div>
-
-                <div className="mt-4 flex items-center justify-center gap-2">
-                  <span className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold ${
-                    ticketNum !== null ? "bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/40" : "bg-zinc-700/50 text-zinc-300 ring-1 ring-zinc-600"
-                  }`}>
-                    <span className={`h-1.5 w-1.5 rounded-full ${ticketNum !== null ? "bg-emerald-400" : "bg-zinc-400"}`} />
-                    {ticketNum !== null ? "Validated ✓" : "Pending"}
-                  </span>
+                <div className="flex w-24 flex-col items-center rounded-lg bg-yellow-100 p-2 text-center ring-1 ring-orange-300/50">
+                  <Beer className="h-7 w-7 text-orange-500" />
+                  <div className="mt-1 text-[10px] leading-tight text-zinc-700">
+                    Daily $1<br />Weekly $15<br />Monthly $40
+                  </div>
                 </div>
               </div>
-
-              <div className="grid grid-cols-3 divide-x divide-white/5 border-t border-white/5 bg-black/20 text-center text-[11px]">
-                <div className="py-2.5">
-                  <div className="font-bold text-orange-400">Daily</div>
-                  <div className="text-zinc-400">$1</div>
-                </div>
-                <div className="py-2.5">
-                  <div className="font-bold text-orange-400">Weekly</div>
-                  <div className="text-zinc-400">$15</div>
-                </div>
-                <div className="py-2.5">
-                  <div className="font-bold text-orange-400">Monthly</div>
-                  <div className="text-zinc-400">$40</div>
-                </div>
+              <div className="flex items-center justify-between border-t-2 border-dashed border-orange-300 bg-yellow-300 px-4 py-2 text-sm font-bold text-zinc-900">
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-600" />
+                  {ticketNum !== null ? "Validated ✓" : (lang === "km" ? "មិនទាន់ឆែក" : "Not checked in")}
+                </span>
+                <span className="font-mono text-orange-700">#{ticketDisplay}</span>
               </div>
             </div>
 
