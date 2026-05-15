@@ -265,9 +265,6 @@ function AdminDrawsPage() {
         <div className="grid gap-4 md:grid-cols-2">
           {/* LEFT — Profile card */}
           <section>
-            <p className="mb-2 text-center text-xs font-medium text-neutral-500">
-              BuildHub Rewards profile
-            </p>
             <div className="rounded-2xl border-2 border-orange-500/60 bg-white p-4 sm:p-5 shadow-sm">
               <div className="flex justify-end">
                 <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
