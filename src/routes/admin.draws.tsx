@@ -48,12 +48,11 @@ function periodStart(type: string): string {
   if (type === "daily") return now.toISOString().slice(0, 10);
   if (type === "weekly") {
     const d = new Date(now);
-    const day = d.getDay(); // 0 = Sun
-    const diff = (day + 6) % 7; // back to Monday
+    const day = d.getDay();
+    const diff = (day + 6) % 7;
     d.setDate(d.getDate() - diff);
     return d.toISOString().slice(0, 10);
   }
-  // monthly
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
 }
 
@@ -71,7 +70,6 @@ function AdminDrawsPage() {
   const [manualNumber, setManualNumber] = useState("");
   const [pendingClaims, setPendingClaims] = useState<number>(0);
 
-  // The active draw for the currently selected type (today / this week / this month)
   const activeDraw = useMemo(() => {
     const start = periodStart(selectedType);
     return draws.find((d) => d.draw_type === selectedType && d.draw_date === start) ?? null;
@@ -226,17 +224,17 @@ function AdminDrawsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#1a1530] text-sm text-white/70">
+      <div className="min-h-screen flex items-center justify-center bg-white text-sm text-neutral-500">
         Loading…
       </div>
     );
   }
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#1a1530] text-white p-6 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-white text-neutral-900 p-6 text-center">
         <div>
           <p className="font-medium">Admins only.</p>
-          <Link to="/home" className="text-sm text-orange-300 underline mt-2 inline-block">
+          <Link to="/home" className="text-sm text-orange-600 underline mt-2 inline-block">
             Back to home
           </Link>
         </div>
@@ -247,39 +245,41 @@ function AdminDrawsPage() {
   const recent = draws.slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-[#1a1530] text-white">
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-white/10 bg-[#1a1530]/95 px-4 py-3 backdrop-blur">
-        <Link to="/home" className="rounded-full p-1.5 hover:bg-white/10">
+    <div className="min-h-screen bg-white text-neutral-900">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-neutral-200 bg-white/95 px-3 sm:px-4 py-3 backdrop-blur">
+        <Link to="/home" className="rounded-full p-1.5 hover:bg-neutral-100">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="flex-1 text-base font-semibold">BuildHub Rewards</h1>
+        <h1 className="flex-1 text-sm sm:text-base font-semibold truncate">BuildHub Rewards</h1>
         <button
           onClick={ensureScheduled}
-          className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold hover:bg-white/15"
+          className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-semibold hover:bg-neutral-200"
         >
-          <RefreshCw className="h-3.5 w-3.5" /> Sync schedule
+          <RefreshCw className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Sync schedule</span>
+          <span className="sm:hidden">Sync</span>
         </button>
       </header>
 
-      <main className="mx-auto max-w-5xl p-4 md:p-6">
+      <main className="mx-auto w-full max-w-5xl p-3 sm:p-4 md:p-6">
         <div className="grid gap-4 md:grid-cols-2">
           {/* LEFT — Profile card */}
           <section>
-            <p className="mb-2 text-center text-xs font-medium text-white/60">
+            <p className="mb-2 text-center text-xs font-medium text-neutral-500">
               BuildHub Rewards profile
             </p>
-            <div className="rounded-2xl border-2 border-orange-500/60 bg-[#231a3d] p-5 shadow-xl">
+            <div className="rounded-2xl border-2 border-orange-500/60 bg-white p-4 sm:p-5 shadow-sm">
               <div className="flex justify-end">
-                <span className="rounded-full bg-orange-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-300">
+                <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
                   Admin
                 </span>
               </div>
               <div className="-mt-4 flex flex-col items-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-orange-500/90 text-3xl shadow-lg">
+                <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-orange-500 text-2xl sm:text-3xl shadow-md">
                   🎁
                 </div>
-                <h2 className="mt-3 text-lg font-bold">BuildHub Rewards</h2>
-                <p className="text-xs text-orange-300">Official prize account</p>
+                <h2 className="mt-3 text-base sm:text-lg font-bold">BuildHub Rewards</h2>
+                <p className="text-xs text-orange-600">Official prize account</p>
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
@@ -307,12 +307,12 @@ function AdminDrawsPage() {
                   badge={pendingClaims > 0 ? `${pendingClaims}` : undefined}
                   to="/admin/posts"
                 />
-                <div className="rounded-xl border-2 border-orange-500/60 bg-[#1a1530] p-3">
+                <div className="rounded-xl border-2 border-orange-500/60 bg-orange-50 p-3">
                   <div className="flex items-center gap-2.5">
-                    <Trophy className="h-4 w-4 text-orange-400" />
+                    <Trophy className="h-4 w-4 text-orange-600" />
                     <div className="flex-1">
-                      <div className="text-sm font-semibold text-orange-300">Run draw</div>
-                      <div className="text-[11px] text-white/50">Daily · Weekly · Monthly</div>
+                      <div className="text-sm font-semibold text-orange-700">Run draw</div>
+                      <div className="text-[11px] text-neutral-500">Daily · Weekly · Monthly</div>
                     </div>
                   </div>
                 </div>
@@ -322,17 +322,17 @@ function AdminDrawsPage() {
 
           {/* RIGHT — Run draw panel */}
           <section>
-            <p className="mb-2 text-center text-xs font-medium text-white/60">Run draw panel</p>
-            <div className="rounded-2xl border border-white/10 bg-[#231a3d] p-5 shadow-xl">
+            <p className="mb-2 text-center text-xs font-medium text-neutral-500">Run draw panel</p>
+            <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-sm">
               <div className="text-center">
                 <h3 className="text-base font-bold">Run draw</h3>
-                <p className="text-[11px] text-white/50">
+                <p className="text-[11px] text-neutral-500">
                   {activeDraw ? activeDraw.prize_title : "Select draw type first"}
                 </p>
               </div>
 
               <div className="mt-4">
-                <p className="text-[11px] uppercase tracking-wide text-white/50">Draw type</p>
+                <p className="text-[11px] uppercase tracking-wide text-neutral-500">Draw type</p>
                 <div className="mt-2 space-y-2">
                   {(["daily", "weekly", "monthly"] as const).map((t) => {
                     const meta = DRAW_META[t];
@@ -343,8 +343,8 @@ function AdminDrawsPage() {
                         onClick={() => setSelectedType(t)}
                         className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
                           isActive
-                            ? "bg-orange-500 text-white shadow-md"
-                            : "bg-[#1a1530] text-white/80 hover:bg-[#1a1530]/70"
+                            ? "bg-orange-500 text-white shadow-sm"
+                            : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
                         }`}
                       >
                         <span>{meta.emoji}</span>
@@ -357,43 +357,36 @@ function AdminDrawsPage() {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-xl bg-[#1a1530] p-4 text-center">
-                <p className="text-[11px] uppercase tracking-wide text-white/50">
+              <div className="mt-4 rounded-xl bg-neutral-50 border border-neutral-200 p-4 text-center">
+                <p className="text-[11px] uppercase tracking-wide text-neutral-500">
                   Active participants
                 </p>
-                <p className="mt-1 text-3xl font-extrabold text-white">{participants}</p>
-                <p className="text-[11px] text-white/50">tickets in this draw</p>
+                <p className="mt-1 text-3xl font-extrabold text-neutral-900">{participants}</p>
+                <p className="text-[11px] text-neutral-500">tickets in this draw</p>
               </div>
 
               <button
                 onClick={autoDraw}
                 disabled={busy || !activeDraw || activeDraw.status !== "scheduled"}
-                className="mt-4 flex w-full flex-col items-center rounded-xl bg-orange-500 px-3 py-3 text-sm font-bold text-white shadow-md transition hover:bg-orange-400 disabled:opacity-50"
+                className="mt-4 flex w-full flex-col items-center rounded-xl bg-orange-500 px-3 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-orange-400 disabled:opacity-50"
               >
                 <span className="flex items-center gap-2">
                   <Dice5 className="h-4 w-4" /> Auto draw
                 </span>
-                <span className="text-[11px] font-medium text-white/80">
+                <span className="text-[11px] font-medium text-white/90">
                   Random winner selected
                 </span>
               </button>
 
               {activeDraw?.status === "drawn" && winnerName && (
-                <div className="mt-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-center">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
+                <div className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-center">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
                     Winner selected
                   </p>
-                  <p className="mt-1 text-2xl font-extrabold text-white">
+                  <p className="mt-1 text-xl sm:text-2xl font-extrabold text-neutral-900 break-words">
                     {activeDraw.winning_ticket_id ? "🎉" : ""} {winnerName}
                   </p>
                   <div className="mt-3 flex items-center justify-center gap-2">
-                    <button
-                      onClick={autoDraw}
-                      disabled
-                      className="rounded-md bg-rose-900/60 px-3 py-1 text-xs font-semibold text-rose-200 opacity-70"
-                    >
-                      Retry
-                    </button>
                     <span className="rounded-md bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
                       <Sparkles className="mr-1 inline h-3 w-3" />
                       Drawn ✓
@@ -403,22 +396,22 @@ function AdminDrawsPage() {
               )}
 
               <div className="mt-5">
-                <p className="text-[11px] text-white/50">Or enter manually</p>
-                <div className="mt-2 flex items-center gap-2 rounded-xl bg-[#1a1530] px-3 py-2">
-                  <span className="text-white/40">#</span>
+                <p className="text-[11px] text-neutral-500">Or enter manually</p>
+                <div className="mt-2 flex items-center gap-2 rounded-xl bg-neutral-100 px-3 py-2">
+                  <span className="text-neutral-400">#</span>
                   <input
                     type="number"
                     inputMode="numeric"
                     placeholder="Ticket number"
                     value={manualNumber}
                     onChange={(e) => setManualNumber(e.target.value)}
-                    className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+                    className="w-full bg-transparent text-sm text-neutral-900 outline-none placeholder:text-neutral-400"
                   />
                 </div>
                 <button
                   onClick={setManualWinner}
                   disabled={busy || !manualNumber || !activeDraw}
-                  className="mt-3 w-full rounded-xl border-2 border-orange-500/60 px-3 py-2.5 text-sm font-semibold text-orange-300 hover:bg-orange-500/10 disabled:opacity-50"
+                  className="mt-3 w-full rounded-xl border-2 border-orange-500/60 px-3 py-2.5 text-sm font-semibold text-orange-600 hover:bg-orange-50 disabled:opacity-50"
                 >
                   Set manual winner
                 </button>
@@ -429,42 +422,42 @@ function AdminDrawsPage() {
 
         {/* Recent draws */}
         <section className="mt-6">
-          <h3 className="mb-2 text-sm font-semibold text-white/80">Recent draws</h3>
+          <h3 className="mb-2 text-sm font-semibold text-neutral-700">Recent draws</h3>
           {recent.length === 0 && (
-            <div className="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-white/50">
+            <div className="rounded-xl border border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500">
               <CalendarIcon className="mx-auto mb-2 h-5 w-5" />
-              No draws yet — tap “Sync schedule”.
+              No draws yet — tap "Sync schedule".
             </div>
           )}
           <div className="space-y-2">
             {recent.map((d) => (
               <div
                 key={d.id}
-                className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#231a3d] p-3"
+                className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3 shadow-sm"
               >
-                <Gift className="h-4 w-4 text-orange-400" />
-                <div className="flex-1">
-                  <div className="text-sm font-semibold capitalize">
+                <Gift className="h-4 w-4 shrink-0 text-orange-500" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold capitalize truncate">
                     {d.draw_type}{" "}
-                    <span className="text-xs font-normal text-white/50">· {d.draw_date}</span>
+                    <span className="text-xs font-normal text-neutral-500">· {d.draw_date}</span>
                   </div>
-                  <div className="text-xs text-white/60">{d.prize_title}</div>
+                  <div className="text-xs text-neutral-600 truncate">{d.prize_title}</div>
                   {d.winner_user_id && (
-                    <div className="text-[11px] text-white/50">
+                    <div className="text-[11px] text-neutral-500 truncate">
                       Winner:{" "}
-                      <span className="font-medium text-white/80">
+                      <span className="font-medium text-neutral-800">
                         {winners[d.winner_user_id]?.full_name ?? d.winner_user_id.slice(0, 8)}
                       </span>
                     </div>
                   )}
                 </div>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                     d.status === "drawn"
-                      ? "bg-emerald-500/20 text-emerald-300"
+                      ? "bg-emerald-100 text-emerald-700"
                       : d.status === "no_entries"
-                        ? "bg-white/10 text-white/60"
-                        : "bg-orange-500/20 text-orange-300"
+                        ? "bg-neutral-100 text-neutral-600"
+                        : "bg-orange-100 text-orange-700"
                   }`}
                 >
                   {d.status}
@@ -480,9 +473,9 @@ function AdminDrawsPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl bg-[#1a1530] p-3 text-center">
-      <p className="text-2xl font-extrabold text-orange-400">{value}</p>
-      <p className="text-[11px] text-white/60">{label}</p>
+    <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-3 text-center">
+      <p className="text-2xl font-extrabold text-orange-600">{value}</p>
+      <p className="text-[11px] text-neutral-600">{label}</p>
     </div>
   );
 }
@@ -507,20 +500,20 @@ function ActionRow({
       className={`flex items-center gap-2.5 rounded-xl p-3 transition ${
         highlight
           ? "bg-orange-500 text-white hover:bg-orange-400"
-          : "bg-[#1a1530] text-white/85 hover:bg-[#1a1530]/70"
+          : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200"
       }`}
     >
-      <span className={highlight ? "text-white" : "text-white/70"}>{icon}</span>
-      <div className="flex-1">
-        <div className="text-sm font-semibold">{title}</div>
+      <span className={highlight ? "text-white" : "text-neutral-600"}>{icon}</span>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold truncate">{title}</div>
         {subtitle && (
-          <div className={`text-[11px] ${highlight ? "text-white/85" : "text-white/50"}`}>
+          <div className={`text-[11px] truncate ${highlight ? "text-white/85" : "text-neutral-500"}`}>
             {subtitle}
           </div>
         )}
       </div>
       {badge && (
-        <span className="rounded-full bg-orange-500/90 px-2 py-0.5 text-[10px] font-bold text-white">
+        <span className="shrink-0 rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-bold text-white">
           {badge}
         </span>
       )}
