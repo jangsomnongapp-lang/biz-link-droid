@@ -232,7 +232,7 @@ function AdminDrawsPage() {
         <Link to="/home" className="rounded-full p-1.5 hover:bg-neutral-100">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="flex-1 text-sm sm:text-base font-semibold truncate">BuildHub Rewards</h1>
+        <div className="flex-1" />
         <button
           onClick={ensureScheduled}
           className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-semibold hover:bg-neutral-200"
