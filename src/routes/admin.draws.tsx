@@ -275,8 +275,6 @@ function AdminDrawsPage() {
                 <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-orange-500 text-2xl sm:text-3xl shadow-md">
                   🎁
                 </div>
-                <h2 className="mt-3 text-base sm:text-lg font-bold">BuildHub Rewards</h2>
-                <p className="text-xs text-orange-600">Official prize account</p>
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
