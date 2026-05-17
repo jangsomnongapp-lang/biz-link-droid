@@ -30,6 +30,7 @@ function NewPostPage() {
   const { t } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
+  const qc = useQueryClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [content, setContent] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
@@ -37,15 +38,30 @@ function NewPostPage() {
   const [submitting, setSubmitting] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
+  useQuery({
+    queryKey: ["profile:announce", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url, is_provider, is_coordinator, is_organization, is_client")
+        .eq("id", user!.id)
+        .maybeSingle();
+      setProfile(data as Profile | null);
+      return true;
+    },
+  });
+
   useEffect(() => {
     if (!user) return;
-    void supabase
-      .from("profiles")
-      .select("full_name, avatar_url, is_provider, is_coordinator, is_organization, is_client")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setProfile(data));
-  }, [user]);
+    const inv = () => qc.invalidateQueries({ queryKey: ["profile:announce", user.id] });
+    const ch = supabase
+      .channel(`profile-announce:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter: `id=eq.${user.id}` }, inv)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
 
   function pickFile() {
     fileInput.current?.click();
