@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -49,6 +50,7 @@ function ProfilePage() {
   const { t, lang } = useI18n();
   const { user, signOut } = useAuth();
   const nav = useNavigate();
+  const qc = useQueryClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cats, setCats] = useState<{ name_en: string; name_km: string }[]>([]);
   const [stats, setStats] = useState({ posted: 0, applied: 0, contacts: 0 });
@@ -148,7 +150,34 @@ function ProfilePage() {
       setUploadingAvatar(false);
     }
   }
+  useQuery({
+    queryKey: ["profile:page", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => {
+      if (!user) return true;
+      await loadProfile();
+      return true;
+    },
+  });
+
   useEffect(() => {
+    if (!user) return;
+    const inv = () => qc.invalidateQueries({ queryKey: ["profile:page", user.id] });
+    const ch = supabase
+      .channel(`profile-page:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter: `id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "user_categories", filter: `user_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "listings", filter: `user_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "applications", filter: `applicant_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "portfolio_photos", filter: `user_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_listings", filter: `user_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, inv)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
+
+  async function loadProfile() {
     if (!user) return;
     void supabase
       .from("supplier_stores")
@@ -227,7 +256,7 @@ function ProfilePage() {
         })),
       );
     })();
-  }, [user]);
+  }
 
   const roleLabels: string[] = [];
   if (profile?.is_provider) roleLabels.push(t("role_provider"));

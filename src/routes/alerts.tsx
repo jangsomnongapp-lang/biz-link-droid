@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -36,15 +37,18 @@ interface Notif {
 function AlertsPage() {
   const { t } = useI18n();
   const { user } = useAuth();
+  const qc = useQueryClient();
   const [items, setItems] = useState<Notif[]>([]);
 
-  useEffect(() => {
-    if (!user) return;
-    void (async () => {
+  useQuery({
+    queryKey: ["notifications", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => {
       const { data } = await supabase
         .from("notifications")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       const rows = (data ?? []) as Notif[];
       const userIds = Array.from(new Set(rows.map((r) => r.related_user_id).filter(Boolean) as string[]));
@@ -62,8 +66,19 @@ function AlertsPage() {
         }
       }
       setItems(rows);
-    })();
-  }, [user]);
+      return true;
+    },
+  });
+
+  useEffect(() => {
+    if (!user) return;
+    const inv = () => qc.invalidateQueries({ queryKey: ["notifications", user.id] });
+    const ch = supabase
+      .channel(`notifications:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, inv)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
 
   async function markAllRead() {
     if (!user) return;

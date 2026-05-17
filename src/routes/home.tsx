@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -79,11 +80,11 @@ function HomePage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
+  const qc = useQueryClient();
   const { post: focusPostId } = Route.useSearch();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [stories, setStories] = useState<StoryGroup[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
@@ -96,6 +97,29 @@ function HomePage() {
   const [rentalCommentCounts, setRentalCommentCounts] = useState<Record<string, number>>({});
   const [openRentalComments, setOpenRentalComments] = useState<string | null>(null);
 
+  const { isLoading: loading } = useQuery({
+    queryKey: ["home:feed", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => { await loadFeed(); return true; },
+  });
+
+  useEffect(() => {
+    if (!user) return;
+    const inv = () => qc.invalidateQueries({ queryKey: ["home:feed", user.id] });
+    const ch = supabase
+      .channel(`home-feed:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_listings" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_likes" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_comments" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_likes" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_comments" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "stories" }, inv)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
+
   useEffect(() => {
     if (!focusPostId || loading) return;
     const el = document.getElementById(`post-${focusPostId}`);
@@ -107,7 +131,7 @@ function HomePage() {
     }
   }, [focusPostId, loading]);
 
-  useEffect(() => {
+  async function loadFeed() {
     if (!user) return;
     void supabase
       .from("profiles")
@@ -138,7 +162,7 @@ function HomePage() {
       setPosts(rows);
       const rentalRows = (rentalData as RentalRow[] | null) ?? [];
       setRentals(rentalRows);
-      setLoading(false);
+      
 
       if (rentalRows.length > 0) {
         const rIds = rentalRows.map((r) => r.id);
@@ -236,7 +260,7 @@ function HomePage() {
         }
         setStories(Array.from(map.values()));
       });
-  }, [user]);
+  }
 
   async function adminDelete(id: string) {
     if (!confirm(t("admin_confirm_desc"))) return;

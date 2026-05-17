@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -35,33 +36,44 @@ interface ListingRow {
 function ListingsPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
+  const qc = useQueryClient();
   const [listings, setListings] = useState<ListingRow[]>([]);
-  const [loading, setLoading] = useState(true);
   const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
 
+  const { isLoading: loading } = useQuery({
+    queryKey: ["listings:index", user?.id ?? null],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("listings")
+        .select(
+          "id, user_id, title, description, budget, location, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km))"
+        )
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      setListings((data as ListingRow[] | null) ?? []);
+      if (user) {
+        const { data: apps } = await supabase
+          .from("applications")
+          .select("listing_id")
+          .eq("applicant_id", user.id);
+        if (apps) setAppliedIds(new Set(apps.map((r) => r.listing_id)));
+      }
+      return true;
+    },
+  });
+
   useEffect(() => {
-    void supabase
-      .from("listings")
-      .select(
-        "id, user_id, title, description, budget, location, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km))"
-      )
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .then(({ data }) => {
-        setListings((data as ListingRow[] | null) ?? []);
-        setLoading(false);
-      });
-    if (user) {
-      void supabase
-        .from("applications")
-        .select("listing_id")
-        .eq("applicant_id", user.id)
-        .then(({ data }) => {
-          if (data) setAppliedIds(new Set(data.map((r) => r.listing_id)));
-        });
-    }
-  }, [user]);
+    if (!user) return;
+    const inv = () => qc.invalidateQueries({ queryKey: ["listings:index", user.id] });
+    const ch = supabase
+      .channel(`listings-index:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "listings" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "applications", filter: `applicant_id=eq.${user.id}` }, inv)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
 
   async function apply(listingId: string) {
     if (!user) return;
