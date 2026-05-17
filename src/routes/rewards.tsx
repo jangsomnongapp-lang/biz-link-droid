@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -25,32 +26,46 @@ function RewardsPage() {
   const { user } = useAuth();
   const { lang } = useI18n();
   const nav = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [streak, setStreak] = useState<Streak>({ current_streak: 0, longest_streak: 0, last_check_date: null });
-  const [tickets, setTickets] = useState<TicketRow[]>([]);
-  const [upcoming, setUpcoming] = useState<DrawRow[]>([]);
-  const [claims, setClaims] = useState<ClaimRow[]>([]);
+  const qc = useQueryClient();
+
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["rewards", user?.id],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const uid = user!.id;
+      const [str, tix, draws, cl] = await Promise.all([
+        supabase.from("streak_tracker").select("*").eq("user_id", uid).maybeSingle(),
+        supabase.from("lottery_tickets").select("*").eq("user_id", uid).eq("status", "active").order("created_at", { ascending: false }),
+        supabase.from("lottery_draws").select("*").eq("status", "scheduled").order("draw_date").limit(5),
+        supabase.from("prize_claims").select("*").eq("winner_id", uid).order("created_at", { ascending: false }),
+      ]);
+      return {
+        streak: (str.data as Streak | null) ?? { current_streak: 0, longest_streak: 0, last_check_date: null },
+        tickets: (tix.data ?? []) as TicketRow[],
+        upcoming: (draws.data ?? []) as DrawRow[],
+        claims: (cl.data ?? []) as ClaimRow[],
+      };
+    },
+  });
+
+  const streak = data?.streak ?? { current_streak: 0, longest_streak: 0, last_check_date: null };
+  const tickets = data?.tickets ?? [];
+  const upcoming = data?.upcoming ?? [];
+  const claims = data?.claims ?? [];
 
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      if (!user) return;
-      const [str, tix, draws, cl] = await Promise.all([
-        supabase.from("streak_tracker").select("*").eq("user_id", user.id).maybeSingle(),
-        supabase.from("lottery_tickets").select("*").eq("user_id", user.id).eq("status", "active").order("created_at", { ascending: false }),
-        supabase.from("lottery_draws").select("*").eq("status", "scheduled").order("draw_date").limit(5),
-        supabase.from("prize_claims").select("*").eq("winner_id", user.id).order("created_at", { ascending: false }),
-      ]);
-      if (cancelled) return;
-      if (str.data) setStreak(str.data as Streak);
-      setTickets((tix.data ?? []) as TicketRow[]);
-      setUpcoming((draws.data ?? []) as DrawRow[]);
-      setClaims((cl.data ?? []) as ClaimRow[]);
-      setLoading(false);
-    }
-    void load();
-    return () => { cancelled = true; };
-  }, [user]);
+    if (!user) return;
+    const invalidate = () => qc.invalidateQueries({ queryKey: ["rewards", user.id] });
+    const ch = supabase
+      .channel(`rewards:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "streak_tracker", filter: `user_id=eq.${user.id}` }, invalidate)
+      .on("postgres_changes", { event: "*", schema: "public", table: "lottery_tickets", filter: `user_id=eq.${user.id}` }, invalidate)
+      .on("postgres_changes", { event: "*", schema: "public", table: "lottery_draws" }, invalidate)
+      .on("postgres_changes", { event: "*", schema: "public", table: "prize_claims", filter: `winner_id=eq.${user.id}` }, invalidate)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
 
   const today = todayISO();
   const todaysTicket = tickets.find((t) => t.ticket_type === "daily" && t.draw_period_start === today);
