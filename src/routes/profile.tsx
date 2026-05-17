@@ -50,6 +50,7 @@ function ProfilePage() {
   const { t, lang } = useI18n();
   const { user, signOut } = useAuth();
   const nav = useNavigate();
+  const qc = useQueryClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cats, setCats] = useState<{ name_en: string; name_km: string }[]>([]);
   const [stats, setStats] = useState({ posted: 0, applied: 0, contacts: 0 });
