@@ -150,7 +150,34 @@ function ProfilePage() {
       setUploadingAvatar(false);
     }
   }
+  useQuery({
+    queryKey: ["profile:page", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => {
+      if (!user) return true;
+      await loadProfile();
+      return true;
+    },
+  });
+
   useEffect(() => {
+    if (!user) return;
+    const inv = () => qc.invalidateQueries({ queryKey: ["profile:page", user.id] });
+    const ch = supabase
+      .channel(`profile-page:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter: `id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "user_categories", filter: `user_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "listings", filter: `user_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "applications", filter: `applicant_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "portfolio_photos", filter: `user_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_listings", filter: `user_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, inv)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
+
+  async function loadProfile() {
     if (!user) return;
     void supabase
       .from("supplier_stores")
@@ -229,7 +256,7 @@ function ProfilePage() {
         })),
       );
     })();
-  }, [user]);
+  }
 
   const roleLabels: string[] = [];
   if (profile?.is_provider) roleLabels.push(t("role_provider"));
