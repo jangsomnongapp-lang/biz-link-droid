@@ -162,7 +162,7 @@ function HomePage() {
       setPosts(rows);
       const rentalRows = (rentalData as RentalRow[] | null) ?? [];
       setRentals(rentalRows);
-      setLoading(false);
+      
 
       if (rentalRows.length > 0) {
         const rIds = rentalRows.map((r) => r.id);
