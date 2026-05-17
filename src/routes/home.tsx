@@ -108,7 +108,30 @@ function HomePage() {
     }
   }, [focusPostId, loading]);
 
+  const { isLoading: loading } = useQuery({
+    queryKey: ["home:feed", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => { await loadFeed(); return true; },
+  });
+
   useEffect(() => {
+    if (!user) return;
+    const inv = () => qc.invalidateQueries({ queryKey: ["home:feed", user.id] });
+    const ch = supabase
+      .channel(`home-feed:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_listings" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_likes" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_comments" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_likes" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_comments" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "stories" }, inv)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
+
+  async function loadFeed() {
     if (!user) return;
     void supabase
       .from("profiles")
