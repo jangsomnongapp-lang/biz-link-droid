@@ -97,17 +97,6 @@ function HomePage() {
   const [rentalCommentCounts, setRentalCommentCounts] = useState<Record<string, number>>({});
   const [openRentalComments, setOpenRentalComments] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!focusPostId || loading) return;
-    const el = document.getElementById(`post-${focusPostId}`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      setHighlightId(focusPostId);
-      const tid = setTimeout(() => setHighlightId(null), 2200);
-      return () => clearTimeout(tid);
-    }
-  }, [focusPostId, loading]);
-
   const { isLoading: loading } = useQuery({
     queryKey: ["home:feed", user?.id ?? null],
     enabled: !!user,
@@ -130,6 +119,17 @@ function HomePage() {
       .subscribe();
     return () => { void supabase.removeChannel(ch); };
   }, [user, qc]);
+
+  useEffect(() => {
+    if (!focusPostId || loading) return;
+    const el = document.getElementById(`post-${focusPostId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightId(focusPostId);
+      const tid = setTimeout(() => setHighlightId(null), 2200);
+      return () => clearTimeout(tid);
+    }
+  }, [focusPostId, loading]);
 
   async function loadFeed() {
     if (!user) return;
