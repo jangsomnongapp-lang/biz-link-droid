@@ -260,7 +260,7 @@ function HomePage() {
         }
         setStories(Array.from(map.values()));
       });
-  }, [user]);
+  }
 
   async function adminDelete(id: string) {
     if (!confirm(t("admin_confirm_desc"))) return;
