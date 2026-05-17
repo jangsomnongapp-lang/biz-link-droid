@@ -55,16 +55,32 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 30_000,
+            gcTime: 5 * 60_000,
+            refetchOnWindowFocus: true,
+            refetchOnReconnect: true,
+            retry: 1,
+          },
+        },
+      }),
+  );
   return (
-    <I18nProvider>
-      <AuthProvider>
-        <div className="mx-auto min-h-screen max-w-[480px] bg-background">
-          <Outlet />
-        </div>
-        <DailyTicketGate />
-        <Toaster position="top-center" />
-      </AuthProvider>
-    </I18nProvider>
+    <QueryClientProvider client={queryClient}>
+      <I18nProvider>
+        <AuthProvider>
+          <div className="mx-auto min-h-screen max-w-[480px] bg-background">
+            <Outlet />
+          </div>
+          <DailyTicketGate />
+          <Toaster position="top-center" />
+        </AuthProvider>
+      </I18nProvider>
+    </QueryClientProvider>
   );
 }
 
