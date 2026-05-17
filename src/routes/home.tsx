@@ -80,11 +80,11 @@ function HomePage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
+  const qc = useQueryClient();
   const { post: focusPostId } = Route.useSearch();
   const [profile, setProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [stories, setStories] = useState<StoryGroup[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
