@@ -18,6 +18,10 @@ export function Avatar({
       <img
         src={url}
         alt={name ?? ""}
+        loading="lazy"
+        decoding="async"
+        width={size}
+        height={size}
         style={{ width: sz, height: sz }}
         className={`shrink-0 rounded-full object-cover ${className}`}
       />

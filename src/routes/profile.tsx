@@ -403,7 +403,7 @@ function ProfilePage() {
         ) : (
           <div className="grid grid-cols-3 gap-1.5">
             {(showAllPortfolio ? portfolio : portfolio.slice(0, 6)).map((p) => (
-              <img key={p.id} src={p.photo_url} className="aspect-square w-full rounded-lg object-cover" alt="" />
+              <img key={p.id} src={p.photo_url} loading="lazy" decoding="async" className="aspect-square w-full rounded-lg object-cover" alt="" />
             ))}
           </div>
         )}
