@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -97,16 +97,225 @@ function HomePage() {
   const [rentalCommentCounts, setRentalCommentCounts] = useState<Record<string, number>>({});
   const [openRentalComments, setOpenRentalComments] = useState<string | null>(null);
 
-  const { isLoading: loading } = useQuery({
+  // Profile + stories load once per user (cheap, separate from paginated feed)
+  useQuery({
+    queryKey: ["home:profile", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url, is_admin")
+        .eq("id", user!.id)
+        .maybeSingle();
+      setProfile(data);
+      setIsAdmin(!!data?.is_admin);
+      return data ?? null;
+    },
+  });
+
+  useQuery({
+    queryKey: ["home:stories"],
+    enabled: !!user,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("stories")
+        .select("id, user_id, media_url, created_at, profiles(full_name, avatar_url)")
+        .eq("status", "approved")
+        .gt("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: false })
+        .limit(50);
+      const rows = (data as StoryRow[] | null) ?? [];
+      const map = new Map<string, StoryGroup>();
+      for (const r of rows) {
+        if (!map.has(r.user_id)) {
+          map.set(r.user_id, {
+            id: r.id,
+            user_id: r.user_id,
+            full_name: r.profiles?.full_name ?? null,
+            avatar_url: r.profiles?.avatar_url ?? null,
+            cover: r.media_url,
+          });
+        }
+      }
+      setStories(Array.from(map.values()));
+      return rows;
+    },
+  });
+
+  // Paginated feed: 20 posts + 20 rentals per page, merged client-side
+  const PAGE_SIZE = 20;
+  const feedQuery = useInfiniteQuery({
     queryKey: ["home:feed", user?.id ?? null],
     enabled: !!user,
     staleTime: 30_000,
-    queryFn: async () => { await loadFeed(); return true; },
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
+      const from = (pageParam as number) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      const [{ data: postsData }, { data: rentalsData }] = await Promise.all([
+        supabase
+          .from("posts")
+          .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured), post_photos(photo_url)")
+          .eq("status", "approved")
+          .order("created_at", { ascending: false })
+          .range(from, to),
+        supabase
+          .from("rental_listings")
+          .select("id, user_id, title, description, category, price_per_day, location, availability, available_from, created_at, profiles(full_name, avatar_url), rental_photos(photo_url)")
+          .eq("status", "approved")
+          .order("created_at", { ascending: false })
+          .range(from, to),
+      ]);
+      const postRows = (postsData as PostRow[] | null) ?? [];
+      const rentalRows = (rentalsData as RentalRow[] | null) ?? [];
+
+      // Build auxiliary maps scoped to this page's IDs
+      const likeMap: Record<string, { count: number; mine: boolean }> = {};
+      const cMap: Record<string, number> = {};
+      const rLikeMap: Record<string, { count: number; mine: boolean }> = {};
+      const rcMap: Record<string, number> = {};
+      const supplierMap: Record<string, SupplierStoreInfo> = {};
+
+      const auxTasks: Array<Promise<unknown>> = [];
+
+      if (postRows.length > 0) {
+        const ids = postRows.map((p) => p.id);
+        for (const id of ids) {
+          likeMap[id] = { count: 0, mine: false };
+          cMap[id] = 0;
+        }
+        auxTasks.push(
+          (async () => {
+            const [{ data: likeRows }, { data: commentRows }] = await Promise.all([
+              supabase.from("post_likes").select("post_id, user_id").in("post_id", ids),
+              supabase.from("post_comments").select("post_id").in("post_id", ids),
+            ]);
+            for (const r of likeRows ?? []) {
+              const e = likeMap[r.post_id];
+              if (!e) continue;
+              e.count += 1;
+              if (r.user_id === user!.id) e.mine = true;
+            }
+            for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
+          })(),
+        );
+
+        const userIds = Array.from(new Set(postRows.map((p) => p.user_id)));
+        auxTasks.push(
+          (async () => {
+            const { data: stores } = await supabase
+              .from("supplier_stores")
+              .select("id, user_id, name, logo_url, supplier_store_categories(supplier_categories(name_en, name_km)), supplier_store_photos(photo_url, sort_order)")
+              .in("user_id", userIds);
+            for (const s of (stores ?? []) as Array<{
+              id: string;
+              user_id: string;
+              name: string;
+              logo_url: string | null;
+              supplier_store_categories: Array<{ supplier_categories: { name_en: string; name_km: string } | null }>;
+              supplier_store_photos: Array<{ photo_url: string; sort_order: number | null }>;
+            }>) {
+              const catObj = s.supplier_store_categories?.[0]?.supplier_categories ?? null;
+              const photos = (s.supplier_store_photos ?? [])
+                .slice()
+                .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+                .map((p) => p.photo_url);
+              supplierMap[s.user_id] = {
+                id: s.id,
+                name: s.name,
+                logo_url: s.logo_url,
+                category: catObj ? (lang === "km" ? catObj.name_km : catObj.name_en) : null,
+                photos,
+              };
+            }
+          })(),
+        );
+      }
+
+      if (rentalRows.length > 0) {
+        const rIds = rentalRows.map((r) => r.id);
+        for (const id of rIds) {
+          rLikeMap[id] = { count: 0, mine: false };
+          rcMap[id] = 0;
+        }
+        auxTasks.push(
+          (async () => {
+            const [{ data: rLikeRows }, { data: rCommentRows }] = await Promise.all([
+              supabase.from("rental_likes").select("rental_id, user_id").in("rental_id", rIds),
+              supabase.from("rental_comments").select("rental_id").in("rental_id", rIds),
+            ]);
+            for (const r of rLikeRows ?? []) {
+              const e = rLikeMap[r.rental_id];
+              if (!e) continue;
+              e.count += 1;
+              if (r.user_id === user!.id) e.mine = true;
+            }
+            for (const r of rCommentRows ?? []) rcMap[r.rental_id] = (rcMap[r.rental_id] ?? 0) + 1;
+          })(),
+        );
+      }
+
+      await Promise.all(auxTasks);
+
+      return {
+        posts: postRows,
+        rentals: rentalRows,
+        likes: likeMap,
+        commentCounts: cMap,
+        rentalLikes: rLikeMap,
+        rentalCommentCounts: rcMap,
+        supplierByUser: supplierMap,
+      };
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      // If either bucket returned a full page, assume more items exist
+      if (lastPage.posts.length === PAGE_SIZE || lastPage.rentals.length === PAGE_SIZE) {
+        return allPages.length;
+      }
+      return undefined;
+    },
   });
 
+  const loading = feedQuery.isLoading;
+
+  // Sync paginated query data into existing component state (preserves
+  // optimistic-update logic for likes/comment counts).
+  useEffect(() => {
+    if (!feedQuery.data) return;
+    const pages = feedQuery.data.pages;
+    setPosts(pages.flatMap((p) => p.posts));
+    setRentals(pages.flatMap((p) => p.rentals));
+    setLikes(Object.assign({}, ...pages.map((p) => p.likes)));
+    setCommentCounts(Object.assign({}, ...pages.map((p) => p.commentCounts)));
+    setRentalLikes(Object.assign({}, ...pages.map((p) => p.rentalLikes)));
+    setRentalCommentCounts(Object.assign({}, ...pages.map((p) => p.rentalCommentCounts)));
+    setSupplierByUser(Object.assign({}, ...pages.map((p) => p.supplierByUser)));
+  }, [feedQuery.data]);
+
+  // IntersectionObserver sentinel: fetch next page when bottom comes into view
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && feedQuery.hasNextPage && !feedQuery.isFetchingNextPage) {
+          void feedQuery.fetchNextPage();
+        }
+      },
+      { rootMargin: "400px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [feedQuery.hasNextPage, feedQuery.isFetchingNextPage, feedQuery]);
+
+  // Realtime: invalidate paginated feed when relevant tables change
   useEffect(() => {
     if (!user) return;
     const inv = () => qc.invalidateQueries({ queryKey: ["home:feed", user.id] });
+    const invStories = () => qc.invalidateQueries({ queryKey: ["home:stories"] });
     const ch = supabase
       .channel(`home-feed:${user.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, inv)
@@ -115,11 +324,12 @@ function HomePage() {
       .on("postgres_changes", { event: "*", schema: "public", table: "post_comments" }, inv)
       .on("postgres_changes", { event: "*", schema: "public", table: "rental_likes" }, inv)
       .on("postgres_changes", { event: "*", schema: "public", table: "rental_comments" }, inv)
-      .on("postgres_changes", { event: "*", schema: "public", table: "stories" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "stories" }, invStories)
       .subscribe();
     return () => { void supabase.removeChannel(ch); };
   }, [user, qc]);
 
+  // Scroll the requested post into view once the feed is loaded
   useEffect(() => {
     if (!focusPostId || loading) return;
     const el = document.getElementById(`post-${focusPostId}`);
@@ -130,137 +340,6 @@ function HomePage() {
       return () => clearTimeout(tid);
     }
   }, [focusPostId, loading]);
-
-  async function loadFeed() {
-    if (!user) return;
-    void supabase
-      .from("profiles")
-      .select("full_name, avatar_url, is_admin")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setProfile(data);
-        setIsAdmin(!!data?.is_admin);
-      });
-
-    void (async () => {
-      const [{ data }, { data: rentalData }] = await Promise.all([
-        supabase
-          .from("posts")
-          .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured), post_photos(photo_url)")
-          .eq("status", "approved")
-          .order("created_at", { ascending: false })
-          .limit(20),
-        supabase
-          .from("rental_listings")
-          .select("id, user_id, title, description, category, price_per_day, location, availability, available_from, created_at, profiles(full_name, avatar_url), rental_photos(photo_url)")
-          .eq("status", "approved")
-          .order("created_at", { ascending: false })
-          .limit(20),
-      ]);
-      const rows = (data as PostRow[] | null) ?? [];
-      setPosts(rows);
-      const rentalRows = (rentalData as RentalRow[] | null) ?? [];
-      setRentals(rentalRows);
-      
-
-      if (rentalRows.length > 0) {
-        const rIds = rentalRows.map((r) => r.id);
-        const [{ data: rLikeRows }, { data: rCommentRows }] = await Promise.all([
-          supabase.from("rental_likes").select("rental_id, user_id").in("rental_id", rIds),
-          supabase.from("rental_comments").select("rental_id").in("rental_id", rIds),
-        ]);
-        const rLikeMap: Record<string, { count: number; mine: boolean }> = {};
-        for (const id of rIds) rLikeMap[id] = { count: 0, mine: false };
-        for (const r of rLikeRows ?? []) {
-          const e = rLikeMap[r.rental_id];
-          if (!e) continue;
-          e.count += 1;
-          if (r.user_id === user.id) e.mine = true;
-        }
-        setRentalLikes(rLikeMap);
-        const rcMap: Record<string, number> = {};
-        for (const id of rIds) rcMap[id] = 0;
-        for (const r of rCommentRows ?? []) rcMap[r.rental_id] = (rcMap[r.rental_id] ?? 0) + 1;
-        setRentalCommentCounts(rcMap);
-      }
-
-      if (rows.length > 0) {
-        const ids = rows.map((p) => p.id);
-        const [{ data: likeRows }, { data: commentRows }] = await Promise.all([
-          supabase.from("post_likes").select("post_id, user_id").in("post_id", ids),
-          supabase.from("post_comments").select("post_id").in("post_id", ids),
-        ]);
-        const likeMap: Record<string, { count: number; mine: boolean }> = {};
-        for (const id of ids) likeMap[id] = { count: 0, mine: false };
-        for (const r of likeRows ?? []) {
-          const e = likeMap[r.post_id];
-          if (!e) continue;
-          e.count += 1;
-          if (r.user_id === user.id) e.mine = true;
-        }
-        setLikes(likeMap);
-        const cMap: Record<string, number> = {};
-        for (const id of ids) cMap[id] = 0;
-        for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
-        setCommentCounts(cMap);
-
-        // Fetch supplier store info for any post authors that own a store
-        const userIds = Array.from(new Set(rows.map((p) => p.user_id)));
-        const { data: stores } = await supabase
-          .from("supplier_stores")
-          .select("id, user_id, name, logo_url, supplier_store_categories(supplier_categories(name_en, name_km)), supplier_store_photos(photo_url, sort_order)")
-          .in("user_id", userIds);
-        const map: Record<string, SupplierStoreInfo> = {};
-        for (const s of (stores ?? []) as Array<{
-          id: string;
-          user_id: string;
-          name: string;
-          logo_url: string | null;
-          supplier_store_categories: Array<{ supplier_categories: { name_en: string; name_km: string } | null }>;
-          supplier_store_photos: Array<{ photo_url: string; sort_order: number | null }>;
-        }>) {
-          const catObj = s.supplier_store_categories?.[0]?.supplier_categories ?? null;
-          const photos = (s.supplier_store_photos ?? [])
-            .slice()
-            .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-            .map((p) => p.photo_url);
-          map[s.user_id] = {
-            id: s.id,
-            name: s.name,
-            logo_url: s.logo_url,
-            category: catObj ? (lang === "km" ? catObj.name_km : catObj.name_en) : null,
-            photos,
-          };
-        }
-        setSupplierByUser(map);
-      }
-    })();
-
-    void supabase
-      .from("stories")
-      .select("id, user_id, media_url, created_at, profiles(full_name, avatar_url)")
-      .eq("status", "approved")
-      .gt("expires_at", new Date().toISOString())
-      .order("created_at", { ascending: false })
-      .limit(50)
-      .then(({ data }) => {
-        const rows = (data as StoryRow[] | null) ?? [];
-        const map = new Map<string, StoryGroup>();
-        for (const r of rows) {
-          if (!map.has(r.user_id)) {
-            map.set(r.user_id, {
-              id: r.id,
-              user_id: r.user_id,
-              full_name: r.profiles?.full_name ?? null,
-              avatar_url: r.profiles?.avatar_url ?? null,
-              cover: r.media_url,
-            });
-          }
-        }
-        setStories(Array.from(map.values()));
-      });
-  }
 
   async function adminDelete(id: string) {
     if (!confirm(t("admin_confirm_desc"))) return;
@@ -773,6 +852,13 @@ function HomePage() {
           );
         });
         })()}
+
+        {/* Infinite-scroll sentinel: triggers fetchNextPage when in view */}
+        {feedQuery.hasNextPage && (
+          <div ref={sentinelRef} className="flex items-center justify-center py-6 text-xs text-muted-foreground">
+            {feedQuery.isFetchingNextPage ? t("loading") : ""}
+          </div>
+        )}
       </div>
 
       {openComments && (
