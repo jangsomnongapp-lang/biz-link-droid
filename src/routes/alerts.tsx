@@ -47,9 +47,10 @@ function AlertsPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("notifications")
-        .select("*")
+        .select("id, user_id, kind, title, body, related_user_id, related_listing_id, related_post_id, read_at, created_at")
         .eq("user_id", user!.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(50);
       const rows = (data ?? []) as Notif[];
       const userIds = Array.from(new Set(rows.map((r) => r.related_user_id).filter(Boolean) as string[]));
       if (userIds.length) {

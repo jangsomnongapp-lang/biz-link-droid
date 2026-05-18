@@ -22,5 +22,5 @@ export function SignedImage({ bucket, src, fallback = null, alt = "", ...rest }:
   }, [bucket, src]);
 
   if (!url) return <>{fallback}</>;
-  return <img src={url} alt={alt} {...rest} />;
+  return <img src={url} alt={alt} loading="lazy" decoding="async" {...rest} />;
 }

@@ -60,9 +60,9 @@ function RootComponent() {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 30_000,
-            gcTime: 5 * 60_000,
-            refetchOnWindowFocus: true,
+            staleTime: 5 * 60_000, // 5 min stale-while-revalidate
+            gcTime: 30 * 60_000,
+            refetchOnWindowFocus: false, // realtime channels handle freshness
             refetchOnReconnect: true,
             retry: 1,
           },

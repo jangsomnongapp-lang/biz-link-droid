@@ -530,7 +530,7 @@ function HomePage() {
                     {r.rental_photos.length > 0 && (
                       <div className={`mt-3 grid gap-2 ${r.rental_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
                         {r.rental_photos.slice(0, 2).map((p, i) => (
-                          <img key={i} src={p.photo_url} alt="" className="aspect-square w-full rounded-lg bg-muted object-cover" />
+                          <img key={i} src={p.photo_url} alt="" loading="lazy" decoding="async" className="aspect-square w-full rounded-lg bg-muted object-cover" />
                         ))}
                       </div>
                     )}
@@ -705,7 +705,7 @@ function HomePage() {
                 )
               ) : (
                 p.post_photos[0] && (
-                  <img src={p.post_photos[0].photo_url} className="mt-3 w-full rounded-lg object-cover" alt="" />
+                  <img src={p.post_photos[0].photo_url} loading="lazy" decoding="async" className="mt-3 w-full rounded-lg object-cover" alt="" />
                 )
               )}
               {p.video_url && <VideoEmbed url={p.video_url} />}
