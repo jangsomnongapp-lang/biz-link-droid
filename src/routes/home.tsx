@@ -311,6 +311,36 @@ function HomePage() {
     return () => io.disconnect();
   }, [feedQuery.hasNextPage, feedQuery.isFetchingNextPage, feedQuery]);
 
+  // Realtime: invalidate paginated feed when relevant tables change
+  useEffect(() => {
+    if (!user) return;
+    const inv = () => qc.invalidateQueries({ queryKey: ["home:feed", user.id] });
+    const invStories = () => qc.invalidateQueries({ queryKey: ["home:stories"] });
+    const ch = supabase
+      .channel(`home-feed:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_listings" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_likes" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_comments" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_likes" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_comments" }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "stories" }, invStories)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
+
+  // Scroll the requested post into view once the feed is loaded
+  useEffect(() => {
+    if (!focusPostId || loading) return;
+    const el = document.getElementById(`post-${focusPostId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightId(focusPostId);
+      const tid = setTimeout(() => setHighlightId(null), 2200);
+      return () => clearTimeout(tid);
+    }
+  }, [focusPostId, loading]);
+
   async function adminDelete(id: string) {
     if (!confirm(t("admin_confirm_desc"))) return;
     const { error } = await supabase.from("posts").delete().eq("id", id);
