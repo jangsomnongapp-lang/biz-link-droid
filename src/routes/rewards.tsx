@@ -68,19 +68,21 @@ function RewardsPage() {
   }, [user, qc]);
 
   const today = todayISO();
+  // Format Date as local YYYY-MM-DD (avoid UTC shift from toISOString)
+  const fmtLocal = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   // Current week's Monday (period start for upcoming weekly draw)
   const weekStart = (() => {
     const d = new Date();
     const day = d.getDay(); // 0 Sun..6 Sat
     const diff = day === 0 ? -6 : 1 - day; // back to Monday
     d.setDate(d.getDate() + diff);
-    return d.toISOString().slice(0, 10);
+    return fmtLocal(d);
   })();
   // First of next month (period start for upcoming monthly draw)
   const monthStart = (() => {
     const d = new Date();
-    const next = new Date(d.getFullYear(), d.getMonth() + 1, 1);
-    return next.toISOString().slice(0, 10);
+    return fmtLocal(new Date(d.getFullYear(), d.getMonth() + 1, 1));
   })();
   const todaysTicket = tickets.find((t) => t.ticket_type === "daily" && t.draw_period_start === today);
   // Only count tickets for the CURRENT upcoming draw period, not historical active ones
