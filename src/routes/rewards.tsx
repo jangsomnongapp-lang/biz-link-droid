@@ -68,9 +68,24 @@ function RewardsPage() {
   }, [user, qc]);
 
   const today = todayISO();
+  // Current week's Monday (period start for upcoming weekly draw)
+  const weekStart = (() => {
+    const d = new Date();
+    const day = d.getDay(); // 0 Sun..6 Sat
+    const diff = day === 0 ? -6 : 1 - day; // back to Monday
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().slice(0, 10);
+  })();
+  // First of next month (period start for upcoming monthly draw)
+  const monthStart = (() => {
+    const d = new Date();
+    const next = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+    return next.toISOString().slice(0, 10);
+  })();
   const todaysTicket = tickets.find((t) => t.ticket_type === "daily" && t.draw_period_start === today);
-  const weeklyTickets = tickets.filter((t) => t.ticket_type === "weekly");
-  const monthlyTickets = tickets.filter((t) => t.ticket_type === "monthly");
+  // Only count tickets for the CURRENT upcoming draw period, not historical active ones
+  const weeklyTickets = tickets.filter((t) => t.ticket_type === "weekly" && t.draw_period_start === weekStart);
+  const monthlyTickets = tickets.filter((t) => t.ticket_type === "monthly" && t.draw_period_start === monthStart);
   const activeClaim = claims.find((c) => c.status === "pending" && new Date(c.expires_at) > new Date());
 
   const weeklyDraw = upcoming.find((d) => d.draw_type === "weekly");
