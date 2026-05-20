@@ -236,6 +236,8 @@ function AdminPostsPage() {
       setListings((p) => p.filter((x) => x.id !== deleteTarget.id));
     if (deleteTarget.kind === "rental_listings")
       setRentals((p) => p.filter((x) => x.id !== deleteTarget.id));
+    if (deleteTarget.kind === "rental_requests")
+      setRentRequests((p) => p.filter((x) => x.id !== deleteTarget.id));
     setDeleteTarget(null);
     toast.success(t("deleted"));
   }
