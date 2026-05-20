@@ -338,11 +338,9 @@ function RentMode({
   lang: string;
 }) {
   void lang;
-  const { user } = useAuth();
   const [subMode, setSubMode] = useState<RentSubMode>("for_rent");
   const [requests, setRequests] = useState<RentalRequestRow[]>([]);
   const [loadingReq, setLoadingReq] = useState(false);
-  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     if (subMode !== "looking_for") return;
