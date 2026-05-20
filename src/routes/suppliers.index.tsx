@@ -355,7 +355,7 @@ function RentMode({
         setRequests((data as RentalRequestRow[] | null) ?? []);
         setLoadingReq(false);
       });
-  }, [subMode, showForm]);
+  }, [subMode]);
 
   const filteredRequests = requests.filter((r) => {
     if (rentCat !== "all" && r.category !== rentCat) return false;
