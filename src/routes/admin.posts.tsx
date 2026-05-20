@@ -257,7 +257,9 @@ function AdminPostsPage() {
         ? stories.length
         : tab === "rentals"
           ? rentals.length
-          : listings.length;
+          : tab === "rent_requests"
+            ? rentRequests.length
+            : listings.length;
   const headerLabel =
     tab === "posts"
       ? t("review_posts")
@@ -265,7 +267,9 @@ function AdminPostsPage() {
         ? t("review_stories")
         : tab === "rentals"
           ? "Rentals"
-          : t("review_listings");
+          : tab === "rent_requests"
+            ? "Rental requests"
+            : t("review_listings");
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-6">
