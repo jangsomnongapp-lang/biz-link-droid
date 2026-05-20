@@ -54,6 +54,7 @@ import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations
 import { Route as AdminDrawsRouteImport } from './routes/admin.draws'
 import { Route as SuppliersStoreIdEditRouteImport } from './routes/suppliers.$storeId.edit'
 import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
+import { Route as RentalsRequestNewRouteImport } from './routes/rentals.request.new'
 import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
 import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
 
@@ -282,6 +283,11 @@ const SupplierJoinTokenRoute = SupplierJoinTokenRouteImport.update({
   path: '/supplier/join/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RentalsRequestNewRoute = RentalsRequestNewRouteImport.update({
+  id: '/rentals/request/new',
+  path: '/rentals/request/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectsNewWorkerIdRoute = ProjectsNewWorkerIdRouteImport.update({
   id: '/projects/new/$workerId',
   path: '/projects/new/$workerId',
@@ -339,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/suppliers/': typeof SuppliersIndexRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
+  '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
@@ -388,6 +395,7 @@ export interface FileRoutesByTo {
   '/suppliers': typeof SuppliersIndexRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
+  '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
@@ -438,6 +446,7 @@ export interface FileRoutesById {
   '/suppliers/': typeof SuppliersIndexRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
+  '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
 }
@@ -489,6 +498,7 @@ export interface FileRouteTypes {
     | '/suppliers/'
     | '/api/public/telegram-notify'
     | '/projects/new/$workerId'
+    | '/rentals/request/new'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -538,6 +548,7 @@ export interface FileRouteTypes {
     | '/suppliers'
     | '/api/public/telegram-notify'
     | '/projects/new/$workerId'
+    | '/rentals/request/new'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
   id:
@@ -587,6 +598,7 @@ export interface FileRouteTypes {
     | '/suppliers/'
     | '/api/public/telegram-notify'
     | '/projects/new/$workerId'
+    | '/rentals/request/new'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
   fileRoutesById: FileRoutesById
@@ -633,6 +645,7 @@ export interface RootRouteChildren {
   SuppliersIndexRoute: typeof SuppliersIndexRoute
   ApiPublicTelegramNotifyRoute: typeof ApiPublicTelegramNotifyRoute
   ProjectsNewWorkerIdRoute: typeof ProjectsNewWorkerIdRoute
+  RentalsRequestNewRoute: typeof RentalsRequestNewRoute
   SupplierJoinTokenRoute: typeof SupplierJoinTokenRoute
 }
 
@@ -953,6 +966,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupplierJoinTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rentals/request/new': {
+      id: '/rentals/request/new'
+      path: '/rentals/request/new'
+      fullPath: '/rentals/request/new'
+      preLoaderRoute: typeof RentalsRequestNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/new/$workerId': {
       id: '/projects/new/$workerId'
       path: '/projects/new/$workerId'
@@ -1050,6 +1070,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuppliersIndexRoute: SuppliersIndexRoute,
   ApiPublicTelegramNotifyRoute: ApiPublicTelegramNotifyRoute,
   ProjectsNewWorkerIdRoute: ProjectsNewWorkerIdRoute,
+  RentalsRequestNewRoute: RentalsRequestNewRoute,
   SupplierJoinTokenRoute: SupplierJoinTokenRoute,
 }
 export const routeTree = rootRouteImport

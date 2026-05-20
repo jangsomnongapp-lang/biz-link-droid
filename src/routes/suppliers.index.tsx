@@ -1,12 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, X } from "lucide-react";
+import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
-import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/suppliers/")({
   component: () => (
@@ -340,11 +338,9 @@ function RentMode({
   lang: string;
 }) {
   void lang;
-  const { user } = useAuth();
   const [subMode, setSubMode] = useState<RentSubMode>("for_rent");
   const [requests, setRequests] = useState<RentalRequestRow[]>([]);
   const [loadingReq, setLoadingReq] = useState(false);
-  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     if (subMode !== "looking_for") return;
@@ -359,7 +355,7 @@ function RentMode({
         setRequests((data as RentalRequestRow[] | null) ?? []);
         setLoadingReq(false);
       });
-  }, [subMode, showForm]);
+  }, [subMode]);
 
   const filteredRequests = requests.filter((r) => {
     if (rentCat !== "all" && r.category !== rentCat) return false;
@@ -486,12 +482,12 @@ function RentMode({
         </div>
       ) : (
         <div className="mt-4 space-y-3">
-          <button
-            onClick={() => setShowForm(true)}
+          <Link
+            to="/rentals/request/new"
             className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card active:scale-[0.99]"
           >
             <Plus className="h-4 w-4" /> Post what you're looking for
-          </button>
+          </Link>
 
           {loadingReq && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
           {!loadingReq && filteredRequests.length === 0 && (
@@ -533,133 +529,10 @@ function RentMode({
           ))}
         </div>
       )}
-
-      {showForm && user && (
-        <LookingForForm
-          userId={user.id}
-          onClose={() => setShowForm(false)}
-          onCreated={() => {
-            setShowForm(false);
-            toast.success("Request posted");
-          }}
-        />
-      )}
     </>
   );
 }
 
-function LookingForForm({
-  userId,
-  onClose,
-  onCreated,
-}: {
-  userId: string;
-  onClose: () => void;
-  onCreated: () => void;
-}) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Exclude<RentCat, "all">>("vehicles");
-  const [location, setLocation] = useState("");
-  const [budget, setBudget] = useState("");
-  const [neededFrom, setNeededFrom] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  async function submit() {
-    if (!title.trim() || !location.trim()) {
-      toast.error("Title and location are required");
-      return;
-    }
-    setSaving(true);
-    const { error } = await supabase.from("rental_requests").insert({
-      user_id: userId,
-      title: title.trim().slice(0, 120),
-      description: description.trim().slice(0, 1000) || null,
-      category,
-      location: location.trim().slice(0, 120),
-      budget_per_day: budget ? Number(budget) : null,
-      needed_from: neededFrom || null,
-    });
-    setSaving(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    onCreated();
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={onClose}>
-      <div
-        className="w-full max-w-md rounded-t-2xl bg-background p-4 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-base font-bold text-foreground">What are you looking to rent?</h3>
-          <button onClick={onClose} className="rounded-full p-1 hover:bg-muted">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="space-y-3">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            maxLength={120}
-            placeholder="e.g. Need a mini-excavator"
-            className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
-          />
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as Exclude<RentCat, "all">)}
-            className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
-          >
-            <option value="vehicles">Vehicles</option>
-            <option value="heavy">Heavy</option>
-            <option value="light">Light</option>
-            <option value="tools">Tools</option>
-          </select>
-          <input
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            maxLength={120}
-            placeholder="Location (e.g. Phnom Penh)"
-            className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
-          />
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              value={budget}
-              onChange={(e) => setBudget(e.target.value.replace(/[^0-9.]/g, ""))}
-              inputMode="decimal"
-              placeholder="Max $/day"
-              className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
-            />
-            <input
-              type="date"
-              value={neededFrom}
-              onChange={(e) => setNeededFrom(e.target.value)}
-              className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
-            />
-          </div>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            maxLength={1000}
-            rows={3}
-            placeholder="Describe what you need…"
-            className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
-          />
-          <button
-            onClick={submit}
-            disabled={saving}
-            className="h-11 w-full rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card disabled:opacity-60"
-          >
-            {saving ? "Posting…" : "Post request"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function catLabel(cat: string) {
   switch (cat) {
