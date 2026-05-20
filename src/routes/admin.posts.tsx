@@ -363,6 +363,48 @@ function AdminPostsPage() {
         {!loading && tab === "rentals" && rentals.length === 0 && (
           <EmptyState text={t("no_pending")} />
         )}
+        {!loading && tab === "rent_requests" && rentRequests.length === 0 && (
+          <EmptyState text={t("no_pending")} />
+        )}
+
+        {tab === "rent_requests" &&
+          rentRequests.map((r) => (
+            <article key={r.id} className="rounded-xl border-2 border-[#7F77DD] bg-[#EEEDFE] p-3 shadow-card">
+              <ItemHeader
+                name={r.profiles?.full_name}
+                avatar={r.profiles?.avatar_url}
+                createdAt={r.created_at}
+                status={r.status}
+              />
+              <div className="mt-2 inline-block rounded-pill bg-[#534AB7] px-2 py-0.5 text-[10px] font-bold text-white">
+                Looking for · {r.category}
+              </div>
+              <h3 className="mt-2 text-base font-semibold text-[#26215C]">{r.title}</h3>
+              {r.description && (
+                <p className="mt-1 text-sm leading-relaxed text-[#26215C]/80">{r.description}</p>
+              )}
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+                {r.location && (
+                  <span className="flex items-center gap-1 text-[#26215C]/70">
+                    <MapPin className="h-3.5 w-3.5 text-[#534AB7]" /> {r.location}
+                  </span>
+                )}
+                {r.budget_per_day != null && (
+                  <span className="font-semibold text-[#534AB7]">Max $ {r.budget_per_day}/day</span>
+                )}
+                {r.needed_from && (
+                  <span className="text-[#26215C]/70">From {r.needed_from}</span>
+                )}
+              </div>
+              <DecisionFooter
+                onApprove={() => void decide("rental_requests", r.id, "approved")}
+                onReject={() => void decide("rental_requests", r.id, "rejected")}
+                onDelete={() => openDelete("rental_requests", r.id)}
+                t={t}
+                approvedOnly={view === "approved"}
+              />
+            </article>
+          ))}
 
         {tab === "rentals" &&
           rentals.map((r) => (
