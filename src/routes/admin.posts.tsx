@@ -131,7 +131,8 @@ function AdminPostsPage() {
     const storyStatuses = view === "pending" ? ["pending"] : ["approved"];
     const listingStatuses = view === "pending" ? ["pending"] : ["active"];
     const rentalStatuses = view === "pending" ? ["pending"] : ["approved"];
-    const [postsResult, storiesResult, listingsResult, rentalsResult] = await Promise.all([
+    const requestStatuses = view === "pending" ? ["pending"] : ["approved"];
+    const [postsResult, storiesResult, listingsResult, rentalsResult, requestsResult] = await Promise.all([
       supabase
         .from("posts")
         .select(
@@ -160,18 +161,28 @@ function AdminPostsPage() {
         )
         .in("status", rentalStatuses)
         .order("created_at", { ascending: false }),
+      supabase
+        .from("rental_requests")
+        .select(
+          "id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, status, profiles(full_name, avatar_url)",
+        )
+        .in("status", requestStatuses)
+        .order("created_at", { ascending: false }),
     ]);
     const nextPosts = (postsResult.data as PendingPost[] | null) ?? [];
     const nextStories = (storiesResult.data as PendingStory[] | null) ?? [];
     const nextListings = (listingsResult.data as PendingListing[] | null) ?? [];
     const nextRentals = (rentalsResult.data as PendingRental[] | null) ?? [];
+    const nextRequests = (requestsResult.data as PendingRentalRequest[] | null) ?? [];
     setPosts(nextPosts);
     setStories(nextStories);
     setListings(nextListings);
     setRentals(nextRentals);
+    setRentRequests(nextRequests);
     if (view === "pending" && nextPosts.length === 0) {
       if (nextListings.length > 0) setTab("listings");
       else if (nextRentals.length > 0) setTab("rentals");
+      else if (nextRequests.length > 0) setTab("rent_requests");
       else if (nextStories.length > 0) setTab("stories");
     }
     setLoading(false);
