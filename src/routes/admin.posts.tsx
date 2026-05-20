@@ -287,7 +287,7 @@ function AdminPostsPage() {
 
       {/* Tabs */}
       <div className="flex border-b border-border bg-surface overflow-x-auto">
-        {(["posts", "listings", "rentals", "stories"] as Tab[]).map((k) => {
+        {(["posts", "listings", "rentals", "rent_requests", "stories"] as Tab[]).map((k) => {
           const tabCount =
             k === "posts"
               ? posts.length
@@ -295,7 +295,9 @@ function AdminPostsPage() {
                 ? stories.length
                 : k === "rentals"
                   ? rentals.length
-                  : listings.length;
+                  : k === "rent_requests"
+                    ? rentRequests.length
+                    : listings.length;
           const label =
             k === "posts"
               ? t("tab_posts")
@@ -303,7 +305,9 @@ function AdminPostsPage() {
                 ? t("tab_stories")
                 : k === "rentals"
                   ? "Rent"
-                  : t("tab_listings");
+                  : k === "rent_requests"
+                    ? "Looking"
+                    : t("tab_listings");
           return (
             <button
               key={k}
