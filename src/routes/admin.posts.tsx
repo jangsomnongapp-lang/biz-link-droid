@@ -189,7 +189,7 @@ function AdminPostsPage() {
   }
 
   async function decide(
-    table: "posts" | "stories" | "listings" | "rental_listings",
+    table: "posts" | "stories" | "listings" | "rental_listings" | "rental_requests",
     id: string,
     decision: "approved" | "rejected",
   ) {
@@ -199,7 +199,7 @@ function AdminPostsPage() {
       decision === "approved"
         ? { status: approvedStatus }
         : { status: rejectedStatus };
-    if (table !== "rental_listings") {
+    if (table !== "rental_listings" && table !== "rental_requests") {
       patch.rejected_at = decision === "approved" ? null : new Date().toISOString();
     }
     const { error } = await supabase.from(table).update(patch as never).eq("id", id);
@@ -211,6 +211,7 @@ function AdminPostsPage() {
     if (table === "stories") setStories((p) => p.filter((x) => x.id !== id));
     if (table === "listings") setListings((p) => p.filter((x) => x.id !== id));
     if (table === "rental_listings") setRentals((p) => p.filter((x) => x.id !== id));
+    if (table === "rental_requests") setRentRequests((p) => p.filter((x) => x.id !== id));
     toast.success(decision === "approved" ? t("approved") : t("rejected"));
   }
 
