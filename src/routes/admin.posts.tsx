@@ -65,9 +65,23 @@ interface PendingRental {
   rental_photos: { photo_url: string }[];
 }
 
-type Tab = "posts" | "stories" | "listings" | "rentals";
+interface PendingRentalRequest {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  location: string;
+  budget_per_day: number | null;
+  needed_from: string | null;
+  created_at: string;
+  status: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+}
+
+type Tab = "posts" | "stories" | "listings" | "rentals" | "rent_requests";
 type View = "pending" | "approved";
-type DeleteKind = "posts" | "stories" | "listings" | "rental_listings";
+type DeleteKind = "posts" | "stories" | "listings" | "rental_listings" | "rental_requests";
 type DeleteTarget = { kind: DeleteKind; id: string };
 
 function AdminPostsPage() {
@@ -80,6 +94,7 @@ function AdminPostsPage() {
   const [stories, setStories] = useState<PendingStory[]>([]);
   const [listings, setListings] = useState<PendingListing[]>([]);
   const [rentals, setRentals] = useState<PendingRental[]>([]);
+  const [rentRequests, setRentRequests] = useState<PendingRentalRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
@@ -116,7 +131,8 @@ function AdminPostsPage() {
     const storyStatuses = view === "pending" ? ["pending"] : ["approved"];
     const listingStatuses = view === "pending" ? ["pending"] : ["active"];
     const rentalStatuses = view === "pending" ? ["pending"] : ["approved"];
-    const [postsResult, storiesResult, listingsResult, rentalsResult] = await Promise.all([
+    const requestStatuses = view === "pending" ? ["pending"] : ["approved"];
+    const [postsResult, storiesResult, listingsResult, rentalsResult, requestsResult] = await Promise.all([
       supabase
         .from("posts")
         .select(
@@ -145,25 +161,35 @@ function AdminPostsPage() {
         )
         .in("status", rentalStatuses)
         .order("created_at", { ascending: false }),
+      supabase
+        .from("rental_requests")
+        .select(
+          "id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, status, profiles(full_name, avatar_url)",
+        )
+        .in("status", requestStatuses)
+        .order("created_at", { ascending: false }),
     ]);
     const nextPosts = (postsResult.data as PendingPost[] | null) ?? [];
     const nextStories = (storiesResult.data as PendingStory[] | null) ?? [];
     const nextListings = (listingsResult.data as PendingListing[] | null) ?? [];
     const nextRentals = (rentalsResult.data as PendingRental[] | null) ?? [];
+    const nextRequests = (requestsResult.data as PendingRentalRequest[] | null) ?? [];
     setPosts(nextPosts);
     setStories(nextStories);
     setListings(nextListings);
     setRentals(nextRentals);
+    setRentRequests(nextRequests);
     if (view === "pending" && nextPosts.length === 0) {
       if (nextListings.length > 0) setTab("listings");
       else if (nextRentals.length > 0) setTab("rentals");
+      else if (nextRequests.length > 0) setTab("rent_requests");
       else if (nextStories.length > 0) setTab("stories");
     }
     setLoading(false);
   }
 
   async function decide(
-    table: "posts" | "stories" | "listings" | "rental_listings",
+    table: "posts" | "stories" | "listings" | "rental_listings" | "rental_requests",
     id: string,
     decision: "approved" | "rejected",
   ) {
@@ -173,7 +199,7 @@ function AdminPostsPage() {
       decision === "approved"
         ? { status: approvedStatus }
         : { status: rejectedStatus };
-    if (table !== "rental_listings") {
+    if (table !== "rental_listings" && table !== "rental_requests") {
       patch.rejected_at = decision === "approved" ? null : new Date().toISOString();
     }
     const { error } = await supabase.from(table).update(patch as never).eq("id", id);
@@ -185,6 +211,7 @@ function AdminPostsPage() {
     if (table === "stories") setStories((p) => p.filter((x) => x.id !== id));
     if (table === "listings") setListings((p) => p.filter((x) => x.id !== id));
     if (table === "rental_listings") setRentals((p) => p.filter((x) => x.id !== id));
+    if (table === "rental_requests") setRentRequests((p) => p.filter((x) => x.id !== id));
     toast.success(decision === "approved" ? t("approved") : t("rejected"));
   }
 
@@ -209,6 +236,8 @@ function AdminPostsPage() {
       setListings((p) => p.filter((x) => x.id !== deleteTarget.id));
     if (deleteTarget.kind === "rental_listings")
       setRentals((p) => p.filter((x) => x.id !== deleteTarget.id));
+    if (deleteTarget.kind === "rental_requests")
+      setRentRequests((p) => p.filter((x) => x.id !== deleteTarget.id));
     setDeleteTarget(null);
     toast.success(t("deleted"));
   }
@@ -228,7 +257,9 @@ function AdminPostsPage() {
         ? stories.length
         : tab === "rentals"
           ? rentals.length
-          : listings.length;
+          : tab === "rent_requests"
+            ? rentRequests.length
+            : listings.length;
   const headerLabel =
     tab === "posts"
       ? t("review_posts")
@@ -236,7 +267,9 @@ function AdminPostsPage() {
         ? t("review_stories")
         : tab === "rentals"
           ? "Rentals"
-          : t("review_listings");
+          : tab === "rent_requests"
+            ? "Rental requests"
+            : t("review_listings");
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-6">
@@ -254,7 +287,7 @@ function AdminPostsPage() {
 
       {/* Tabs */}
       <div className="flex border-b border-border bg-surface overflow-x-auto">
-        {(["posts", "listings", "rentals", "stories"] as Tab[]).map((k) => {
+        {(["posts", "listings", "rentals", "rent_requests", "stories"] as Tab[]).map((k) => {
           const tabCount =
             k === "posts"
               ? posts.length
@@ -262,7 +295,9 @@ function AdminPostsPage() {
                 ? stories.length
                 : k === "rentals"
                   ? rentals.length
-                  : listings.length;
+                  : k === "rent_requests"
+                    ? rentRequests.length
+                    : listings.length;
           const label =
             k === "posts"
               ? t("tab_posts")
@@ -270,7 +305,9 @@ function AdminPostsPage() {
                 ? t("tab_stories")
                 : k === "rentals"
                   ? "Rent"
-                  : t("tab_listings");
+                  : k === "rent_requests"
+                    ? "Looking"
+                    : t("tab_listings");
           return (
             <button
               key={k}
@@ -326,6 +363,48 @@ function AdminPostsPage() {
         {!loading && tab === "rentals" && rentals.length === 0 && (
           <EmptyState text={t("no_pending")} />
         )}
+        {!loading && tab === "rent_requests" && rentRequests.length === 0 && (
+          <EmptyState text={t("no_pending")} />
+        )}
+
+        {tab === "rent_requests" &&
+          rentRequests.map((r) => (
+            <article key={r.id} className="rounded-xl border-2 border-[#7F77DD] bg-[#EEEDFE] p-3 shadow-card">
+              <ItemHeader
+                name={r.profiles?.full_name}
+                avatar={r.profiles?.avatar_url}
+                createdAt={r.created_at}
+                status={r.status}
+              />
+              <div className="mt-2 inline-block rounded-pill bg-[#534AB7] px-2 py-0.5 text-[10px] font-bold text-white">
+                Looking for · {r.category}
+              </div>
+              <h3 className="mt-2 text-base font-semibold text-[#26215C]">{r.title}</h3>
+              {r.description && (
+                <p className="mt-1 text-sm leading-relaxed text-[#26215C]/80">{r.description}</p>
+              )}
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+                {r.location && (
+                  <span className="flex items-center gap-1 text-[#26215C]/70">
+                    <MapPin className="h-3.5 w-3.5 text-[#534AB7]" /> {r.location}
+                  </span>
+                )}
+                {r.budget_per_day != null && (
+                  <span className="font-semibold text-[#534AB7]">Max $ {r.budget_per_day}/day</span>
+                )}
+                {r.needed_from && (
+                  <span className="text-[#26215C]/70">From {r.needed_from}</span>
+                )}
+              </div>
+              <DecisionFooter
+                onApprove={() => void decide("rental_requests", r.id, "approved")}
+                onReject={() => void decide("rental_requests", r.id, "rejected")}
+                onDelete={() => openDelete("rental_requests", r.id)}
+                t={t}
+                approvedOnly={view === "approved"}
+              />
+            </article>
+          ))}
 
         {tab === "rentals" &&
           rentals.map((r) => (

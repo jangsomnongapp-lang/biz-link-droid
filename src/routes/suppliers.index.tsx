@@ -348,7 +348,7 @@ function RentMode({
     void supabase
       .from("rental_requests")
       .select("id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, profiles(full_name, avatar_url)")
-      .eq("status", "active")
+      .eq("status", "approved")
       .order("created_at", { ascending: false })
       .limit(40)
       .then(({ data }) => {
