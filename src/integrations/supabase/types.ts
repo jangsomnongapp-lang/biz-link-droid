@@ -1354,6 +1354,48 @@ export type Database = {
           },
         ]
       }
+      rental_requests: {
+        Row: {
+          budget_per_day: number | null
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          location: string
+          needed_from: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_per_day?: number | null
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location: string
+          needed_from?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_per_day?: number | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string
+          needed_from?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           created_at: string

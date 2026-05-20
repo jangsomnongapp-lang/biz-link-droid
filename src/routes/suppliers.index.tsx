@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search as SearchIcon, MapPin, Store as StoreIcon } from "lucide-react";
+import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/suppliers/")({
   component: () => (
@@ -303,6 +305,21 @@ const RENT_CATS: { id: RentCat; key: "filter_all" | "filter_vehicles" | "filter_
   { id: "tools", key: "filter_tools" },
 ];
 
+type RentSubMode = "for_rent" | "looking_for";
+
+interface RentalRequestRow {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  location: string;
+  budget_per_day: number | null;
+  needed_from: string | null;
+  created_at: string;
+  profiles?: { full_name: string | null; avatar_url: string | null } | null;
+}
+
 function RentMode({
   search,
   setSearch,
@@ -323,8 +340,60 @@ function RentMode({
   lang: string;
 }) {
   void lang;
+  const { user } = useAuth();
+  const [subMode, setSubMode] = useState<RentSubMode>("for_rent");
+  const [requests, setRequests] = useState<RentalRequestRow[]>([]);
+  const [loadingReq, setLoadingReq] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    if (subMode !== "looking_for") return;
+    setLoadingReq(true);
+    void supabase
+      .from("rental_requests")
+      .select("id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, profiles(full_name, avatar_url)")
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(40)
+      .then(({ data }) => {
+        setRequests((data as RentalRequestRow[] | null) ?? []);
+        setLoadingReq(false);
+      });
+  }, [subMode, showForm]);
+
+  const filteredRequests = requests.filter((r) => {
+    if (rentCat !== "all" && r.category !== rentCat) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!r.title.toLowerCase().includes(q) && !(r.description ?? "").toLowerCase().includes(q)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   return (
     <>
+      {/* Sub-mode toggle: For Rent vs Looking For */}
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        <button
+          onClick={() => setSubMode("for_rent")}
+          className={`h-10 rounded-xl text-xs font-bold transition ${
+            subMode === "for_rent" ? "bg-[#534AB7] text-white" : "bg-surface text-foreground shadow-card"
+          }`}
+        >
+          For Rent
+        </button>
+        <button
+          onClick={() => setSubMode("looking_for")}
+          className={`h-10 rounded-xl text-xs font-bold transition ${
+            subMode === "looking_for" ? "bg-[#534AB7] text-white" : "bg-surface text-foreground shadow-card"
+          }`}
+        >
+          Looking For
+        </button>
+      </div>
+
       <div className="flex gap-2 overflow-x-auto pb-2">
         {RENT_CATS.map((c) => (
           <button
@@ -344,77 +413,251 @@ function RentMode({
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder={t("rent_search_ph")}
+          placeholder={subMode === "for_rent" ? t("rent_search_ph") : "Search requests…"}
           className="h-full flex-1 bg-transparent text-sm outline-none"
         />
       </div>
 
-      <div className="mt-4 space-y-3">
-        {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
-        {!loading && rentals.length === 0 && (
-          <p className="py-10 text-center text-sm text-muted-foreground">{t("no_rentals_listed")}</p>
-        )}
-        {rentals.map((r) => (
-          <Link
-            key={r.id}
-            to="/rentals/$rentalId"
-            params={{ rentalId: r.id }}
-            className="block rounded-2xl border border-[#7F77DD] bg-surface p-3 shadow-card active:scale-[0.99]"
+      {subMode === "for_rent" ? (
+        <div className="mt-4 space-y-3">
+          {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
+          {!loading && rentals.length === 0 && (
+            <p className="py-10 text-center text-sm text-muted-foreground">{t("no_rentals_listed")}</p>
+          )}
+          {rentals.map((r) => (
+            <Link
+              key={r.id}
+              to="/rentals/$rentalId"
+              params={{ rentalId: r.id }}
+              className="block rounded-2xl border border-[#7F77DD] bg-surface p-3 shadow-card active:scale-[0.99]"
+            >
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-bold text-foreground">{r.title}</p>
+                    <span className="rounded-pill bg-[#EEEDFE] px-2 py-0.5 text-[10px] font-semibold text-[#26215C]">
+                      {catLabel(r.category)}
+                    </span>
+                  </div>
+                  <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{r.location}</span>
+                    {r.profiles?.full_name && <span className="truncate"> · {r.profiles.full_name}</span>}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-base font-bold text-[#534AB7]">${r.price_per_day}</div>
+                  <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
+                </div>
+              </div>
+              {r.rental_photos.length > 0 && (
+                <div className="mt-3 flex gap-2 overflow-x-auto">
+                  {r.rental_photos.slice(0, 4).map((p, i) => (
+                    <img
+                      key={i}
+                      src={p.photo_url}
+                      alt=""
+                      className="h-20 w-20 shrink-0 rounded-md bg-muted object-cover"
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <div className="flex flex-col gap-1">
+                  {r.availability === "now" ? (
+                    <span className="self-start rounded-pill bg-[#e8f8f0] px-2 py-0.5 text-[10px] font-semibold text-[#27ae60]">
+                      {t("available_label")}
+                    </span>
+                  ) : (
+                    <span className="self-start rounded-pill bg-[#fff8e1] px-2 py-0.5 text-[10px] font-semibold text-[#b07d00]">
+                      {t("booked_until")} {r.available_from ?? ""}
+                    </span>
+                  )}
+                  {r.description && (
+                    <p className="line-clamp-1 text-xs text-muted-foreground">{r.description}</p>
+                  )}
+                </div>
+                <span className="rounded-lg bg-[#534AB7] px-3 py-1.5 text-xs font-semibold text-white">
+                  {t("contact")}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4 space-y-3">
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card active:scale-[0.99]"
           >
-            <div className="flex items-start gap-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="truncate text-sm font-bold text-foreground">{r.title}</p>
-                  <span className="rounded-pill bg-[#EEEDFE] px-2 py-0.5 text-[10px] font-semibold text-[#26215C]">
-                    {catLabel(r.category)}
-                  </span>
+            <Plus className="h-4 w-4" /> Post what you're looking for
+          </button>
+
+          {loadingReq && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
+          {!loadingReq && filteredRequests.length === 0 && (
+            <p className="py-10 text-center text-sm text-muted-foreground">No requests yet. Be the first to post.</p>
+          )}
+          {filteredRequests.map((r) => (
+            <div key={r.id} className="rounded-2xl border border-dashed border-[#7F77DD] bg-surface p-3 shadow-card">
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-bold text-foreground">{r.title}</p>
+                    <span className="rounded-pill bg-[#EEEDFE] px-2 py-0.5 text-[10px] font-semibold text-[#26215C]">
+                      {catLabel(r.category)}
+                    </span>
+                    <span className="rounded-pill bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                      Looking
+                    </span>
+                  </div>
+                  <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{r.location}</span>
+                    {r.profiles?.full_name && <span className="truncate"> · {r.profiles.full_name}</span>}
+                  </div>
                 </div>
-                <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <MapPin className="h-3 w-3" />
-                  <span className="truncate">{r.location}</span>
-                  {r.profiles?.full_name && <span className="truncate"> · {r.profiles.full_name}</span>}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-base font-bold text-[#534AB7]">${r.price_per_day}</div>
-                <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
-              </div>
-            </div>
-            {r.rental_photos.length > 0 && (
-              <div className="mt-3 flex gap-2 overflow-x-auto">
-                {r.rental_photos.slice(0, 4).map((p, i) => (
-                  <img
-                    key={i}
-                    src={p.photo_url}
-                    alt=""
-                    className="h-20 w-20 shrink-0 rounded-md bg-muted object-cover"
-                  />
-                ))}
-              </div>
-            )}
-            <div className="mt-2 flex items-center justify-between gap-3">
-              <div className="flex flex-col gap-1">
-                {r.availability === "now" ? (
-                  <span className="self-start rounded-pill bg-[#e8f8f0] px-2 py-0.5 text-[10px] font-semibold text-[#27ae60]">
-                    {t("available_label")}
-                  </span>
-                ) : (
-                  <span className="self-start rounded-pill bg-[#fff8e1] px-2 py-0.5 text-[10px] font-semibold text-[#b07d00]">
-                    {t("booked_until")} {r.available_from ?? ""}
-                  </span>
-                )}
-                {r.description && (
-                  <p className="line-clamp-1 text-xs text-muted-foreground">{r.description}</p>
+                {r.budget_per_day != null && (
+                  <div className="text-right">
+                    <div className="text-base font-bold text-[#534AB7]">≤ ${r.budget_per_day}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
+                  </div>
                 )}
               </div>
-              <span className="rounded-lg bg-[#534AB7] px-3 py-1.5 text-xs font-semibold text-white">
-                {t("contact")}
-              </span>
+              {r.description && (
+                <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{r.description}</p>
+              )}
+              {r.needed_from && (
+                <p className="mt-1 text-[11px] text-muted-foreground">Needed from {r.needed_from}</p>
+              )}
             </div>
-          </Link>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      {showForm && user && (
+        <LookingForForm
+          userId={user.id}
+          onClose={() => setShowForm(false)}
+          onCreated={() => {
+            setShowForm(false);
+            toast.success("Request posted");
+          }}
+        />
+      )}
     </>
+  );
+}
+
+function LookingForForm({
+  userId,
+  onClose,
+  onCreated,
+}: {
+  userId: string;
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<Exclude<RentCat, "all">>("vehicles");
+  const [location, setLocation] = useState("");
+  const [budget, setBudget] = useState("");
+  const [neededFrom, setNeededFrom] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function submit() {
+    if (!title.trim() || !location.trim()) {
+      toast.error("Title and location are required");
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from("rental_requests").insert({
+      user_id: userId,
+      title: title.trim().slice(0, 120),
+      description: description.trim().slice(0, 1000) || null,
+      category,
+      location: location.trim().slice(0, 120),
+      budget_per_day: budget ? Number(budget) : null,
+      needed_from: neededFrom || null,
+    });
+    setSaving(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    onCreated();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-t-2xl bg-background p-4 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-base font-bold text-foreground">What are you looking to rent?</h3>
+          <button onClick={onClose} className="rounded-full p-1 hover:bg-muted">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="space-y-3">
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={120}
+            placeholder="e.g. Need a mini-excavator"
+            className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
+          />
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as Exclude<RentCat, "all">)}
+            className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
+          >
+            <option value="vehicles">Vehicles</option>
+            <option value="heavy">Heavy</option>
+            <option value="light">Light</option>
+            <option value="tools">Tools</option>
+          </select>
+          <input
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            maxLength={120}
+            placeholder="Location (e.g. Phnom Penh)"
+            className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              value={budget}
+              onChange={(e) => setBudget(e.target.value.replace(/[^0-9.]/g, ""))}
+              inputMode="decimal"
+              placeholder="Max $/day"
+              className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
+            />
+            <input
+              type="date"
+              value={neededFrom}
+              onChange={(e) => setNeededFrom(e.target.value)}
+              className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus:ring-1 focus:ring-ring"
+            />
+          </div>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={1000}
+            rows={3}
+            placeholder="Describe what you need…"
+            className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+          />
+          <button
+            onClick={submit}
+            disabled={saving}
+            className="h-11 w-full rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card disabled:opacity-60"
+          >
+            {saving ? "Posting…" : "Post request"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
