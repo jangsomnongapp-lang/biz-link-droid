@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search as SearchIcon, MapPin, Store as StoreIcon } from "lucide-react";
+import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/suppliers/")({
   component: () => (
