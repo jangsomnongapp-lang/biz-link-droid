@@ -65,9 +65,23 @@ interface PendingRental {
   rental_photos: { photo_url: string }[];
 }
 
-type Tab = "posts" | "stories" | "listings" | "rentals";
+interface PendingRentalRequest {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  location: string;
+  budget_per_day: number | null;
+  needed_from: string | null;
+  created_at: string;
+  status: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+}
+
+type Tab = "posts" | "stories" | "listings" | "rentals" | "rent_requests";
 type View = "pending" | "approved";
-type DeleteKind = "posts" | "stories" | "listings" | "rental_listings";
+type DeleteKind = "posts" | "stories" | "listings" | "rental_listings" | "rental_requests";
 type DeleteTarget = { kind: DeleteKind; id: string };
 
 function AdminPostsPage() {
