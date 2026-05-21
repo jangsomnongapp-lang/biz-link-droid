@@ -137,7 +137,7 @@ function RewardsPage() {
             </div>
             <div>
               <div className="text-base font-bold leading-tight">{lang === "km" ? "រង្វាន់របស់ខ្ញុំ" : "My rewards"}</div>
-              <div className="text-[11px] text-zinc-500">Mis premios y boletos</div>
+              <div className="text-[11px] text-zinc-500">My prizes and tickets</div>
             </div>
           </div>
           <div className="flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-bold text-white shadow">
