@@ -131,7 +131,14 @@ function RewardsPage() {
       <div className="mx-auto max-w-md px-4 pt-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => nav({ to: "/home" })}
+              aria-label="Back"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 active:bg-zinc-200"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-rose-500 shadow">
               <Gift className="h-5 w-5 text-white" />
             </div>
