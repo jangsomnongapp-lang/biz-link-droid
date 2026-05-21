@@ -245,8 +245,7 @@ function AdminDrawsPage() {
 
       <main className="mx-auto w-full max-w-5xl p-3 sm:p-4 md:p-6">
         <section>
-          <p className="mb-2 text-center text-xs font-medium text-neutral-500">Run draw panel</p>
-          <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-sm">
+          <div className="rounded-2xl bg-white p-4 sm:p-5 shadow-sm">
             <div className="text-center">
               <h3 className="text-base font-bold">Run draw</h3>
               <p className="text-[11px] text-neutral-500">
