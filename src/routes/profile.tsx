@@ -282,7 +282,7 @@ function ProfilePage() {
               to="/profile/portfolio"
               className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur active:bg-white/25"
             >
-              {t("update_profile")}
+              ​
             </Link>
             <Link
               to="/profile/edit"
