@@ -98,8 +98,8 @@ function RewardsPage() {
   const todayLabel = new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
 
   const goal = 7;
-  const cur = Math.min(streak.current_streak, goal);
-  const remaining = Math.max(0, goal - cur);
+  const cycleDay = streak.current_streak <= 0 ? 0 : ((streak.current_streak - 1) % goal) + 1;
+  const remaining = Math.max(0, goal - cycleDay);
 
   async function openRewardsChat() {
     if (!user) return;
@@ -141,7 +141,7 @@ function RewardsPage() {
             </div>
           </div>
           <div className="flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-bold text-white shadow">
-            Day {streak.current_streak} <Flame className="h-3.5 w-3.5" />
+            Day {cycleDay} <Flame className="h-3.5 w-3.5" />
           </div>
         </div>
 
@@ -190,7 +190,7 @@ function RewardsPage() {
                 <div>
                   <div className="text-[11px] uppercase tracking-wide text-zinc-500">Streak</div>
                   <div className="mt-1 text-lg font-bold">
-                    <span className="text-orange-500">{cur}</span>
+                    <span className="text-orange-500">{cycleDay}</span>
                     <span className="text-zinc-500 text-sm"> / {goal} days</span>
                   </div>
                 </div>
@@ -200,7 +200,7 @@ function RewardsPage() {
               </div>
               <div className="mt-3 flex items-center justify-between gap-1.5">
                 {Array.from({ length: goal }).map((_, i) => {
-                  const hit = i < cur;
+                  const hit = i < cycleDay;
                   return (
                     <div key={i} className={`flex h-9 flex-1 items-center justify-center rounded-full text-xs font-bold ${
                       hit ? "bg-emerald-500 text-white shadow" : "border border-zinc-300 bg-white text-zinc-400"
