@@ -188,7 +188,7 @@ function RewardsPage() {
             <div className="mt-4 rounded-2xl bg-zinc-50 p-4 ring-1 ring-zinc-200">
               <div className="flex items-end justify-between">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wide text-zinc-500">Streak · Racha</div>
+                  <div className="text-[11px] uppercase tracking-wide text-zinc-500">Streak</div>
                   <div className="mt-1 text-lg font-bold">
                     <span className="text-orange-500">{cur}</span>
                     <span className="text-zinc-500 text-sm"> / {goal} days</span>
