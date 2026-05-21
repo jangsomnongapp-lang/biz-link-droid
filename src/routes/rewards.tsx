@@ -150,8 +150,8 @@ function RewardsPage() {
         ) : (
           <>
             {/* Today's active ticket label */}
-            <div className="mt-5 text-[12px] text-zinc-500">
-              {lang === "km" ? "សំបុត្រសកម្មថ្ងៃនេះ" : "Today's active ticket"} · Boleto activo hoy
+            <div className="mt-5 text-[12px] text-zinc-500 font-bold uppercase tracking-wider">
+              Streak
             </div>
 
             {/* Lottery ticket (yellow) */}
