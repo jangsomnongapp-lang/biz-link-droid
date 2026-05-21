@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { ensureScheduledDraws, runAdminLotteryDraw, setAdminManualWinner } from "@/lib/admin-draws.functions";
 import {
   ArrowLeft,
   Gift,
@@ -54,6 +56,9 @@ function periodStart(type: string): string {
 
 function AdminDrawsPage() {
   const { user } = useAuth();
+  const ensureScheduledFn = useServerFn(ensureScheduledDraws);
+  const runDrawFn = useServerFn(runAdminLotteryDraw);
+  const setManualWinnerFn = useServerFn(setAdminManualWinner);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -125,12 +130,12 @@ function AdminDrawsPage() {
   }, [isAdmin, selectedType, draws]);
 
   async function ensureScheduled() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any).rpc("ensure_scheduled_draws");
-    if (error) toast.error(error.message);
-    else {
+    try {
+      await ensureScheduledFn({ headers: await authHeaders() });
       toast.success("Schedule synced");
       void loadAll();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to sync schedule");
     }
   }
 
