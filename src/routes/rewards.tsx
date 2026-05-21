@@ -5,7 +5,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Gift, Flame, Beer, Check, ChevronRight } from "lucide-react";
+import { Gift, Flame, Beer, Check, ChevronRight, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/rewards")({
   component: () => (
