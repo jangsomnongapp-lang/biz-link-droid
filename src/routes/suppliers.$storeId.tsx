@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, MoreHorizontal, MapPin, Phone, MessageCircle, Pencil } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, MapPin, MessageCircle, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { ShareButton } from "@/components/ShareButton";
@@ -36,7 +36,6 @@ interface StoreDetail {
   location: string | null;
   description: string | null;
   logo_url: string | null;
-  phone: string | null;
   view_count: number;
   contact_count: number;
 }
@@ -77,7 +76,7 @@ function SupplierProfilePage() {
     void (async () => {
       const { data: s } = await supabase
         .from("supplier_stores")
-        .select("id, user_id, name, location, description, logo_url, phone, view_count, contact_count")
+        .select("id, user_id, name, location, description, logo_url, view_count, contact_count")
         .eq("id", storeId)
         .maybeSingle();
       setStore(s ?? null);
@@ -262,20 +261,10 @@ function SupplierProfilePage() {
       )}
 
       {/* About */}
-      {(store.description || store.phone) && (
+      {store.description && (
         <div className="border-b border-border bg-surface px-5 py-4">
           <p className="text-sm font-semibold text-foreground">{t("about_label")}</p>
-          {store.description && (
-            <p className="mt-1.5 text-sm text-muted-foreground">{store.description}</p>
-          )}
-          {store.phone && (
-            <a
-              href={`tel:${store.phone}`}
-              className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-primary"
-            >
-              <Phone className="h-4 w-4" /> {store.phone}
-            </a>
-          )}
+          <p className="mt-1.5 text-sm text-muted-foreground">{store.description}</p>
         </div>
       )}
 

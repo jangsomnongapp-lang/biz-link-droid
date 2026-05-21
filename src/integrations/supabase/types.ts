@@ -1839,6 +1839,7 @@ export type Database = {
           used_by: string
         }[]
       }
+      get_supplier_store_phone: { Args: { _store_id: string }; Returns: string }
       get_user_phone: { Args: { _uid: string }; Returns: string }
       increment_post_view: { Args: { _post_id: string }; Returns: undefined }
       increment_supplier_contact: {

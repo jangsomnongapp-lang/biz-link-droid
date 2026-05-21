@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
@@ -12,20 +11,9 @@ const TIERS = [5, 25, 50, 100] as const;
  * - Returns the canonical reward state for the user
  */
 export const claimInviteRewards = createServerFn({ method: "POST" })
-  .handler(async () => {
-    try {
-    const authHeader = getRequest().headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      throw new Error("Unauthorized: Missing authorization token");
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: authData, error: authErr } = await supabaseAdmin.auth.getClaims(token);
-    const userId = authData?.claims?.sub;
-    if (authErr || !userId) {
-      throw new Error("Unauthorized: Invalid authorization token");
-    }
-
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userId } = context;
     const { count: joinCount, error: countErr } = await supabaseAdmin
       .from("invite_joins")
       .select("id", { count: "exact", head: true })
@@ -76,15 +64,6 @@ export const claimInviteRewards = createServerFn({ method: "POST" })
       newlyClaimed: toInsert,
       rewards: rewards ?? [],
     };
-    } catch (err) {
-      console.error("claimInviteRewards failed:", err);
-      return {
-        joined: 0,
-        newlyClaimed: [] as number[],
-        rewards: [] as { tier: number; status: string; sent_at: string | null }[],
-        error: "Failed to claim rewards. Please try again.",
-      };
-    }
   });
 
 /**

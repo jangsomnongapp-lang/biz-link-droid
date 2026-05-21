@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { ensureScheduledDraws, runAdminLotteryDraw, setAdminManualWinner } from "@/lib/admin-draws.functions";
 import {
   ArrowLeft,
   Gift,
@@ -52,8 +54,16 @@ function periodStart(type: string): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
 }
 
+async function authHeaders() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return { Authorization: `Bearer ${session?.access_token ?? ""}` };
+}
+
 function AdminDrawsPage() {
   const { user } = useAuth();
+  const ensureScheduledFn = useServerFn(ensureScheduledDraws);
+  const runDrawFn = useServerFn(runAdminLotteryDraw);
+  const setManualWinnerFn = useServerFn(setAdminManualWinner);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -125,12 +135,12 @@ function AdminDrawsPage() {
   }, [isAdmin, selectedType, draws]);
 
   async function ensureScheduled() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any).rpc("ensure_scheduled_draws");
-    if (error) toast.error(error.message);
-    else {
+    try {
+      await ensureScheduledFn({ headers: await authHeaders() });
       toast.success("Schedule synced");
       void loadAll();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to sync schedule");
     }
   }
 
@@ -144,19 +154,16 @@ function AdminDrawsPage() {
       return;
     }
     setBusy(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).rpc("run_lottery_draw", {
-      _draw_id: activeDraw.id,
-    });
-    setBusy(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      const result = await runDrawFn({ headers: await authHeaders(), data: { drawId: activeDraw.id } });
+      if (!result?.ok) toast.warning(`No winner: ${result?.reason ?? "no entries"}`);
+      else toast.success("Winner drawn 🎉");
+      void loadAll();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to run draw");
+    } finally {
+      setBusy(false);
     }
-    const result = data as { ok: boolean; reason?: string };
-    if (!result?.ok) toast.warning(`No winner: ${result?.reason ?? "no entries"}`);
-    else toast.success("Winner drawn 🎉");
-    void loadAll();
   }
 
   async function setManualWinner() {
@@ -170,38 +177,24 @@ function AdminDrawsPage() {
       return;
     }
     setBusy(true);
-    const { data: ticket, error: tErr } = await supabase
-      .from("lottery_tickets")
-      .select("id, user_id, status")
-      .eq("ticket_type", selectedType)
-      .eq("draw_period_start", periodStart(selectedType))
-      .eq("ticket_number", num)
-      .maybeSingle();
-
-    if (tErr || !ticket) {
+    try {
+      await setManualWinnerFn({
+        headers: await authHeaders(),
+        data: {
+          drawId: activeDraw.id,
+          drawType: selectedType,
+          drawPeriodStart: periodStart(selectedType),
+          ticketNumber: num,
+        },
+      });
+      toast.success(`Winner set: #${num}`);
+      setManualNumber("");
+      void loadAll();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to set winner");
+    } finally {
       setBusy(false);
-      toast.error("Ticket not found for this draw period");
-      return;
     }
-
-    const { error: uErr } = await supabase
-      .from("lottery_draws")
-      .update({
-        winner_user_id: ticket.user_id,
-        winning_ticket_id: ticket.id,
-        status: "drawn",
-        drawn_at: new Date().toISOString(),
-      })
-      .eq("id", activeDraw.id);
-
-    setBusy(false);
-    if (uErr) {
-      toast.error(uErr.message);
-      return;
-    }
-    toast.success(`Winner set: #${num}`);
-    setManualNumber("");
-    void loadAll();
   }
 
   if (loading) {
