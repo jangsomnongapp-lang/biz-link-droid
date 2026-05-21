@@ -56,7 +56,7 @@ function SupplierEditPage() {
     void (async () => {
       const { data: s } = await supabase
         .from("supplier_stores")
-        .select("user_id, name, location, description, logo_url, phone")
+        .select("user_id, name, location, description, logo_url")
         .eq("id", storeId)
         .maybeSingle();
       if (!s || s.user_id !== user.id) {
@@ -67,8 +67,9 @@ function SupplierEditPage() {
       setName(s.name);
       setLocation(s.location ?? "");
       setDescription(s.description ?? "");
-      setPhone(s.phone ?? "");
       setLogo(s.logo_url);
+      const { data: phoneVal } = await supabase.rpc("get_supplier_store_phone", { _store_id: storeId });
+      setPhone((phoneVal as string | null) ?? "");
 
       const [{ data: cats }, { data: scs }, { data: ph }] = await Promise.all([
         supabase.from("supplier_categories").select("id, name_en, name_km").order("sort_order"),
