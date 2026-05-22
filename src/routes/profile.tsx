@@ -267,7 +267,7 @@ function ProfilePage() {
   return (
     <div>
       {/* Blue header */}
-      <div className="bg-primary px-5 pb-6 pt-5 text-primary-foreground">
+      <div className="relative bg-primary px-5 pb-6 pt-5 text-primary-foreground">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold">{t("my_profile")}</h2>
           <div className="flex items-center gap-2">
