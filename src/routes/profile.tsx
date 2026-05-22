@@ -8,7 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Camera, LogOut, Gift } from "lucide-react";
+import { Camera, LogOut, Gift, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
 import { requestFreeHelp } from "@/lib/help-request.functions";
