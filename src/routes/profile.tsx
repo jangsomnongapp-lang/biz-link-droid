@@ -68,6 +68,20 @@ function ProfilePage() {
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const { data: activeTicketCount = 0 } = useQuery({
+    queryKey: ["profile-ticket-count", user?.id],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("lottery_tickets")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user!.id)
+        .eq("status", "active");
+      return count ?? 0;
+    },
+  });
   const [addingPhotos, setAddingPhotos] = useState(false);
   const [requestingHelp, setRequestingHelp] = useState(false);
   const requestFreeHelpFn = useServerFn(requestFreeHelp);
