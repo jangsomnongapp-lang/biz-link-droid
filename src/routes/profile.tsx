@@ -8,7 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Camera, LogOut, Gift } from "lucide-react";
+import { Camera, LogOut, Gift, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
 import { requestFreeHelp } from "@/lib/help-request.functions";
@@ -369,6 +369,17 @@ function ProfilePage() {
           </div>
         ))}
       </div>
+
+      {/* Post a rental request */}
+      <div className="px-3 pt-3">
+        <Link
+          to="/rentals/request/new"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card active:scale-[0.99]"
+        >
+          <Plus className="h-4 w-4" /> Post what you're looking for
+        </Link>
+      </div>
+
 
       {/* About */}
       <Section title={t("about_me")}>

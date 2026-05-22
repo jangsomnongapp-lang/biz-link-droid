@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus } from "lucide-react";
+import { Search as SearchIcon, MapPin, Store as StoreIcon } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
@@ -482,12 +482,7 @@ function RentMode({
         </div>
       ) : (
         <div className="mt-4 space-y-3">
-          <Link
-            to="/rentals/request/new"
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card active:scale-[0.99]"
-          >
-            <Plus className="h-4 w-4" /> Post what you're looking for
-          </Link>
+
 
           {loadingReq && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
           {!loadingReq && filteredRequests.length === 0 && (
