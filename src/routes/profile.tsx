@@ -8,7 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Camera, LogOut } from "lucide-react";
+import { Camera, LogOut, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
 import { requestFreeHelp } from "@/lib/help-request.functions";
@@ -68,6 +68,20 @@ function ProfilePage() {
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const { data: activeTicketCount = 0 } = useQuery({
+    queryKey: ["profile-ticket-count", user?.id],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("lottery_tickets")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user!.id)
+        .eq("status", "active");
+      return count ?? 0;
+    },
+  });
   const [addingPhotos, setAddingPhotos] = useState(false);
   const [requestingHelp, setRequestingHelp] = useState(false);
   const requestFreeHelpFn = useServerFn(requestFreeHelp);
@@ -267,7 +281,7 @@ function ProfilePage() {
   return (
     <div>
       {/* Blue header */}
-      <div className="bg-primary px-5 pb-6 pt-5 text-primary-foreground">
+      <div className="relative bg-primary px-5 pb-6 pt-5 text-primary-foreground">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold">{t("my_profile")}</h2>
           <div className="flex items-center gap-2">
@@ -328,6 +342,18 @@ function ProfilePage() {
             </div>
           )}
         </div>
+        <Link
+          to="/rewards"
+          aria-label={lang === "km" ? "រង្វាន់" : "Rewards"}
+          className="absolute right-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg active:scale-95"
+        >
+          <Gift className="h-7 w-7 text-white" />
+          {activeTicketCount > 0 && (
+            <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white ring-2 ring-primary">
+              {activeTicketCount > 99 ? "99+" : activeTicketCount}
+            </span>
+          )}
+        </Link>
       </div>
 
       {/* Stats */}
@@ -707,25 +733,6 @@ function ProfilePage() {
             </div>
             <div className="text-[11px] text-white/85">
               {lang === "km" ? "តាមដានការងារ · គ្រប់គ្រងគម្រោងរបស់អ្នក" : "Track work · manage your project"}
-            </div>
-          </div>
-        </Link>
-        <Link
-          to="/rewards"
-          className="relative mt-2 flex items-center gap-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 p-3 text-white active:scale-[0.99]"
-        >
-          <span className="absolute right-2 top-2 rounded-full bg-white px-1.5 py-0.5 text-[9px] font-bold leading-none text-orange-600">
-            NEW
-          </span>
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/25 text-base font-bold">
-            🎁
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold">
-              {lang === "km" ? "BuildHub Rewards" : "BuildHub Rewards"}
-            </div>
-            <div className="text-[11px] text-white/90">
-              {lang === "km" ? "ឆែកវត្តមានរាល់ថ្ងៃ · ឈ្នះរង្វាន់" : "Daily check-in · win prizes"}
             </div>
           </div>
         </Link>
