@@ -345,11 +345,11 @@ function ProfilePage() {
         <Link
           to="/rewards"
           aria-label={lang === "km" ? "រង្វាន់" : "Rewards"}
-          className="absolute bottom-4 right-4 z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg active:scale-95"
+          className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg active:scale-95"
         >
           <Gift className="h-7 w-7 text-white" />
           {activeTicketCount > 0 && (
-            <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white ring-2 ring-primary">
+            <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white ring-2 ring-white">
               {activeTicketCount > 99 ? "99+" : activeTicketCount}
             </span>
           )}
