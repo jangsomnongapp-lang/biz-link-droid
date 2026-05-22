@@ -345,7 +345,7 @@ function ProfilePage() {
         <Link
           to="/rewards"
           aria-label={lang === "km" ? "រង្វាន់" : "Rewards"}
-          className="absolute right-4 top-1/2 -translate-y-1/2 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg active:scale-95"
+          className="absolute bottom-4 right-4 z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg active:scale-95"
         >
           <Gift className="h-7 w-7 text-white" />
           {activeTicketCount > 0 && (
