@@ -885,6 +885,7 @@ function ProfilePage() {
         </button>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
 
