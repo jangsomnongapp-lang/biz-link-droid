@@ -384,15 +384,49 @@ function ProfilePage() {
         ))}
       </div>
 
-      {/* Post a rental request */}
+      {/* Looking for rent */}
       <div className="px-3 pt-3">
         <Link
           to="/rentals/request/new"
           className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card active:scale-[0.99]"
         >
-          <Plus className="h-4 w-4" /> Post what you're looking for
+          <Plus className="h-4 w-4" /> Looking for rent
         </Link>
       </div>
+
+      {/* For rent list */}
+      {forRentList.length > 0 && (
+        <div className="px-3 pt-3">
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground">For rent</h3>
+            <Link to="/suppliers" className="text-xs font-semibold text-[#534AB7]">See all</Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {forRentList.map((r) => (
+              <Link
+                key={r.id}
+                to="/rentals/$rentalId"
+                params={{ rentalId: r.id }}
+                className="w-40 shrink-0 overflow-hidden rounded-xl border border-[#7F77DD] bg-surface shadow-card active:scale-[0.99]"
+              >
+                <div className="aspect-square bg-muted">
+                  {r.rental_photos[0]?.photo_url ? (
+                    <img src={r.rental_photos[0].photo_url} alt="" className="h-full w-full object-cover" />
+                  ) : null}
+                </div>
+                <div className="p-2">
+                  <p className="truncate text-xs font-bold text-foreground">{r.title}</p>
+                  <div className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{r.location}</span>
+                  </div>
+                  <div className="mt-1 text-sm font-bold text-[#534AB7]">${r.price_per_day}<span className="text-[10px] font-normal text-muted-foreground">/day</span></div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
 
       {/* About */}
