@@ -13,6 +13,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const path = location.pathname;
   const [mySupplierStoreId, setMySupplierStoreId] = useState<string | null>(null);
+  const qc = useQueryClient();
+
+  async function handleRefresh() {
+    await qc.invalidateQueries();
+  }
 
   useEffect(() => {
     if (!user) {
