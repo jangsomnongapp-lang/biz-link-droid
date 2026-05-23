@@ -370,15 +370,6 @@ function ProfilePage() {
         ))}
       </div>
 
-      {/* Post a rental request */}
-      <div className="px-3 pt-3">
-        <Link
-          to="/rentals/request/new"
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card active:scale-[0.99]"
-        >
-          <Plus className="h-4 w-4" /> Post what you're looking for
-        </Link>
-      </div>
 
 
       {/* About */}
@@ -648,6 +639,16 @@ function ProfilePage() {
           </div>
         )}
       </Section>
+
+      {/* Looking for rent */}
+      <div className="px-3 pt-2">
+        <Link
+          to="/rentals/request/new"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card active:scale-[0.99]"
+        >
+          <Plus className="h-4 w-4" /> Looking for rent
+        </Link>
+      </div>
 
       {/* My listings */}
       <Section
