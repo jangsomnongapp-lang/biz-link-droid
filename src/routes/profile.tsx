@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Camera, LogOut, Gift, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { requestFreeHelp } from "@/lib/help-request.functions";
 import { confirmCompletion, cancelCompletion } from "@/lib/projects.functions";
 
