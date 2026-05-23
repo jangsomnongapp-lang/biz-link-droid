@@ -640,15 +640,8 @@ function ProfilePage() {
         )}
       </Section>
 
-      {/* Looking for rent */}
-      <div className="px-3 pt-2">
-        <Link
-          to="/rentals/request/new"
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card active:scale-[0.99]"
-        >
-          <Plus className="h-4 w-4" /> Looking for rent
-        </Link>
-      </div>
+
+
 
       {/* My listings */}
       <Section
@@ -716,6 +709,19 @@ function ProfilePage() {
             <div className="text-[11px] text-[#534AB7]/80">{t("earn_money_tools")}</div>
           </div>
         </Link>
+        <Link
+          to="/rentals/request/new"
+          className="mt-2 flex items-center gap-3 rounded-xl border border-[#7F77DD] bg-[#EEEDFE] p-3 active:scale-[0.99]"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#534AB7] text-base font-bold text-white">
+            <Plus className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-[#26215C]">Looking for rent</div>
+            <div className="text-[11px] text-[#534AB7]/80">Post what you need to rent</div>
+          </div>
+        </Link>
+
         <Link
           to="/listings/new"
           className="mt-2 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 active:scale-[0.99]"
