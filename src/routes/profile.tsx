@@ -82,6 +82,20 @@ function ProfilePage() {
       return count ?? 0;
     },
   });
+
+  const { data: forRentList = [] } = useQuery({
+    queryKey: ["profile-for-rent-list"],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("rental_listings")
+        .select("id, title, category, price_per_day, location, rental_photos(photo_url)")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(6);
+      return (data as Array<{ id: string; title: string; category: string; price_per_day: number; location: string; rental_photos: { photo_url: string }[] }> | null) ?? [];
+    },
+  });
   const [addingPhotos, setAddingPhotos] = useState(false);
   const [requestingHelp, setRequestingHelp] = useState(false);
   const requestFreeHelpFn = useServerFn(requestFreeHelp);
