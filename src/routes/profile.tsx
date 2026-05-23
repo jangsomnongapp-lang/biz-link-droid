@@ -289,8 +289,8 @@ function ProfilePage() {
   }
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
     <div>
+
       {/* Blue header */}
       <div className="relative bg-primary px-5 pb-6 pt-5 text-primary-foreground">
         <div className="mb-3 flex items-center justify-between">
@@ -885,7 +885,6 @@ function ProfilePage() {
         </button>
       </div>
     </div>
-    </PullToRefresh>
   );
 }
 

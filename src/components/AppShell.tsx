@@ -1,9 +1,11 @@
 import { Link, useLocation } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Home, Newspaper, Bell, User, Menu, Plus, Search, MessageCircle, Store } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
@@ -11,6 +13,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const path = location.pathname;
   const [mySupplierStoreId, setMySupplierStoreId] = useState<string | null>(null);
+  const qc = useQueryClient();
+
+  async function handleRefresh() {
+    await qc.invalidateQueries();
+  }
 
   useEffect(() => {
     if (!user) {
@@ -98,7 +105,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         })}
       </nav>
 
-      <main className="flex-1 pb-4">{children}</main>
+      <main className="flex-1 pb-4">
+        <PullToRefresh onRefresh={handleRefresh}>{children}</PullToRefresh>
+      </main>
     </div>
   );
 }
