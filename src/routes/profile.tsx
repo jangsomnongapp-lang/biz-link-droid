@@ -887,7 +887,6 @@ function ProfilePage() {
     </div>
   );
 }
-}
 
 function Section({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
