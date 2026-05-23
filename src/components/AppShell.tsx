@@ -105,7 +105,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         })}
       </nav>
 
-      <main className="flex-1 pb-4">{children}</main>
+      <main className="flex-1 pb-4">
+        <PullToRefresh onRefresh={handleRefresh}>{children}</PullToRefresh>
+      </main>
     </div>
   );
 }
