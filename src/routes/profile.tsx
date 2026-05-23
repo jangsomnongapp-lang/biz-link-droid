@@ -279,7 +279,17 @@ function ProfilePage() {
   if (profile?.is_organization) roleLabels.push(t("role_organization"));
   if (profile?.is_client) roleLabels.push(t("role_client"));
 
+  async function handleRefresh() {
+    await Promise.all([
+      loadProfile(),
+      qc.invalidateQueries({ queryKey: ["profile:page", user?.id ?? null] }),
+      qc.invalidateQueries({ queryKey: ["profile-ticket-count", user?.id] }),
+      qc.invalidateQueries(),
+    ]);
+  }
+
   return (
+    <PullToRefresh onRefresh={handleRefresh}>
     <div>
       {/* Blue header */}
       <div className="relative bg-primary px-5 pb-6 pt-5 text-primary-foreground">
