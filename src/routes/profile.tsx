@@ -885,8 +885,8 @@ function ProfilePage() {
         </button>
       </div>
     </div>
-    </PullToRefresh>
   );
+}
 }
 
 function Section({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
