@@ -428,6 +428,24 @@ function ProfilePage() {
         </div>
       )}
 
+      {/* List something for rent */}
+      <div className="px-3 pt-3">
+        <Link
+          to="/rentals/new"
+          className="flex w-full items-center gap-3 rounded-xl border border-[#7F77DD] bg-surface p-3 shadow-card active:scale-[0.99]"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#534AB7] text-white">
+            <Plus className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-foreground">List something for rent</p>
+            <p className="text-[11px] text-muted-foreground">Earn money from your tools &amp; machinery</p>
+          </div>
+        </Link>
+      </div>
+
+
+
 
       {/* About */}
       <Section title={t("about_me")}>
