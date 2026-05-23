@@ -8,7 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Camera, LogOut, Gift, Plus } from "lucide-react";
+import { Camera, LogOut, Gift, Plus, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
 import { requestFreeHelp } from "@/lib/help-request.functions";
@@ -80,6 +80,20 @@ function ProfilePage() {
         .eq("user_id", user!.id)
         .eq("status", "active");
       return count ?? 0;
+    },
+  });
+
+  const { data: forRentList = [] } = useQuery({
+    queryKey: ["profile-for-rent-list"],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("rental_listings")
+        .select("id, title, category, price_per_day, location, rental_photos(photo_url)")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(6);
+      return (data as Array<{ id: string; title: string; category: string; price_per_day: number; location: string; rental_photos: { photo_url: string }[] }> | null) ?? [];
     },
   });
   const [addingPhotos, setAddingPhotos] = useState(false);
@@ -370,15 +384,49 @@ function ProfilePage() {
         ))}
       </div>
 
-      {/* Post a rental request */}
+      {/* Looking for rent */}
       <div className="px-3 pt-3">
         <Link
           to="/rentals/request/new"
           className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#534AB7] text-sm font-bold text-white shadow-card active:scale-[0.99]"
         >
-          <Plus className="h-4 w-4" /> Post what you're looking for
+          <Plus className="h-4 w-4" /> Looking for rent
         </Link>
       </div>
+
+      {/* For rent list */}
+      {forRentList.length > 0 && (
+        <div className="px-3 pt-3">
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-foreground">For rent</h3>
+            <Link to="/suppliers" className="text-xs font-semibold text-[#534AB7]">See all</Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {forRentList.map((r) => (
+              <Link
+                key={r.id}
+                to="/rentals/$rentalId"
+                params={{ rentalId: r.id }}
+                className="w-40 shrink-0 overflow-hidden rounded-xl border border-[#7F77DD] bg-surface shadow-card active:scale-[0.99]"
+              >
+                <div className="aspect-square bg-muted">
+                  {r.rental_photos[0]?.photo_url ? (
+                    <img src={r.rental_photos[0].photo_url} alt="" className="h-full w-full object-cover" />
+                  ) : null}
+                </div>
+                <div className="p-2">
+                  <p className="truncate text-xs font-bold text-foreground">{r.title}</p>
+                  <div className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{r.location}</span>
+                  </div>
+                  <div className="mt-1 text-sm font-bold text-[#534AB7]">${r.price_per_day}<span className="text-[10px] font-normal text-muted-foreground">/day</span></div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
 
       {/* About */}
