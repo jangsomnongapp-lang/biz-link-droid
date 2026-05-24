@@ -18,7 +18,7 @@ export default function Welcome() {
       {/* Language switch */}
       <div className="flex w-full justify-end">
         <div className="flex overflow-hidden rounded-pill bg-white/95 text-xs font-semibold text-foreground shadow-card">
-          {(["km", "en"] as Lang[]).map((l) => (
+          {(["en", "km"] as Lang[]).map((l) => (
             <button
               key={l}
               type="button"
