@@ -65,6 +65,8 @@ function SuperUserPanel() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showInbox, setShowInbox] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [phoneTarget, setPhoneTarget] = useState<IdentityRow | null>(null);
+  const setPhoneFn = useServerFn(setIdentityPhoneLogin);
 
   function authHeaders() {
     if (!session?.access_token) throw new Error("Missing session");
