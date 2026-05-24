@@ -9,6 +9,12 @@ function syntheticEmail(masterId: string) {
   return `identity-${masterId.slice(0, 8)}-${suffix}@buildhub.local`;
 }
 
+/** Mirror of phoneToEmail in src/lib/auth.tsx — keep in sync. */
+function phoneToEmail(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  return `p${digits}@project001.local`;
+}
+
 async function assertSuperUser(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("profiles")
