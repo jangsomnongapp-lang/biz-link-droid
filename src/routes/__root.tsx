@@ -15,6 +15,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
       { title: "BuildHub — Find work, find workers" },
       { name: "description", content: "Mobile marketplace connecting construction workers and clients in Cambodia." },
+      { name: "google-site-verification", content: "YOoqpLLQz8Vzu_FBJ6FR5Ulv5IxYgytqu9uSJ5-Lrsc" },
       { name: "theme-color", content: "#1a56a0" },
       { property: "og:title", content: "BuildHub — Find work, find workers" },
       { name: "twitter:title", content: "BuildHub — Find work, find workers" },
