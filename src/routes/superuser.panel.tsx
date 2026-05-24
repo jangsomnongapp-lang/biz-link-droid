@@ -9,9 +9,10 @@ import {
   createIdentity,
   switchToIdentity,
   getUnifiedInbox,
+  setIdentityPhoneLogin,
 } from "@/server/super-user.functions";
 import { toast } from "sonner";
-import { Plus, Inbox, X, ArrowLeft } from "lucide-react";
+import { Plus, Inbox, X, ArrowLeft, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/superuser/panel")({
   component: () => (
@@ -64,6 +65,8 @@ function SuperUserPanel() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [showInbox, setShowInbox] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [phoneTarget, setPhoneTarget] = useState<IdentityRow | null>(null);
+  const setPhoneFn = useServerFn(setIdentityPhoneLogin);
 
   function authHeaders() {
     if (!session?.access_token) throw new Error("Missing session");
@@ -207,6 +210,7 @@ function SuperUserPanel() {
                 row={row}
                 active={activeId === row.identity_user_id}
                 onSwitch={() => handleSwitch(row.identity_user_id)}
+                onAssignPhone={() => setPhoneTarget(row)}
               />
             ))}
             {others.length === 0 && (
@@ -240,6 +244,18 @@ function SuperUserPanel() {
           authHeaders={authHeaders}
         />
       )}
+      {phoneTarget && (
+        <AssignPhoneSheet
+          row={phoneTarget}
+          onClose={() => setPhoneTarget(null)}
+          onSaved={() => {
+            setPhoneTarget(null);
+            void load();
+          }}
+          setPhoneFn={setPhoneFn}
+          authHeaders={authHeaders}
+        />
+      )}
     </div>
   );
 }
@@ -248,10 +264,12 @@ function IdentityCard({
   row,
   active,
   onSwitch,
+  onAssignPhone,
 }: {
   row: IdentityRow;
   active: boolean;
   onSwitch: () => void;
+  onAssignPhone?: () => void;
 }) {
   const initials =
     (row.profile?.full_name ?? "??")
@@ -263,9 +281,11 @@ function IdentityCard({
       .toUpperCase() || "??";
   const isOfficial = row.is_official;
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onSwitch}
-      className={`flex w-full items-center gap-3 rounded-xl border bg-[#1a1a35] px-4 py-3 text-left transition-colors active:scale-[0.99] ${
+      className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border bg-[#1a1a35] px-4 py-3 text-left transition-colors active:scale-[0.99] ${
         isOfficial ? "border-primary" : "border-white/10 hover:border-white/20"
       }`}
     >
@@ -295,6 +315,18 @@ function IdentityCard({
         <p className="truncate text-[11px] text-white/50">{row.description ?? ""}</p>
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
+        {onAssignPhone && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAssignPhone();
+            }}
+            title="Assign phone login"
+            className="rounded-full bg-white/10 p-1.5 hover:bg-primary"
+          >
+            <Phone className="h-3.5 w-3.5" />
+          </button>
+        )}
         {row.badges.slice(0, 2).map((b) => (
           <span
             key={b}
@@ -312,7 +344,7 @@ function IdentityCard({
           className={`h-2 w-2 rounded-full ${active ? "bg-emerald-400" : "bg-white/20"}`}
         />
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -502,6 +534,95 @@ function UnifiedInbox({
             </button>
           ))
         )}
+      </div>
+    </div>
+  );
+}
+
+function AssignPhoneSheet({
+  row,
+  onClose,
+  onSaved,
+  setPhoneFn,
+  authHeaders,
+}: {
+  row: IdentityRow;
+  onClose: () => void;
+  onSaved: () => void;
+  setPhoneFn: ReturnType<typeof useServerFn<typeof setIdentityPhoneLogin>>;
+  authHeaders: () => { Authorization: string };
+}) {
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (phone.replace(/\D/g, "").length < 6) {
+      toast.error("Enter a valid phone number");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setSaving(true);
+    try {
+      await setPhoneFn({
+        data: { identity_user_id: row.identity_user_id, phone: phone.trim(), password },
+        headers: authHeaders(),
+      });
+      toast.success("Phone login assigned");
+      onSaved();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center">
+      <div className="w-full max-w-md rounded-t-2xl bg-[#13132a] p-5 text-white sm:rounded-2xl">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-base font-semibold">Assign phone login</h3>
+          <button onClick={onClose} className="rounded-full p-1 hover:bg-white/10">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <p className="mb-4 text-[11px] text-white/60">
+          Anyone who signs in with this phone + password will land directly on{" "}
+          <span className="font-semibold text-white">
+            {row.profile?.full_name ?? "this identity"}
+          </span>{" "}
+          — no switching needed.
+        </p>
+        <div className="space-y-3">
+          <Field label="Phone (digits only)">
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              inputMode="tel"
+              placeholder="855xxxxxxxx"
+              className="w-full rounded-lg bg-[#0b0b1a] px-3 py-2 text-sm outline-none ring-1 ring-white/10 focus:ring-primary"
+            />
+          </Field>
+          <Field label="Password">
+            <input
+              type="text"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              className="w-full rounded-lg bg-[#0b0b1a] px-3 py-2 text-sm outline-none ring-1 ring-white/10 focus:ring-primary"
+            />
+          </Field>
+          <button
+            onClick={save}
+            disabled={saving}
+            className="mt-2 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold disabled:opacity-60"
+          >
+            {saving ? "Saving…" : "Save phone login"}
+          </button>
+        </div>
       </div>
     </div>
   );
