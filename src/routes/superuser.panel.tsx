@@ -264,10 +264,12 @@ function IdentityCard({
   row,
   active,
   onSwitch,
+  onAssignPhone,
 }: {
   row: IdentityRow;
   active: boolean;
   onSwitch: () => void;
+  onAssignPhone?: () => void;
 }) {
   const initials =
     (row.profile?.full_name ?? "??")
@@ -279,9 +281,11 @@ function IdentityCard({
       .toUpperCase() || "??";
   const isOfficial = row.is_official;
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onSwitch}
-      className={`flex w-full items-center gap-3 rounded-xl border bg-[#1a1a35] px-4 py-3 text-left transition-colors active:scale-[0.99] ${
+      className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border bg-[#1a1a35] px-4 py-3 text-left transition-colors active:scale-[0.99] ${
         isOfficial ? "border-primary" : "border-white/10 hover:border-white/20"
       }`}
     >
@@ -311,6 +315,18 @@ function IdentityCard({
         <p className="truncate text-[11px] text-white/50">{row.description ?? ""}</p>
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
+        {onAssignPhone && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAssignPhone();
+            }}
+            title="Assign phone login"
+            className="rounded-full bg-white/10 p-1.5 hover:bg-primary"
+          >
+            <Phone className="h-3.5 w-3.5" />
+          </button>
+        )}
         {row.badges.slice(0, 2).map((b) => (
           <span
             key={b}
@@ -328,7 +344,7 @@ function IdentityCard({
           className={`h-2 w-2 rounded-full ${active ? "bg-emerald-400" : "bg-white/20"}`}
         />
       </div>
-    </button>
+    </div>
   );
 }
 
