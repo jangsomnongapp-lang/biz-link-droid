@@ -345,3 +345,56 @@ export const amISuperUser = createServerFn({ method: "GET" })
       isIdentity: !!data?.master_account_id,
     };
   });
+
+/**
+ * Assign a phone-number login to a sub-identity. Anyone signing in with that
+ * phone + password lands directly on that identity (no manual switching).
+ * Only the master super user can call this.
+ */
+export const setIdentityPhoneLogin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      identity_user_id: z.string().uuid(),
+      phone: z.string().min(6).max(20),
+      password: z.string().min(6).max(72),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const masterId = await assertSuperUser(context.userId);
+
+    // Verify target belongs to this master
+    const { data: target, error: tErr } = await supabaseAdmin
+      .from("profiles")
+      .select("id, master_account_id")
+      .eq("id", data.identity_user_id)
+      .maybeSingle();
+    if (tErr) throw new Error(tErr.message);
+    if (!target || target.master_account_id !== masterId) {
+      throw new Error("Identity not found");
+    }
+
+    const email = phoneToEmail(data.phone);
+
+    // Ensure this phone is not already taken by another auth user
+    const { data: existing } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("phone", data.phone)
+      .neq("id", data.identity_user_id)
+      .maybeSingle();
+    if (existing) throw new Error("Phone number already in use");
+
+    const { error: uErr } = await supabaseAdmin.auth.admin.updateUserById(
+      data.identity_user_id,
+      { email, password: data.password, email_confirm: true },
+    );
+    if (uErr) throw new Error(uErr.message);
+
+    await supabaseAdmin
+      .from("profiles")
+      .update({ phone: data.phone })
+      .eq("id", data.identity_user_id);
+
+    return { ok: true };
+  });
