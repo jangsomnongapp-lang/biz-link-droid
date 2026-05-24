@@ -244,6 +244,18 @@ function SuperUserPanel() {
           authHeaders={authHeaders}
         />
       )}
+      {phoneTarget && (
+        <AssignPhoneSheet
+          row={phoneTarget}
+          onClose={() => setPhoneTarget(null)}
+          onSaved={() => {
+            setPhoneTarget(null);
+            void load();
+          }}
+          setPhoneFn={setPhoneFn}
+          authHeaders={authHeaders}
+        />
+      )}
     </div>
   );
 }
