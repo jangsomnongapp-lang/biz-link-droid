@@ -538,3 +538,92 @@ function UnifiedInbox({
     </div>
   );
 }
+
+function AssignPhoneSheet({
+  row,
+  onClose,
+  onSaved,
+  setPhoneFn,
+  authHeaders,
+}: {
+  row: IdentityRow;
+  onClose: () => void;
+  onSaved: () => void;
+  setPhoneFn: ReturnType<typeof useServerFn<typeof setIdentityPhoneLogin>>;
+  authHeaders: () => { Authorization: string };
+}) {
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (phone.replace(/\D/g, "").length < 6) {
+      toast.error("Enter a valid phone number");
+      return;
+    }
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setSaving(true);
+    try {
+      await setPhoneFn({
+        data: { identity_user_id: row.identity_user_id, phone: phone.trim(), password },
+        headers: authHeaders(),
+      });
+      toast.success("Phone login assigned");
+      onSaved();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center">
+      <div className="w-full max-w-md rounded-t-2xl bg-[#13132a] p-5 text-white sm:rounded-2xl">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-base font-semibold">Assign phone login</h3>
+          <button onClick={onClose} className="rounded-full p-1 hover:bg-white/10">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <p className="mb-4 text-[11px] text-white/60">
+          Anyone who signs in with this phone + password will land directly on{" "}
+          <span className="font-semibold text-white">
+            {row.profile?.full_name ?? "this identity"}
+          </span>{" "}
+          — no switching needed.
+        </p>
+        <div className="space-y-3">
+          <Field label="Phone (digits only)">
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              inputMode="tel"
+              placeholder="855xxxxxxxx"
+              className="w-full rounded-lg bg-[#0b0b1a] px-3 py-2 text-sm outline-none ring-1 ring-white/10 focus:ring-primary"
+            />
+          </Field>
+          <Field label="Password">
+            <input
+              type="text"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              className="w-full rounded-lg bg-[#0b0b1a] px-3 py-2 text-sm outline-none ring-1 ring-white/10 focus:ring-primary"
+            />
+          </Field>
+          <button
+            onClick={save}
+            disabled={saving}
+            className="mt-2 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold disabled:opacity-60"
+          >
+            {saving ? "Saving…" : "Save phone login"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
