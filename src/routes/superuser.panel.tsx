@@ -210,6 +210,7 @@ function SuperUserPanel() {
                 row={row}
                 active={activeId === row.identity_user_id}
                 onSwitch={() => handleSwitch(row.identity_user_id)}
+                onAssignPhone={() => setPhoneTarget(row)}
               />
             ))}
             {others.length === 0 && (
