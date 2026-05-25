@@ -203,8 +203,10 @@ function SectionLabel({ title }: { title: string }) {
 
 function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18n>["t"]; highlighted?: boolean }) {
   const { user } = useAuth();
+  const { lang } = useI18n();
   const nav = useNavigate();
   const [opening, setOpening] = useState(false);
+  const loc = localizeNotif(n, lang);
   const Icon =
     n.kind === "application" || n.kind === "accepted"
       ? Check
