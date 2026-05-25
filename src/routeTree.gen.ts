@@ -57,6 +57,7 @@ import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$t
 import { Route as RentalsRequestNewRouteImport } from './routes/rentals.request.new'
 import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
 import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -298,6 +299,12 @@ const ApiPublicTelegramNotifyRoute = ApiPublicTelegramNotifyRouteImport.update({
   path: '/api/public/telegram-notify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -348,6 +355,7 @@ export interface FileRoutesByFullPath {
   '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -398,6 +406,7 @@ export interface FileRoutesByTo {
   '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -449,6 +458,7 @@ export interface FileRoutesById {
   '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -501,6 +511,7 @@ export interface FileRouteTypes {
     | '/rentals/request/new'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -551,6 +562,7 @@ export interface FileRouteTypes {
     | '/rentals/request/new'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -601,6 +613,7 @@ export interface FileRouteTypes {
     | '/rentals/request/new'
     | '/supplier/join/$token'
     | '/suppliers/$storeId/edit'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -647,6 +660,7 @@ export interface RootRouteChildren {
   ProjectsNewWorkerIdRoute: typeof ProjectsNewWorkerIdRoute
   RentalsRequestNewRoute: typeof RentalsRequestNewRoute
   SupplierJoinTokenRoute: typeof SupplierJoinTokenRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -987,6 +1001,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTelegramNotifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1072,6 +1093,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsNewWorkerIdRoute: ProjectsNewWorkerIdRoute,
   RentalsRequestNewRoute: RentalsRequestNewRoute,
   SupplierJoinTokenRoute: SupplierJoinTokenRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
