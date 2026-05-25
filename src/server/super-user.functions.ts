@@ -22,11 +22,9 @@ async function assertSuperUser(userId: string) {
     .eq("id", userId)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  // Only explicit super users may use the super-user surface.
-  // Admins are NOT auto-promoted; granting super-user must be a deliberate action.
-  if (data?.is_super_user) {
-    return data.id;
-  }
+  // If this account is linked to a master, always resolve to the master so
+  // sub-identities (even ones that also happen to be flagged as super users
+  // themselves) operate on the parent's identity list and can switch back.
   if (data?.master_account_id) {
     const { data: master, error: masterError } = await supabaseAdmin
       .from("profiles")
@@ -35,6 +33,9 @@ async function assertSuperUser(userId: string) {
       .maybeSingle();
     if (masterError) throw new Error(masterError.message);
     if (master?.is_super_user || master?.is_admin) return master.id;
+  }
+  if (data?.is_super_user) {
+    return data.id;
   }
   throw new Error("Forbidden: not a super user");
 }
