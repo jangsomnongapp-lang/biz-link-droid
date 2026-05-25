@@ -234,8 +234,8 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   const body = (
     <div className="min-w-0 flex-1">
       <p className="text-sm leading-snug text-foreground">
-        <span className="font-semibold">{n.title}</span>
-        {n.body && <span> {n.body}</span>}
+        <span className="font-semibold">{loc.title}</span>
+        {loc.body && <span> {loc.body}</span>}
       </p>
       <p className="mt-0.5 text-[11px] text-muted-foreground">{timeAgo(n.created_at, t)}</p>
     </div>
