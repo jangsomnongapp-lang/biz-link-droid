@@ -5,11 +5,81 @@ import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Lang } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, MessageCircle, Star, Info } from "lucide-react";
 import { toast } from "sonner";
 import { timeAgo } from "@/lib/format";
+
+/** Localize a notification by kind. Falls back to stored title/body when unknown. */
+function localizeNotif(
+  n: { kind: string; title: string; body: string | null; related_user?: { full_name: string | null } | null },
+  lang: Lang,
+): { title: string; body: string | null } {
+  const name = n.related_user?.full_name ?? "";
+  const map: Record<string, { title: { km: string; en: string }; body?: { km: string; en: string } }> = {
+    application: {
+      title: { km: `${name} បានដាក់ពាក្យសុំធ្វើគម្រោងរបស់អ្នក`, en: `${name} applied to your project` },
+    },
+    accepted: {
+      title: { km: "អ្នកត្រូវបានទទួលយកសម្រាប់គម្រោងមួយ", en: "You were accepted for a project" },
+    },
+    project_request: {
+      title: { km: `${name} ចង់ចាប់ផ្តើមគម្រោងជាមួយអ្នក`, en: `${name} wants to start a project with you` },
+    },
+    project_accepted: {
+      title: { km: `${name} បានទទួលយកគម្រោងរបស់អ្នក`, en: `${name} accepted your project` },
+    },
+    project_completed: {
+      title: { km: "គម្រោងត្រូវបានសម្គាល់ថាបញ្ចប់", en: "Project marked completed" },
+    },
+    project_completion_request: {
+      title: { km: "ស្នើបញ្ចប់គម្រោង — សូមបញ្ជាក់", en: "Project finish requested — please confirm" },
+    },
+    like: {
+      title: { km: `${name} បានចូលចិត្តការបង្ហោះរបស់អ្នក`, en: `${name} liked your post` },
+    },
+    comment: {
+      title: { km: `${name} បានបញ្ចេញមតិលើការបង្ហោះរបស់អ្នក`, en: `${name} commented on your post` },
+    },
+    comment_like: {
+      title: { km: `${name} បានចូលចិត្តមតិរបស់អ្នក`, en: `${name} liked your comment` },
+    },
+    reply: {
+      title: { km: `${name} បានឆ្លើយតបមតិរបស់អ្នក`, en: `${name} replied to your comment` },
+    },
+    message: {
+      title: { km: `សារថ្មីពី ${name}`, en: `New message from ${name}` },
+    },
+    new_listing: {
+      title: { km: `${name} បានបង្ហោះការផ្សាយថ្មី`, en: `${name} posted a new listing` },
+    },
+    rental_approved: {
+      title: { km: "ការជួលរបស់អ្នកត្រូវបានអនុម័ត", en: "Your rental was approved" },
+    },
+    lottery_win: {
+      title: { km: "🎉 អ្នកបានឈ្នះការចាប់ឆ្នោតប្រចាំថ្ងៃ!", en: "🎉 You won the daily draw!" },
+      body: { km: "ទាមទារក្នុងរយៈពេល ៤៨ ម៉ោង · រង្វាន់ប្រចាំថ្ងៃ $1", en: "Claim within 48 hours · $1 Daily Prize" },
+    },
+    material_available: {
+      title: { km: "អ្នកផ្គត់ផ្គង់មានទំនិញដែលអ្នកស្វែងរក", en: "A supplier has the item you need" },
+      body: { km: "ចុចដើម្បីជជែកជាមួយអ្នកផ្គត់ផ្គង់", en: "Tap to chat with the supplier" },
+    },
+    help_request: {
+      title: { km: `សំណើជំនួយឥតគិតថ្លៃពី ${name}`, en: `Free help request from ${name}` },
+    },
+    help_request_sent: {
+      title: { km: "សំណើជំនួយឥតគិតថ្លៃរបស់អ្នកត្រូវបានផ្ញើ", en: "Your free help request was sent" },
+      body: { km: "អ្នកគ្រប់គ្រងនឹងទាក់ទងអ្នកក្នុងពេលឆាប់ៗ។", en: "An admin will contact you shortly." },
+    },
+  };
+  const entry = map[n.kind];
+  if (!entry) return { title: n.title, body: n.body };
+  return {
+    title: entry.title[lang],
+    body: entry.body ? entry.body[lang] : n.body,
+  };
+}
 
 export const Route = createFileRoute("/alerts")({
   component: () => (
@@ -133,8 +203,10 @@ function SectionLabel({ title }: { title: string }) {
 
 function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18n>["t"]; highlighted?: boolean }) {
   const { user } = useAuth();
+  const { lang } = useI18n();
   const nav = useNavigate();
   const [opening, setOpening] = useState(false);
+  const loc = localizeNotif(n, lang);
   const Icon =
     n.kind === "application" || n.kind === "accepted"
       ? Check
@@ -164,8 +236,8 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   const body = (
     <div className="min-w-0 flex-1">
       <p className="text-sm leading-snug text-foreground">
-        <span className="font-semibold">{n.title}</span>
-        {n.body && <span> {n.body}</span>}
+        <span className="font-semibold">{loc.title}</span>
+        {loc.body && <span> {loc.body}</span>}
       </p>
       <p className="mt-0.5 text-[11px] text-muted-foreground">{timeAgo(n.created_at, t)}</p>
     </div>
