@@ -150,11 +150,15 @@ export function PullToRefresh({
 
       {/* Content with elastic translation */}
       <div
-        style={{
-          transform: isActive ? `translateY(${Math.min(pull, 100)}px)` : "translateY(0)",
-          transition: phase === "pulling" ? "none" : "transform 400ms cubic-bezier(0.22, 1, 0.36, 1)",
-          willChange: "transform",
-        }}
+        style={
+          isActive || phase !== "idle"
+            ? {
+                transform: `translateY(${isActive ? Math.min(pull, 100) : 0}px)`,
+                transition: phase === "pulling" ? "none" : "transform 400ms cubic-bezier(0.22, 1, 0.36, 1)",
+                willChange: "transform",
+              }
+            : undefined
+        }
       >
         {children}
       </div>
