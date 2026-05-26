@@ -146,20 +146,26 @@ function ProfilePage() {
     if (!file || !user) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(file)) return;
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    setPendingAvatar(dataUrl);
+  }
+
+  async function saveCroppedAvatar(cropped: string) {
+    if (!user) return;
     setUploadingAvatar(true);
     try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(String(r.result));
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
       const { error } = await supabase
         .from("profiles")
-        .update({ avatar_url: dataUrl })
+        .update({ avatar_url: cropped })
         .eq("id", user.id);
       if (error) throw error;
-      setProfile((p) => (p ? { ...p, avatar_url: dataUrl } : p));
+      setProfile((p) => (p ? { ...p, avatar_url: cropped } : p));
+      setPendingAvatar(null);
       toast.success(lang === "km" ? "បានរក្សាទុក" : "Photo updated");
     } catch (err: any) {
       toast.error(err?.message ?? "Upload failed");
