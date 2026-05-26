@@ -7,6 +7,8 @@ interface Props {
   onCancel: () => void;
   onConfirm: (dataUrl: string) => void;
   saving?: boolean;
+  cropShape?: "round" | "rect";
+  aspect?: number;
 }
 
 async function getCroppedImage(src: string, area: Area): Promise<string> {
