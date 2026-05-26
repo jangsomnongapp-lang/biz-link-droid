@@ -123,6 +123,12 @@ function SupplierJoinPage() {
 
       if (isLoggedIn) {
         userId = user!.id;
+        // Ensure profile is flagged as supplier (required by RLS on supplier_stores)
+        const { error: upErr } = await supabase
+          .from("profiles")
+          .update({ is_supplier: true })
+          .eq("id", userId);
+        if (upErr) throw upErr;
       } else {
         const email = phoneToEmail(phone);
         phoneFmt = `+855${phone.replace(/\D/g, "")}`;
@@ -144,6 +150,7 @@ function SupplierJoinPage() {
         if (!newId) throw new Error("Signup failed");
         userId = newId;
       }
+
 
       // Insert store
       const { data: storeRow, error: storeErr } = await supabase
