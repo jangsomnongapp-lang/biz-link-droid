@@ -54,12 +54,8 @@ function SupplierJoinPage() {
       });
   }, [token]);
 
-  useEffect(() => {
-    if (!loading && user) {
-      // Already logged in: send them home (they likely already have an account)
-      nav({ to: "/home" });
-    }
-  }, [user, loading, nav]);
+  // Note: logged-in users can also use the invite to create a supplier store
+  // linked to their existing account — no redirect.
 
   useEffect(() => {
     void supabase
@@ -110,30 +106,44 @@ function SupplierJoinPage() {
   }
 
   async function submit() {
-    if (!storeName.trim() || !phone.trim() || password.length < 6) {
+    // If already logged in, skip auth and use current user
+    const isLoggedIn = !!user;
+    if (!storeName.trim()) {
+      toast.error(lang === "km" ? "សូមបំពេញឈ្មោះហាង" : "Please enter store name");
+      return;
+    }
+    if (!isLoggedIn && (!phone.trim() || password.length < 6)) {
       toast.error(lang === "km" ? "សូមបំពេញគ្រប់ប្រអប់" : "Please fill all fields (password 6+ chars)");
       return;
     }
     setSubmitting(true);
     try {
-      const email = phoneToEmail(phone);
-      const phoneFmt = `+855${phone.replace(/\D/g, "")}`;
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/home`,
-          data: {
-            full_name: storeName.trim(),
-            phone: phoneFmt,
-            language: lang,
-            is_supplier: true,
+      let userId: string;
+      let phoneFmt: string | null = null;
+
+      if (isLoggedIn) {
+        userId = user!.id;
+      } else {
+        const email = phoneToEmail(phone);
+        phoneFmt = `+855${phone.replace(/\D/g, "")}`;
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/home`,
+            data: {
+              full_name: storeName.trim(),
+              phone: phoneFmt,
+              language: lang,
+              is_supplier: true,
+            },
           },
-        },
-      });
-      if (error) throw error;
-      const userId = data.user?.id;
-      if (!userId) throw new Error("Signup failed");
+        });
+        if (error) throw error;
+        const newId = data.user?.id;
+        if (!newId) throw new Error("Signup failed");
+        userId = newId;
+      }
 
       // Insert store
       const { data: storeRow, error: storeErr } = await supabase
@@ -361,40 +371,46 @@ function SupplierJoinPage() {
         {step === 3 && (
           <div>
             <h1 className="text-xl font-bold text-foreground">{t("almost_there")}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t("create_account_submit")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {user ? (lang === "km" ? "បញ្ជូនហាងសម្រាប់ការត្រួតពិនិត្យ" : "Submit your store for review") : t("create_account_submit")}
+            </p>
             <div className="mt-5 space-y-4">
-              <Field label={`${t("phone")} *`}>
-                <div className="flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-primary">
-                  <span className="border-r border-border px-3 text-sm font-medium text-muted-foreground">
-                    +855
-                  </span>
-                  <input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    inputMode="tel"
-                    placeholder={t("phone_ph")}
-                    className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
-                  />
-                </div>
-              </Field>
-              <Field label={`${t("password")} *`}>
-                <div className="flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-primary">
-                  <input
-                    type={showPwd ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
-                    placeholder="••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPwd(!showPwd)}
-                    className="px-3 text-sm font-medium text-primary"
-                  >
-                    {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </Field>
+              {!user && (
+                <>
+                  <Field label={`${t("phone")} *`}>
+                    <div className="flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-primary">
+                      <span className="border-r border-border px-3 text-sm font-medium text-muted-foreground">
+                        +855
+                      </span>
+                      <input
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        inputMode="tel"
+                        placeholder={t("phone_ph")}
+                        className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
+                      />
+                    </div>
+                  </Field>
+                  <Field label={`${t("password")} *`}>
+                    <div className="flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-primary">
+                      <input
+                        type={showPwd ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
+                        placeholder="••••••"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPwd(!showPwd)}
+                        className="px-3 text-sm font-medium text-primary"
+                      >
+                        {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </Field>
+                </>
+              )}
 
               <div className="rounded-xl border border-amber-500/40 bg-amber-50 p-3 text-xs text-amber-800">
                 ℹ️ {t("store_review_notice")}
