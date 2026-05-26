@@ -146,13 +146,13 @@ function EditProfilePage() {
     }
   }
 
-  async function savePortfolioPhoto() {
-    if (!user || !pendingPhoto) return;
+  async function savePortfolioPhoto(cropped: string) {
+    if (!user) return;
     setSavingPhoto(true);
     try {
       const { data, error } = await supabase
         .from("portfolio_photos")
-        .insert({ user_id: user.id, photo_url: pendingPhoto })
+        .insert({ user_id: user.id, photo_url: cropped })
         .select("id, photo_url")
         .single();
       if (error) throw error;
