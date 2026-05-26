@@ -17,12 +17,14 @@ async function getCroppedImage(src: string, area: Area): Promise<string> {
     img.onerror = reject;
     img.src = src;
   });
-  const size = Math.min(area.width, area.height, 512);
+  const size = 512;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas not supported");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, size, size);
   ctx.drawImage(image, area.x, area.y, area.width, area.height, 0, 0, size, size);
   return canvas.toDataURL("image/jpeg", 0.9);
 }
