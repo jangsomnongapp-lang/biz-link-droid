@@ -45,13 +45,16 @@ export function DailyTicketGate() {
       if (cancelled || !profile) return;
       if (!profile.is_provider && !profile.is_specialist) return;
 
-      const { data: check } = await supabase
-        .from("daily_availability")
-        .select("date")
+      // Skip only if user already has today's daily ticket — not just any availability row.
+      // Workers who marked "busy" earlier still deserve the chance to switch to available and earn a ticket.
+      const { data: existingTicket } = await supabase
+        .from("lottery_tickets")
+        .select("id")
         .eq("user_id", user.id)
-        .eq("date", today)
+        .eq("ticket_type", "daily")
+        .eq("draw_period_start", today)
         .maybeSingle();
-      if (cancelled || check) return;
+      if (cancelled || existingTicket) return;
 
       // Peek: next ticket number for today (display only)
       const { data: maxRow } = await supabase
