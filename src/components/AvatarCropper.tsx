@@ -65,7 +65,7 @@ export function AvatarCropper({ src, onCancel, onConfirm, saving }: Props) {
       <div className="space-y-3 bg-surface p-4">
         <input
           type="range"
-          min={1}
+          min={0.5}
           max={3}
           step={0.01}
           value={zoom}
