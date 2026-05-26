@@ -70,6 +70,7 @@ function ProfilePage() {
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [pendingAvatar, setPendingAvatar] = useState<string | null>(null);
 
   const { data: activeTicketCount = 0 } = useQuery({
     queryKey: ["profile-ticket-count", user?.id],
