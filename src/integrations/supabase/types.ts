@@ -1974,6 +1974,7 @@ export type Database = {
         Args: { _pid: string; _uid: string }
         Returns: boolean
       }
+      issue_daily_ticket_if_missing: { Args: never; Returns: Json }
       mark_daily_availability: { Args: { _status: string }; Returns: Json }
       move_to_dlq: {
         Args: {

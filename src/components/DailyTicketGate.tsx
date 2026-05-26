@@ -45,31 +45,24 @@ export function DailyTicketGate() {
       if (cancelled || !profile) return;
       if (!profile.is_provider && !profile.is_specialist) return;
 
-      // Skip only if user already has today's daily ticket — not just any availability row.
-      // Workers who marked "busy" earlier still deserve the chance to switch to available and earn a ticket.
-      const { data: existingTicket } = await supabase
-        .from("lottery_tickets")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("ticket_type", "daily")
-        .eq("draw_period_start", today)
-        .maybeSingle();
-      if (cancelled || existingTicket) return;
-
-      // Peek: next ticket number for today (display only)
-      const { data: maxRow } = await supabase
-        .from("lottery_tickets")
-        .select("ticket_number")
-        .eq("ticket_type", "daily")
-        .eq("draw_period_start", today)
-        .order("ticket_number", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const next = (maxRow?.ticket_number ?? 999) + 1;
+      // Auto-issue today's ticket if missing — every worker gets one when they
+      // open the app, regardless of availability status.
+      const { data: issued, error } = await supabase.rpc("issue_daily_ticket_if_missing");
+      if (cancelled || error) return;
+      const res = (issued ?? {}) as {
+        ticket_number?: number;
+        streak?: number;
+        already?: boolean;
+        skipped?: boolean;
+      };
+      if (res.skipped || res.already) return;
 
       setProfileName(profile.full_name ?? "");
-      setPreviewNumber(next);
+      setAssignedNumber(res.ticket_number ?? null);
+      setPreviewNumber(res.ticket_number ?? null);
+      setStreak(res.streak ?? 1);
       setStep(1);
+      setBoom(true);
       setOpen(true);
     })();
     return () => {
