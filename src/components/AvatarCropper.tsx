@@ -31,7 +31,7 @@ async function getCroppedImage(src: string, area: Area): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.9);
 }
 
-export function AvatarCropper({ src, onCancel, onConfirm, saving }: Props) {
+export function AvatarCropper({ src, onCancel, onConfirm, saving, cropShape = "round", aspect = 1 }: Props) {
   const { lang } = useI18n();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
