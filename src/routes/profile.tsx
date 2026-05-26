@@ -344,6 +344,14 @@ function ProfilePage() {
               onChange={onPickAvatar}
             />
           </div>
+          {pendingAvatar && (
+            <AvatarCropper
+              src={pendingAvatar}
+              saving={uploadingAvatar}
+              onCancel={() => setPendingAvatar(null)}
+              onConfirm={(cropped) => void saveCroppedAvatar(cropped)}
+            />
+          )}
           <h1 className="text-xl font-bold">{profile?.full_name ?? "—"}</h1>
           {profile?.member_number != null && (
             <p className="text-[11px] font-medium text-white/90">
