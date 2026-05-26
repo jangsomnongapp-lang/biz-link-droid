@@ -14,6 +14,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { requestFreeHelp } from "@/lib/help-request.functions";
 import { confirmCompletion, cancelCompletion } from "@/lib/projects.functions";
+import { AvatarCropper } from "@/components/AvatarCropper";
 
 export const Route = createFileRoute("/profile")({
   component: ProfileRoute,
