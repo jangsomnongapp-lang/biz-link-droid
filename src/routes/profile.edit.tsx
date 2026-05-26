@@ -414,7 +414,17 @@ function EditProfilePage() {
           {saving ? t("loading") : t("save_changes")}
         </button>
       </div>
+
+      {pendingAvatar && (
+        <AvatarCropper
+          src={pendingAvatar}
+          saving={uploadingAvatar}
+          onCancel={() => setPendingAvatar(null)}
+          onConfirm={(cropped) => void saveCroppedAvatar(cropped)}
+        />
+      )}
     </div>
+
   );
 }
 
