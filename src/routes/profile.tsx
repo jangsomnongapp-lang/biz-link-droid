@@ -14,6 +14,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { requestFreeHelp } from "@/lib/help-request.functions";
 import { confirmCompletion, cancelCompletion } from "@/lib/projects.functions";
+import { AvatarCropper } from "@/components/AvatarCropper";
 
 export const Route = createFileRoute("/profile")({
   component: ProfileRoute,
@@ -69,6 +70,7 @@ function ProfilePage() {
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [pendingAvatar, setPendingAvatar] = useState<string | null>(null);
 
   const { data: activeTicketCount = 0 } = useQuery({
     queryKey: ["profile-ticket-count", user?.id],
@@ -144,20 +146,26 @@ function ProfilePage() {
     if (!file || !user) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(file)) return;
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    setPendingAvatar(dataUrl);
+  }
+
+  async function saveCroppedAvatar(cropped: string) {
+    if (!user) return;
     setUploadingAvatar(true);
     try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(String(r.result));
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
       const { error } = await supabase
         .from("profiles")
-        .update({ avatar_url: dataUrl })
+        .update({ avatar_url: cropped })
         .eq("id", user.id);
       if (error) throw error;
-      setProfile((p) => (p ? { ...p, avatar_url: dataUrl } : p));
+      setProfile((p) => (p ? { ...p, avatar_url: cropped } : p));
+      setPendingAvatar(null);
       toast.success(lang === "km" ? "បានរក្សាទុក" : "Photo updated");
     } catch (err: any) {
       toast.error(err?.message ?? "Upload failed");
@@ -336,6 +344,14 @@ function ProfilePage() {
               onChange={onPickAvatar}
             />
           </div>
+          {pendingAvatar && (
+            <AvatarCropper
+              src={pendingAvatar}
+              saving={uploadingAvatar}
+              onCancel={() => setPendingAvatar(null)}
+              onConfirm={(cropped) => void saveCroppedAvatar(cropped)}
+            />
+          )}
           <h1 className="text-xl font-bold">{profile?.full_name ?? "—"}</h1>
           {profile?.member_number != null && (
             <p className="text-[11px] font-medium text-white/90">
