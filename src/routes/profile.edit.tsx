@@ -7,6 +7,8 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { AvatarCropper } from "@/components/AvatarCropper";
+
 
 export const Route = createFileRoute("/profile/edit")({
   component: () => (
@@ -45,8 +47,10 @@ function EditProfilePage() {
   const [photos, setPhotos] = useState<{ id: string; photo_url: string }[]>([]);
   const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
   const [savingPhoto, setSavingPhoto] = useState(false);
+  const [pendingAvatar, setPendingAvatar] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const portfolioInputRef = useRef<HTMLInputElement>(null);
+
 
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -54,20 +58,26 @@ function EditProfilePage() {
     if (!file || !user) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(file)) return;
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    setPendingAvatar(dataUrl);
+  }
+
+  async function saveCroppedAvatar(cropped: string) {
+    if (!user) return;
     setUploadingAvatar(true);
     try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(r.result as string);
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
       const { error } = await supabase
         .from("profiles")
-        .update({ avatar_url: dataUrl })
+        .update({ avatar_url: cropped })
         .eq("id", user.id);
       if (error) throw error;
-      setAvatarUrl(dataUrl);
+      setAvatarUrl(cropped);
+      setPendingAvatar(null);
       toast.success(lang === "km" ? "បានធ្វើបច្ចុប្បន្នភាពរូបភាព" : "Photo updated");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error");
@@ -75,6 +85,7 @@ function EditProfilePage() {
       setUploadingAvatar(false);
     }
   }
+
 
   useEffect(() => {
     if (!user) return;
@@ -403,7 +414,17 @@ function EditProfilePage() {
           {saving ? t("loading") : t("save_changes")}
         </button>
       </div>
+
+      {pendingAvatar && (
+        <AvatarCropper
+          src={pendingAvatar}
+          saving={uploadingAvatar}
+          onCancel={() => setPendingAvatar(null)}
+          onConfirm={(cropped) => void saveCroppedAvatar(cropped)}
+        />
+      )}
     </div>
+
   );
 }
 
