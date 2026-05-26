@@ -7,6 +7,8 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { AvatarCropper } from "@/components/AvatarCropper";
+
 
 export const Route = createFileRoute("/profile/edit")({
   component: () => (
