@@ -17,12 +17,14 @@ async function getCroppedImage(src: string, area: Area): Promise<string> {
     img.onerror = reject;
     img.src = src;
   });
-  const size = Math.min(area.width, area.height, 512);
+  const size = 512;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas not supported");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, size, size);
   ctx.drawImage(image, area.x, area.y, area.width, area.height, 0, 0, size, size);
   return canvas.toDataURL("image/jpeg", 0.9);
 }
@@ -50,9 +52,13 @@ export function AvatarCropper({ src, onCancel, onConfirm, saving }: Props) {
           image={src}
           crop={crop}
           zoom={zoom}
+          minZoom={0.5}
+          maxZoom={3}
           aspect={1}
           cropShape="round"
           showGrid={false}
+          objectFit="cover"
+          restrictPosition={false}
           onCropChange={setCrop}
           onZoomChange={setZoom}
           onCropComplete={onComplete}
@@ -61,7 +67,7 @@ export function AvatarCropper({ src, onCancel, onConfirm, saving }: Props) {
       <div className="space-y-3 bg-surface p-4">
         <input
           type="range"
-          min={1}
+          min={0.5}
           max={3}
           step={0.01}
           value={zoom}
