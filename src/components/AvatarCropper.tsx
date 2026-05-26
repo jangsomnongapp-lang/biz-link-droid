@@ -50,9 +50,13 @@ export function AvatarCropper({ src, onCancel, onConfirm, saving }: Props) {
           image={src}
           crop={crop}
           zoom={zoom}
+          minZoom={0.5}
+          maxZoom={3}
           aspect={1}
           cropShape="round"
           showGrid={false}
+          objectFit="cover"
+          restrictPosition={false}
           onCropChange={setCrop}
           onZoomChange={setZoom}
           onCropComplete={onComplete}
