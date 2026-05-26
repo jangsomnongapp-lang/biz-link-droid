@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -37,14 +37,11 @@ function ListingsPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [listings, setListings] = useState<ListingRow[]>([]);
-  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
-
-  const { isLoading: loading } = useQuery({
+  const { data, isLoading: loading } = useQuery({
     queryKey: ["listings:index", user?.id ?? null],
     staleTime: 30_000,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data: rows } = await supabase
         .from("listings")
         .select(
           "id, user_id, title, description, budget, location, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km))"
@@ -52,17 +49,23 @@ function ListingsPage() {
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(20);
-      setListings((data as ListingRow[] | null) ?? []);
+      let applied: string[] = [];
       if (user) {
         const { data: apps } = await supabase
           .from("applications")
           .select("listing_id")
           .eq("applicant_id", user.id);
-        if (apps) setAppliedIds(new Set(apps.map((r) => r.listing_id)));
+        applied = (apps ?? []).map((r) => r.listing_id);
       }
-      return true;
+      return {
+        listings: ((rows as ListingRow[] | null) ?? []),
+        appliedIds: applied,
+      };
     },
   });
+
+  const listings: ListingRow[] = data?.listings ?? [];
+  const appliedIds = new Set<string>(data?.appliedIds ?? []);
 
   useEffect(() => {
     if (!user) return;
@@ -84,9 +87,10 @@ function ListingsPage() {
       toast.error(error.message);
       return;
     }
-    setAppliedIds(new Set([...appliedIds, listingId]));
+    qc.invalidateQueries({ queryKey: ["listings:index", user.id] });
     toast.success(lang === "km" ? "បានដាក់ពាក្យ" : "Applied!");
   }
+
 
   return (
     <div className="px-3 pt-3">
