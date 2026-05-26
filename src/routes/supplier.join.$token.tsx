@@ -54,12 +54,8 @@ function SupplierJoinPage() {
       });
   }, [token]);
 
-  useEffect(() => {
-    if (!loading && user) {
-      // Already logged in: send them home (they likely already have an account)
-      nav({ to: "/home" });
-    }
-  }, [user, loading, nav]);
+  // Note: logged-in users can also use the invite to create a supplier store
+  // linked to their existing account — no redirect.
 
   useEffect(() => {
     void supabase
