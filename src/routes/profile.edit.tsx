@@ -47,8 +47,10 @@ function EditProfilePage() {
   const [photos, setPhotos] = useState<{ id: string; photo_url: string }[]>([]);
   const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
   const [savingPhoto, setSavingPhoto] = useState(false);
+  const [pendingAvatar, setPendingAvatar] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const portfolioInputRef = useRef<HTMLInputElement>(null);
+
 
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
