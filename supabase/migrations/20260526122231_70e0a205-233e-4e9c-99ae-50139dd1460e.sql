@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.get_supplier_invite_by_token(text) TO anon;
