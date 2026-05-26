@@ -106,30 +106,44 @@ function SupplierJoinPage() {
   }
 
   async function submit() {
-    if (!storeName.trim() || !phone.trim() || password.length < 6) {
+    // If already logged in, skip auth and use current user
+    const isLoggedIn = !!user;
+    if (!storeName.trim()) {
+      toast.error(lang === "km" ? "សូមបំពេញឈ្មោះហាង" : "Please enter store name");
+      return;
+    }
+    if (!isLoggedIn && (!phone.trim() || password.length < 6)) {
       toast.error(lang === "km" ? "សូមបំពេញគ្រប់ប្រអប់" : "Please fill all fields (password 6+ chars)");
       return;
     }
     setSubmitting(true);
     try {
-      const email = phoneToEmail(phone);
-      const phoneFmt = `+855${phone.replace(/\D/g, "")}`;
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/home`,
-          data: {
-            full_name: storeName.trim(),
-            phone: phoneFmt,
-            language: lang,
-            is_supplier: true,
+      let userId: string;
+      let phoneFmt: string | null = null;
+
+      if (isLoggedIn) {
+        userId = user!.id;
+      } else {
+        const email = phoneToEmail(phone);
+        phoneFmt = `+855${phone.replace(/\D/g, "")}`;
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/home`,
+            data: {
+              full_name: storeName.trim(),
+              phone: phoneFmt,
+              language: lang,
+              is_supplier: true,
+            },
           },
-        },
-      });
-      if (error) throw error;
-      const userId = data.user?.id;
-      if (!userId) throw new Error("Signup failed");
+        });
+        if (error) throw error;
+        const newId = data.user?.id;
+        if (!newId) throw new Error("Signup failed");
+        userId = newId;
+      }
 
       // Insert store
       const { data: storeRow, error: storeErr } = await supabase
