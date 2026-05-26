@@ -371,40 +371,46 @@ function SupplierJoinPage() {
         {step === 3 && (
           <div>
             <h1 className="text-xl font-bold text-foreground">{t("almost_there")}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t("create_account_submit")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {user ? (lang === "km" ? "បញ្ជូនហាងសម្រាប់ការត្រួតពិនិត្យ" : "Submit your store for review") : t("create_account_submit")}
+            </p>
             <div className="mt-5 space-y-4">
-              <Field label={`${t("phone")} *`}>
-                <div className="flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-primary">
-                  <span className="border-r border-border px-3 text-sm font-medium text-muted-foreground">
-                    +855
-                  </span>
-                  <input
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    inputMode="tel"
-                    placeholder={t("phone_ph")}
-                    className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
-                  />
-                </div>
-              </Field>
-              <Field label={`${t("password")} *`}>
-                <div className="flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-primary">
-                  <input
-                    type={showPwd ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
-                    placeholder="••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPwd(!showPwd)}
-                    className="px-3 text-sm font-medium text-primary"
-                  >
-                    {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </Field>
+              {!user && (
+                <>
+                  <Field label={`${t("phone")} *`}>
+                    <div className="flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-primary">
+                      <span className="border-r border-border px-3 text-sm font-medium text-muted-foreground">
+                        +855
+                      </span>
+                      <input
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        inputMode="tel"
+                        placeholder={t("phone_ph")}
+                        className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
+                      />
+                    </div>
+                  </Field>
+                  <Field label={`${t("password")} *`}>
+                    <div className="flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface focus-within:border-primary">
+                      <input
+                        type={showPwd ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
+                        placeholder="••••••"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPwd(!showPwd)}
+                        className="px-3 text-sm font-medium text-primary"
+                      >
+                        {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </Field>
+                </>
+              )}
 
               <div className="rounded-xl border border-amber-500/40 bg-amber-50 p-3 text-xs text-amber-800">
                 ℹ️ {t("store_review_notice")}
