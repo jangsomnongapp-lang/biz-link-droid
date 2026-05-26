@@ -146,13 +146,13 @@ function EditProfilePage() {
     }
   }
 
-  async function savePortfolioPhoto() {
-    if (!user || !pendingPhoto) return;
+  async function savePortfolioPhoto(cropped: string) {
+    if (!user) return;
     setSavingPhoto(true);
     try {
       const { data, error } = await supabase
         .from("portfolio_photos")
-        .insert({ user_id: user.id, photo_url: pendingPhoto })
+        .insert({ user_id: user.id, photo_url: cropped })
         .select("id, photo_url")
         .single();
       if (error) throw error;
@@ -348,31 +348,13 @@ function EditProfilePage() {
           </div>
 
           {pendingPhoto && (
-            <div className="rounded-lg border border-border bg-background p-2">
-              <img
-                src={pendingPhoto}
-                alt="Preview"
-                className="mb-2 aspect-square w-full rounded-md object-cover"
-              />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => void savePortfolioPhoto()}
-                  disabled={savingPhoto}
-                  className="h-9 flex-1 rounded-lg bg-primary text-xs font-semibold text-primary-foreground disabled:opacity-60"
-                >
-                  {savingPhoto ? t("loading") : t("save_changes")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPendingPhoto(null)}
-                  disabled={savingPhoto}
-                  className="h-9 flex-1 rounded-lg border border-border bg-background text-xs font-semibold text-foreground disabled:opacity-60"
-                >
-                  {lang === "km" ? "បោះបង់" : "Cancel"}
-                </button>
-              </div>
-            </div>
+            <AvatarCropper
+              src={pendingPhoto}
+              cropShape="rect"
+              saving={savingPhoto}
+              onCancel={() => setPendingPhoto(null)}
+              onConfirm={(cropped) => void savePortfolioPhoto(cropped)}
+            />
           )}
 
           <div className="grid grid-cols-3 gap-2">

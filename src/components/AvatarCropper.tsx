@@ -7,6 +7,8 @@ interface Props {
   onCancel: () => void;
   onConfirm: (dataUrl: string) => void;
   saving?: boolean;
+  cropShape?: "round" | "rect";
+  aspect?: number;
 }
 
 async function getCroppedImage(src: string, area: Area): Promise<string> {
@@ -29,7 +31,7 @@ async function getCroppedImage(src: string, area: Area): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.9);
 }
 
-export function AvatarCropper({ src, onCancel, onConfirm, saving }: Props) {
+export function AvatarCropper({ src, onCancel, onConfirm, saving, cropShape = "round", aspect = 1 }: Props) {
   const { lang } = useI18n();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -54,8 +56,8 @@ export function AvatarCropper({ src, onCancel, onConfirm, saving }: Props) {
           zoom={zoom}
           minZoom={0.5}
           maxZoom={3}
-          aspect={1}
-          cropShape="round"
+          aspect={aspect}
+          cropShape={cropShape}
           showGrid={false}
           objectFit="cover"
           restrictPosition={false}
