@@ -19,7 +19,7 @@ const dict: Dict = {
   role_coordinator_desc: { km: "ខ្ញុំគ្រប់គ្រងក្រុមកម្មករ", en: "I manage a crew of workers" },
   role_organization: { km: "ក្រុមហ៊ុន", en: "Company" },
   role_organization_desc: { km: "អាជីវកម្មសាងសង់", en: "Construction business" },
-  role_client: { km: "អ្នកម៉ៅការ", en: "Owner" },
+  role_client: { km: "ម្ម្ាស់អាជីវកម្ម", en: "Owner" },
   role_client_desc: { km: "ខ្ញុំត្រូវការកម្មករសម្រាប់ការងារ", en: "I need workers for a project" },
   role_specialist: { km: "អ្នកជំនាញ", en: "Specialist" },
   role_specialist_desc: { km: "អ្នករចនា 2D/3D · ស្ថាបត្យករ · វិស្វករ", en: "Designer 2D/3D · Architect · Engineer" },
@@ -78,7 +78,7 @@ const dict: Dict = {
   apply_confirm_title: { km: "ដាក់ពាក្យសម្រាប់ការងារនេះ?", en: "Apply to this project?" },
   confirm: { km: "បញ្ជាក់", en: "Confirm" },
   cancel: { km: "បោះបង់", en: "Cancel" },
-  about_client: { km: "អំពីអ្នកម៉ៅការ", en: "About the owner" },
+  about_client: { km: "អំពីម្ម្ាស់អាជីវកម្ម", en: "About the owner" },
   projects_posted: { km: "ការងារបានបង្ហោះ", en: "Projects posted" },
   project_detail: { km: "ព័ត៌មានការងារ", en: "Project detail" },
   // profile
