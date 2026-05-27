@@ -78,7 +78,7 @@ const dict: Dict = {
   apply_confirm_title: { km: "ដាក់ពាក្យសម្រាប់ការងារនេះ?", en: "Apply to this project?" },
   confirm: { km: "បញ្ជាក់", en: "Confirm" },
   cancel: { km: "បោះបង់", en: "Cancel" },
-  about_client: { km: "អំពីអ្នកម៉ៅការ", en: "About the owner" },
+  about_client: { km: "អំពីម្ម្ាស់អាជីវកម្ម", en: "About the owner" },
   projects_posted: { km: "ការងារបានបង្ហោះ", en: "Projects posted" },
   project_detail: { km: "ព័ត៌មានការងារ", en: "Project detail" },
   // profile
