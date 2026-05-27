@@ -71,7 +71,7 @@ export function DailyTicketGate() {
       return null;
     }
 
-    (async () => {
+    async function runDailyTicketCheck() {
       const ok = await waitForSession();
       if (cancelled || !ok) return;
 
@@ -112,9 +112,19 @@ export function DailyTicketGate() {
       setStep(1);
       setBoom(true);
       setOpen(true);
-    })();
+    }
+
+    void runDailyTicketCheck();
+
+    const rerunWhenAppIsOpened = () => {
+      if (document.visibilityState === "visible") void runDailyTicketCheck();
+    };
+    window.addEventListener("focus", rerunWhenAppIsOpened);
+    document.addEventListener("visibilitychange", rerunWhenAppIsOpened);
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", rerunWhenAppIsOpened);
+      document.removeEventListener("visibilitychange", rerunWhenAppIsOpened);
     };
   }, [user, loading]);
 
