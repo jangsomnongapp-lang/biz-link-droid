@@ -123,12 +123,9 @@ function SupplierJoinPage() {
 
       if (isLoggedIn) {
         userId = user!.id;
-        // Ensure profile is flagged as supplier (required by RLS on supplier_stores)
-        const { error: upErr } = await supabase
-          .from("profiles")
-          .update({ is_supplier: true })
-          .eq("id", userId);
-        if (upErr) throw upErr;
+        // Consume invite first — the RPC flips is_supplier=true (required by RLS on supplier_stores)
+        const { error: invErr } = await supabase.rpc("consume_supplier_invite", { _token: token });
+        if (invErr) throw invErr;
       } else {
         const email = phoneToEmail(phone);
         phoneFmt = `+855${phone.replace(/\D/g, "")}`;
@@ -181,8 +178,10 @@ function SupplierJoinPage() {
           productPhotos.map((url, i) => ({ store_id: storeId, photo_url: url, sort_order: i })),
         );
       }
-      // Mark invite used via secure RPC
-      await supabase.rpc("consume_supplier_invite", { _token: token });
+      // For new signups, consume the invite now (logged-in users already did above)
+      if (!isLoggedIn) {
+        await supabase.rpc("consume_supplier_invite", { _token: token });
+      }
 
       toast.success(lang === "km" ? "បានបញ្ជូន!" : "Submitted!");
       nav({ to: "/home" });
