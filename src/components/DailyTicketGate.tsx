@@ -36,17 +36,31 @@ export function DailyTicketGate() {
 
     // Wait until Supabase session is actually restored — otherwise auth.uid()
     // is null inside the RPC and the ticket is silently skipped.
-    async function waitForSession(maxMs = 4000): Promise<boolean> {
+    async function waitForSession(maxMs = 8000): Promise<boolean> {
       const start = Date.now();
       while (Date.now() - start < maxMs) {
-        const { data } = await supabase.auth.getSession();
-        if (data.session?.access_token) return true;
+        const { data, error } = await supabase.auth.getUser();
+        if (!error && data.user?.id === user.id) return true;
         await new Promise((r) => setTimeout(r, 250));
       }
       return false;
     }
 
-    async function tryIssue(attempts = 3): Promise<any | null> {
+    async function waitForWorkerProfile(maxMs = 8000) {
+      const start = Date.now();
+      while (Date.now() - start < maxMs) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_provider, is_specialist, full_name, member_number")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (profile) return profile;
+        await new Promise((r) => setTimeout(r, 300));
+      }
+      return null;
+    }
+
+    async function tryIssue(attempts = 5): Promise<any | null> {
       for (let i = 0; i < attempts; i++) {
         const { data, error } = await supabase.rpc("issue_daily_ticket_if_missing");
         if (!error) return data;
@@ -60,11 +74,7 @@ export function DailyTicketGate() {
       const ok = await waitForSession();
       if (cancelled || !ok) return;
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("is_provider, is_specialist, full_name, member_number")
-        .eq("id", user.id)
-        .maybeSingle();
+      const profile = await waitForWorkerProfile();
       if (cancelled || !profile) return;
       if (!profile.is_provider && !profile.is_specialist) return;
 
@@ -78,10 +88,20 @@ export function DailyTicketGate() {
         already?: boolean;
         skipped?: boolean;
       };
-      if (res.skipped || res.already) return;
+      if (res.skipped) return;
 
-      // Ticket was just issued. Suppress UI only if user dismissed today.
       const today = todayISO();
+      if (res.already) {
+        const { data: availability } = await supabase
+          .from("daily_availability")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("date", today)
+          .maybeSingle();
+        if (cancelled || availability) return;
+      }
+
+      // Ticket was issued or already exists. Suppress UI only if user dismissed today.
       if (typeof window !== "undefined" && localStorage.getItem(DISMISS_KEY) === today) return;
 
       setProfileName(profile.full_name ?? "");
