@@ -33,9 +33,32 @@ export function DailyTicketGate() {
   useEffect(() => {
     if (loading || !user) return;
     let cancelled = false;
+
+    // Wait until Supabase session is actually restored — otherwise auth.uid()
+    // is null inside the RPC and the ticket is silently skipped.
+    async function waitForSession(maxMs = 4000): Promise<boolean> {
+      const start = Date.now();
+      while (Date.now() - start < maxMs) {
+        const { data } = await supabase.auth.getSession();
+        if (data.session?.access_token) return true;
+        await new Promise((r) => setTimeout(r, 250));
+      }
+      return false;
+    }
+
+    async function tryIssue(attempts = 3): Promise<any | null> {
+      for (let i = 0; i < attempts; i++) {
+        const { data, error } = await supabase.rpc("issue_daily_ticket_if_missing");
+        if (!error) return data;
+        // transient — wait then retry
+        await new Promise((r) => setTimeout(r, 500 * (i + 1)));
+      }
+      return null;
+    }
+
     (async () => {
-      const today = todayISO();
-      if (typeof window !== "undefined" && localStorage.getItem(DISMISS_KEY) === today) return;
+      const ok = await waitForSession();
+      if (cancelled || !ok) return;
 
       const { data: profile } = await supabase
         .from("profiles")
@@ -45,10 +68,10 @@ export function DailyTicketGate() {
       if (cancelled || !profile) return;
       if (!profile.is_provider && !profile.is_specialist) return;
 
-      // Auto-issue today's ticket if missing — every worker gets one when they
-      // open the app, regardless of availability status.
-      const { data: issued, error } = await supabase.rpc("issue_daily_ticket_if_missing");
-      if (cancelled || error) return;
+      // ALWAYS try to issue today's ticket — even if the user dismissed the
+      // popup earlier today. Dismiss flag only controls whether the UI shows.
+      const issued = await tryIssue();
+      if (cancelled || !issued) return;
       const res = (issued ?? {}) as {
         ticket_number?: number;
         streak?: number;
@@ -56,6 +79,10 @@ export function DailyTicketGate() {
         skipped?: boolean;
       };
       if (res.skipped || res.already) return;
+
+      // Ticket was just issued. Suppress UI only if user dismissed today.
+      const today = todayISO();
+      if (typeof window !== "undefined" && localStorage.getItem(DISMISS_KEY) === today) return;
 
       setProfileName(profile.full_name ?? "");
       setAssignedNumber(res.ticket_number ?? null);
