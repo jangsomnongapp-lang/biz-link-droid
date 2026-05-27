@@ -32,6 +32,7 @@ export function DailyTicketGate() {
 
   useEffect(() => {
     if (loading || !user) return;
+    const userId = user.id;
     let cancelled = false;
 
     // Wait until Supabase session is actually restored — otherwise auth.uid()
@@ -40,7 +41,7 @@ export function DailyTicketGate() {
       const start = Date.now();
       while (Date.now() - start < maxMs) {
         const { data, error } = await supabase.auth.getUser();
-        if (!error && data.user?.id === user.id) return true;
+        if (!error && data.user?.id === userId) return true;
         await new Promise((r) => setTimeout(r, 250));
       }
       return false;
@@ -52,7 +53,7 @@ export function DailyTicketGate() {
         const { data: profile } = await supabase
           .from("profiles")
           .select("is_provider, is_specialist, full_name, member_number")
-          .eq("id", user.id)
+          .eq("id", userId)
           .maybeSingle();
         if (profile) return profile;
         await new Promise((r) => setTimeout(r, 300));
@@ -95,7 +96,7 @@ export function DailyTicketGate() {
         const { data: availability } = await supabase
           .from("daily_availability")
           .select("id")
-          .eq("user_id", user.id)
+          .eq("user_id", userId)
           .eq("date", today)
           .maybeSingle();
         if (cancelled || availability) return;
