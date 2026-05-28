@@ -85,7 +85,7 @@ type DeleteKind = "posts" | "stories" | "listings" | "rental_listings" | "rental
 type DeleteTarget = { kind: DeleteKind; id: string };
 
 function AdminPostsPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("posts");
