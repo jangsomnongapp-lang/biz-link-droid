@@ -744,7 +744,7 @@ function ProfilePage() {
             <Plus className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-[#26215C]">Looking for rent</div>
+            <div className="text-sm font-semibold text-[#26215C]">{t("looking_for")}</div>
             <div className="text-[11px] text-[#534AB7]/80">Post what you need to rent</div>
           </div>
         </Link>

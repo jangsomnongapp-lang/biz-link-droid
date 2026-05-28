@@ -85,7 +85,7 @@ type DeleteKind = "posts" | "stories" | "listings" | "rental_listings" | "rental
 type DeleteTarget = { kind: DeleteKind; id: string };
 
 function AdminPostsPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("posts");
@@ -304,9 +304,9 @@ function AdminPostsPage() {
               : k === "stories"
                 ? t("tab_stories")
                 : k === "rentals"
-                  ? "Rent"
+                  ? t("tab_rent")
                   : k === "rent_requests"
-                    ? "Looking"
+                    ? t("looking_for")
                     : t("tab_listings");
           return (
             <button
@@ -377,7 +377,7 @@ function AdminPostsPage() {
                 status={r.status}
               />
               <div className="mt-2 inline-block rounded-pill bg-[#534AB7] px-2 py-0.5 text-[10px] font-bold text-white">
-                Looking for · {r.category}
+                {lang === "km" ? "ស្វែងរក" : "Looking for"} · {r.category}
               </div>
               <h3 className="mt-2 text-base font-semibold text-[#26215C]">{r.title}</h3>
               {r.description && (
