@@ -89,7 +89,7 @@ const dict: Dict = {
   contacts_made: { km: "ការទំនាក់ទំនង", en: "Contacts made" },
   about_me: { km: "អំពីខ្ញុំ", en: "About me" },
   about_me_ph: { km: "ប្រាប់អ្នកដទៃអំពីខ្លួនអ្នក...", en: "Tell others about yourself..." },
-  portfolio: { km: "ផលប័ត្រ", en: "Portfolio" },
+  portfolio: { km: "បទពិសោធន៍", en: "Portfolio" },
   my_projects: { km: "ការងាររបស់ខ្ញុំ", en: "My projects" },
   active: { km: "កំពុងដំណើរការ", en: "Active" },
   closed: { km: "បិទ", en: "Closed" },
