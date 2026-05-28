@@ -6,7 +6,7 @@ type Dict = Record<string, { km: string; en: string }>;
 
 const dict: Dict = {
   app_name: { km: "ជាងសំណង់", en: "BuildHub" },
-  tagline: { km: "រកការងារ · រកអ្នកជំនាញ", en: "Find work · Find workers" },
+  tagline: { km: "រកគម្រោង · រកអ្នកជំនាញ", en: "Find work · Find workers" },
   register: { km: "ចុះឈ្មោះ", en: "Register" },
   have_account: { km: "មានគណនីរួចហើយ", en: "I already have an account" },
   // steps
@@ -20,7 +20,7 @@ const dict: Dict = {
   role_organization: { km: "ក្រុមហ៊ុន", en: "Company" },
   role_organization_desc: { km: "អាជីវកម្មសាងសង់", en: "Construction business" },
   role_client: { km: "ម្ចាស់អាជីវកម្ម", en: "Owner" },
-  role_client_desc: { km: "ខ្ញុំត្រូវការកម្មករសម្រាប់ការងារ", en: "I need workers for a project" },
+  role_client_desc: { km: "ខ្ញុំត្រូវការកម្មករសម្រាប់គម្រោង", en: "I need workers for a project" },
   role_specialist: { km: "អ្នកជំនាញ", en: "Specialist" },
   role_specialist_desc: { km: "អ្នករចនា 2D/3D · ស្ថាបត្យករ · វិស្វករ", en: "Designer 2D/3D · Architect · Engineer" },
   next: { km: "បន្ទាប់ →", en: "Next →" },
