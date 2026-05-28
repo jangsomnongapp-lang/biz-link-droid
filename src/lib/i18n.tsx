@@ -57,7 +57,7 @@ const dict: Dict = {
   no_posts: { km: "មិនទាន់មានការបង្ហោះ", en: "No posts yet" },
   // listings
   post_listing: { km: "បង្ហោះការងារ", en: "Post a project" },
-  new_listing: { km: "+ បង្ហោះការងារ", en: "+ Post a project" },
+  new_listing: { km: "+ បង្ហោះគម្រោង", en: "+ Post a project" },
   listing_title: { km: "ចំណងជើង", en: "Project title" },
   listing_title_ph: { km: "ឧ. ត្រូវការជាងអគ្គិសនីសម្រាប់ហាង", en: "e.g. Need electrician for shop renovation" },
   description: { km: "ការពិពណ៌នា", en: "Description" },
