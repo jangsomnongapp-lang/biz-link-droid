@@ -383,6 +383,7 @@ const dict: Dict = {
   tab_rent: { km: "ជួល", en: "Rent" },
   looking_for: { km: "ស្វែងរកជួល", en: "Looking for rent" },
   for_rent: { km: "សម្រាប់ជួល", en: "For rent" },
+  post_rent_desc: { km: "ប្រកាសអ្វីដែលអ្នកត្រូវជួល", en: "Post what you need to rent" },
   rent_search_ph: { km: "ស្វែងរកគ្រឿងម៉ាស៊ីន ឬឧបករណ៍...", en: "Search machinery or tools..." },
   cat_vehicles: { km: "យានជំនិះ", en: "Vehicles" },
   cat_heavy: { km: "ធុនធំ", en: "Heavy" },
