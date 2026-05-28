@@ -82,7 +82,13 @@ const dict: Dict = {
   projects_posted: { km: "គម្រោងបានបង្ហោះ", en: "Projects posted" },
   project_detail: { km: "ព័ត៌មានគម្រោង", en: "Project detail" },
   // profile
-  ...
+  my_profile: { km: "ប្រវត្តិរូបរបស់ខ្ញុំ", en: "My Profile" },
+  edit: { km: "កែសម្រួល", en: "Edit" },
+  edit_profile: { km: "កែសម្រួលប្រវត្តិរូប", en: "Edit profile" },
+  applied_to: { km: "បានដាក់ពាក្យ", en: "Applied to" },
+  contacts_made: { km: "ការទំនាក់ទំនង", en: "Contacts made" },
+  about_me: { km: "អំពីខ្ញុំ", en: "About me" },
+  about_me_ph: { km: "ប្រាប់អ្នកដទៃអំពីខ្លួនអ្នក...", en: "Tell others about yourself..." },
   portfolio: { km: "បទពិសោធន៍", en: "Portfolio" },
   my_projects: { km: "គម្រោងរបស់ខ្ញុំ", en: "My projects" },
   active: { km: "កំពុងដំណើរការ", en: "Active" },
@@ -90,11 +96,18 @@ const dict: Dict = {
   save_changes: { km: "រក្សាទុក", en: "Save changes" },
   logout: { km: "ចេញ", en: "Log out" },
   // misc
-  ...
+  loading: { km: "កំពុងផ្ទុក...", en: "Loading..." },
+  error_generic: { km: "មានបញ្ហាកើតឡើង", en: "Something went wrong" },
+  search_ph: { km: "ស្វែងរក...", en: "Search..." },
+  min_ago: { km: "នាទីមុន", en: "min ago" },
+  hour_ago: { km: "ម៉ោងមុន", en: "hour ago" },
+  day_ago: { km: "ថ្ងៃមុន", en: "day ago" },
+  just_now: { km: "ឥឡូវ​នេះ", en: "just now" },
+  group_structure: { km: "រចនាសម្ព័ន្ធ", en: "STRUCTURE" },
+  group_installations: { km: "ការដំឡើង", en: "INSTALLATIONS" },
   group_finishing: { km: "ការបញ្ចប់", en: "FINISHING" },
   group_other: { km: "ផ្សេងៗ", en: "OTHER" },
   // user profile (other)
-  ...
   active_projects: { km: "គម្រោងកំពុងដំណើរការ", en: "Active projects" },
   // portfolio manager
   update_profile: { km: "បន្ទាន់សម័យប្រវត្តិរូប", en: "Update profile" },
