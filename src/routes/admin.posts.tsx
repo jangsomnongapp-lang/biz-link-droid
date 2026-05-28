@@ -377,7 +377,7 @@ function AdminPostsPage() {
                 status={r.status}
               />
               <div className="mt-2 inline-block rounded-pill bg-[#534AB7] px-2 py-0.5 text-[10px] font-bold text-white">
-                Looking for · {r.category}
+                {lang === "km" ? "ស្វែងរក" : "Looking for"} · {r.category}
               </div>
               <h3 className="mt-2 text-base font-semibold text-[#26215C]">{r.title}</h3>
               {r.description && (
