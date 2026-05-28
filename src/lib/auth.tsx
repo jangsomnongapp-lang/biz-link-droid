@@ -16,24 +16,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+    // Restore session from storage FIRST, then subscribe to changes.
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!mounted) return;
+        setSession(data.session);
+      })
+      .catch(() => {
+        // Transient error (e.g. offline). Do NOT sign the user out —
+        // keep whatever session storage has and let onAuthStateChange recover.
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (!mounted) return;
       setSession(s);
       setLoading(false);
     });
-    supabase.auth
-      .getSession()
-      .then(async ({ data, error }) => {
-        if (error) {
-          await supabase.auth.signOut({ scope: "local" });
-          setSession(null);
-          return;
-        }
-        setSession(data.session);
-      })
-      .catch(() => setSession(null))
-      .finally(() => setLoading(false));
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
+
 
   return (
     <Ctx.Provider
