@@ -304,9 +304,9 @@ function AdminPostsPage() {
               : k === "stories"
                 ? t("tab_stories")
                 : k === "rentals"
-                  ? "Rent"
+                  ? t("tab_rent")
                   : k === "rent_requests"
-                    ? "Looking"
+                    ? t("looking_for")
                     : t("tab_listings");
           return (
             <button
