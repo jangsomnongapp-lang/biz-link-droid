@@ -378,7 +378,7 @@ function RentMode({
             subMode === "for_rent" ? "bg-[#534AB7] text-white" : "bg-surface text-foreground shadow-card"
           }`}
         >
-          For Rent
+          {t("for_rent")}
         </button>
         <button
           onClick={() => setSubMode("looking_for")}
@@ -386,7 +386,7 @@ function RentMode({
             subMode === "looking_for" ? "bg-[#534AB7] text-white" : "bg-surface text-foreground shadow-card"
           }`}
         >
-          Looking For
+          {t("looking_for")}
         </button>
       </div>
 
