@@ -68,7 +68,7 @@ const dict: Dict = {
   photos: { km: "រូបថត", en: "Photos" },
   add_photo: { km: "បន្ថែមរូបថត", en: "Add photo" },
   location: { km: "ទីតាំង", en: "Location" },
-  location_ph: { km: "តំបន់ / ខណ្ឌ", en: "Area / district" },
+  location_ph: { km: "ក្រុង / ខេត្ត", en: "City / Province" },
   budget: { km: "ថវិកា", en: "Budget" },
   budget_ph: { km: "ចំនួន", en: "Amount" },
   to_discuss: { km: "$ ពិភាក្សា", en: "$ To discuss" },
