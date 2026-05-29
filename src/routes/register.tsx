@@ -66,6 +66,19 @@ function RegisterFlow() {
   const anyRole = roles.is_provider || roles.is_coordinator || roles.is_organization || roles.is_client || roles.is_specialist;
   const needsCats = roles.is_provider || roles.is_coordinator || roles.is_organization;
 
+  async function signInWithGoogle() {
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/home`,
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      nav({ to: "/home" });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Google sign-in failed");
+    }
+  }
+
   function goNextFromStep1() {
     if (!anyRole) return;
     setStep(needsCats ? 2 : 3);
