@@ -41,7 +41,7 @@ interface RentalDetail {
 
 const CAT_LABELS: Record<string, { km: string; en: string }> = {
   vehicles: { km: "យានជំនិះ", en: "Vehicles" },
-  heavy: { km: "ធុនធំ", en: "Heavy" },
+  heavy: { km: "គ្រឿងចក្រ", en: "Heavy" },
   light: { km: "ម៉ាស៊ីនស្រាល", en: "Light machinery" },
   tools: { km: "ឧបករណ៍", en: "Tools" },
 };
