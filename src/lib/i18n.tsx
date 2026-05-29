@@ -12,7 +12,7 @@ const dict: Dict = {
   // steps
   step_of: { km: "ជំហាន {n} នៃ ៣", en: "Step {n} of 3" },
   who_are_you: { km: "តើអ្នកជានរណា?", en: "Who are you?" },
-  select_all_apply: { km: "ជ្រើសរើសទាំងអស់ដែលត្រូវការ", en: "Select all that apply" },
+  select_all_apply: { km: "ជ្រើសរើសជំនាញដែលត្រូវការ", en: "Select all that apply" },
   role_provider: { km: "អ្នកធ្វើការ", en: "Worker" },
   role_provider_desc: { km: "ខ្ញុំផ្តល់សេវាសាងសង់", en: "I offer construction services" },
   role_coordinator: { km: "មេក្រុម", en: "Team leader" },
