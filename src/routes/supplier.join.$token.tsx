@@ -5,6 +5,8 @@ import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, Eye, EyeOff, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { ProvinceSelect } from "@/components/ProvinceSelect";
+
 
 export const Route = createFileRoute("/supplier/join/$token")({
   component: SupplierJoinPage,
