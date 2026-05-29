@@ -177,6 +177,7 @@ function RegisterFlow() {
             setPassword={setPassword}
             showPwd={showPwd}
             setShowPwd={setShowPwd}
+            onGoogle={signInWithGoogle}
           />
         )}
       </div>
