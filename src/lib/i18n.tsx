@@ -386,7 +386,7 @@ const dict: Dict = {
   post_rent_desc: { km: "ប្រកាសអ្វីដែលអ្នកត្រូវជួល", en: "Post what you need to rent" },
   rent_search_ph: { km: "ស្វែងរកគ្រឿងម៉ាស៊ីន ឬឧបករណ៍...", en: "Search machinery or tools..." },
   cat_vehicles: { km: "យានជំនិះ", en: "Vehicles" },
-  cat_heavy: { km: "ធុនធំ", en: "Heavy" },
+  cat_heavy: { km: "គ្រឿងចក្រ", en: "Heavy" },
   cat_light: { km: "ស្រាល", en: "Light" },
   cat_tools: { km: "ឧបករណ៍", en: "Tools" },
   cat_light_machinery: { km: "ម៉ាស៊ីនស្រាល", en: "Light machinery" },
@@ -421,7 +421,7 @@ const dict: Dict = {
   details: { km: "ព័ត៌មានលម្អិត", en: "Details" },
   for_rent_badge: { km: "សម្រាប់ជួល", en: "For rent" },
   filter_vehicles: { km: "យានជំនិះ", en: "Vehicles" },
-  filter_heavy: { km: "ធុនធំ", en: "Heavy" },
+  filter_heavy: { km: "គ្រឿងចក្រ", en: "Heavy" },
   filter_light: { km: "ស្រាល", en: "Light" },
   filter_tools: { km: "ឧបករណ៍", en: "Tools" },
   rental_review_notice: {
