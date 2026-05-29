@@ -5,6 +5,8 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, MapPin, DollarSign, Plus, X, Truck, HardHat, Wrench, Hammer } from "lucide-react";
+import { ProvinceSelect } from "@/components/ProvinceSelect";
+
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/rentals/new")({
@@ -247,15 +249,8 @@ function NewRentalPage() {
           </div>
           <div>
             <p className="mb-1 text-sm font-medium">{t("location")} <span className="text-destructive">*</span></p>
-            <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-[#534AB7]">
-              <MapPin className="ml-2 h-4 w-4 text-destructive" />
-              <input
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder={t("location_ph")}
-                className="h-full flex-1 bg-transparent px-2 text-sm outline-none"
-              />
-            </div>
+            <ProvinceSelect value={location} onChange={setLocation} accentClass="focus-within:border-[#534AB7]" />
+
           </div>
         </Card>
       </div>

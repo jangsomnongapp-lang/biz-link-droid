@@ -6,6 +6,8 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { ProvinceSelect } from "@/components/ProvinceSelect";
+
 
 export const Route = createFileRoute("/suppliers/$storeId/edit")({
   component: () => (
@@ -238,12 +240,8 @@ function SupplierEditPage() {
 
         {/* Location */}
         <Field label={t("store_location")}>
-          <input
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder={t("store_location_ph")}
-            className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
-          />
+          <ProvinceSelect value={location} onChange={setLocation} placeholder={t("store_location_ph")} />
+
         </Field>
 
         {/* Phone */}

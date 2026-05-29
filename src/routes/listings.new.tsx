@@ -6,6 +6,8 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, MapPin, DollarSign, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { ProvinceSelect } from "@/components/ProvinceSelect";
+
 
 export const Route = createFileRoute("/listings/new")({
   component: () => (
@@ -194,15 +196,8 @@ function NewListingPage() {
         <div className="grid grid-cols-2 gap-3">
           <Card>
             <Label optional>{t("location")}</Label>
-            <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-              <MapPin className="ml-2 h-4 w-4 text-destructive" />
-              <input
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder={t("location_ph")}
-                className="h-full flex-1 bg-transparent px-2 text-sm outline-none"
-              />
-            </div>
+            <ProvinceSelect value={location} onChange={setLocation} />
+
           </Card>
           <Card>
             <Label optional>{t("budget")}</Label>

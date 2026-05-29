@@ -5,6 +5,8 @@ import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, Eye, EyeOff, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { ProvinceSelect } from "@/components/ProvinceSelect";
+
 
 export const Route = createFileRoute("/supplier/join/$token")({
   component: SupplierJoinPage,
@@ -319,12 +321,8 @@ function SupplierJoinPage() {
                 />
               </Field>
               <Field label={`${t("store_location")} *`}>
-                <input
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder={t("store_location_ph")}
-                  className="h-12 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary"
-                />
+                <ProvinceSelect value={location} onChange={setLocation} placeholder={t("store_location_ph")} />
+
               </Field>
               <Field label={`${t("store_description")} — ${t("optional_max_150")}`}>
                 <textarea
