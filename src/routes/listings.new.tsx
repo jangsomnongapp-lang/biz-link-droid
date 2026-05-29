@@ -6,6 +6,8 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, MapPin, DollarSign, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { ProvinceSelect } from "@/components/ProvinceSelect";
+
 
 export const Route = createFileRoute("/listings/new")({
   component: () => (
