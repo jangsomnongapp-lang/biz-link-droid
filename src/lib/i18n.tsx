@@ -95,6 +95,8 @@ const dict: Dict = {
   closed: { km: "បិទ", en: "Closed" },
   save_changes: { km: "រក្សាទុក", en: "Save changes" },
   logout: { km: "ចេញ", en: "Log out" },
+  logout_confirm_title: { km: "ចេញពីគណនី?", en: "Log out?" },
+  logout_confirm_desc: { km: "តើអ្នកប្រាកដទេថាចង់ចេញពីគណនីនេះ?", en: "Are you sure you want to log out of your account?" },
   // misc
   loading: { km: "កំពុងផ្ទុក...", en: "Loading..." },
   error_generic: { km: "មានបញ្ហាកើតឡើង", en: "Something went wrong" },
