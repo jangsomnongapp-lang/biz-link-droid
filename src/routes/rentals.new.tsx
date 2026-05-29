@@ -5,6 +5,8 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, MapPin, DollarSign, Plus, X, Truck, HardHat, Wrench, Hammer } from "lucide-react";
+import { ProvinceSelect } from "@/components/ProvinceSelect";
+
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/rentals/new")({
