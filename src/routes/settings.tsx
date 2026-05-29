@@ -65,6 +65,7 @@ function SettingsPage() {
   const [profile, setProfile] = useState<ProfileLite | null>(null);
   const [mySupplierStoreId, setMySupplierStoreId] = useState<string | null>(null);
   const [notifEnabled, setNotifEnabled] = useState(true);
+  const [logoutOpen, setLogoutOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -265,12 +266,30 @@ function SettingsPage() {
 
       {/* Footer actions */}
       <div className="mt-6 flex flex-col items-center gap-2 px-4">
-        <button
-          onClick={() => void signOut()}
-          className="text-sm font-bold text-destructive active:opacity-70"
-        >
-          {t("logout")}
-        </button>
+        <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+          <AlertDialogTrigger asChild>
+            <button className="text-sm font-bold text-destructive active:opacity-70">
+              {t("logout")}
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("logout_confirm_title")}</AlertDialogTitle>
+              <AlertDialogDescription>{t("logout_confirm_desc")}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setLogoutOpen(false)}>
+                {t("cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => void signOut()}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {t("logout")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <button className="text-xs font-medium text-muted-foreground active:opacity-70">
           {t("delete_account")}
         </button>
