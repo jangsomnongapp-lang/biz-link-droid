@@ -221,8 +221,8 @@ function SettingsPage() {
           </>
         )}
         <Row to="/rewards" icon={Gift} iconBg="bg-orange-100" iconColor="text-orange-600" label={lang === "km" ? "BuildHub Rewards" : "BuildHub Rewards"} />
-        <Row icon={Lock} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("change_password")} />
-        <Row icon={Smartphone} iconBg="bg-slate-200" iconColor="text-slate-700" label={t("change_phone")} />
+        <RowButton onClick={() => setPwOpen(true)} icon={Lock} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("change_password")} />
+        <RowButton onClick={() => setPhoneOpen(true)} icon={Smartphone} iconBg="bg-slate-200" iconColor="text-slate-700" label={t("change_phone")} />
       </Group>
 
       {/* Preferences */}
