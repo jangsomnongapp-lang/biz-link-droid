@@ -132,7 +132,6 @@ export function DailyTicketGate() {
     setSubmitting(true);
     const { data, error } = await supabase.rpc("mark_daily_availability", { _status: status });
     setSubmitting(false);
-    localStorage.setItem(DISMISS_KEY, todayISO());
     if (error) {
       toast.error(error.message);
       return;
@@ -149,7 +148,6 @@ export function DailyTicketGate() {
   }
 
   function close() {
-    localStorage.setItem(DISMISS_KEY, todayISO());
     setOpen(false);
     setBoom(false);
   }
