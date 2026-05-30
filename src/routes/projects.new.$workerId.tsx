@@ -32,6 +32,8 @@ function NewProjectPage() {
   const [checkout, setCheckout] = useState(false);
   type PhotoSlot = "morning" | "midday" | "endofday";
   const [photo, setPhoto] = useState<Set<PhotoSlot>>(new Set());
+  const [startDate, setStartDate] = useState("");
+  const [duration, setDuration] = useState("");
 
   const slotLabel = (opt: PhotoSlot) =>
     opt === "morning" ? (lang === "km" ? "ព្រឹក" : "Morning") :
