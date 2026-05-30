@@ -15,6 +15,16 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { requestFreeHelp } from "@/lib/help-request.functions";
 import { confirmCompletion, cancelCompletion } from "@/lib/projects.functions";
 import { AvatarCropper } from "@/components/AvatarCropper";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/profile")({
   component: ProfileRoute,
@@ -71,6 +81,7 @@ function ProfilePage() {
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [pendingAvatar, setPendingAvatar] = useState<string | null>(null);
+  const [logoutOpen, setLogoutOpen] = useState(false);
 
   const { data: activeTicketCount = 0 } = useQuery({
     queryKey: ["profile-ticket-count", user?.id],
@@ -893,12 +904,32 @@ function ProfilePage() {
       </Section>
 
       <div className="mt-3 px-3">
-        <button
-          onClick={() => void signOut()}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface py-3 text-sm font-semibold text-destructive shadow-card active:bg-destructive/5"
-        >
-          <LogOut className="h-4 w-4" /> {t("logout")}
-        </button>
+        <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+          <button
+            type="button"
+            onClick={() => setLogoutOpen(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface py-3 text-sm font-semibold text-destructive shadow-card active:bg-destructive/5"
+          >
+            <LogOut className="h-4 w-4" /> {t("logout")}
+          </button>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("logout_confirm_title")}</AlertDialogTitle>
+              <AlertDialogDescription>{t("logout_confirm_desc")}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setLogoutOpen(false)}>
+                {t("cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => void signOut()}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {t("logout")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
