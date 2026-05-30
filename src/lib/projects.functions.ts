@@ -2,6 +2,25 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+const photoFrequencySchema = z
+  .union([
+    z.enum(["morning", "midday", "endofday"]),
+    z.array(z.enum(["morning", "midday", "endofday"])),
+  ])
+  .nullable()
+  .optional();
+
+function normalizePhotoFrequency(
+  v: "morning" | "midday" | "endofday" | Array<"morning" | "midday" | "endofday"> | null | undefined,
+): string | null {
+  if (!v) return null;
+  if (Array.isArray(v)) {
+    const uniq = Array.from(new Set(v));
+    return uniq.length ? uniq.join(",") : null;
+  }
+  return v;
+}
+
 export const createProjectRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
@@ -10,7 +29,7 @@ export const createProjectRequest = createServerFn({ method: "POST" })
       agreedPrice: z.number().nullable().optional(),
       checkinRequired: z.boolean().optional(),
       checkoutRequired: z.boolean().optional(),
-      photoFrequency: z.enum(["morning", "midday", "endofday"]).nullable().optional(),
+      photoFrequency: photoFrequencySchema,
       startDate: z.string().nullable().optional(),
       duration: z.string().nullable().optional(),
     }).parse(d),
@@ -27,7 +46,7 @@ export const createProjectRequest = createServerFn({ method: "POST" })
         agreed_price: data.agreedPrice ?? null,
         checkin_required: !!data.checkinRequired,
         checkout_required: !!data.checkoutRequired,
-        photo_frequency: data.photoFrequency ?? null,
+        photo_frequency: normalizePhotoFrequency(data.photoFrequency),
         start_date: data.startDate || null,
         duration: data.duration || null,
         setup_completed: true,
