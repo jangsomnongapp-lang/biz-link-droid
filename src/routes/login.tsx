@@ -42,7 +42,21 @@ function LoginPage() {
     }
   }
 
+  async function signInWithGoogle() {
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/home`,
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      nav({ to: "/home" });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Google sign-in failed");
+    }
+  }
+
   return (
+
     <div className="flex min-h-screen flex-col bg-primary px-6 pb-10 pt-6 text-primary-foreground">
       <Link to="/" className="-ml-2 inline-flex w-fit items-center gap-1 rounded-full p-2 active:bg-white/10">
         <ArrowLeft className="h-5 w-5" />
