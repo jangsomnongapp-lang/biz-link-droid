@@ -118,7 +118,7 @@ export const configureProject = createServerFn({ method: "POST" })
         agreed_price: data.agreedPrice ?? null,
         checkin_required: !!data.checkinRequired,
         checkout_required: !!data.checkoutRequired,
-        photo_frequency: data.photoFrequency ?? null,
+        photo_frequency: normalizePhotoFrequency(data.photoFrequency),
         start_date: data.startDate || null,
         duration: data.duration || null,
         setup_completed: true,
