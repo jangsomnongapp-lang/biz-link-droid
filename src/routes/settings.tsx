@@ -351,11 +351,96 @@ function SettingsPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <button className="text-xs font-medium text-muted-foreground active:opacity-70">
+        <button
+          onClick={() => setDeleteOpen(true)}
+          className="text-xs font-medium text-muted-foreground active:opacity-70"
+        >
           {t("delete_account")}
         </button>
         <p className="mt-1 text-[11px] text-text-hint">{t("app_name")} v1.0</p>
       </div>
+
+      {/* Change password dialog */}
+      <Dialog open={pwOpen} onOpenChange={setPwOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("change_password")}</DialogTitle>
+            <DialogDescription>{t("password_min")}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              type="password"
+              placeholder={t("new_password")}
+              value={newPw}
+              onChange={(e) => setNewPw(e.target.value)}
+            />
+            <Input
+              type="password"
+              placeholder={t("confirm_password")}
+              value={confirmPw}
+              onChange={(e) => setConfirmPw(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPwOpen(false)} disabled={busy}>
+              {t("cancel")}
+            </Button>
+            <Button onClick={handleChangePassword} disabled={busy}>
+              {t("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change phone dialog */}
+      <Dialog open={phoneOpen} onOpenChange={setPhoneOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("change_phone")}</DialogTitle>
+          </DialogHeader>
+          <Input
+            type="tel"
+            placeholder={t("new_phone")}
+            value={newPhone}
+            onChange={(e) => setNewPhone(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPhoneOpen(false)} disabled={busy}>
+              {t("cancel")}
+            </Button>
+            <Button onClick={handleChangePhone} disabled={busy || newPhone.trim().length < 6}>
+              {t("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete account dialog */}
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("delete_account_title")}</DialogTitle>
+            <DialogDescription>{t("delete_account_desc")}</DialogDescription>
+          </DialogHeader>
+          <Input
+            placeholder={t("delete_confirm_type")}
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={busy}>
+              {t("cancel")}
+            </Button>
+            <Button
+              onClick={handleDeleteAccount}
+              disabled={busy || deleteConfirmText !== "DELETE"}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("delete_account")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
