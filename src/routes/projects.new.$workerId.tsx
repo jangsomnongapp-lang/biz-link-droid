@@ -30,15 +30,28 @@ function NewProjectPage() {
   const [price, setPrice] = useState("");
   const [checkin, setCheckin] = useState(true);
   const [checkout, setCheckout] = useState(false);
-  const [photo, setPhoto] = useState<"none" | "morning" | "midday" | "endofday">("none");
-  const [startDate, setStartDate] = useState("");
-  const [duration, setDuration] = useState("");
+  type PhotoSlot = "morning" | "midday" | "endofday";
+  const [photo, setPhoto] = useState<Set<PhotoSlot>>(new Set());
 
-  const photoLabel = (opt: typeof photo) =>
-    opt === "none" ? (lang === "km" ? "មិនត្រូវការ" : "None") :
+  const slotLabel = (opt: PhotoSlot) =>
     opt === "morning" ? (lang === "km" ? "ព្រឹក" : "Morning") :
     opt === "midday" ? (lang === "km" ? "ថ្ងៃត្រង់" : "Midday") :
     (lang === "km" ? "ល្ងាច" : "End of day");
+
+  const togglePhoto = (opt: PhotoSlot) => {
+    const next = new Set(photo);
+    if (next.has(opt)) next.delete(opt);
+    else next.add(opt);
+    setPhoto(next);
+  };
+
+  const photoSummary = () => {
+    if (photo.size === 0) return lang === "km" ? "មិនត្រូវការ" : "None";
+    return (["morning", "midday", "endofday"] as PhotoSlot[])
+      .filter((s) => photo.has(s))
+      .map(slotLabel)
+      .join(", ");
+  };
 
   useEffect(() => {
     void supabase
