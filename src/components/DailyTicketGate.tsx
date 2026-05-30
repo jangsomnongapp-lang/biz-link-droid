@@ -92,25 +92,24 @@ export function DailyTicketGate() {
       if (res.skipped) return;
 
       const today = todayISO();
-      if (res.already) {
-        const { data: availability } = await supabase
-          .from("daily_availability")
-          .select("id")
-          .eq("user_id", userId)
-          .eq("date", today)
-          .maybeSingle();
-        if (cancelled || availability) return;
-      }
 
-      // Ticket was issued or already exists. Suppress UI only if user dismissed today.
-      if (typeof window !== "undefined" && localStorage.getItem(DISMISS_KEY) === today) return;
+      // If user has already marked availability today, we're done — no popup.
+      const { data: availability } = await supabase
+        .from("daily_availability")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("date", today)
+        .maybeSingle();
+      if (cancelled || availability) return;
 
+      // Otherwise always show the popup. We no longer honor an X-dismiss flag
+      // so workers can't accidentally lock themselves out of today's draw.
       setProfileName(profile.full_name ?? "");
       setAssignedNumber(res.ticket_number ?? null);
       setPreviewNumber(res.ticket_number ?? null);
       setStreak(res.streak ?? 1);
       setStep(1);
-      setBoom(true);
+      setBoom(false);
       setOpen(true);
     }
 
