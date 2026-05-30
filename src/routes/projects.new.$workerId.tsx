@@ -79,7 +79,7 @@ function NewProjectPage() {
           agreedPrice: hasPrice && price ? Number(price) : null,
           checkinRequired: checkin,
           checkoutRequired: checkout,
-          photoFrequency: photo === "none" ? null : photo,
+          photoFrequency: photo.size === 0 ? null : Array.from(photo),
           startDate: startDate || null,
           duration: duration || null,
         },
