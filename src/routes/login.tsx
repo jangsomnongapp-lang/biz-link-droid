@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/jangsomnong-logo.jpg";
 import { toast } from "sonner";
