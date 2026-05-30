@@ -144,11 +144,14 @@ function NewProjectPage() {
 
             <div>
               <SLabel>{lang === "km" ? "រូបភាពវឌ្ឍនភាពប្រចាំថ្ងៃ" : "Daily progress photos"}</SLabel>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {(["none", "morning", "midday", "endofday"] as const).map((opt) => (
-                  <SToggle key={opt} on={photo === opt} onClick={() => setPhoto(opt)} label={photoLabel(opt)} />
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {(["morning", "midday", "endofday"] as const).map((opt) => (
+                  <SToggle key={opt} on={photo.has(opt)} onClick={() => togglePhoto(opt)} label={slotLabel(opt)} />
                 ))}
               </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                {lang === "km" ? "អាចជ្រើសរើសច្រើនបាន" : "Select one or more times"}
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
