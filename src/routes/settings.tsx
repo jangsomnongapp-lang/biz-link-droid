@@ -1,5 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { changeMyPhone, deleteMyAccount } from "@/server/account.functions";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
@@ -66,6 +79,54 @@ function SettingsPage() {
   const [mySupplierStoreId, setMySupplierStoreId] = useState<string | null>(null);
   const [notifEnabled, setNotifEnabled] = useState(true);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [pwOpen, setPwOpen] = useState(false);
+  const [phoneOpen, setPhoneOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const changePhoneFn = useServerFn(changeMyPhone);
+  const deleteAccountFn = useServerFn(deleteMyAccount);
+
+  async function handleChangePassword() {
+    if (newPw.length < 6) { toast.error(t("password_min")); return; }
+    if (newPw !== confirmPw) { toast.error(t("password_mismatch")); return; }
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("password_changed"));
+    setPwOpen(false); setNewPw(""); setConfirmPw("");
+  }
+
+  async function handleChangePhone() {
+    setBusy(true);
+    try {
+      await changePhoneFn({ data: { phone: newPhone } });
+      toast.success(t("phone_changed"));
+      setPhoneOpen(false); setNewPhone("");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setBusy(true);
+    try {
+      await deleteAccountFn({});
+      await signOut();
+      toast.success(t("delete_account"));
+      navigate({ to: "/login" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -160,8 +221,8 @@ function SettingsPage() {
           </>
         )}
         <Row to="/rewards" icon={Gift} iconBg="bg-orange-100" iconColor="text-orange-600" label={lang === "km" ? "BuildHub Rewards" : "BuildHub Rewards"} />
-        <Row icon={Lock} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("change_password")} />
-        <Row icon={Smartphone} iconBg="bg-slate-200" iconColor="text-slate-700" label={t("change_phone")} />
+        <RowButton onClick={() => setPwOpen(true)} icon={Lock} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("change_password")} />
+        <RowButton onClick={() => setPhoneOpen(true)} icon={Smartphone} iconBg="bg-slate-200" iconColor="text-slate-700" label={t("change_phone")} />
       </Group>
 
       {/* Preferences */}
@@ -290,11 +351,96 @@ function SettingsPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <button className="text-xs font-medium text-muted-foreground active:opacity-70">
+        <button
+          onClick={() => setDeleteOpen(true)}
+          className="text-xs font-medium text-muted-foreground active:opacity-70"
+        >
           {t("delete_account")}
         </button>
         <p className="mt-1 text-[11px] text-text-hint">{t("app_name")} v1.0</p>
       </div>
+
+      {/* Change password dialog */}
+      <Dialog open={pwOpen} onOpenChange={setPwOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("change_password")}</DialogTitle>
+            <DialogDescription>{t("password_min")}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              type="password"
+              placeholder={t("new_password")}
+              value={newPw}
+              onChange={(e) => setNewPw(e.target.value)}
+            />
+            <Input
+              type="password"
+              placeholder={t("confirm_password")}
+              value={confirmPw}
+              onChange={(e) => setConfirmPw(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPwOpen(false)} disabled={busy}>
+              {t("cancel")}
+            </Button>
+            <Button onClick={handleChangePassword} disabled={busy}>
+              {t("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change phone dialog */}
+      <Dialog open={phoneOpen} onOpenChange={setPhoneOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("change_phone")}</DialogTitle>
+          </DialogHeader>
+          <Input
+            type="tel"
+            placeholder={t("new_phone")}
+            value={newPhone}
+            onChange={(e) => setNewPhone(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPhoneOpen(false)} disabled={busy}>
+              {t("cancel")}
+            </Button>
+            <Button onClick={handleChangePhone} disabled={busy || newPhone.trim().length < 6}>
+              {t("save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete account dialog */}
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("delete_account_title")}</DialogTitle>
+            <DialogDescription>{t("delete_account_desc")}</DialogDescription>
+          </DialogHeader>
+          <Input
+            placeholder={t("delete_confirm_type")}
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={busy}>
+              {t("cancel")}
+            </Button>
+            <Button
+              onClick={handleDeleteAccount}
+              disabled={busy || deleteConfirmText !== "DELETE"}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("delete_account")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
