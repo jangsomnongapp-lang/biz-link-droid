@@ -37,6 +37,8 @@ const dict: Dict = {
   hide: { km: "លាក់", en: "Hide" },
   lets_go: { km: "ទៅ​!", en: "Let's go!" },
   register_with_google: { km: "ចុះឈ្មោះជាមួយ Google", en: "Register with Google" },
+  login_with_google: { km: "ចូលជាមួយ Google", en: "Log in with Google" },
+  or: { km: "ឬ", en: "or" },
   // login
   welcome_back: { km: "សូមស្វាគមន៍ត្រលប់មកវិញ", en: "Welcome back" },
   login: { km: "ចូល", en: "Log in" },
