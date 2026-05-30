@@ -30,15 +30,30 @@ function NewProjectPage() {
   const [price, setPrice] = useState("");
   const [checkin, setCheckin] = useState(true);
   const [checkout, setCheckout] = useState(false);
-  const [photo, setPhoto] = useState<"none" | "morning" | "midday" | "endofday">("none");
+  type PhotoSlot = "morning" | "midday" | "endofday";
+  const [photo, setPhoto] = useState<Set<PhotoSlot>>(new Set());
   const [startDate, setStartDate] = useState("");
   const [duration, setDuration] = useState("");
 
-  const photoLabel = (opt: typeof photo) =>
-    opt === "none" ? (lang === "km" ? "មិនត្រូវការ" : "None") :
+  const slotLabel = (opt: PhotoSlot) =>
     opt === "morning" ? (lang === "km" ? "ព្រឹក" : "Morning") :
     opt === "midday" ? (lang === "km" ? "ថ្ងៃត្រង់" : "Midday") :
     (lang === "km" ? "ល្ងាច" : "End of day");
+
+  const togglePhoto = (opt: PhotoSlot) => {
+    const next = new Set(photo);
+    if (next.has(opt)) next.delete(opt);
+    else next.add(opt);
+    setPhoto(next);
+  };
+
+  const photoSummary = () => {
+    if (photo.size === 0) return lang === "km" ? "មិនត្រូវការ" : "None";
+    return (["morning", "midday", "endofday"] as PhotoSlot[])
+      .filter((s) => photo.has(s))
+      .map(slotLabel)
+      .join(", ");
+  };
 
   useEffect(() => {
     void supabase
@@ -64,7 +79,7 @@ function NewProjectPage() {
           agreedPrice: hasPrice && price ? Number(price) : null,
           checkinRequired: checkin,
           checkoutRequired: checkout,
-          photoFrequency: photo === "none" ? null : photo,
+          photoFrequency: photo.size === 0 ? null : Array.from(photo),
           startDate: startDate || null,
           duration: duration || null,
         },
@@ -129,11 +144,14 @@ function NewProjectPage() {
 
             <div>
               <SLabel>{lang === "km" ? "រូបភាពវឌ្ឍនភាពប្រចាំថ្ងៃ" : "Daily progress photos"}</SLabel>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {(["none", "morning", "midday", "endofday"] as const).map((opt) => (
-                  <SToggle key={opt} on={photo === opt} onClick={() => setPhoto(opt)} label={photoLabel(opt)} />
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {(["morning", "midday", "endofday"] as const).map((opt) => (
+                  <SToggle key={opt} on={photo.has(opt)} onClick={() => togglePhoto(opt)} label={slotLabel(opt)} />
                 ))}
               </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                {lang === "km" ? "អាចជ្រើសរើសច្រើនបាន" : "Select one or more times"}
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -212,7 +230,7 @@ function NewProjectPage() {
               />
               <SummaryRow
                 label={lang === "km" ? "រូបភាពប្រចាំថ្ងៃ" : "Daily photos"}
-                value={photoLabel(photo)}
+                value={photoSummary()}
               />
               <SummaryRow
                 label={lang === "km" ? "ថ្ងៃចាប់ផ្តើម" : "Start date"}
