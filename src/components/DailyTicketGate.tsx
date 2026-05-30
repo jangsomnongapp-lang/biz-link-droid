@@ -5,8 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { X, Sparkles, Flame, ChevronDown, Check, Clock, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 
-const DISMISS_KEY = "buildhub:ticket_gate_dismissed_on";
-
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -14,9 +12,9 @@ function todayISO() {
 type Status = "available" | "busy" | "available_soon";
 
 /**
- * Two-screen daily gate for workers (is_provider or is_specialist).
+ * Two-screen daily gate for signed-in users.
  * Step 1: BOOM lottery ticket. Step 2: 3-state availability picker.
- * Skipped if user already checked in today or dismissed today.
+ * Skipped if user already checked in today.
  */
 export function DailyTicketGate() {
   const { user, loading } = useAuth();
@@ -47,20 +45,6 @@ export function DailyTicketGate() {
       return false;
     }
 
-    async function waitForWorkerProfile(maxMs = 8000) {
-      const start = Date.now();
-      while (Date.now() - start < maxMs) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("is_provider, is_specialist, full_name, member_number")
-          .eq("id", userId)
-          .maybeSingle();
-        if (profile) return profile;
-        await new Promise((r) => setTimeout(r, 300));
-      }
-      return null;
-    }
-
     async function tryIssue(attempts = 5): Promise<any | null> {
       for (let i = 0; i < attempts; i++) {
         const { data, error } = await supabase.rpc("issue_daily_ticket_if_missing");
@@ -75,12 +59,14 @@ export function DailyTicketGate() {
       const ok = await waitForSession();
       if (cancelled || !ok) return;
 
-      const profile = await waitForWorkerProfile();
-      if (cancelled || !profile) return;
-      if (!profile.is_provider && !profile.is_specialist) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", userId)
+        .maybeSingle();
+      if (cancelled) return;
 
-      // ALWAYS try to issue today's ticket — even if the user dismissed the
-      // popup earlier today. Dismiss flag only controls whether the UI shows.
+      // Always try to issue today's ticket before showing the popup.
       const issued = await tryIssue();
       if (cancelled || !issued) return;
       const res = (issued ?? {}) as {
@@ -104,7 +90,7 @@ export function DailyTicketGate() {
 
       // Otherwise always show the popup. We no longer honor an X-dismiss flag
       // so workers can't accidentally lock themselves out of today's draw.
-      setProfileName(profile.full_name ?? "");
+      setProfileName(profile?.full_name ?? "");
       setAssignedNumber(res.ticket_number ?? null);
       setPreviewNumber(res.ticket_number ?? null);
       setStreak(res.streak ?? 1);
