@@ -79,6 +79,54 @@ function SettingsPage() {
   const [mySupplierStoreId, setMySupplierStoreId] = useState<string | null>(null);
   const [notifEnabled, setNotifEnabled] = useState(true);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [pwOpen, setPwOpen] = useState(false);
+  const [phoneOpen, setPhoneOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const changePhoneFn = useServerFn(changeMyPhone);
+  const deleteAccountFn = useServerFn(deleteMyAccount);
+
+  async function handleChangePassword() {
+    if (newPw.length < 6) { toast.error(t("password_min")); return; }
+    if (newPw !== confirmPw) { toast.error(t("password_mismatch")); return; }
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("password_changed"));
+    setPwOpen(false); setNewPw(""); setConfirmPw("");
+  }
+
+  async function handleChangePhone() {
+    setBusy(true);
+    try {
+      await changePhoneFn({ data: { phone: newPhone } });
+      toast.success(t("phone_changed"));
+      setPhoneOpen(false); setNewPhone("");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setBusy(true);
+    try {
+      await deleteAccountFn({});
+      await signOut();
+      toast.success(t("delete_account"));
+      navigate({ to: "/login" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => {
     if (!user) return;
