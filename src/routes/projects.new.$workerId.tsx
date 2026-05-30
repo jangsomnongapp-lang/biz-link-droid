@@ -230,7 +230,7 @@ function NewProjectPage() {
               />
               <SummaryRow
                 label={lang === "km" ? "រូបភាពប្រចាំថ្ងៃ" : "Daily photos"}
-                value={photoLabel(photo)}
+                value={photoSummary()}
               />
               <SummaryRow
                 label={lang === "km" ? "ថ្ងៃចាប់ផ្តើម" : "Start date"}
