@@ -96,7 +96,7 @@ const configureSchema = z.object({
   agreedPrice: z.number().nullable().optional(),
   checkinRequired: z.boolean().optional(),
   checkoutRequired: z.boolean().optional(),
-  photoFrequency: z.enum(["morning", "midday", "endofday"]).nullable().optional(),
+  photoFrequency: photoFrequencySchema,
   startDate: z.string().nullable().optional(),
   duration: z.string().nullable().optional(),
 });
