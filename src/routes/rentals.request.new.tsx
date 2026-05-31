@@ -69,7 +69,7 @@ function NewRentalRequestPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 flex h-14 items-center bg-[#534AB7] px-2 text-white">
-        <Link to="/suppliers" className="rounded-full p-2 active:bg-white/10">
+        <Link to="/profile" className="rounded-full p-2 active:bg-white/10">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="flex-1 text-center text-base font-semibold">Looking to rent</h1>
