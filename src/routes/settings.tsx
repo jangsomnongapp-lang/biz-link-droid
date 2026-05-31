@@ -118,11 +118,18 @@ function SettingsPage() {
     setBusy(true);
     try {
       await deleteAccountFn({});
-      await signOut();
+      setDeleteOpen(false);
       toast.success(t("delete_account"));
+      // Navigate away first so no authenticated queries refetch after the user is gone
       navigate({ to: "/login" });
+      // Then clear the local session in the background
+      void signOut();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : String(e));
+      let msg = e instanceof Error ? e.message : String(e);
+      if (e instanceof Response) {
+        try { msg = (await e.text()) || `Error ${e.status}`; } catch { msg = `Error ${e.status}`; }
+      }
+      toast.error(msg);
     } finally {
       setBusy(false);
     }
