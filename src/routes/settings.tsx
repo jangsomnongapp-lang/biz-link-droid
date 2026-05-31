@@ -71,6 +71,8 @@ function SettingsPage() {
   const [pwOpen, setPwOpen] = useState(false);
   const [phoneOpen, setPhoneOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const [pendingLang, setPendingLang] = useState<Lang | null>(null);
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [newPhone, setNewPhone] = useState("");
@@ -101,6 +103,14 @@ function SettingsPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function handleConfirmLang() {
+    if (!pendingLang) return;
+    setLang(pendingLang);
+    toast.success(pendingLang === "km" ? "បានប្ដូរទៅភាសាខ្មែរ" : "Switched to English");
+    setLangOpen(false);
+    setPendingLang(null);
   }
 
   async function handleDeleteAccount() {
@@ -226,8 +236,8 @@ function SettingsPage() {
         <button
           onClick={() => {
             const next: Lang = lang === "km" ? "en" : "km";
-            setLang(next);
-            toast.success(next === "km" ? "បានប្ដូរទៅភាសាខ្មែរ" : "Switched to English");
+            setPendingLang(next);
+            setLangOpen(true);
           }}
           className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-muted"
         >
@@ -441,6 +451,26 @@ function SettingsPage() {
               {t("delete_account")}
             </Button>
             <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={busy} className="h-12 rounded-xl">
+              {t("cancel")}
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Language confirm sheet */}
+      <Drawer open={langOpen} onOpenChange={setLangOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{pendingLang === "km" ? "ប្ដូរទៅភាសាខ្មែរ?" : "Switch to English?"}</DrawerTitle>
+            <DrawerDescription>
+              {pendingLang === "km" ? "អ្នកនឹងប្ដូរភាសាទៅខ្មែរ" : "The app language will change to English."}
+            </DrawerDescription>
+          </DrawerHeader>
+          <DrawerFooter>
+            <Button onClick={handleConfirmLang} className="h-12 rounded-xl">
+              {t("confirm")}
+            </Button>
+            <Button variant="outline" onClick={() => { setLangOpen(false); setPendingLang(null); }} className="h-12 rounded-xl">
               {t("cancel")}
             </Button>
           </DrawerFooter>
