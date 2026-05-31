@@ -456,6 +456,26 @@ function SettingsPage() {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+
+      {/* Language confirm sheet */}
+      <Drawer open={langOpen} onOpenChange={setLangOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{pendingLang === "km" ? "ប្ដូរទៅភាសាខ្មែរ?" : "Switch to English?"}</DrawerTitle>
+            <DrawerDescription>
+              {pendingLang === "km" ? "អ្នកនឹងប្ដូរភាសាទៅខ្មែរ" : "The app language will change to English."}
+            </DrawerDescription>
+          </DrawerHeader>
+          <DrawerFooter>
+            <Button onClick={handleConfirmLang} className="h-12 rounded-xl">
+              {t("confirm")}
+            </Button>
+            <Button variant="outline" onClick={() => { setLangOpen(false); setPendingLang(null); }} className="h-12 rounded-xl">
+              {t("cancel")}
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
