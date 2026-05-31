@@ -41,12 +41,14 @@ function ListingsPage() {
     queryKey: ["listings:index", user?.id ?? null],
     staleTime: 30_000,
     queryFn: async () => {
+      const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
       const { data: rows } = await supabase
         .from("listings")
         .select(
           "id, user_id, title, description, budget, location, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km))"
         )
         .eq("status", "active")
+        .gte("created_at", sixtyDaysAgo)
         .order("created_at", { ascending: false })
         .limit(20);
       let applied: string[] = [];
