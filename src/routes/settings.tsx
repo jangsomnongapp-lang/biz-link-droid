@@ -6,13 +6,13 @@ import { changeMyPhone, deleteMyAccount } from "@/server/account.functions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+} from "@/components/ui/drawer";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
@@ -41,17 +41,6 @@ import {
   Gift,
   Ticket,
 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/settings")({
   component: () => (
@@ -235,7 +224,11 @@ function SettingsPage() {
       {/* Preferences */}
       <Group title={t("preferences")}>
         <button
-          onClick={() => setLang(lang === "km" ? "en" : ("km" as Lang))}
+          onClick={() => {
+            const next: Lang = lang === "km" ? "en" : "km";
+            setLang(next);
+            toast.success(next === "km" ? "បានប្ដូរទៅភាសាខ្មែរ" : "Switched to English");
+          }}
           className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-muted"
         >
           <IconBox icon={Globe} bg="bg-sky-100" color="text-sky-600" />
@@ -334,30 +327,31 @@ function SettingsPage() {
 
       {/* Footer actions */}
       <div className="mt-6 flex flex-col items-center gap-2 px-4">
-        <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
-          <AlertDialogTrigger asChild>
-            <button className="text-sm font-bold text-destructive active:opacity-70">
-              {t("logout")}
-            </button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("logout_confirm_title")}</AlertDialogTitle>
-              <AlertDialogDescription>{t("logout_confirm_desc")}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setLogoutOpen(false)}>
-                {t("cancel")}
-              </AlertDialogCancel>
-              <AlertDialogAction
+        <button
+          onClick={() => setLogoutOpen(true)}
+          className="text-sm font-bold text-destructive active:opacity-70"
+        >
+          {t("logout")}
+        </button>
+        <Drawer open={logoutOpen} onOpenChange={setLogoutOpen}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>{t("logout_confirm_title")}</DrawerTitle>
+              <DrawerDescription>{t("logout_confirm_desc")}</DrawerDescription>
+            </DrawerHeader>
+            <DrawerFooter>
+              <Button
                 onClick={() => void signOut()}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="h-12 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {t("logout")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+              <Button variant="outline" onClick={() => setLogoutOpen(false)} className="h-12 rounded-xl">
+                {t("cancel")}
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
         <button
           onClick={() => setDeleteOpen(true)}
           className="text-xs font-medium text-muted-foreground active:opacity-70"
@@ -367,14 +361,14 @@ function SettingsPage() {
         <p className="mt-1 text-[11px] text-text-hint">{t("app_name")} v1.0</p>
       </div>
 
-      {/* Change password dialog */}
-      <Dialog open={pwOpen} onOpenChange={setPwOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("change_password")}</DialogTitle>
-            <DialogDescription>{t("password_min")}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3">
+      {/* Change password sheet */}
+      <Drawer open={pwOpen} onOpenChange={setPwOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{t("change_password")}</DrawerTitle>
+            <DrawerDescription>{t("password_min")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="space-y-3 px-4">
             <Input
               type="password"
               placeholder={t("new_password")}
@@ -388,66 +382,70 @@ function SettingsPage() {
               onChange={(e) => setConfirmPw(e.target.value)}
             />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPwOpen(false)} disabled={busy}>
-              {t("cancel")}
-            </Button>
-            <Button onClick={handleChangePassword} disabled={busy}>
+          <DrawerFooter>
+            <Button onClick={handleChangePassword} disabled={busy} className="h-12 rounded-xl">
               {t("save")}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Change phone dialog */}
-      <Dialog open={phoneOpen} onOpenChange={setPhoneOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("change_phone")}</DialogTitle>
-          </DialogHeader>
-          <Input
-            type="tel"
-            placeholder={t("new_phone")}
-            value={newPhone}
-            onChange={(e) => setNewPhone(e.target.value)}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPhoneOpen(false)} disabled={busy}>
+            <Button variant="outline" onClick={() => setPwOpen(false)} disabled={busy} className="h-12 rounded-xl">
               {t("cancel")}
             </Button>
-            <Button onClick={handleChangePhone} disabled={busy || newPhone.trim().length < 6}>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Change phone sheet */}
+      <Drawer open={phoneOpen} onOpenChange={setPhoneOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{t("change_phone")}</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4">
+            <Input
+              type="tel"
+              placeholder={t("new_phone")}
+              value={newPhone}
+              onChange={(e) => setNewPhone(e.target.value)}
+            />
+          </div>
+          <DrawerFooter>
+            <Button onClick={handleChangePhone} disabled={busy || newPhone.trim().length < 6} className="h-12 rounded-xl">
               {t("save")}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete account dialog */}
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("delete_account_title")}</DialogTitle>
-            <DialogDescription>{t("delete_account_desc")}</DialogDescription>
-          </DialogHeader>
-          <Input
-            placeholder={t("delete_confirm_type")}
-            value={deleteConfirmText}
-            onChange={(e) => setDeleteConfirmText(e.target.value)}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={busy}>
+            <Button variant="outline" onClick={() => setPhoneOpen(false)} disabled={busy} className="h-12 rounded-xl">
               {t("cancel")}
             </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Delete account sheet */}
+      <Drawer open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{t("delete_account_title")}</DrawerTitle>
+            <DrawerDescription>{t("delete_account_desc")}</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4">
+            <Input
+              placeholder={t("delete_confirm_type")}
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+            />
+          </div>
+          <DrawerFooter>
             <Button
               onClick={handleDeleteAccount}
               disabled={busy || deleteConfirmText !== "DELETE"}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="h-12 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {t("delete_account")}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={busy} className="h-12 rounded-xl">
+              {t("cancel")}
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
