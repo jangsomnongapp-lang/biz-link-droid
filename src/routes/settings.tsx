@@ -119,7 +119,13 @@ function SettingsPage() {
       let msg = e instanceof Error ? e.message : String(e);
       if (e instanceof Response) {
         try { msg = (await e.text()) || `Error ${e.status}`; } catch { msg = `Error ${e.status}`; }
-      }
+  function handleConfirmLang() {
+    if (!pendingLang) return;
+    setLang(pendingLang);
+    toast.success(pendingLang === "km" ? "បានប្ដូរទៅភាសាខ្មែរ" : "Switched to English");
+    setLangOpen(false);
+    setPendingLang(null);
+  }
       toast.error(msg);
     } finally {
       setBusy(false);
