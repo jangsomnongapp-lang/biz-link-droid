@@ -228,8 +228,8 @@ function SettingsPage() {
         <button
           onClick={() => {
             const next: Lang = lang === "km" ? "en" : "km";
-            setLang(next);
-            toast.success(next === "km" ? "បានប្ដូរទៅភាសាខ្មែរ" : "Switched to English");
+            setPendingLang(next);
+            setLangOpen(true);
           }}
           className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-muted"
         >
