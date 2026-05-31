@@ -135,7 +135,7 @@ function RewardsPage() {
             <button
               onClick={() => nav({ to: "/home" })}
               aria-label="Back"
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 active:bg-zinc-200"
+              className="h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 active:bg-zinc-200 flex flex-row"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
