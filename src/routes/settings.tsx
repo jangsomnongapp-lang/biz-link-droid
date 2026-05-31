@@ -338,30 +338,31 @@ function SettingsPage() {
 
       {/* Footer actions */}
       <div className="mt-6 flex flex-col items-center gap-2 px-4">
-        <AlertDialog open={logoutOpen} onOpenChange={setLogoutOpen}>
-          <AlertDialogTrigger asChild>
-            <button className="text-sm font-bold text-destructive active:opacity-70">
-              {t("logout")}
-            </button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("logout_confirm_title")}</AlertDialogTitle>
-              <AlertDialogDescription>{t("logout_confirm_desc")}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setLogoutOpen(false)}>
-                {t("cancel")}
-              </AlertDialogCancel>
-              <AlertDialogAction
+        <button
+          onClick={() => setLogoutOpen(true)}
+          className="text-sm font-bold text-destructive active:opacity-70"
+        >
+          {t("logout")}
+        </button>
+        <Drawer open={logoutOpen} onOpenChange={setLogoutOpen}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>{t("logout_confirm_title")}</DrawerTitle>
+              <DrawerDescription>{t("logout_confirm_desc")}</DrawerDescription>
+            </DrawerHeader>
+            <DrawerFooter>
+              <Button
                 onClick={() => void signOut()}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="h-12 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {t("logout")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+              <Button variant="outline" onClick={() => setLogoutOpen(false)} className="h-12 rounded-xl">
+                {t("cancel")}
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
         <button
           onClick={() => setDeleteOpen(true)}
           className="text-xs font-medium text-muted-foreground active:opacity-70"
