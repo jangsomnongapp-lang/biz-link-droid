@@ -235,7 +235,11 @@ function SettingsPage() {
       {/* Preferences */}
       <Group title={t("preferences")}>
         <button
-          onClick={() => setLang(lang === "km" ? "en" : ("km" as Lang))}
+          onClick={() => {
+            const next: Lang = lang === "km" ? "en" : "km";
+            setLang(next);
+            toast.success(next === "km" ? "បានប្ដូរទៅភាសាខ្មែរ" : "Switched to English");
+          }}
           className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-muted"
         >
           <IconBox icon={Globe} bg="bg-sky-100" color="text-sky-600" />
