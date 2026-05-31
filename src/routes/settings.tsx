@@ -71,6 +71,8 @@ function SettingsPage() {
   const [pwOpen, setPwOpen] = useState(false);
   const [phoneOpen, setPhoneOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const [pendingLang, setPendingLang] = useState<Lang | null>(null);
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [newPhone, setNewPhone] = useState("");
