@@ -133,7 +133,7 @@ function RewardsPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => nav({ to: "/home" })}
+              onClick={() => nav({ to: "/settings" })}
               aria-label="Back"
               className="h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 active:bg-zinc-200 flex flex-row"
             >
