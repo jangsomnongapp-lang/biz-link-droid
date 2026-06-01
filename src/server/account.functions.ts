@@ -23,16 +23,17 @@ export const changeMyPhone = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { userId } = context;
-    const digits = data.phone.replace(/\D/g, "");
+    const digits = normalizePhone(data.phone);
     if (digits.length < 6) throw new Error("Invalid phone number");
 
     const newEmail = phoneToEmail(data.phone);
+    const normalizedPhone = `+855${digits}`;
 
-    // Check uniqueness in profiles
+    // Check uniqueness in profiles (compare against normalized form)
     const { data: clash } = await supabaseAdmin
       .from("profiles")
       .select("id")
-      .eq("phone", data.phone)
+      .eq("phone", normalizedPhone)
       .neq("id", userId)
       .maybeSingle();
     if (clash) throw new Error("This phone number is already in use");
@@ -46,7 +47,7 @@ export const changeMyPhone = createServerFn({ method: "POST" })
 
     const { error: profErr } = await supabaseAdmin
       .from("profiles")
-      .update({ phone: data.phone })
+      .update({ phone: normalizedPhone })
       .eq("id", userId);
     if (profErr) throw new Error(profErr.message);
 
