@@ -102,7 +102,7 @@ function RegisterFlow() {
           emailRedirectTo: `${window.location.origin}/home`,
           data: {
             full_name: fullName.trim(),
-            phone: `+855${phone.replace(/\D/g, "")}`,
+            phone: `+855${phone.replace(/\D/g, "").replace(/^0+/, "")}`,
             language: lang,
             ...roles,
           },
