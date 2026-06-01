@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Trophy, Send, Check } from "lucide-react";
 import { toast } from "sonner";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireAdmin } from "@/components/RequireAdmin";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -11,9 +11,9 @@ import { markRewardSent } from "@/server/invite-rewards.functions";
 
 export const Route = createFileRoute("/admin/invitations")({
   component: () => (
-    <RequireAuth>
+    <RequireAdmin>
       <AdminInvitationsPage />
-    </RequireAuth>
+    </RequireAdmin>
   ),
 });
 

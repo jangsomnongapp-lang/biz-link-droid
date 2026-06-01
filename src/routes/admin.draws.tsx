@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireAdmin } from "@/components/RequireAdmin";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureScheduledDraws, runAdminLotteryDraw, setAdminManualWinner } from "@/lib/admin-draws.functions";
@@ -17,9 +17,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/draws")({
   component: () => (
-    <RequireAuth>
+    <RequireAdmin>
       <AdminDrawsPage />
-    </RequireAuth>
+    </RequireAdmin>
   ),
 });
 

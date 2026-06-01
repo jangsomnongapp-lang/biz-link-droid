@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireAdmin } from "@/components/RequireAdmin";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,9 +10,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/reports")({
   component: () => (
-    <RequireAuth>
+    <RequireAdmin>
       <AdminReportsPage />
-    </RequireAuth>
+    </RequireAdmin>
   ),
 });
 
