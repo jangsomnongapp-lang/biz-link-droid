@@ -3,8 +3,12 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
+function normalizePhone(phone: string) {
+  return phone.replace(/\D/g, "").replace(/^0+/, "");
+}
+
 function phoneToEmail(phone: string) {
-  const digits = phone.replace(/\D/g, "");
+  const digits = normalizePhone(phone);
   return `p${digits}@project001.local`;
 }
 
