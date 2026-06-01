@@ -66,8 +66,13 @@ export function useAuth() {
   return c;
 }
 
+/** Normalize a Cambodian phone number: strip non-digits and leading zeros so "012345678" and "12345678" are treated the same. */
+export function normalizePhone(phone: string) {
+  return phone.replace(/\D/g, "").replace(/^0+/, "");
+}
+
 /** Build a synthetic email from a phone number so we can use Supabase email auth as the storage layer. */
 export function phoneToEmail(phone: string) {
-  const digits = phone.replace(/\D/g, "");
+  const digits = normalizePhone(phone);
   return `p${digits}@project001.local`;
 }
