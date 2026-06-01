@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireAdmin } from "@/components/RequireAdmin";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -11,9 +11,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/posts")({
   component: () => (
-    <RequireAuth>
+    <RequireAdmin>
       <AdminPostsPage />
-    </RequireAuth>
+    </RequireAdmin>
   ),
 });
 
@@ -478,17 +478,28 @@ function AdminPostsPage() {
                   ))}
                 </div>
               )}
-              {p.video_url && (
-                <a
-                  href={p.video_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 flex items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground active:scale-[0.99]"
-                >
-                  <PlayCircle className="h-8 w-8" />
-                  <span className="truncate text-sm font-semibold">{p.video_url}</span>
-                </a>
-              )}
+              {(() => {
+                if (!p.video_url) return null;
+                let safe: string | null = null;
+                try {
+                  const u = new URL(p.video_url);
+                  if (u.protocol === "https:" || u.protocol === "http:") safe = u.toString();
+                } catch {
+                  safe = null;
+                }
+                if (!safe) return null;
+                return (
+                  <a
+                    href={safe}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 flex items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground active:scale-[0.99]"
+                  >
+                    <PlayCircle className="h-8 w-8" />
+                    <span className="truncate text-sm font-semibold">{safe}</span>
+                  </a>
+                );
+              })()}
               <DecisionFooter
                 onApprove={() => void decide("posts", p.id, "approved")}
                 onReject={() => void decide("posts", p.id, "rejected")}

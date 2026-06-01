@@ -2,16 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Copy, Check, Plus, Store as StoreIcon } from "lucide-react";
 import { toast } from "sonner";
-import { RequireAuth } from "@/components/RequireAuth";
+import { RequireAdmin } from "@/components/RequireAdmin";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/suppliers")({
   component: () => (
-    <RequireAuth>
+    <RequireAdmin>
       <AdminSuppliersPage />
-    </RequireAuth>
+    </RequireAdmin>
   ),
 });
 
