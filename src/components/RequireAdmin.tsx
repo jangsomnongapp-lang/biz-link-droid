@@ -18,7 +18,22 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
       return;
     }
     let cancelled = false;
-    check()
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      try {
+        const r = await check({ headers: { Authorization: `Bearer ${session?.access_token ?? ""}` } });
+        if (cancelled) return;
+        if (r?.isAdmin) setState("ok");
+        else {
+          setState("deny");
+          nav({ to: "/home" });
+        }
+      } catch {
+        if (cancelled) return;
+        setState("deny");
+        nav({ to: "/home" });
+      }
+    })();
       .then((r) => {
         if (cancelled) return;
         if (r?.isAdmin) setState("ok");
