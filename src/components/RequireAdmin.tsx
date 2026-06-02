@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { verifyAdmin } from "@/lib/admin-guard.functions";
 
 export function RequireAdmin({ children }: { children: ReactNode }) {
@@ -17,20 +18,22 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
       return;
     }
     let cancelled = false;
-    check()
-      .then((r) => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      try {
+        const r = await check({ headers: { Authorization: `Bearer ${session?.access_token ?? ""}` } });
         if (cancelled) return;
         if (r?.isAdmin) setState("ok");
         else {
           setState("deny");
           nav({ to: "/home" });
         }
-      })
-      .catch(() => {
+      } catch {
         if (cancelled) return;
         setState("deny");
         nav({ to: "/home" });
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
