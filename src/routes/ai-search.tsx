@@ -23,6 +23,7 @@ export const Route = createFileRoute("/ai-search")({
 });
 
 type Result = Awaited<ReturnType<typeof aiSearch>>;
+type Rec = Result["recommendations"][number];
 
 function AiSearchPage() {
   const { lang } = useI18n();
@@ -41,10 +42,8 @@ function AiSearchPage() {
       setResult(r);
     } catch (e) {
       setResult({
-        interpretation: { intent: "general", keywords: [], summary: "" },
-        suppliers: [],
-        listings: [],
-        people: [],
+        summary: "",
+        recommendations: [],
         error: e instanceof Error ? e.message : "Failed",
       });
     } finally {
@@ -53,11 +52,7 @@ function AiSearchPage() {
   }
 
   const empty =
-    result &&
-    !result.error &&
-    result.suppliers.length === 0 &&
-    result.listings.length === 0 &&
-    result.people.length === 0;
+    result && !result.error && result.recommendations.length === 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -78,8 +73,8 @@ function AiSearchPage() {
       <main className="flex-1 px-4 py-4">
         <p className="mb-3 text-sm text-muted-foreground">
           {lang === "km"
-            ? "ពិពណ៌នាអ្វីដែលអ្នកត្រូវការ — AI នឹងជួយស្វែងរក។"
-            : "Describe what you need — AI will help you find it."}
+            ? "ពិពណ៌នាអ្វីដែលអ្នកត្រូវការ — AI នឹងណែនាំពីទិន្នន័យក្នុងប្រព័ន្ធ។"
+            : "Describe what you need — AI will recommend matches from the database."}
         </p>
         <textarea
           autoFocus
@@ -125,27 +120,13 @@ function AiSearchPage() {
 
         {result && !result.error && (
           <div className="mt-5 space-y-4">
-            {result.interpretation.summary && (
+            {result.summary && (
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
                 <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-primary">
                   <Sparkles className="h-3 w-3" />
-                  {lang === "km" ? "AI" : "AI"}
+                  AI
                 </div>
-                <p className="text-sm text-foreground">
-                  {result.interpretation.summary}
-                </p>
-                {result.interpretation.keywords.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {result.interpretation.keywords.map((k) => (
-                      <span
-                        key={k}
-                        className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
-                      >
-                        {k}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <p className="text-sm text-foreground">{result.summary}</p>
               </div>
             )}
 
@@ -155,102 +136,11 @@ function AiSearchPage() {
               </div>
             )}
 
-            {result.suppliers.length > 0 && (
-              <Section title={lang === "km" ? "ហាង" : "Suppliers"}>
-                {result.suppliers.map((s) => (
-                  <Link
-                    key={s.id}
-                    to="/suppliers/$storeId"
-                    params={{ storeId: s.id }}
-                    className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 active:bg-muted"
-                  >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
-                      {s.logo_url ? (
-                        <img
-                          src={s.logo_url}
-                          alt={s.name}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <Store className="h-5 w-5 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">
-                        {s.name}
-                      </div>
-                      {s.location && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
-                          <span className="truncate">{s.location}</span>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </Section>
-            )}
-
-            {result.listings.length > 0 && (
-              <Section title={lang === "km" ? "ការងារ" : "Projects"}>
-                {result.listings.map((l) => (
-                  <Link
-                    key={l.id}
-                    to="/listings/$listingId"
-                    params={{ listingId: l.id }}
-                    className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3 active:bg-muted"
-                  >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <ClipboardList className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="line-clamp-1 text-sm font-semibold">
-                        {l.title}
-                      </div>
-                      {l.description && (
-                        <div className="line-clamp-1 text-xs text-muted-foreground">
-                          {l.description}
-                        </div>
-                      )}
-                      {l.budget != null && (
-                        <div className="mt-0.5 text-[11px] font-semibold text-primary">
-                          ${l.budget}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </Section>
-            )}
-
-            {result.people.length > 0 && (
-              <Section title={lang === "km" ? "មនុស្ស" : "People"}>
-                {result.people.map((p) => (
-                  <Link
-                    key={p.id}
-                    to="/users/$userId"
-                    params={{ userId: p.id }}
-                    className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 active:bg-muted"
-                  >
-                    <Avatar
-                      name={p.full_name}
-                      url={p.avatar_url}
-                      size={44}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">
-                        {p.full_name ?? "—"}
-                      </div>
-                      {p.about_me && (
-                        <div className="line-clamp-1 text-xs text-muted-foreground">
-                          {p.about_me}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </Section>
-            )}
+            <div className="flex flex-col gap-2">
+              {result.recommendations.map((r, i) => (
+                <RecCard key={`${r.kind}-${r.id}-${i}`} r={r} />
+              ))}
+            </div>
           </div>
         )}
       </main>
@@ -258,19 +148,99 @@ function AiSearchPage() {
   );
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function RecCard({ r }: { r: Rec }) {
+  if (r.kind === "supplier" && r.supplier) {
+    const s = r.supplier;
+    return (
+      <Link
+        to="/suppliers/$storeId"
+        params={{ storeId: s.id }}
+        className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3 active:bg-muted"
+      >
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
+          {s.logo_url ? (
+            <img
+              src={s.logo_url}
+              alt={s.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Store className="h-5 w-5 text-muted-foreground" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-semibold">{s.name}</div>
+          {s.location && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3" />
+              <span className="truncate">{s.location}</span>
+            </div>
+          )}
+          <ReasonChip reason={r.reason} />
+        </div>
+      </Link>
+    );
+  }
+  if (r.kind === "listing" && r.listing) {
+    const l = r.listing;
+    return (
+      <Link
+        to="/listings/$listingId"
+        params={{ listingId: l.id }}
+        className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3 active:bg-muted"
+      >
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+          <ClipboardList className="h-5 w-5 text-primary" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="line-clamp-1 text-sm font-semibold">{l.title}</div>
+          {l.description && (
+            <div className="line-clamp-1 text-xs text-muted-foreground">
+              {l.description}
+            </div>
+          )}
+          {l.budget != null && (
+            <div className="mt-0.5 text-[11px] font-semibold text-primary">
+              ${l.budget}
+            </div>
+          )}
+          <ReasonChip reason={r.reason} />
+        </div>
+      </Link>
+    );
+  }
+  if (r.kind === "person" && r.person) {
+    const p = r.person;
+    return (
+      <Link
+        to="/users/$userId"
+        params={{ userId: p.id }}
+        className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3 active:bg-muted"
+      >
+        <Avatar name={p.full_name} url={p.avatar_url} size={48} />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-semibold">
+            {p.full_name ?? "—"}
+          </div>
+          {p.about_me && (
+            <div className="line-clamp-1 text-xs text-muted-foreground">
+              {p.about_me}
+            </div>
+          )}
+          <ReasonChip reason={r.reason} />
+        </div>
+      </Link>
+    );
+  }
+  return null;
+}
+
+function ReasonChip({ reason }: { reason: string }) {
+  if (!reason) return null;
   return (
-    <section>
-      <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-        {title}
-      </h2>
-      <div className="flex flex-col gap-2">{children}</div>
-    </section>
+    <div className="mt-1.5 flex items-start gap-1 rounded-md bg-primary/5 px-2 py-1 text-[11px] text-primary">
+      <Sparkles className="mt-0.5 h-3 w-3 shrink-0" />
+      <span className="line-clamp-2">{reason}</span>
+    </div>
   );
 }
