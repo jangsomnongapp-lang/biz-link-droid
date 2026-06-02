@@ -1,0 +1,2 @@
+ALTER TABLE public.lottery_draws DROP CONSTRAINT lottery_draws_status_check;
+ALTER TABLE public.lottery_draws ADD CONSTRAINT lottery_draws_status_check CHECK (status = ANY (ARRAY['scheduled'::text, 'drawn'::text, 'published'::text, 'no_entries'::text]));
