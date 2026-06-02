@@ -34,19 +34,6 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
         nav({ to: "/home" });
       }
     })();
-      .then((r) => {
-        if (cancelled) return;
-        if (r?.isAdmin) setState("ok");
-        else {
-          setState("deny");
-          nav({ to: "/home" });
-        }
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setState("deny");
-        nav({ to: "/home" });
-      });
     return () => {
       cancelled = true;
     };
