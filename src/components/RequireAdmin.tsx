@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { verifyAdmin } from "@/lib/admin-guard.functions";
 
 export function RequireAdmin({ children }: { children: ReactNode }) {
