@@ -492,10 +492,17 @@ function HomePage() {
       <div className="mt-2 grid grid-cols-2 gap-2 px-2">
         <Link
           to="/invitations"
-          className="flex items-center justify-center gap-2 rounded-xl bg-primary/10 px-3 py-3 text-sm font-semibold text-primary shadow-card active:bg-primary/15"
+          className="flex items-center gap-3 rounded-xl bg-zinc-900 px-3 py-2.5 text-white shadow-card active:opacity-90"
         >
-          <UserPlus className="h-4 w-4" />
-          {t("invite_friends_earn")}
+          <UserPlus className="h-5 w-5 shrink-0 text-white" />
+          <div className="flex flex-col leading-tight text-left">
+            <span className="text-[10px] font-medium text-zinc-300">
+              {lang === "km" ? "ទទួលរង្វាន់" : "Earn rewards"}
+            </span>
+            <span className="text-sm font-bold text-white">
+              {lang === "km" ? "អញ្ជើញមិត្ត" : "Invite friends"}
+            </span>
+          </div>
         </Link>
         <Link
           to="/find-material"
