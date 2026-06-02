@@ -269,20 +269,22 @@ export const aiSearch = createServerFn({ method: "POST" })
       const liMap = new Map(listings.map((l) => [l.id, l]));
       const peMap = new Map(people.map((p) => [p.id, p]));
 
-      const enriched = ai.recommendations
-        .map((r) => {
-          if (r.kind === "supplier" && supMap.has(r.id)) {
-            return { ...r, supplier: supMap.get(r.id)! };
-          }
-          if (r.kind === "listing" && liMap.has(r.id)) {
-            return { ...r, listing: liMap.get(r.id)! };
-          }
-          if (r.kind === "person" && peMap.has(r.id)) {
-            return { ...r, person: peMap.get(r.id)! };
-          }
-          return null;
-        })
-        .filter((x): x is NonNullable<typeof x> => x !== null);
+      const enriched: Array<
+        Recommendation & {
+          supplier?: SupplierRow;
+          listing?: ListingRow;
+          person?: PersonRow;
+        }
+      > = [];
+      for (const r of ai.recommendations) {
+        if (r.kind === "supplier" && supMap.has(r.id)) {
+          enriched.push({ ...r, supplier: supMap.get(r.id)! });
+        } else if (r.kind === "listing" && liMap.has(r.id)) {
+          enriched.push({ ...r, listing: liMap.get(r.id)! });
+        } else if (r.kind === "person" && peMap.has(r.id)) {
+          enriched.push({ ...r, person: peMap.get(r.id)! });
+        }
+      }
 
       return {
         summary: ai.summary,
