@@ -233,6 +233,7 @@ function SearchPage() {
             </div>
           </div>
           <ChevronRight className="h-4 w-4 shrink-0 opacity-80" />
+        </Link>
         {submitted && (
           <div className="-mx-3 mt-2 overflow-x-auto">
             <div className="flex gap-1 px-3">
