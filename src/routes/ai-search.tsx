@@ -1,8 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { RequireAuth } from "@/components/RequireAuth";
-import { useI18n } from "@/lib/i18n";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { RequireAuth } from "@/components/RequireAuth";
+import { Avatar } from "@/components/Avatar";
+import { useI18n } from "@/lib/i18n";
+import { aiSearch } from "@/lib/ai-search.functions";
+import {
+  ArrowLeft,
+  Sparkles,
+  Store,
+  ClipboardList,
+  MapPin,
+  Loader2,
+} from "lucide-react";
 
 export const Route = createFileRoute("/ai-search")({
   component: () => (
@@ -12,9 +22,42 @@ export const Route = createFileRoute("/ai-search")({
   ),
 });
 
+type Result = Awaited<ReturnType<typeof aiSearch>>;
+
 function AiSearchPage() {
   const { lang } = useI18n();
   const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<Result | null>(null);
+  const search = useServerFn(aiSearch);
+
+  async function run() {
+    const v = q.trim();
+    if (!v) return;
+    setLoading(true);
+    setResult(null);
+    try {
+      const r = await search({ data: { query: v } });
+      setResult(r);
+    } catch (e) {
+      setResult({
+        interpretation: { intent: "general", keywords: [], summary: "" },
+        suppliers: [],
+        listings: [],
+        people: [],
+        error: e instanceof Error ? e.message : "Failed",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const empty =
+    result &&
+    !result.error &&
+    result.suppliers.length === 0 &&
+    result.listings.length === 0 &&
+    result.people.length === 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -32,7 +75,7 @@ function AiSearchPage() {
         </div>
       </header>
 
-      <main className="flex-1 px-4 py-6">
+      <main className="flex-1 px-4 py-4">
         <p className="mb-3 text-sm text-muted-foreground">
           {lang === "km"
             ? "ពិពណ៌នាអ្វីដែលអ្នកត្រូវការ — AI នឹងជួយស្វែងរក។"
@@ -42,7 +85,13 @@ function AiSearchPage() {
           autoFocus
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          rows={4}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+              e.preventDefault();
+              run();
+            }
+          }}
+          rows={3}
           placeholder={
             lang === "km"
               ? "ឧ. ខ្ញុំត្រូវការជាងអគ្គិសនីនៅភ្នំពេញ..."
@@ -51,15 +100,177 @@ function AiSearchPage() {
           className="w-full rounded-xl border border-border bg-surface p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
         <button
-          disabled={!q.trim()}
-          className="mt-3 w-full rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
+          onClick={run}
+          disabled={!q.trim() || loading}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
         >
-          {lang === "km" ? "ស្វែងរក" : "Search"}
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {lang === "km" ? "កំពុងគិត..." : "Thinking..."}
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" />
+              {lang === "km" ? "ស្វែងរកដោយ AI" : "Search with AI"}
+            </>
+          )}
         </button>
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          {lang === "km" ? "នឹងមកដល់ឆាប់ៗ" : "Coming soon"}
-        </p>
+
+        {result?.error && (
+          <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+            {result.error}
+          </div>
+        )}
+
+        {result && !result.error && (
+          <div className="mt-5 space-y-4">
+            {result.interpretation.summary && (
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+                <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-primary">
+                  <Sparkles className="h-3 w-3" />
+                  {lang === "km" ? "AI" : "AI"}
+                </div>
+                <p className="text-sm text-foreground">
+                  {result.interpretation.summary}
+                </p>
+                {result.interpretation.keywords.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {result.interpretation.keywords.map((k) => (
+                      <span
+                        key={k}
+                        className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
+                      >
+                        {k}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {empty && (
+              <div className="py-10 text-center text-sm text-muted-foreground">
+                {lang === "km" ? "មិនមានលទ្ធផល" : "No results found"}
+              </div>
+            )}
+
+            {result.suppliers.length > 0 && (
+              <Section title={lang === "km" ? "ហាង" : "Suppliers"}>
+                {result.suppliers.map((s) => (
+                  <Link
+                    key={s.id}
+                    to="/suppliers/$storeId"
+                    params={{ storeId: s.id }}
+                    className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 active:bg-muted"
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
+                      {s.logo_url ? (
+                        <img
+                          src={s.logo_url}
+                          alt={s.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <Store className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold">
+                        {s.name}
+                      </div>
+                      {s.location && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          <span className="truncate">{s.location}</span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </Section>
+            )}
+
+            {result.listings.length > 0 && (
+              <Section title={lang === "km" ? "ការងារ" : "Projects"}>
+                {result.listings.map((l) => (
+                  <Link
+                    key={l.id}
+                    to="/listings/$listingId"
+                    params={{ listingId: l.id }}
+                    className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3 active:bg-muted"
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <ClipboardList className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="line-clamp-1 text-sm font-semibold">
+                        {l.title}
+                      </div>
+                      {l.description && (
+                        <div className="line-clamp-1 text-xs text-muted-foreground">
+                          {l.description}
+                        </div>
+                      )}
+                      {l.budget != null && (
+                        <div className="mt-0.5 text-[11px] font-semibold text-primary">
+                          ${l.budget}
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </Section>
+            )}
+
+            {result.people.length > 0 && (
+              <Section title={lang === "km" ? "មនុស្ស" : "People"}>
+                {result.people.map((p) => (
+                  <Link
+                    key={p.id}
+                    to="/users/$userId"
+                    params={{ userId: p.id }}
+                    className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 active:bg-muted"
+                  >
+                    <Avatar
+                      name={p.full_name}
+                      url={p.avatar_url}
+                      size={44}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold">
+                        {p.full_name ?? "—"}
+                      </div>
+                      {p.about_me && (
+                        <div className="line-clamp-1 text-xs text-muted-foreground">
+                          {p.about_me}
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </Section>
+            )}
+          </div>
+        )}
       </main>
     </div>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        {title}
+      </h2>
+      <div className="flex flex-col gap-2">{children}</div>
+    </section>
   );
 }
