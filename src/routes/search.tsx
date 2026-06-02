@@ -15,6 +15,8 @@ import {
   Users,
   LayoutGrid,
   MapPin,
+  Sparkles,
+  ChevronRight,
 } from "lucide-react";
 
 export const Route = createFileRoute("/search")({
