@@ -15,6 +15,8 @@ import {
   Users,
   LayoutGrid,
   MapPin,
+  Sparkles,
+  ChevronRight,
 } from "lucide-react";
 
 export const Route = createFileRoute("/search")({
@@ -211,6 +213,27 @@ function SearchPage() {
             )}
           </div>
         </div>
+        <Link
+          to="/ai-search"
+          className="mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-white shadow-sm active:opacity-90"
+          style={{
+            background:
+              "linear-gradient(95deg, hsl(25 90% 55%) 0%, hsl(20 85% 50%) 50%, hsl(220 50% 35%) 100%)",
+          }}
+        >
+          <Sparkles className="h-5 w-5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-bold leading-tight">
+              {lang === "km" ? "សាកល្បង AI ស្វែងរក" : "Try AI search"}
+            </div>
+            <div className="truncate text-[11px] leading-tight text-white/85">
+              {lang === "km"
+                ? "ពិពណ៌នាអ្វីដែលអ្នកត្រូវការតាមពាក្យរបស់អ្នក"
+                : "Describe what you need in your own words"}
+            </div>
+          </div>
+          <ChevronRight className="h-4 w-4 shrink-0 opacity-80" />
+        </Link>
         {submitted && (
           <div className="-mx-3 mt-2 overflow-x-auto">
             <div className="flex gap-1 px-3">
