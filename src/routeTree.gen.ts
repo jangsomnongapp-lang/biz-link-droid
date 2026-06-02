@@ -27,6 +27,7 @@ import { Route as FindWorkerRouteImport } from './routes/find-worker'
 import { Route as FindMaterialRouteImport } from './routes/find-material'
 import { Route as AnnounceRouteImport } from './routes/announce'
 import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AiSearchRouteImport } from './routes/ai-search'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SuppliersIndexRouteImport } from './routes/suppliers.index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
@@ -149,6 +150,11 @@ const AnnounceRoute = AnnounceRouteImport.update({
 const AlertsRoute = AlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiSearchRoute = AiSearchRouteImport.update({
+  id: '/ai-search',
+  path: '/ai-search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -320,6 +326,7 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
   '/find-material': typeof FindMaterialRouteWithChildren
@@ -373,6 +380,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
   '/find-material': typeof FindMaterialRouteWithChildren
@@ -427,6 +435,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
   '/find-material': typeof FindMaterialRouteWithChildren
@@ -482,6 +491,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-search'
     | '/alerts'
     | '/announce'
     | '/find-material'
@@ -535,6 +545,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-search'
     | '/alerts'
     | '/announce'
     | '/find-material'
@@ -588,6 +599,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ai-search'
     | '/alerts'
     | '/announce'
     | '/find-material'
@@ -642,6 +654,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiSearchRoute: typeof AiSearchRoute
   AlertsRoute: typeof AlertsRoute
   AnnounceRoute: typeof AnnounceRoute
   FindMaterialRoute: typeof FindMaterialRouteWithChildren
@@ -815,6 +828,13 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts'
       preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-search': {
+      id: '/ai-search'
+      path: '/ai-search'
+      fullPath: '/ai-search'
+      preLoaderRoute: typeof AiSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1091,6 +1111,7 @@ const SuppliersStoreIdRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiSearchRoute: AiSearchRoute,
   AlertsRoute: AlertsRoute,
   AnnounceRoute: AnnounceRoute,
   FindMaterialRoute: FindMaterialRouteWithChildren,
