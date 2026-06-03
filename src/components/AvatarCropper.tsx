@@ -35,6 +35,7 @@ export function AvatarCropper({ src, onCancel, onConfirm, saving, cropShape = "r
   const { lang } = useI18n();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [mediaSize, setMediaSize] = useState<{ width: number; height: number } | null>(null);
   const [areaPx, setAreaPx] = useState<Area | null>(null);
 
   const onComplete = useCallback((_: Area, pixels: Area) => {
