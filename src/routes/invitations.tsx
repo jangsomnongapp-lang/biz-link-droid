@@ -7,7 +7,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { claimInviteRewards } from "@/server/invite-rewards.functions";
+import { claimInviteRewards } from "@/lib/invite-rewards.functions";
 
 export const Route = createFileRoute("/invitations")({
   component: () => (
