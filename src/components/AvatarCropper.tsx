@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 import { useI18n } from "@/lib/i18n";
 
@@ -8,34 +8,62 @@ interface Props {
   onConfirm: (dataUrl: string) => void;
   saving?: boolean;
   cropShape?: "round" | "rect";
+  /** When omitted for rect crop, the image's natural aspect ratio is preserved. */
   aspect?: number;
 }
 
-async function getCroppedImage(src: string, area: Area): Promise<string> {
-  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = src;
   });
-  const size = 512;
+}
+
+async function getCroppedImage(src: string, area: Area, square: boolean): Promise<string> {
+  const image = await loadImage(src);
+  const maxSize = 1280;
+  let outW: number;
+  let outH: number;
+  if (square) {
+    outW = outH = 512;
+  } else {
+    const scale = Math.min(1, maxSize / Math.max(area.width, area.height));
+    outW = Math.round(area.width * scale);
+    outH = Math.round(area.height * scale);
+  }
   const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = outW;
+  canvas.height = outH;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas not supported");
   ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, size, size);
-  ctx.drawImage(image, area.x, area.y, area.width, area.height, 0, 0, size, size);
+  ctx.fillRect(0, 0, outW, outH);
+  ctx.drawImage(image, area.x, area.y, area.width, area.height, 0, 0, outW, outH);
   return canvas.toDataURL("image/jpeg", 0.9);
 }
 
-export function AvatarCropper({ src, onCancel, onConfirm, saving, cropShape = "round", aspect = 1 }: Props) {
+export function AvatarCropper({ src, onCancel, onConfirm, saving, cropShape = "round", aspect }: Props) {
   const { lang } = useI18n();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [areaPx, setAreaPx] = useState<Area | null>(null);
+  const [naturalAspect, setNaturalAspect] = useState<number | null>(null);
+
+  // For rect crops without an explicit aspect, preserve the image's natural aspect.
+  const preserveNatural = cropShape === "rect" && aspect == null;
+  const effectiveAspect = aspect ?? (cropShape === "round" ? 1 : naturalAspect ?? 1);
+
+  useEffect(() => {
+    if (!preserveNatural) return;
+    let cancelled = false;
+    void loadImage(src).then((img) => {
+      if (!cancelled) setNaturalAspect(img.naturalWidth / img.naturalHeight);
+    });
+    return () => { cancelled = true; };
+  }, [src, preserveNatural]);
 
   const onComplete = useCallback((_: Area, pixels: Area) => {
     setAreaPx(pixels);
@@ -43,7 +71,7 @@ export function AvatarCropper({ src, onCancel, onConfirm, saving, cropShape = "r
 
   async function handleConfirm() {
     if (!areaPx) return;
-    const out = await getCroppedImage(src, areaPx);
+    const out = await getCroppedImage(src, areaPx, cropShape === "round" || aspect === 1);
     onConfirm(out);
   }
 
@@ -56,10 +84,10 @@ export function AvatarCropper({ src, onCancel, onConfirm, saving, cropShape = "r
           zoom={zoom}
           minZoom={0.5}
           maxZoom={3}
-          aspect={aspect}
+          aspect={effectiveAspect}
           cropShape={cropShape}
           showGrid={false}
-          objectFit="cover"
+          objectFit={preserveNatural ? "contain" : "cover"}
           restrictPosition={false}
           onCropChange={setCrop}
           onZoomChange={setZoom}
