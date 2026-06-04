@@ -10,7 +10,7 @@ import {
   switchToIdentity,
   getUnifiedInbox,
   setIdentityPhoneLogin,
-} from "@/server/super-user.functions";
+} from "@/lib/super-user.functions";
 import { toast } from "sonner";
 import { Plus, Inbox, X, ArrowLeft, Phone } from "lucide-react";
 
