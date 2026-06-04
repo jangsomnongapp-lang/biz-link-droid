@@ -1951,6 +1951,10 @@ export type Database = {
       }
       ensure_scheduled_draws: { Args: never; Returns: undefined }
       expire_overdue_claims: { Args: never; Returns: number }
+      generate_random_ticket_number: {
+        Args: { _draw_period_start: string; _ticket_type: string }
+        Returns: number
+      }
       get_supplier_invite_by_token: {
         Args: { _token: string }
         Returns: {
