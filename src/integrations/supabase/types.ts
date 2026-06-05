@@ -1933,7 +1933,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      app_settings_public: {
+        Row: {
+          id: number | null
+          telegram_chat_id: string | null
+          telegram_webhook_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: number | null
+          telegram_chat_id?: string | null
+          telegram_webhook_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: number | null
+          telegram_chat_id?: string | null
+          telegram_webhook_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       auto_run_due_draws: { Args: never; Returns: Json }
