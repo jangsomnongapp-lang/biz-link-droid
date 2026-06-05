@@ -38,10 +38,10 @@ function AdminTelegramPage() {
       // Note: telegram_webhook_secret is intentionally NOT selected — it is hidden
       // from client roles. Admins can rotate it by entering a new value below.
       const { data } = await supabase
-        .from("app_settings")
+        .from("app_settings_public" as any)
         .select("telegram_chat_id, telegram_webhook_url")
         .eq("id", 1)
-        .maybeSingle();
+        .maybeSingle() as { data: { telegram_chat_id: string | null; telegram_webhook_url: string | null } | null };
       if (data) {
         setChatId(data.telegram_chat_id ?? "");
         setWebhookUrl(
