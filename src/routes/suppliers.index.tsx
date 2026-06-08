@@ -99,7 +99,7 @@ function SuppliersListPage() {
         .from("posts")
         .select("id, user_id, title, content, post_type, price, discount_price, currency, created_at, profiles(full_name, avatar_url), post_photos(photo_url)")
         .eq("status", "approved")
-        .not("post_type", "is", null)
+        .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
         .order("created_at", { ascending: false })
         .limit(60);
       const rows = (data as ProductRow[] | null) ?? [];
