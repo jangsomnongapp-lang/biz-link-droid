@@ -356,9 +356,6 @@ const POST_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg:
   oferta:      { en: "Offer",     km: "ការផ្តល់ជូន",  bg: "bg-amber-100",   fg: "text-amber-700" },
   liquidacion: { en: "Clearance", km: "បោះតម្លៃ",    bg: "bg-rose-100",    fg: "text-rose-700" },
 };
-    </div>
-  );
-}
 
 function Stat({ value, label, divider }: { value: number; label: string; divider?: boolean }) {
   return (
