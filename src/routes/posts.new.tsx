@@ -171,19 +171,65 @@ function NewProductPage() {
               />
             </div>
 
-            <div className="rounded-xl bg-surface p-3 shadow-card">
-              <Label optional>{lang === "km" ? "តម្លៃ" : "Price"}</Label>
-              <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-                <DollarSign className="ml-2 h-4 w-4 text-success" />
-                <input
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, "").slice(0, 12))}
-                  inputMode="decimal"
-                  placeholder="0.00"
-                  className="h-full flex-1 bg-transparent px-2 text-sm outline-none"
-                />
+            <div className="space-y-3 rounded-xl bg-surface p-3 shadow-card">
+              <div>
+                <Label optional>{lang === "km" ? "រូបិយប័ណ្ណ" : "Currency"}</Label>
+                <div className="flex gap-2">
+                  {(["USD", "KHR"] as const).map((c) => {
+                    const sel = currency === c;
+                    return (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setCurrency(c)}
+                        className={`flex-1 rounded-lg border-2 px-3 py-2 text-sm font-bold transition ${
+                          sel ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-muted-foreground"
+                        }`}
+                      >
+                        {c === "USD" ? "$ USD" : "៛ KHR"}
+                        <span className="ml-1 text-[10px] font-normal">
+                          {c === "USD" ? (lang === "km" ? "ដុល្លារ" : "Dollar") : (lang === "km" ? "រៀល" : "Riel")}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <Label optional>{lang === "km" ? "តម្លៃដើម" : "Price"}</Label>
+                <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
+                  <span className="ml-3 text-sm font-bold text-success">{currency === "USD" ? "$" : "៛"}</span>
+                  <input
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, "").slice(0, 12))}
+                    inputMode="decimal"
+                    placeholder={currency === "USD" ? "0.00" : "0"}
+                    className="h-full flex-1 bg-transparent px-2 text-sm outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label optional>{lang === "km" ? "តម្លៃបញ្ចុះ (ស្ទុក)" : "Discount price (clearance)"}</Label>
+                <div className="flex h-11 items-center overflow-hidden rounded-lg border-2 border-dashed border-rose-300 bg-rose-50/50 focus-within:border-rose-500">
+                  <span className="ml-3 text-sm font-bold text-rose-600">{currency === "USD" ? "$" : "៛"}</span>
+                  <input
+                    value={discountPrice}
+                    onChange={(e) => setDiscountPrice(e.target.value.replace(/[^0-9.]/g, "").slice(0, 12))}
+                    inputMode="decimal"
+                    placeholder={lang === "km" ? "ស្រេចចិត្ត" : "Optional sale price"}
+                    className="h-full flex-1 bg-transparent px-2 text-sm outline-none"
+                  />
+                </div>
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  {lang === "km"
+                    ? "បន្ថែមតម្លៃបញ្ចុះដើម្បីបង្ហាញតម្លៃធ្លាក់ចុះ"
+                    : "Add a sale price to show a strike-through on the original"}
+                </p>
               </div>
             </div>
+
 
             <div className="rounded-xl bg-surface p-3 shadow-card">
               <Label optional>{lang === "km" ? "ការពិពណ៌នា" : "Description"}</Label>
