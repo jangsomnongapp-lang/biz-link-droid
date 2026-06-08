@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus } from "lucide-react";
+import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, Package } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPrice } from "@/lib/price";
+import { POST_TYPE_META } from "@/routes/posts.new";
 
 export const Route = createFileRoute("/suppliers/")({
   component: () => (
@@ -49,22 +51,75 @@ interface RentalRow {
 }
 
 type Mode = "shops" | "rent";
+type ShopSub = "stores" | "products";
 type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools";
+
+type PostTypeKey = "novedad" | "stock" | "oferta" | "liquidacion";
+
+interface ProductRow {
+  id: string;
+  user_id: string;
+  title: string | null;
+  content: string | null;
+  post_type: PostTypeKey | null;
+  price: number | null;
+  discount_price: number | null;
+  currency: string | null;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  post_photos: { photo_url: string }[];
+  store?: { id: string; name: string; location: string | null } | null;
+}
 
 function SuppliersListPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("shops");
+  const [shopSub, setShopSub] = useState<ShopSub>("stores");
   const [cats, setCats] = useState<SupplierCategory[]>([]);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [stores, setStores] = useState<StoreRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
+  // products
+  const [products, setProducts] = useState<ProductRow[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [productType, setProductType] = useState<PostTypeKey | "all">("all");
   // rent
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
   const [loadingRent, setLoadingRent] = useState(true);
+
+  useEffect(() => {
+    if (mode !== "shops" || shopSub !== "products") return;
+    setLoadingProducts(true);
+    void (async () => {
+      const { data } = await supabase
+        .from("posts")
+        .select("id, user_id, title, content, post_type, price, discount_price, currency, created_at, profiles(full_name, avatar_url), post_photos(photo_url)")
+        .eq("status", "approved")
+        .not("post_type", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(60);
+      const rows = (data as ProductRow[] | null) ?? [];
+      const ownerIds = Array.from(new Set(rows.map((r) => r.user_id)));
+      if (ownerIds.length) {
+        const { data: storeData } = await supabase
+          .from("supplier_stores")
+          .select("id, name, location, user_id")
+          .in("user_id", ownerIds)
+          .eq("status", "approved");
+        const byUser = new Map<string, { id: string; name: string; location: string | null }>();
+        for (const s of (storeData ?? []) as Array<{ id: string; name: string; location: string | null; user_id: string }>) {
+          if (!byUser.has(s.user_id)) byUser.set(s.user_id, { id: s.id, name: s.name, location: s.location });
+        }
+        for (const r of rows) r.store = byUser.get(r.user_id) ?? null;
+      }
+      setProducts(rows);
+      setLoadingProducts(false);
+    })();
+  }, [mode, shopSub]);
 
   useEffect(() => {
     void supabase
@@ -203,102 +258,136 @@ function SuppliersListPage() {
 
       {mode === "shops" ? (
         <>
-          {/* Category filter chips */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          {/* Sub-toggle: Stores vs Products */}
+          <div className="mb-3 grid grid-cols-2 gap-2">
             <button
-              onClick={() => setActiveCat(null)}
-              className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${
-                activeCat === null ? "bg-primary text-primary-foreground" : "bg-surface text-foreground shadow-card"
+              onClick={() => setShopSub("stores")}
+              className={`h-10 rounded-xl text-xs font-bold transition ${
+                shopSub === "stores" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
               }`}
             >
-              {t("filter_all")}
+              {lang === "km" ? "ហាង" : "Stores"}
             </button>
-            {cats.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setActiveCat(c.id === activeCat ? null : c.id)}
-                className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${
-                  activeCat === c.id ? "bg-primary text-primary-foreground" : "bg-surface text-foreground shadow-card"
-                }`}
-              >
-                {lang === "km" ? c.name_km : c.name_en}
-              </button>
-            ))}
+            <button
+              onClick={() => setShopSub("products")}
+              className={`h-10 rounded-xl text-xs font-bold transition ${
+                shopSub === "products" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
+              }`}
+            >
+              {lang === "km" ? "ផលិតផល" : "Products"}
+            </button>
           </div>
 
-          <div className="mt-2 flex h-11 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
-            <SearchIcon className="h-4 w-4 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("search_suppliers_ph")}
-              className="h-full flex-1 bg-transparent text-sm outline-none"
-            />
-          </div>
+          {shopSub === "stores" ? (
+            <>
+              {/* Category filter chips */}
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                <button
+                  onClick={() => setActiveCat(null)}
+                  className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${
+                    activeCat === null ? "bg-primary text-primary-foreground" : "bg-surface text-foreground shadow-card"
+                  }`}
+                >
+                  {t("filter_all")}
+                </button>
+                {cats.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setActiveCat(c.id === activeCat ? null : c.id)}
+                    className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${
+                      activeCat === c.id ? "bg-primary text-primary-foreground" : "bg-surface text-foreground shadow-card"
+                    }`}
+                  >
+                    {lang === "km" ? c.name_km : c.name_en}
+                  </button>
+                ))}
+              </div>
 
-          <div className="mt-4 space-y-3">
-            {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
-            {!loading && filtered.length === 0 && (
-              <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
-            )}
-            {filtered.map((s) => (
-              <Link
-                key={s.id}
-                to="/suppliers/$storeId"
-                params={{ storeId: s.id }}
-                className="block rounded-2xl bg-surface p-3 shadow-card active:scale-[0.99]"
-              >
-                <div className="flex items-center gap-3">
-                  {s.logo_url ? (
-                    <img src={s.logo_url} alt={s.name} className="h-12 w-12 rounded-lg object-cover" />
-                  ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
-                      {initials(s.name)}
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-bold text-foreground">{s.name}</p>
-                      <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                        {t("supplier_badge")}
-                      </span>
-                    </div>
-                    <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
-                      {s.location && (
-                        <>
-                          <MapPin className="h-3 w-3" />
-                          <span className="truncate">{s.location}</span>
-                        </>
+              <div className="mt-2 flex h-11 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
+                <SearchIcon className="h-4 w-4 text-muted-foreground" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={t("search_suppliers_ph")}
+                  className="h-full flex-1 bg-transparent text-sm outline-none"
+                />
+              </div>
+
+              <div className="mt-4 space-y-3">
+                {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
+                {!loading && filtered.length === 0 && (
+                  <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
+                )}
+                {filtered.map((s) => (
+                  <Link
+                    key={s.id}
+                    to="/suppliers/$storeId"
+                    params={{ storeId: s.id }}
+                    className="block rounded-2xl bg-surface p-3 shadow-card active:scale-[0.99]"
+                  >
+                    <div className="flex items-center gap-3">
+                      {s.logo_url ? (
+                        <img src={s.logo_url} alt={s.name} className="h-12 w-12 rounded-lg object-cover" />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
+                          {initials(s.name)}
+                        </div>
                       )}
-                      {s.categories.length > 0 && (
-                        <span className="truncate">
-                          {" · "}
-                          {s.categories.map((c) => (lang === "km" ? c.name_km : c.name_en)).join(" · ")}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {s.photos.length > 0 && (
-                  <div className="mt-3 grid grid-cols-3 gap-2">
-                    {s.photos.map((p, i) => (
-                      <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
-                        <img src={p} alt="" className="h-full w-full object-cover" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate text-sm font-bold text-foreground">{s.name}</p>
+                          <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                            {t("supplier_badge")}
+                          </span>
+                        </div>
+                        <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                          {s.location && (
+                            <>
+                              <MapPin className="h-3 w-3" />
+                              <span className="truncate">{s.location}</span>
+                            </>
+                          )}
+                          {s.categories.length > 0 && (
+                            <span className="truncate">
+                              {" · "}
+                              {s.categories.map((c) => (lang === "km" ? c.name_km : c.name_en)).join(" · ")}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-                {s.description && (
-                  <div className="mt-2 flex items-center justify-between gap-3">
-                    <p className="line-clamp-2 flex-1 text-xs text-muted-foreground">{s.description}</p>
-                    <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
-                      {t("contact_supplier")}
-                    </span>
-                  </div>
-                )}
-              </Link>
-            ))}
-          </div>
+                    </div>
+                    {s.photos.length > 0 && (
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        {s.photos.map((p, i) => (
+                          <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
+                            <img src={p} alt="" className="h-full w-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {s.description && (
+                      <div className="mt-2 flex items-center justify-between gap-3">
+                        <p className="line-clamp-2 flex-1 text-xs text-muted-foreground">{s.description}</p>
+                        <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
+                          {t("contact_supplier")}
+                        </span>
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : (
+            <ProductsPane
+              products={products}
+              loading={loadingProducts}
+              productType={productType}
+              setProductType={setProductType}
+              search={search}
+              setSearch={setSearch}
+              lang={lang}
+            />
+          )}
         </>
       ) : (
         <RentMode
@@ -571,3 +660,153 @@ function initials(name: string) {
 }
 
 void StoreIcon;
+
+const PRODUCT_TYPES: Array<PostTypeKey | "all"> = ["all", "novedad", "stock", "oferta", "liquidacion"];
+
+function ProductsPane({
+  products,
+  loading,
+  productType,
+  setProductType,
+  search,
+  setSearch,
+  lang,
+}: {
+  products: ProductRow[];
+  loading: boolean;
+  productType: PostTypeKey | "all";
+  setProductType: (t: PostTypeKey | "all") => void;
+  search: string;
+  setSearch: (s: string) => void;
+  lang: string;
+}) {
+  const filtered = products.filter((p) => {
+    if (productType !== "all" && p.post_type !== productType) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      const hay = `${p.title ?? ""} ${p.content ?? ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  return (
+    <>
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {PRODUCT_TYPES.map((tp) => {
+          const sel = productType === tp;
+          const label = tp === "all"
+            ? (lang === "km" ? "ទាំងអស់" : "All")
+            : (lang === "km" ? POST_TYPE_META[tp].km : POST_TYPE_META[tp].en);
+          return (
+            <button
+              key={tp}
+              onClick={() => setProductType(tp)}
+              className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${
+                sel ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-2 flex h-11 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
+        <SearchIcon className="h-4 w-4 text-muted-foreground" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={lang === "km" ? "ស្វែងរកផលិតផល..." : "Search products..."}
+          className="h-full flex-1 bg-transparent text-sm outline-none"
+        />
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {loading && <p className="py-6 text-center text-sm text-muted-foreground">…</p>}
+        {!loading && filtered.length === 0 && (
+          <div className="py-10 text-center">
+            <Package className="mx-auto h-10 w-10 text-muted-foreground/40" />
+            <p className="mt-2 text-sm text-muted-foreground">
+              {lang === "km" ? "មិនទាន់មានផលិតផល" : "No products yet"}
+            </p>
+          </div>
+        )}
+        {filtered.map((p) => {
+          const meta = p.post_type ? POST_TYPE_META[p.post_type] : null;
+          const hasDiscount = p.discount_price != null && p.price != null && p.discount_price < p.price;
+          const photo = p.post_photos[0]?.photo_url;
+          const inner = (
+            <>
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="truncate text-sm font-bold text-foreground">{p.title || (lang === "km" ? "ផលិតផល" : "Product")}</p>
+                    {meta && (
+                      <span className={`rounded-pill px-2 py-0.5 text-[10px] font-semibold ${meta.bg} ${meta.fg}`}>
+                        {lang === "km" ? meta.km : meta.en}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                    {p.store?.location && (
+                      <>
+                        <MapPin className="h-3 w-3" />
+                        <span className="truncate">{p.store.location}</span>
+                      </>
+                    )}
+                    {p.store?.name && <span className="truncate"> · {p.store.name}</span>}
+                  </div>
+                </div>
+                {(p.price != null || hasDiscount) && (
+                  <div className="text-right">
+                    {hasDiscount ? (
+                      <>
+                        <div className="text-base font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</div>
+                        <div className="text-[10px] text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</div>
+                      </>
+                    ) : (
+                      <div className="text-base font-bold text-[#1a56a0]">{formatPrice(p.price, p.currency)}</div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {photo && (
+                <div className="mt-3 flex gap-2 overflow-x-auto">
+                  {p.post_photos.slice(0, 4).map((ph, i) => (
+                    <img
+                      key={i}
+                      src={ph.photo_url}
+                      alt=""
+                      className="h-24 w-24 shrink-0 rounded-md bg-muted object-cover"
+                    />
+                  ))}
+                </div>
+              )}
+              {p.content && (
+                <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{p.content}</p>
+              )}
+            </>
+          );
+          if (p.store?.id) {
+            return (
+              <Link
+                key={p.id}
+                to="/suppliers/$storeId"
+                params={{ storeId: p.store.id }}
+                className="block rounded-2xl border border-[#bcd3ec] bg-surface p-3 shadow-card active:scale-[0.99]"
+              >
+                {inner}
+              </Link>
+            );
+          }
+          return (
+            <div key={p.id} className="rounded-2xl border border-[#bcd3ec] bg-surface p-3 shadow-card">
+              {inner}
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
