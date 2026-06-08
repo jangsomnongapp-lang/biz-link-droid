@@ -258,29 +258,10 @@ function SuppliersListPage() {
 
       {mode === "shops" ? (
         <>
-          {/* Sub-toggle: Stores vs Products */}
-          <div className="mb-3 grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setShopSub("stores")}
-              className={`h-10 rounded-xl text-xs font-bold transition ${
-                shopSub === "stores" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-              }`}
-            >
-              {lang === "km" ? "ហាង" : "Stores"}
-            </button>
-            <button
-              onClick={() => setShopSub("products")}
-              className={`h-10 rounded-xl text-xs font-bold transition ${
-                shopSub === "products" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-              }`}
-            >
-              {lang === "km" ? "ផលិតផល" : "Products"}
-            </button>
-          </div>
-
-          {shopSub === "stores" ? (
+          {/* Category filter chips */}
+          <>
             <>
-              {/* Category filter chips */}
+
               <div className="flex gap-2 overflow-x-auto pb-2">
                 <button
                   onClick={() => setActiveCat(null)}
