@@ -40,11 +40,14 @@ function NewProductPage() {
   const nav = useNavigate();
   const [type, setType] = useState<PostType | null>(null);
   const [title, setTitle] = useState("");
+  const [currency, setCurrency] = useState<"USD" | "KHR">("USD");
   const [price, setPrice] = useState("");
+  const [discountPrice, setDiscountPrice] = useState("");
   const [description, setDescription] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
