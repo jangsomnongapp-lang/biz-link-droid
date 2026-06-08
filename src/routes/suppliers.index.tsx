@@ -51,7 +51,25 @@ interface RentalRow {
 }
 
 type Mode = "shops" | "rent";
+type ShopSub = "stores" | "products";
 type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools";
+
+type PostTypeKey = "novedad" | "stock" | "oferta" | "liquidacion";
+
+interface ProductRow {
+  id: string;
+  user_id: string;
+  title: string | null;
+  content: string | null;
+  post_type: PostTypeKey | null;
+  price: number | null;
+  discount_price: number | null;
+  currency: string | null;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  post_photos: { photo_url: string }[];
+  store?: { id: string; name: string; location: string | null } | null;
+}
 
 function SuppliersListPage() {
   const { t, lang } = useI18n();
