@@ -511,6 +511,44 @@ function ConversationPage() {
   );
 }
 
+const PIN_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg: string }> = {
+  novedad:     { en: "New",       km: "ថ្មី",        bg: "bg-emerald-100", fg: "text-emerald-700" },
+  stock:       { en: "Stock",     km: "ស្តុក",       bg: "bg-sky-100",     fg: "text-sky-700" },
+  oferta:      { en: "Offer",     km: "ការផ្តល់ជូន",  bg: "bg-amber-100",   fg: "text-amber-700" },
+  liquidacion: { en: "Clearance", km: "បោះតម្លៃ",    bg: "bg-rose-100",    fg: "text-rose-700" },
+};
+
+function PinnedProductBanner({ p }: { p: PinnedProduct }) {
+  const meta = PIN_TYPE_LABELS[p.post_type];
+  const heading = p.title || p.content?.split("\n")[0] || "Product";
+  return (
+    <div className="sticky top-14 z-10 border-b border-amber-300 bg-amber-50 px-3 py-2">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-bold text-amber-700">📌</span>
+        {p.photo_url && (
+          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-muted">
+            <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1">
+            {meta && (
+              <span className={`rounded-pill px-2 py-0.5 text-[10px] font-bold ${meta.bg} ${meta.fg}`}>
+                {meta.en}
+              </span>
+            )}
+            <p className="truncate text-xs font-semibold text-foreground">{heading}</p>
+          </div>
+          {p.price != null && (
+            <p className="text-[11px] font-bold text-success">${Number(p.price).toFixed(2)}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 function isSafeUrl(url: string): boolean {
   if (typeof url !== "string") return false;
   return (
