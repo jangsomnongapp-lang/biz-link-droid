@@ -45,11 +45,14 @@ interface RecentPost {
   content: string | null;
   title: string | null;
   price: number | null;
+  discount_price: number | null;
+  currency: string;
   post_type: string;
   created_at: string;
   photo_url: string | null;
   view_count: number;
 }
+
 
 function SupplierProfilePage() {
   const { storeId } = Route.useParams();
