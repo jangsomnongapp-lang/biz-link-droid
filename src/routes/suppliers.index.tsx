@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus } from "lucide-react";
+import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, Package } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPrice } from "@/lib/price";
+import { POST_TYPE_META } from "@/routes/posts.new";
 
 export const Route = createFileRoute("/suppliers/")({
   component: () => (
