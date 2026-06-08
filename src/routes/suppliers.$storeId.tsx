@@ -105,7 +105,7 @@ function SupplierProfilePage() {
           .eq("status", "approved"),
         supabase
           .from("posts")
-          .select("id, content, title, price, post_type, created_at, view_count, post_photos(photo_url)")
+          .select("id, content, title, price, discount_price, currency, post_type, created_at, view_count, post_photos(photo_url)")
           .eq("user_id", s.user_id)
           .eq("status", "approved")
           .order("created_at", { ascending: false })
@@ -120,17 +120,20 @@ function SupplierProfilePage() {
       setPhotos(((ph ?? []) as Array<{ photo_url: string }>).map((p) => p.photo_url));
       setPostsCount(count ?? 0);
       setPosts(
-        ((pp ?? []) as Array<{ id: string; content: string | null; title: string | null; price: number | null; post_type: string | null; created_at: string; view_count: number | null; post_photos: Array<{ photo_url: string }> }>).map((p) => ({
+        ((pp ?? []) as unknown as Array<{ id: string; content: string | null; title: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string | null; created_at: string; view_count: number | null; post_photos: Array<{ photo_url: string }> }>).map((p) => ({
           id: p.id,
           content: p.content,
           title: p.title,
           price: p.price,
+          discount_price: p.discount_price,
+          currency: p.currency ?? "USD",
           post_type: p.post_type ?? "general",
           created_at: p.created_at,
           photo_url: p.post_photos?.[0]?.photo_url ?? null,
           view_count: p.view_count ?? 0,
         })),
       );
+
 
       // Increment view count if not owner
       if (user && user.id !== s.user_id) {
