@@ -49,9 +49,12 @@ interface PinnedProduct {
   title: string | null;
   content: string | null;
   price: number | null;
+  discount_price: number | null;
+  currency: string;
   post_type: string;
   photo_url: string | null;
 }
+
 
 // Attachment stored inside `content` as a JSON string prefixed with __ATT__:
 type Attachment =
