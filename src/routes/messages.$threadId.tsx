@@ -130,20 +130,23 @@ function ConversationPage() {
       if (pinnedId) {
         const { data: post } = await supabase
           .from("posts")
-          .select("id, title, content, price, post_type, post_photos(photo_url)")
+          .select("id, title, content, price, discount_price, currency, post_type, post_photos(photo_url)")
           .eq("id", pinnedId)
           .maybeSingle();
         if (post) {
-          const photoUrl = (post as unknown as { post_photos?: Array<{ photo_url: string }> }).post_photos?.[0]?.photo_url ?? null;
+          const p = post as unknown as { id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string; post_photos?: Array<{ photo_url: string }> };
           setPinned({
-            id: post.id,
-            title: (post as { title: string | null }).title,
-            content: post.content,
-            price: (post as { price: number | null }).price,
-            post_type: (post as { post_type: string }).post_type,
-            photo_url: photoUrl,
+            id: p.id,
+            title: p.title,
+            content: p.content,
+            price: p.price,
+            discount_price: p.discount_price,
+            currency: p.currency ?? "USD",
+            post_type: p.post_type,
+            photo_url: p.post_photos?.[0]?.photo_url ?? null,
           });
         }
+
       }
 
       const { data: msgs } = await supabase
