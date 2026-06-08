@@ -50,75 +50,24 @@ interface RentalRow {
 }
 
 type Mode = "shops" | "rent";
-type ShopSub = "stores" | "products";
 type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools";
-
-type PostTypeKey = "novedad" | "stock" | "oferta" | "liquidacion";
-
-interface ProductRow {
-  id: string;
-  user_id: string;
-  title: string | null;
-  content: string | null;
-  post_type: PostTypeKey | null;
-  price: number | null;
-  discount_price: number | null;
-  currency: string | null;
-  created_at: string;
-  profiles: { full_name: string | null; avatar_url: string | null } | null;
-  post_photos: { photo_url: string }[];
-  store?: { id: string; name: string; location: string | null } | null;
-}
 
 function SuppliersListPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("shops");
-  const [shopSub, setShopSub] = useState<ShopSub>("stores");
   const [cats, setCats] = useState<SupplierCategory[]>([]);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [stores, setStores] = useState<StoreRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
-  // products
-  const [products, setProducts] = useState<ProductRow[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(false);
-  const [productType, setProductType] = useState<PostTypeKey | "all">("all");
   // rent
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
   const [loadingRent, setLoadingRent] = useState(true);
 
-  useEffect(() => {
-    if (mode !== "shops" || shopSub !== "products") return;
-    setLoadingProducts(true);
-    void (async () => {
-      const { data } = await supabase
-        .from("posts")
-        .select("id, user_id, title, content, post_type, price, discount_price, currency, created_at, profiles(full_name, avatar_url), post_photos(photo_url)")
-        .eq("status", "approved")
-        .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
-        .order("created_at", { ascending: false })
-        .limit(60);
-      const rows = (data as ProductRow[] | null) ?? [];
-      const ownerIds = Array.from(new Set(rows.map((r) => r.user_id)));
-      if (ownerIds.length) {
-        const { data: storeData } = await supabase
-          .from("supplier_stores")
-          .select("id, name, location, user_id")
-          .in("user_id", ownerIds)
-          .eq("status", "approved");
-        const byUser = new Map<string, { id: string; name: string; location: string | null }>();
-        for (const s of (storeData ?? []) as Array<{ id: string; name: string; location: string | null; user_id: string }>) {
-          if (!byUser.has(s.user_id)) byUser.set(s.user_id, { id: s.id, name: s.name, location: s.location });
-        }
-        for (const r of rows) r.store = byUser.get(r.user_id) ?? null;
-      }
-      setProducts(rows);
-      setLoadingProducts(false);
-    })();
-  }, [mode, shopSub]);
+
 
   useEffect(() => {
     void supabase
