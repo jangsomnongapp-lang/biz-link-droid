@@ -171,7 +171,16 @@ function SuppliersListPage() {
   });
 
   return (
-    <div className="px-3 py-3">
+    <div className="relative px-3 py-3">
+      {mode === "shops" && isSupplier && (
+        <Link
+          to="/posts/new"
+          className="fixed bottom-20 right-4 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 active:scale-95"
+        >
+          <Plus className="h-5 w-5" />
+          {lang === "km" ? "ដាក់ផលិតផល" : "Post my product"}
+        </Link>
+      )}
       {/* Mode toggle */}
       <div className="mb-3 grid grid-cols-2 gap-2">
         <button
