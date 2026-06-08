@@ -96,6 +96,7 @@ function ConversationPage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAttach, setShowAttach] = useState(false);
+  const [pinned, setPinned] = useState<PinnedProduct | null>(null);
 
   // Voice recording
   const [recording, setRecording] = useState(false);
@@ -110,7 +111,7 @@ function ConversationPage() {
     void (async () => {
       const { data: thread } = await supabase
         .from("message_threads")
-        .select("participant_a, participant_b")
+        .select("participant_a, participant_b, pinned_post_id")
         .eq("id", threadId)
         .maybeSingle();
       if (!thread) return;
@@ -121,6 +122,26 @@ function ConversationPage() {
         .eq("id", otherId)
         .maybeSingle();
       setOther(profile);
+
+      const pinnedId = (thread as unknown as { pinned_post_id: string | null }).pinned_post_id;
+      if (pinnedId) {
+        const { data: post } = await supabase
+          .from("posts")
+          .select("id, title, content, price, post_type, post_photos(photo_url)")
+          .eq("id", pinnedId)
+          .maybeSingle();
+        if (post) {
+          const photoUrl = (post as unknown as { post_photos?: Array<{ photo_url: string }> }).post_photos?.[0]?.photo_url ?? null;
+          setPinned({
+            id: post.id,
+            title: (post as { title: string | null }).title,
+            content: post.content,
+            price: (post as { price: number | null }).price,
+            post_type: (post as { post_type: string }).post_type,
+            photo_url: photoUrl,
+          });
+        }
+      }
 
       const { data: msgs } = await supabase
         .from("messages")
