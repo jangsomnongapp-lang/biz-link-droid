@@ -141,10 +141,13 @@ function SupplierProfilePage() {
     if (user.id === store.user_id) return;
     setContacting(true);
     try {
-      const { data: threadId, error } = await supabase.rpc("start_product_chat", {
-        _supplier_id: store.user_id,
-        _post_id: postId ?? null,
-      });
+      const { data: threadId, error } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ data: string | null; error: { message: string } | null }>)(
+        "start_product_chat",
+        { _supplier_id: store.user_id, _post_id: postId ?? null },
+      );
       if (error) throw error;
       void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
       nav({ to: "/messages/$threadId", params: { threadId: threadId as string } });
