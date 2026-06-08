@@ -44,6 +44,14 @@ interface OtherProfile {
   full_name: string | null;
   avatar_url: string | null;
 }
+interface PinnedProduct {
+  id: string;
+  title: string | null;
+  content: string | null;
+  price: number | null;
+  post_type: string;
+  photo_url: string | null;
+}
 
 // Attachment stored inside `content` as a JSON string prefixed with __ATT__:
 type Attachment =
