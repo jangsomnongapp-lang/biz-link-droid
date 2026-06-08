@@ -548,8 +548,18 @@ function PinnedProductBanner({ p }: { p: PinnedProduct }) {
             <p className="truncate text-xs font-semibold text-foreground">{heading}</p>
           </div>
           {p.price != null && (
-            <p className="text-[11px] font-bold text-success">${Number(p.price).toFixed(2)}</p>
+            <p className="text-[11px] font-bold">
+              {p.discount_price != null ? (
+                <>
+                  <span className="text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                  <span className="ml-1 text-[10px] font-normal text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                </>
+              ) : (
+                <span className="text-success">{formatPrice(p.price, p.currency)}</span>
+              )}
+            </p>
           )}
+
         </div>
       </div>
     </div>
