@@ -136,30 +136,18 @@ function SupplierProfilePage() {
     })();
   }, [storeId, user]);
 
-  async function startConversation() {
+  async function startConversation(postId?: string) {
     if (!user || !store) return;
     if (user.id === store.user_id) return;
     setContacting(true);
     try {
-      const [a, b] = [user.id, store.user_id].sort();
-      const { data: existing } = await supabase
-        .from("message_threads")
-        .select("id")
-        .eq("participant_a", a)
-        .eq("participant_b", b)
-        .maybeSingle();
-      let threadId = existing?.id;
-      if (!threadId) {
-        const { data: created, error } = await supabase
-          .from("message_threads")
-          .insert({ participant_a: a, participant_b: b })
-          .select("id")
-          .single();
-        if (error) throw error;
-        threadId = created.id;
-      }
+      const { data: threadId, error } = await supabase.rpc("start_product_chat", {
+        _supplier_id: store.user_id,
+        _post_id: postId ?? null,
+      });
+      if (error) throw error;
       void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
-      nav({ to: "/messages/$threadId", params: { threadId } });
+      nav({ to: "/messages/$threadId", params: { threadId: threadId as string } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
     } finally {
