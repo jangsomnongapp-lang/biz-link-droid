@@ -5,6 +5,8 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { formatPrice } from "@/lib/price";
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -49,9 +51,12 @@ interface PinnedProduct {
   title: string | null;
   content: string | null;
   price: number | null;
+  discount_price: number | null;
+  currency: string;
   post_type: string;
   photo_url: string | null;
 }
+
 
 // Attachment stored inside `content` as a JSON string prefixed with __ATT__:
 type Attachment =
@@ -127,20 +132,23 @@ function ConversationPage() {
       if (pinnedId) {
         const { data: post } = await supabase
           .from("posts")
-          .select("id, title, content, price, post_type, post_photos(photo_url)")
+          .select("id, title, content, price, discount_price, currency, post_type, post_photos(photo_url)")
           .eq("id", pinnedId)
           .maybeSingle();
         if (post) {
-          const photoUrl = (post as unknown as { post_photos?: Array<{ photo_url: string }> }).post_photos?.[0]?.photo_url ?? null;
+          const p = post as unknown as { id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string; post_photos?: Array<{ photo_url: string }> };
           setPinned({
-            id: post.id,
-            title: (post as { title: string | null }).title,
-            content: post.content,
-            price: (post as { price: number | null }).price,
-            post_type: (post as { post_type: string }).post_type,
-            photo_url: photoUrl,
+            id: p.id,
+            title: p.title,
+            content: p.content,
+            price: p.price,
+            discount_price: p.discount_price,
+            currency: p.currency ?? "USD",
+            post_type: p.post_type,
+            photo_url: p.post_photos?.[0]?.photo_url ?? null,
           });
         }
+
       }
 
       const { data: msgs } = await supabase
@@ -540,8 +548,18 @@ function PinnedProductBanner({ p }: { p: PinnedProduct }) {
             <p className="truncate text-xs font-semibold text-foreground">{heading}</p>
           </div>
           {p.price != null && (
-            <p className="text-[11px] font-bold text-success">${Number(p.price).toFixed(2)}</p>
+            <p className="text-[11px] font-bold">
+              {p.discount_price != null ? (
+                <>
+                  <span className="text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                  <span className="ml-1 text-[10px] font-normal text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                </>
+              ) : (
+                <span className="text-success">{formatPrice(p.price, p.currency)}</span>
+              )}
+            </p>
           )}
+
         </div>
       </div>
     </div>

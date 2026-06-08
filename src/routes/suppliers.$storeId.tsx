@@ -7,6 +7,8 @@ import { ShareButton } from "@/components/ShareButton";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPrice } from "@/lib/price";
+
 
 export const Route = createFileRoute("/suppliers/$storeId")({
   component: SupplierRoute,
@@ -45,11 +47,14 @@ interface RecentPost {
   content: string | null;
   title: string | null;
   price: number | null;
+  discount_price: number | null;
+  currency: string;
   post_type: string;
   created_at: string;
   photo_url: string | null;
   view_count: number;
 }
+
 
 function SupplierProfilePage() {
   const { storeId } = Route.useParams();
@@ -102,7 +107,7 @@ function SupplierProfilePage() {
           .eq("status", "approved"),
         supabase
           .from("posts")
-          .select("id, content, title, price, post_type, created_at, view_count, post_photos(photo_url)")
+          .select("id, content, title, price, discount_price, currency, post_type, created_at, view_count, post_photos(photo_url)")
           .eq("user_id", s.user_id)
           .eq("status", "approved")
           .order("created_at", { ascending: false })
@@ -117,17 +122,20 @@ function SupplierProfilePage() {
       setPhotos(((ph ?? []) as Array<{ photo_url: string }>).map((p) => p.photo_url));
       setPostsCount(count ?? 0);
       setPosts(
-        ((pp ?? []) as Array<{ id: string; content: string | null; title: string | null; price: number | null; post_type: string | null; created_at: string; view_count: number | null; post_photos: Array<{ photo_url: string }> }>).map((p) => ({
+        ((pp ?? []) as unknown as Array<{ id: string; content: string | null; title: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string | null; created_at: string; view_count: number | null; post_photos: Array<{ photo_url: string }> }>).map((p) => ({
           id: p.id,
           content: p.content,
           title: p.title,
           price: p.price,
+          discount_price: p.discount_price,
+          currency: p.currency ?? "USD",
           post_type: p.post_type ?? "general",
           created_at: p.created_at,
           photo_url: p.post_photos?.[0]?.photo_url ?? null,
           view_count: p.view_count ?? 0,
         })),
       );
+
 
       // Increment view count if not owner
       if (user && user.id !== s.user_id) {
@@ -308,10 +316,20 @@ function SupplierProfilePage() {
                       </div>
                       <p className="mt-0.5 text-[11px] text-muted-foreground">
                         {p.price != null && (
-                          <span className="mr-1 font-bold text-success">${Number(p.price).toFixed(2)}</span>
+                          <span className="mr-1.5 inline-flex items-baseline gap-1">
+                            {p.discount_price != null ? (
+                              <>
+                                <span className="font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                                <span className="text-[10px] text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                              </>
+                            ) : (
+                              <span className="font-bold text-success">{formatPrice(p.price, p.currency)}</span>
+                            )}
+                          </span>
                         )}
                         {timeAgo(p.created_at, lang)} · {p.view_count} {lang === "km" ? "មើល" : `view${p.view_count === 1 ? "" : "s"}`}
                       </p>
+
                     </div>
                     {p.photo_url && (
                       <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
