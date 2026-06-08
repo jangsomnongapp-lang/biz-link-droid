@@ -945,6 +945,8 @@ export type Database = {
         Row: {
           content: string | null
           created_at: string
+          currency: string
+          discount_price: number | null
           id: string
           post_type: string
           price: number | null
@@ -959,6 +961,8 @@ export type Database = {
         Insert: {
           content?: string | null
           created_at?: string
+          currency?: string
+          discount_price?: number | null
           id?: string
           post_type?: string
           price?: number | null
@@ -973,6 +977,8 @@ export type Database = {
         Update: {
           content?: string | null
           created_at?: string
+          currency?: string
+          discount_price?: number | null
           id?: string
           post_type?: string
           price?: number | null
