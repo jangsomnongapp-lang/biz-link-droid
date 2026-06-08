@@ -356,6 +356,10 @@ function ConversationPage() {
         </button>
       </header>
 
+      {pinned && <PinnedProductBanner p={pinned} />}
+
+
+
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
         <div className="mx-auto w-fit rounded-pill bg-muted px-3 py-0.5 text-[11px] font-medium text-muted-foreground">
