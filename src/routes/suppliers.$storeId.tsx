@@ -314,10 +314,20 @@ function SupplierProfilePage() {
                       </div>
                       <p className="mt-0.5 text-[11px] text-muted-foreground">
                         {p.price != null && (
-                          <span className="mr-1 font-bold text-success">${Number(p.price).toFixed(2)}</span>
+                          <span className="mr-1.5 inline-flex items-baseline gap-1">
+                            {p.discount_price != null ? (
+                              <>
+                                <span className="font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                                <span className="text-[10px] text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                              </>
+                            ) : (
+                              <span className="font-bold text-success">{formatPrice(p.price, p.currency)}</span>
+                            )}
+                          </span>
                         )}
                         {timeAgo(p.created_at, lang)} · {p.view_count} {lang === "km" ? "មើល" : `view${p.view_count === 1 ? "" : "s"}`}
                       </p>
+
                     </div>
                     {p.photo_url && (
                       <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
