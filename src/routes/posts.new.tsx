@@ -73,6 +73,12 @@ function NewProductPage() {
     setSubmitting(true);
     try {
       const priceNum = price ? Number(price) : null;
+      const discountNum = discountPrice ? Number(discountPrice) : null;
+      if (discountNum != null && priceNum != null && discountNum >= priceNum) {
+        toast.error(lang === "km" ? "តម្លៃបញ្ចុះតម្លៃត្រូវតិចជាងតម្លៃដើម" : "Discount must be lower than price");
+        setSubmitting(false);
+        return;
+      }
       const content = [title.trim(), description.trim()].filter(Boolean).join("\n");
       const { data, error } = await supabase
         .from("posts")
@@ -81,12 +87,15 @@ function NewProductPage() {
           post_type: type,
           title: title.trim(),
           price: priceNum,
+          discount_price: discountNum,
+          currency,
           content,
           status: "pending",
-        })
+        } as never)
         .select("id")
         .single();
       if (error) throw error;
+
       if (photos.length) {
         await supabase
           .from("post_photos")
