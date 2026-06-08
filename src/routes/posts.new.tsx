@@ -1,0 +1,255 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useRef, useState } from "react";
+import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle, DollarSign } from "lucide-react";
+import { toast } from "sonner";
+import { RequireAuth } from "@/components/RequireAuth";
+import { useAuth } from "@/lib/auth";
+import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
+
+export const Route = createFileRoute("/posts/new")({
+  component: () => (
+    <RequireAuth>
+      <NewProductPage />
+    </RequireAuth>
+  ),
+});
+
+type PostType = "novedad" | "stock" | "oferta" | "liquidacion";
+
+const TYPES: Array<{
+  id: PostType;
+  title_en: string;
+  title_km: string;
+  sub_en: string;
+  sub_km: string;
+  icon: typeof Sparkles;
+  bg: string;
+  fg: string;
+  ring: string;
+}> = [
+  { id: "novedad",     title_en: "New arrival",   title_km: "ផលិតផលថ្មី",        sub_en: "New product just arrived",      sub_km: "ផលិតផលថ្មីទើបមកដល់",      icon: Sparkles,    bg: "bg-emerald-50",  fg: "text-emerald-700", ring: "border-emerald-300" },
+  { id: "stock",       title_en: "Stock",         title_km: "ស្តុក",              sub_en: "Material available now",        sub_km: "សម្ភារៈមានស្តុក",         icon: Box,         bg: "bg-sky-50",      fg: "text-sky-700",     ring: "border-sky-300" },
+  { id: "oferta",      title_en: "Offer",         title_km: "ការផ្តល់ជូន",       sub_en: "Special price — limited time",  sub_km: "តម្លៃពិសេស — ពេលកំណត់",   icon: Percent,     bg: "bg-amber-50",    fg: "text-amber-700",   ring: "border-amber-300" },
+  { id: "liquidacion", title_en: "Clearance",     title_km: "បោះតម្លៃ",          sub_en: "Minimum price — clear stock",   sub_km: "តម្លៃទាប — សម្អាតស្តុក",  icon: AlertCircle, bg: "bg-rose-50",     fg: "text-rose-700",    ring: "border-rose-300" },
+];
+
+function NewProductPage() {
+  const { lang } = useI18n();
+  const { user } = useAuth();
+  const nav = useNavigate();
+  const [type, setType] = useState<PostType | null>(null);
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(file)) return;
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    setPhotos((p) => [...p, dataUrl].slice(0, 4));
+  }
+
+  async function submit() {
+    if (!user || !type) return;
+    if (!title.trim()) {
+      toast.error(lang === "km" ? "សូមបញ្ចូលឈ្មោះផលិតផល" : "Please enter product name");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const priceNum = price ? Number(price) : null;
+      const content = [title.trim(), description.trim()].filter(Boolean).join("\n");
+      const { data, error } = await supabase
+        .from("posts")
+        .insert({
+          user_id: user.id,
+          post_type: type,
+          title: title.trim(),
+          price: priceNum,
+          content,
+          status: "pending",
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      if (photos.length) {
+        await supabase
+          .from("post_photos")
+          .insert(photos.map((url) => ({ post_id: data.id, photo_url: url })));
+      }
+      toast.success(lang === "km" ? "បានដាក់ស្នើ — រង់ចាំការអនុម័ត" : "Submitted — pending approval");
+      nav({ to: "/suppliers" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const selected = TYPES.find((tp) => tp.id === type);
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
+        <Link to="/suppliers" className="rounded-full p-2 active:bg-white/10">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="flex-1 text-center text-base font-semibold">
+          {lang === "km" ? "ដាក់ផលិតផលរបស់ខ្ញុំ" : "Post my product"}
+        </h1>
+        <div className="w-9" />
+      </header>
+
+      <div className="flex-1 space-y-3 p-3 pb-28">
+        <div className="rounded-xl bg-surface p-3 shadow-card">
+          <p className="text-sm font-semibold text-foreground">
+            {lang === "km" ? "ប្រភេទប្រកាស" : "Special post"}
+          </p>
+          <div className="mt-3 space-y-2">
+            {TYPES.map((tp) => {
+              const Icon = tp.icon;
+              const sel = type === tp.id;
+              return (
+                <button
+                  key={tp.id}
+                  onClick={() => setType(tp.id)}
+                  className={`flex w-full items-center gap-3 rounded-xl border-2 px-3 py-2.5 text-left transition ${
+                    sel ? `${tp.ring} ${tp.bg}` : "border-border bg-background"
+                  }`}
+                >
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-full ${tp.bg} ${tp.fg}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className={`text-sm font-bold ${tp.fg}`}>
+                      {lang === "km" ? tp.title_km : tp.title_en}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {lang === "km" ? tp.sub_km : tp.sub_en}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {selected && (
+          <>
+            <div className="rounded-xl bg-surface p-3 shadow-card">
+              <Label required>{lang === "km" ? "ឈ្មោះផលិតផល" : "Product name"}</Label>
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={120}
+                placeholder={lang === "km" ? "ឧ. ស៊ីម៉ងត៍ 50kg" : "e.g. Cement 50kg"}
+                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+              />
+            </div>
+
+            <div className="rounded-xl bg-surface p-3 shadow-card">
+              <Label optional>{lang === "km" ? "តម្លៃ" : "Price"}</Label>
+              <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
+                <DollarSign className="ml-2 h-4 w-4 text-success" />
+                <input
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, "").slice(0, 12))}
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  className="h-full flex-1 bg-transparent px-2 text-sm outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-surface p-3 shadow-card">
+              <Label optional>{lang === "km" ? "ការពិពណ៌នា" : "Description"}</Label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value.slice(0, 1000))}
+                rows={4}
+                placeholder={lang === "km" ? "បរិយាយផលិតផល…" : "Describe the product…"}
+                className="w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-primary"
+              />
+            </div>
+
+            <div className="rounded-xl bg-surface p-3 shadow-card">
+              <Label optional>{lang === "km" ? "រូបភាព" : "Photos"}</Label>
+              <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPickFile} />
+              <div className="grid grid-cols-3 gap-2">
+                {photos.length < 4 && (
+                  <button
+                    type="button"
+                    onClick={() => fileInput.current?.click()}
+                    className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-muted-foreground active:bg-muted"
+                  >
+                    <Plus className="h-5 w-5" />
+                    <span className="text-[10px]">{lang === "km" ? "បន្ថែម" : "Add photo"}</span>
+                  </button>
+                )}
+                {photos.map((src, i) => (
+                  <div key={i} className="relative aspect-square">
+                    <img src={src} className="h-full w-full rounded-lg object-cover" alt="" />
+                    <button
+                      type="button"
+                      onClick={() => setPhotos((p) => p.filter((_, j) => j !== i))}
+                      className="absolute right-1 top-1 rounded-full bg-foreground/70 p-0.5 text-background"
+                      aria-label="Remove"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {selected && (
+        <div className="sticky bottom-0 border-t border-border bg-surface p-3">
+          <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800">
+            {lang === "km"
+              ? "ប្រកាសត្រូវរង់ចាំការអនុម័តមុនពេលបង្ហាញ"
+              : "Your post will be reviewed before going live"}
+          </p>
+          <button
+            onClick={submit}
+            disabled={submitting}
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99] disabled:opacity-60"
+          >
+            {submitting ? "…" : lang === "km" ? "ដាក់ស្នើ" : "Submit for review"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Label({ children, required, optional }: { children: React.ReactNode; required?: boolean; optional?: boolean }) {
+  return (
+    <div className="mb-2 text-sm font-semibold text-foreground">
+      {children}
+      {required && <span className="ml-1 text-destructive">*</span>}
+      {optional && <span className="ml-1 text-xs font-normal text-text-hint">optional</span>}
+    </div>
+  );
+}
+
+export const POST_TYPE_META: Record<PostType, { en: string; km: string; bg: string; fg: string }> = {
+  novedad:     { en: "New",        km: "ថ្មី",       bg: "bg-emerald-100", fg: "text-emerald-700" },
+  stock:       { en: "Stock",      km: "ស្តុក",      bg: "bg-sky-100",     fg: "text-sky-700" },
+  oferta:      { en: "Offer",      km: "ការផ្តល់ជូន", bg: "bg-amber-100",   fg: "text-amber-700" },
+  liquidacion: { en: "Clearance",  km: "បោះតម្លៃ",   bg: "bg-rose-100",    fg: "text-rose-700" },
+};

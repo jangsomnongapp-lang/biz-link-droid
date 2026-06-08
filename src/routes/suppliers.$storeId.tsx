@@ -43,6 +43,9 @@ interface StoreDetail {
 interface RecentPost {
   id: string;
   content: string | null;
+  title: string | null;
+  price: number | null;
+  post_type: string;
   created_at: string;
   photo_url: string | null;
   view_count: number;
@@ -99,11 +102,11 @@ function SupplierProfilePage() {
           .eq("status", "approved"),
         supabase
           .from("posts")
-          .select("id, content, created_at, view_count, post_photos(photo_url)")
+          .select("id, content, title, price, post_type, created_at, view_count, post_photos(photo_url)")
           .eq("user_id", s.user_id)
           .eq("status", "approved")
           .order("created_at", { ascending: false })
-          .limit(5),
+          .limit(10),
       ]);
 
       setCats(
@@ -114,9 +117,12 @@ function SupplierProfilePage() {
       setPhotos(((ph ?? []) as Array<{ photo_url: string }>).map((p) => p.photo_url));
       setPostsCount(count ?? 0);
       setPosts(
-        ((pp ?? []) as Array<{ id: string; content: string | null; created_at: string; view_count: number | null; post_photos: Array<{ photo_url: string }> }>).map((p) => ({
+        ((pp ?? []) as Array<{ id: string; content: string | null; title: string | null; price: number | null; post_type: string | null; created_at: string; view_count: number | null; post_photos: Array<{ photo_url: string }> }>).map((p) => ({
           id: p.id,
           content: p.content,
+          title: p.title,
+          price: p.price,
+          post_type: p.post_type ?? "general",
           created_at: p.created_at,
           photo_url: p.post_photos?.[0]?.photo_url ?? null,
           view_count: p.view_count ?? 0,
@@ -130,30 +136,21 @@ function SupplierProfilePage() {
     })();
   }, [storeId, user]);
 
-  async function startConversation() {
+  async function startConversation(postId?: string) {
     if (!user || !store) return;
     if (user.id === store.user_id) return;
     setContacting(true);
     try {
-      const [a, b] = [user.id, store.user_id].sort();
-      const { data: existing } = await supabase
-        .from("message_threads")
-        .select("id")
-        .eq("participant_a", a)
-        .eq("participant_b", b)
-        .maybeSingle();
-      let threadId = existing?.id;
-      if (!threadId) {
-        const { data: created, error } = await supabase
-          .from("message_threads")
-          .insert({ participant_a: a, participant_b: b })
-          .select("id")
-          .single();
-        if (error) throw error;
-        threadId = created.id;
-      }
+      const { data: threadId, error } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ data: string | null; error: { message: string } | null }>)(
+        "start_product_chat",
+        { _supplier_id: store.user_id, _post_id: postId ?? null },
+      );
+      if (error) throw error;
       void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
-      nav({ to: "/messages/$threadId", params: { threadId } });
+      nav({ to: "/messages/$threadId", params: { threadId: threadId as string } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
     } finally {
@@ -289,28 +286,52 @@ function SupplierProfilePage() {
         </div>
       )}
 
-      {/* Recent posts */}
+      {/* Recent posts / products */}
       {posts.length > 0 && (
         <div className="border-b border-border bg-surface px-5 py-4">
           <p className="text-sm font-semibold text-foreground">{t("recent_posts")}</p>
           <div className="mt-3 space-y-2">
-            {posts.map((p) => (
-              <div key={p.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-foreground">
-                    {p.content?.split("\n")[0] || "Post"}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {timeAgo(p.created_at, lang)} · {p.view_count} {lang === "km" ? "មើល" : `view${p.view_count === 1 ? "" : "s"}`}
-                  </p>
-                </div>
-                {p.photo_url && (
-                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
-                    <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
+            {posts.map((p) => {
+              const meta = POST_TYPE_LABELS[p.post_type as keyof typeof POST_TYPE_LABELS];
+              const heading = p.title || p.content?.split("\n")[0] || "Post";
+              return (
+                <div key={p.id} className="rounded-xl border border-border p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {meta && (
+                          <span className={`rounded-pill px-2 py-0.5 text-[10px] font-bold ${meta.bg} ${meta.fg}`}>
+                            {lang === "km" ? meta.km : meta.en}
+                          </span>
+                        )}
+                        <p className="truncate text-sm font-semibold text-foreground">{heading}</p>
+                      </div>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        {p.price != null && (
+                          <span className="mr-1 font-bold text-success">${Number(p.price).toFixed(2)}</span>
+                        )}
+                        {timeAgo(p.created_at, lang)} · {p.view_count} {lang === "km" ? "មើល" : `view${p.view_count === 1 ? "" : "s"}`}
+                      </p>
+                    </div>
+                    {p.photo_url && (
+                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
+                        <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+                  {!isOwner && (
+                    <button
+                      onClick={() => void startConversation(p.id)}
+                      disabled={contacting}
+                      className="mt-2 flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-primary/10 text-xs font-bold text-primary active:scale-[0.98] disabled:opacity-50"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      {lang === "km" ? "សួរអំពីផលិតផលនេះ" : "Ask about this product"}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -319,7 +340,7 @@ function SupplierProfilePage() {
       {!isOwner && (
         <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[480px] border-t border-border bg-surface px-5 py-3">
           <button
-            onClick={startConversation}
+            onClick={() => void startConversation()}
             disabled={contacting}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.98] disabled:opacity-50"
           >
@@ -331,6 +352,13 @@ function SupplierProfilePage() {
     </div>
   );
 }
+
+const POST_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg: string }> = {
+  novedad:     { en: "New",       km: "ថ្មី",        bg: "bg-emerald-100", fg: "text-emerald-700" },
+  stock:       { en: "Stock",     km: "ស្តុក",       bg: "bg-sky-100",     fg: "text-sky-700" },
+  oferta:      { en: "Offer",     km: "ការផ្តល់ជូន",  bg: "bg-amber-100",   fg: "text-amber-700" },
+  liquidacion: { en: "Clearance", km: "បោះតម្លៃ",    bg: "bg-rose-100",    fg: "text-rose-700" },
+};
 
 function Stat({ value, label, divider }: { value: number; label: string; divider?: boolean }) {
   return (

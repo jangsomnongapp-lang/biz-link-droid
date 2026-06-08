@@ -44,6 +44,14 @@ interface OtherProfile {
   full_name: string | null;
   avatar_url: string | null;
 }
+interface PinnedProduct {
+  id: string;
+  title: string | null;
+  content: string | null;
+  price: number | null;
+  post_type: string;
+  photo_url: string | null;
+}
 
 // Attachment stored inside `content` as a JSON string prefixed with __ATT__:
 type Attachment =
@@ -88,6 +96,7 @@ function ConversationPage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAttach, setShowAttach] = useState(false);
+  const [pinned, setPinned] = useState<PinnedProduct | null>(null);
 
   // Voice recording
   const [recording, setRecording] = useState(false);
@@ -102,7 +111,7 @@ function ConversationPage() {
     void (async () => {
       const { data: thread } = await supabase
         .from("message_threads")
-        .select("participant_a, participant_b")
+        .select("participant_a, participant_b, pinned_post_id")
         .eq("id", threadId)
         .maybeSingle();
       if (!thread) return;
@@ -113,6 +122,26 @@ function ConversationPage() {
         .eq("id", otherId)
         .maybeSingle();
       setOther(profile);
+
+      const pinnedId = (thread as unknown as { pinned_post_id: string | null }).pinned_post_id;
+      if (pinnedId) {
+        const { data: post } = await supabase
+          .from("posts")
+          .select("id, title, content, price, post_type, post_photos(photo_url)")
+          .eq("id", pinnedId)
+          .maybeSingle();
+        if (post) {
+          const photoUrl = (post as unknown as { post_photos?: Array<{ photo_url: string }> }).post_photos?.[0]?.photo_url ?? null;
+          setPinned({
+            id: post.id,
+            title: (post as { title: string | null }).title,
+            content: post.content,
+            price: (post as { price: number | null }).price,
+            post_type: (post as { post_type: string }).post_type,
+            photo_url: photoUrl,
+          });
+        }
+      }
 
       const { data: msgs } = await supabase
         .from("messages")
@@ -327,6 +356,10 @@ function ConversationPage() {
         </button>
       </header>
 
+      {pinned && <PinnedProductBanner p={pinned} />}
+
+
+
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
         <div className="mx-auto w-fit rounded-pill bg-muted px-3 py-0.5 text-[11px] font-medium text-muted-foreground">
@@ -477,6 +510,44 @@ function ConversationPage() {
     </div>
   );
 }
+
+const PIN_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg: string }> = {
+  novedad:     { en: "New",       km: "ថ្មី",        bg: "bg-emerald-100", fg: "text-emerald-700" },
+  stock:       { en: "Stock",     km: "ស្តុក",       bg: "bg-sky-100",     fg: "text-sky-700" },
+  oferta:      { en: "Offer",     km: "ការផ្តល់ជូន",  bg: "bg-amber-100",   fg: "text-amber-700" },
+  liquidacion: { en: "Clearance", km: "បោះតម្លៃ",    bg: "bg-rose-100",    fg: "text-rose-700" },
+};
+
+function PinnedProductBanner({ p }: { p: PinnedProduct }) {
+  const meta = PIN_TYPE_LABELS[p.post_type];
+  const heading = p.title || p.content?.split("\n")[0] || "Product";
+  return (
+    <div className="sticky top-14 z-10 border-b border-amber-300 bg-amber-50 px-3 py-2">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-bold text-amber-700">📌</span>
+        {p.photo_url && (
+          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-muted">
+            <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1">
+            {meta && (
+              <span className={`rounded-pill px-2 py-0.5 text-[10px] font-bold ${meta.bg} ${meta.fg}`}>
+                {meta.en}
+              </span>
+            )}
+            <p className="truncate text-xs font-semibold text-foreground">{heading}</p>
+          </div>
+          {p.price != null && (
+            <p className="text-[11px] font-bold text-success">${Number(p.price).toFixed(2)}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function isSafeUrl(url: string): boolean {
   if (typeof url !== "string") return false;

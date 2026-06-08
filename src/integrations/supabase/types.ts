@@ -658,6 +658,7 @@ export type Database = {
           last_message_at: string
           participant_a: string
           participant_b: string
+          pinned_post_id: string | null
         }
         Insert: {
           created_at?: string
@@ -666,6 +667,7 @@ export type Database = {
           last_message_at?: string
           participant_a: string
           participant_b: string
+          pinned_post_id?: string | null
         }
         Update: {
           created_at?: string
@@ -674,6 +676,7 @@ export type Database = {
           last_message_at?: string
           participant_a?: string
           participant_b?: string
+          pinned_post_id?: string | null
         }
         Relationships: [
           {
@@ -688,6 +691,13 @@ export type Database = {
             columns: ["participant_b"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_threads_pinned_post_id_fkey"
+            columns: ["pinned_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]
@@ -936,8 +946,11 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          post_type: string
+          price: number | null
           rejected_at: string | null
           status: string
+          title: string | null
           updated_at: string
           user_id: string
           video_url: string | null
@@ -947,8 +960,11 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          post_type?: string
+          price?: number | null
           rejected_at?: string | null
           status?: string
+          title?: string | null
           updated_at?: string
           user_id: string
           video_url?: string | null
@@ -958,8 +974,11 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          post_type?: string
+          price?: number | null
           rejected_at?: string | null
           status?: string
+          title?: string | null
           updated_at?: string
           user_id?: string
           video_url?: string | null
@@ -2028,6 +2047,10 @@ export type Database = {
       run_lottery_draw: { Args: { _draw_id: string }; Returns: Json }
       start_material_chat: {
         Args: { _request_id: string; _supplier_id: string }
+        Returns: string
+      }
+      start_product_chat: {
+        Args: { _post_id: string; _supplier_id: string }
         Returns: string
       }
       supplier_can_see_request: {

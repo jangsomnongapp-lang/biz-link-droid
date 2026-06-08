@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search as SearchIcon, MapPin, Store as StoreIcon } from "lucide-react";
+import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/suppliers/")({
@@ -52,12 +53,14 @@ type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools";
 
 function SuppliersListPage() {
   const { t, lang } = useI18n();
+  const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("shops");
   const [cats, setCats] = useState<SupplierCategory[]>([]);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [stores, setStores] = useState<StoreRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSupplier, setIsSupplier] = useState(false);
   // rent
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
@@ -71,6 +74,15 @@ function SuppliersListPage() {
       .order("sort_order")
       .then(({ data }) => setCats(data ?? []));
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    void supabase
+      .from("supplier_stores")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .then(({ count }) => setIsSupplier((count ?? 0) > 0));
+  }, [user]);
 
   useEffect(() => {
     void (async () => {
@@ -159,7 +171,16 @@ function SuppliersListPage() {
   });
 
   return (
-    <div className="px-3 py-3">
+    <div className="relative px-3 py-3">
+      {mode === "shops" && isSupplier && (
+        <Link
+          to="/posts/new"
+          className="fixed bottom-20 right-4 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 active:scale-95"
+        >
+          <Plus className="h-5 w-5" />
+          {lang === "km" ? "ដាក់ផលិតផល" : "Post my product"}
+        </Link>
+      )}
       {/* Mode toggle */}
       <div className="mb-3 grid grid-cols-2 gap-2">
         <button
