@@ -53,12 +53,14 @@ type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools";
 
 function SuppliersListPage() {
   const { t, lang } = useI18n();
+  const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("shops");
   const [cats, setCats] = useState<SupplierCategory[]>([]);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [stores, setStores] = useState<StoreRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSupplier, setIsSupplier] = useState(false);
   // rent
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
@@ -72,6 +74,15 @@ function SuppliersListPage() {
       .order("sort_order")
       .then(({ data }) => setCats(data ?? []));
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    void supabase
+      .from("supplier_stores")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .then(({ count }) => setIsSupplier((count ?? 0) > 0));
+  }, [user]);
 
   useEffect(() => {
     void (async () => {
