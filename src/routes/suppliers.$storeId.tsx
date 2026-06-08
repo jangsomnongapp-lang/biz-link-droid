@@ -43,6 +43,9 @@ interface StoreDetail {
 interface RecentPost {
   id: string;
   content: string | null;
+  title: string | null;
+  price: number | null;
+  post_type: string;
   created_at: string;
   photo_url: string | null;
   view_count: number;
