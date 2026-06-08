@@ -5,6 +5,8 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { formatPrice } from "@/lib/price";
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
