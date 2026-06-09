@@ -222,15 +222,30 @@ function SuppliersListPage() {
       });
   }, [mode]);
 
-  const filtered = products.filter((p) => {
-    if (activeCat && !p.store_categories.some((c) => c.id === activeCat)) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
+  const q = search.toLowerCase();
+  const filteredProducts: FeedItem[] = products
+    .filter((p) => {
+      if (activeCat && !p.store_categories.some((c) => c.id === activeCat)) return false;
+      if (q) {
+        const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    })
+    .map((p) => ({ kind: "product" as const, created_at: p.created_at, product: p }));
+  const filteredStores: FeedItem[] = storeCards
+    .filter((s) => {
+      if (activeCat && !s.categories.some((c) => c.id === activeCat)) return false;
+      if (q) {
+        const hay = `${s.name} ${s.description ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    })
+    .map((s) => ({ kind: "store" as const, created_at: s.created_at, store: s }));
+  const filtered: FeedItem[] = [...filteredProducts, ...filteredStores].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  );
 
   const filteredRentals = rentals.filter((r) => {
     if (rentCat !== "all" && r.category !== rentCat) return false;
