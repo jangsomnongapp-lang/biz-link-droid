@@ -61,6 +61,13 @@ interface RentalRow {
 type Mode = "shops" | "rent";
 type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools";
 
+const POST_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg: string }> = {
+  novedad:     { en: "New",       km: "ថ្មី",        bg: "bg-emerald-100", fg: "text-emerald-700" },
+  stock:       { en: "Stock",     km: "ស្តុក",       bg: "bg-sky-100",     fg: "text-sky-700" },
+  oferta:      { en: "Offer",     km: "ការផ្តល់ជូន",  bg: "bg-amber-100",   fg: "text-amber-700" },
+  liquidacion: { en: "Clearance", km: "បោះតម្លៃ",    bg: "bg-rose-100",    fg: "text-rose-700" },
+};
+
 function SuppliersListPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
