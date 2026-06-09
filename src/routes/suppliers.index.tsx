@@ -26,26 +26,22 @@ interface SupplierCategory {
   name_km: string;
 }
 
-interface StoreProduct {
+interface ProductRow {
   id: string;
+  user_id: string;
   title: string | null;
   content: string | null;
   price: number | null;
   discount_price: number | null;
   currency: string;
+  post_type: string;
+  created_at: string;
   photo_url: string | null;
-}
-
-interface StoreRow {
-  id: string;
-  user_id: string;
-  name: string;
-  location: string | null;
-  description: string | null;
-  logo_url: string | null;
-  categories: SupplierCategory[];
-  photos: string[];
-  products: StoreProduct[];
+  store_id: string | null;
+  store_name: string | null;
+  store_logo: string | null;
+  store_location: string | null;
+  store_categories: SupplierCategory[];
 }
 
 interface RentalRow {
