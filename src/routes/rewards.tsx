@@ -164,7 +164,7 @@ function RewardsPage() {
             {/* Lottery ticket (yellow) */}
             <div className="mt-2 overflow-hidden rounded-2xl bg-yellow-300 text-zinc-900 shadow-lg ring-1 ring-orange-200">
               <div className="flex items-center justify-between bg-orange-500 px-4 py-2 text-white">
-                <span className="text-sm font-bold">{lang === "km" ? "ទាស់លាភ" : "TICKET"}</span>
+                <span className="text-sm font-bold">{lang === "km" ? "​សំបុត្រ" : "TICKET"}</span>
                 <span className="text-xs font-extrabold tracking-widest">BUILDHUB</span>
               </div>
               <div className="flex items-center gap-3 p-4">
