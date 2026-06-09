@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, Newspaper, Bell, User, Menu, Plus, Search, MessageCircle, Store } from "lucide-react";
+import { Home, Newspaper, Bell, User, Menu, Search, MessageCircle, Store } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
