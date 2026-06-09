@@ -50,9 +50,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <h1 className="text-lg font-bold">{t("app_name")}</h1>
         </div>
         <div className="flex items-center gap-1">
-          <Link to="/listings/new" className="rounded-full p-2 active:bg-white/10" aria-label="New">
-            <Plus className="h-5 w-5" />
-          </Link>
           <Link to="/search" className="rounded-full p-2 active:bg-white/10" aria-label="Search">
             <Search className="h-5 w-5" />
           </Link>
