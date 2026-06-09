@@ -332,6 +332,36 @@ function SuppliersListPage() {
                     ))}
                   </div>
                 )}
+                {s.products.length > 0 && (
+                  <div className="mt-3 -mx-3 overflow-x-auto px-3">
+                    <div className="flex gap-2">
+                      {s.products.map((p) => (
+                        <div key={p.id} className="w-28 shrink-0 rounded-lg border border-border bg-background p-1.5">
+                          {p.photo_url ? (
+                            <img src={p.photo_url} alt="" className="h-20 w-full rounded-md object-cover" />
+                          ) : (
+                            <div className="h-20 w-full rounded-md bg-muted" />
+                          )}
+                          <p className="mt-1 line-clamp-1 text-[11px] font-semibold text-foreground">
+                            {p.title || p.content?.split("\n")[0] || "Product"}
+                          </p>
+                          {p.price != null && (
+                            <p className="text-[10px] font-bold leading-tight">
+                              {p.discount_price != null ? (
+                                <>
+                                  <span className="text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                                  <span className="ml-1 text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                                </>
+                              ) : (
+                                <span className="text-success">{formatPrice(p.price, p.currency)}</span>
+                              )}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {s.description && (
                   <div className="mt-2 flex items-center justify-between gap-3">
                     <p className="line-clamp-2 flex-1 text-xs text-muted-foreground">{s.description}</p>
