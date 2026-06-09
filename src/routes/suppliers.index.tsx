@@ -99,76 +99,67 @@ function SuppliersListPage() {
   useEffect(() => {
     void (async () => {
       setLoading(true);
-      const { data: storesData } = await supabase
-        .from("supplier_stores")
-        .select("id, user_id, name, location, description, logo_url")
+      const { data: postsData } = await supabase
+        .from("posts")
+        .select("id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)")
         .eq("status", "approved")
-        .order("created_at", { ascending: false });
+        .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
+        .order("created_at", { ascending: false })
+        .limit(60);
 
-      const ids = (storesData ?? []).map((s) => s.id);
-      const userIds = (storesData ?? []).map((s) => s.user_id);
-      const [{ data: scs }, { data: photos }, { data: prods }] = await Promise.all([
-        ids.length
-          ? supabase
-              .from("supplier_store_categories")
-              .select("store_id, supplier_categories(id, code, name_en, name_km)")
-              .in("store_id", ids)
-          : Promise.resolve({ data: [] }),
-        ids.length
-          ? supabase
-              .from("supplier_store_photos")
-              .select("store_id, photo_url")
-              .in("store_id", ids)
-              .order("sort_order")
-          : Promise.resolve({ data: [] }),
+      const userIds = Array.from(new Set(((postsData ?? []) as Array<{ user_id: string }>).map((p) => p.user_id)));
+      const [{ data: storesData }, { data: scs }] = await Promise.all([
         userIds.length
           ? supabase
-              .from("posts")
-              .select("id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)")
+              .from("supplier_stores")
+              .select("id, user_id, name, location, logo_url")
               .in("user_id", userIds)
               .eq("status", "approved")
-              .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
-              .order("created_at", { ascending: false })
-              .limit(60)
           : Promise.resolve({ data: [] }),
+        Promise.resolve({ data: [] as unknown[] }),
       ]);
+      void scs;
 
+      const storeByUser = new Map<string, { id: string; name: string; location: string | null; logo_url: string | null }>();
+      for (const s of (storesData ?? []) as Array<{ id: string; user_id: string; name: string; location: string | null; logo_url: string | null }>) {
+        storeByUser.set(s.user_id, { id: s.id, name: s.name, location: s.location, logo_url: s.logo_url });
+      }
+
+      const storeIds = Array.from(storeByUser.values()).map((s) => s.id);
+      const { data: scs2 } = storeIds.length
+        ? await supabase
+            .from("supplier_store_categories")
+            .select("store_id, supplier_categories(id, code, name_en, name_km)")
+            .in("store_id", storeIds)
+        : { data: [] };
       const catsByStore = new Map<string, SupplierCategory[]>();
-      for (const r of (scs ?? []) as Array<{ store_id: string; supplier_categories: SupplierCategory }>) {
+      for (const r of (scs2 ?? []) as Array<{ store_id: string; supplier_categories: SupplierCategory }>) {
         const arr = catsByStore.get(r.store_id) ?? [];
         if (r.supplier_categories) arr.push(r.supplier_categories);
         catsByStore.set(r.store_id, arr);
       }
-      const photosByStore = new Map<string, string[]>();
-      for (const p of (photos ?? []) as Array<{ store_id: string; photo_url: string }>) {
-        const arr = photosByStore.get(p.store_id) ?? [];
-        arr.push(p.photo_url);
-        photosByStore.set(p.store_id, arr);
-      }
-      const productsByUser = new Map<string, StoreProduct[]>();
-      for (const p of (prods ?? []) as Array<{ id: string; user_id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_photos: Array<{ photo_url: string }> }>) {
-        const arr = productsByUser.get(p.user_id) ?? [];
-        if (arr.length < 4) {
-          arr.push({
-            id: p.id,
-            title: p.title,
-            content: p.content,
-            price: p.price,
-            discount_price: p.discount_price,
-            currency: p.currency ?? "USD",
-            photo_url: p.post_photos?.[0]?.photo_url ?? null,
-          });
-        }
-        productsByUser.set(p.user_id, arr);
-      }
 
-      const list: StoreRow[] = (storesData ?? []).map((s) => ({
-        ...s,
-        categories: catsByStore.get(s.id) ?? [],
-        photos: (photosByStore.get(s.id) ?? []).slice(0, 3),
-        products: productsByUser.get(s.user_id) ?? [],
-      }));
-      setStores(list);
+      const list: ProductRow[] = ((postsData ?? []) as Array<{ id: string; user_id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string | null; created_at: string; post_photos: Array<{ photo_url: string }> }>).map((p) => {
+        const st = storeByUser.get(p.user_id);
+        return {
+          id: p.id,
+          user_id: p.user_id,
+          title: p.title,
+          content: p.content,
+          price: p.price,
+          discount_price: p.discount_price,
+          currency: p.currency ?? "USD",
+          post_type: p.post_type ?? "general",
+          created_at: p.created_at,
+          photo_url: p.post_photos?.[0]?.photo_url ?? null,
+          store_id: st?.id ?? null,
+          store_name: st?.name ?? null,
+          store_logo: st?.logo_url ?? null,
+          store_location: st?.location ?? null,
+          store_categories: st ? catsByStore.get(st.id) ?? [] : [],
+        };
+      });
+      setProducts(list);
       setLoading(false);
     })();
   }, []);
