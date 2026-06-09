@@ -26,14 +26,26 @@ interface SupplierCategory {
   name_km: string;
 }
 
+interface StoreProduct {
+  id: string;
+  title: string | null;
+  content: string | null;
+  price: number | null;
+  discount_price: number | null;
+  currency: string;
+  photo_url: string | null;
+}
+
 interface StoreRow {
   id: string;
+  user_id: string;
   name: string;
   location: string | null;
   description: string | null;
   logo_url: string | null;
   categories: SupplierCategory[];
   photos: string[];
+  products: StoreProduct[];
 }
 
 interface RentalRow {
