@@ -170,7 +170,7 @@ function RewardsPage() {
               <div className="flex items-center gap-3 p-4">
                 <div className="flex-1">
                   <div className="text-[10px] font-bold uppercase tracking-widest text-orange-700">
-                    {lang === "km" ? "លេខសំបុត្រ" : "Ticket Number"}
+                    {lang === "km" ? "លេខឆ្នោត​" : "Ticket Number"}
                   </div>
                   <div className="mt-1 font-mono text-4xl font-black text-orange-600">#{ticketDisplay}</div>
                   <div className="mt-1 text-[11px] text-zinc-700">{todayLabel}</div>
