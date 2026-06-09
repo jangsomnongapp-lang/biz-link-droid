@@ -186,15 +186,23 @@ function EditProfilePage() {
           full_name: fullName.trim() || null,
           phone: phone ? `+855${phone.replace(/\D/g, "")}` : null,
           about_me: aboutMe.trim() || null,
-          ...roles,
         })
         .eq("id", user.id);
       if (error) throw error;
+
+      const { error: roleErr } = await supabase.rpc("update_my_role_flags", {
+        _is_provider: roles.is_provider,
+        _is_coordinator: roles.is_coordinator,
+        _is_organization: roles.is_organization,
+        _is_client: roles.is_client,
+      });
+      if (roleErr) throw roleErr;
 
       // Replace user_categories
       await supabase.from("user_categories").delete().eq("user_id", user.id);
       const rows = Array.from(selected).map((cid) => ({ user_id: user.id, category_id: cid }));
       if (rows.length) await supabase.from("user_categories").insert(rows);
+
 
       toast.success(lang === "km" ? "បានរក្សាទុក" : "Saved");
       nav({ to: "/profile" });
