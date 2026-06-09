@@ -26,26 +26,22 @@ interface SupplierCategory {
   name_km: string;
 }
 
-interface StoreProduct {
+interface ProductRow {
   id: string;
+  user_id: string;
   title: string | null;
   content: string | null;
   price: number | null;
   discount_price: number | null;
   currency: string;
+  post_type: string;
+  created_at: string;
   photo_url: string | null;
-}
-
-interface StoreRow {
-  id: string;
-  user_id: string;
-  name: string;
-  location: string | null;
-  description: string | null;
-  logo_url: string | null;
-  categories: SupplierCategory[];
-  photos: string[];
-  products: StoreProduct[];
+  store_id: string | null;
+  store_name: string | null;
+  store_logo: string | null;
+  store_location: string | null;
+  store_categories: SupplierCategory[];
 }
 
 interface RentalRow {
@@ -65,6 +61,13 @@ interface RentalRow {
 type Mode = "shops" | "rent";
 type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools";
 
+const POST_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg: string }> = {
+  novedad:     { en: "New",       km: "ថ្មី",        bg: "bg-emerald-100", fg: "text-emerald-700" },
+  stock:       { en: "Stock",     km: "ស្តុក",       bg: "bg-sky-100",     fg: "text-sky-700" },
+  oferta:      { en: "Offer",     km: "ការផ្តល់ជូន",  bg: "bg-amber-100",   fg: "text-amber-700" },
+  liquidacion: { en: "Clearance", km: "បោះតម្លៃ",    bg: "bg-rose-100",    fg: "text-rose-700" },
+};
+
 function SuppliersListPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
@@ -72,7 +75,7 @@ function SuppliersListPage() {
   const [cats, setCats] = useState<SupplierCategory[]>([]);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [stores, setStores] = useState<StoreRow[]>([]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
   // rent
@@ -103,76 +106,67 @@ function SuppliersListPage() {
   useEffect(() => {
     void (async () => {
       setLoading(true);
-      const { data: storesData } = await supabase
-        .from("supplier_stores")
-        .select("id, user_id, name, location, description, logo_url")
+      const { data: postsData } = await supabase
+        .from("posts")
+        .select("id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)")
         .eq("status", "approved")
-        .order("created_at", { ascending: false });
+        .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
+        .order("created_at", { ascending: false })
+        .limit(60);
 
-      const ids = (storesData ?? []).map((s) => s.id);
-      const userIds = (storesData ?? []).map((s) => s.user_id);
-      const [{ data: scs }, { data: photos }, { data: prods }] = await Promise.all([
-        ids.length
-          ? supabase
-              .from("supplier_store_categories")
-              .select("store_id, supplier_categories(id, code, name_en, name_km)")
-              .in("store_id", ids)
-          : Promise.resolve({ data: [] }),
-        ids.length
-          ? supabase
-              .from("supplier_store_photos")
-              .select("store_id, photo_url")
-              .in("store_id", ids)
-              .order("sort_order")
-          : Promise.resolve({ data: [] }),
+      const userIds = Array.from(new Set(((postsData ?? []) as Array<{ user_id: string }>).map((p) => p.user_id)));
+      const [{ data: storesData }, { data: scs }] = await Promise.all([
         userIds.length
           ? supabase
-              .from("posts")
-              .select("id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)")
+              .from("supplier_stores")
+              .select("id, user_id, name, location, logo_url")
               .in("user_id", userIds)
               .eq("status", "approved")
-              .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
-              .order("created_at", { ascending: false })
-              .limit(60)
           : Promise.resolve({ data: [] }),
+        Promise.resolve({ data: [] as unknown[] }),
       ]);
+      void scs;
 
+      const storeByUser = new Map<string, { id: string; name: string; location: string | null; logo_url: string | null }>();
+      for (const s of (storesData ?? []) as Array<{ id: string; user_id: string; name: string; location: string | null; logo_url: string | null }>) {
+        storeByUser.set(s.user_id, { id: s.id, name: s.name, location: s.location, logo_url: s.logo_url });
+      }
+
+      const storeIds = Array.from(storeByUser.values()).map((s) => s.id);
+      const { data: scs2 } = storeIds.length
+        ? await supabase
+            .from("supplier_store_categories")
+            .select("store_id, supplier_categories(id, code, name_en, name_km)")
+            .in("store_id", storeIds)
+        : { data: [] };
       const catsByStore = new Map<string, SupplierCategory[]>();
-      for (const r of (scs ?? []) as Array<{ store_id: string; supplier_categories: SupplierCategory }>) {
+      for (const r of (scs2 ?? []) as Array<{ store_id: string; supplier_categories: SupplierCategory }>) {
         const arr = catsByStore.get(r.store_id) ?? [];
         if (r.supplier_categories) arr.push(r.supplier_categories);
         catsByStore.set(r.store_id, arr);
       }
-      const photosByStore = new Map<string, string[]>();
-      for (const p of (photos ?? []) as Array<{ store_id: string; photo_url: string }>) {
-        const arr = photosByStore.get(p.store_id) ?? [];
-        arr.push(p.photo_url);
-        photosByStore.set(p.store_id, arr);
-      }
-      const productsByUser = new Map<string, StoreProduct[]>();
-      for (const p of (prods ?? []) as Array<{ id: string; user_id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_photos: Array<{ photo_url: string }> }>) {
-        const arr = productsByUser.get(p.user_id) ?? [];
-        if (arr.length < 4) {
-          arr.push({
-            id: p.id,
-            title: p.title,
-            content: p.content,
-            price: p.price,
-            discount_price: p.discount_price,
-            currency: p.currency ?? "USD",
-            photo_url: p.post_photos?.[0]?.photo_url ?? null,
-          });
-        }
-        productsByUser.set(p.user_id, arr);
-      }
 
-      const list: StoreRow[] = (storesData ?? []).map((s) => ({
-        ...s,
-        categories: catsByStore.get(s.id) ?? [],
-        photos: (photosByStore.get(s.id) ?? []).slice(0, 3),
-        products: productsByUser.get(s.user_id) ?? [],
-      }));
-      setStores(list);
+      const list: ProductRow[] = ((postsData ?? []) as Array<{ id: string; user_id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string | null; created_at: string; post_photos: Array<{ photo_url: string }> }>).map((p) => {
+        const st = storeByUser.get(p.user_id);
+        return {
+          id: p.id,
+          user_id: p.user_id,
+          title: p.title,
+          content: p.content,
+          price: p.price,
+          discount_price: p.discount_price,
+          currency: p.currency ?? "USD",
+          post_type: p.post_type ?? "general",
+          created_at: p.created_at,
+          photo_url: p.post_photos?.[0]?.photo_url ?? null,
+          store_id: st?.id ?? null,
+          store_name: st?.name ?? null,
+          store_logo: st?.logo_url ?? null,
+          store_location: st?.location ?? null,
+          store_categories: st ? catsByStore.get(st.id) ?? [] : [],
+        };
+      });
+      setProducts(list);
       setLoading(false);
     })();
   }, []);
@@ -192,13 +186,12 @@ function SuppliersListPage() {
       });
   }, [mode]);
 
-  const filtered = stores.filter((s) => {
-    if (activeCat && !s.categories.some((c) => c.id === activeCat)) return false;
+  const filtered = products.filter((p) => {
+    if (activeCat && !p.store_categories.some((c) => c.id === activeCat)) return false;
     if (search) {
       const q = search.toLowerCase();
-      if (!s.name.toLowerCase().includes(q) && !(s.description ?? "").toLowerCase().includes(q)) {
-        return false;
-      }
+      const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
     }
     return true;
   });
@@ -285,93 +278,83 @@ function SuppliersListPage() {
             {!loading && filtered.length === 0 && (
               <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
             )}
-            {filtered.map((s) => (
-              <Link
-                key={s.id}
-                to="/suppliers/$storeId"
-                params={{ storeId: s.id }}
-                className="block rounded-2xl bg-surface p-3 shadow-card active:scale-[0.99]"
-              >
-                <div className="flex items-center gap-3">
-                  {s.logo_url ? (
-                    <img src={s.logo_url} alt={s.name} className="h-12 w-12 rounded-lg object-cover" />
-                  ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
-                      {initials(s.name)}
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-bold text-foreground">{s.name}</p>
+            {filtered.map((p) => {
+              const meta = POST_TYPE_LABELS[p.post_type as keyof typeof POST_TYPE_LABELS];
+              const heading = p.title || p.content?.split("\n")[0] || "Product";
+              return (
+                <div key={p.id} className="rounded-2xl bg-surface p-3 shadow-card">
+                  {/* Store header */}
+                  {p.store_id && (
+                    <Link
+                      to="/suppliers/$storeId"
+                      params={{ storeId: p.store_id }}
+                      className="flex items-center gap-2 pb-2"
+                    >
+                      {p.store_logo ? (
+                        <img src={p.store_logo} alt={p.store_name ?? ""} className="h-8 w-8 rounded-md object-cover" />
+                      ) : (
+                        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-[10px] font-bold text-primary">
+                          {initials(p.store_name ?? "?")}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-bold text-foreground">{p.store_name}</p>
+                        {p.store_location && (
+                          <p className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                            <MapPin className="h-2.5 w-2.5" /> {p.store_location}
+                          </p>
+                        )}
+                      </div>
                       <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
                         {t("supplier_badge")}
                       </span>
-                    </div>
-                    <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
-                      {s.location && (
-                        <>
-                          <MapPin className="h-3 w-3" />
-                          <span className="truncate">{s.location}</span>
-                        </>
-                      )}
-                      {s.categories.length > 0 && (
-                        <span className="truncate">
-                          {" · "}
-                          {s.categories.map((c) => (lang === "km" ? c.name_km : c.name_en)).join(" · ")}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {s.photos.length > 0 && (
-                  <div className="mt-3 grid grid-cols-3 gap-2">
-                    {s.photos.map((p, i) => (
-                      <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
-                        <img src={p} alt="" className="h-full w-full object-cover" />
+                    </Link>
+                  )}
+
+                  {/* Product body */}
+                  <div className="flex gap-3">
+                    {p.photo_url && (
+                      <img src={p.photo_url} alt="" className="h-24 w-24 shrink-0 rounded-lg bg-muted object-cover" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {meta && (
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${meta.bg} ${meta.fg}`}>
+                            {lang === "km" ? meta.km : meta.en}
+                          </span>
+                        )}
+                        <p className="truncate text-sm font-bold text-foreground">{heading}</p>
                       </div>
-                    ))}
-                  </div>
-                )}
-                {s.products.length > 0 && (
-                  <div className="mt-3 -mx-3 overflow-x-auto px-3">
-                    <div className="flex gap-2">
-                      {s.products.map((p) => (
-                        <div key={p.id} className="w-28 shrink-0 rounded-lg border border-border bg-background p-1.5">
-                          {p.photo_url ? (
-                            <img src={p.photo_url} alt="" className="h-20 w-full rounded-md object-cover" />
+                      {p.price != null && (
+                        <div className="mt-1 flex items-baseline gap-1.5">
+                          {p.discount_price != null ? (
+                            <>
+                              <span className="text-base font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                              <span className="text-xs text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                            </>
                           ) : (
-                            <div className="h-20 w-full rounded-md bg-muted" />
-                          )}
-                          <p className="mt-1 line-clamp-1 text-[11px] font-semibold text-foreground">
-                            {p.title || p.content?.split("\n")[0] || "Product"}
-                          </p>
-                          {p.price != null && (
-                            <p className="text-[10px] font-bold leading-tight">
-                              {p.discount_price != null ? (
-                                <>
-                                  <span className="text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
-                                  <span className="ml-1 text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
-                                </>
-                              ) : (
-                                <span className="text-success">{formatPrice(p.price, p.currency)}</span>
-                              )}
-                            </p>
+                            <span className="text-base font-bold text-success">{formatPrice(p.price, p.currency)}</span>
                           )}
                         </div>
-                      ))}
+                      )}
+                      {p.content && (
+                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{p.content}</p>
+                      )}
                     </div>
                   </div>
-                )}
-                {s.description && (
-                  <div className="mt-2 flex items-center justify-between gap-3">
-                    <p className="line-clamp-2 flex-1 text-xs text-muted-foreground">{s.description}</p>
-                    <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
+
+                  {p.store_id && (
+                    <Link
+                      to="/suppliers/$storeId"
+                      params={{ storeId: p.store_id }}
+                      className="mt-2 flex h-9 w-full items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground active:scale-[0.98]"
+                    >
                       {t("contact_supplier")}
-                    </span>
-                  </div>
-                )}
-              </Link>
-            ))}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </>
 
