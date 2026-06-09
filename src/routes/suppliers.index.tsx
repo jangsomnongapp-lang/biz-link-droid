@@ -44,6 +44,22 @@ interface ProductRow {
   store_categories: SupplierCategory[];
 }
 
+interface StoreCardRow {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  logo_url: string | null;
+  location: string | null;
+  created_at: string;
+  categories: SupplierCategory[];
+  photos: string[];
+}
+
+type FeedItem =
+  | { kind: "store"; created_at: string; store: StoreCardRow }
+  | { kind: "product"; created_at: string; product: ProductRow };
+
 interface RentalRow {
   id: string;
   user_id: string;
@@ -76,6 +92,7 @@ function SuppliersListPage() {
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<ProductRow[]>([]);
+  const [storeCards, setStoreCards] = useState<StoreCardRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
   // rent
@@ -106,45 +123,63 @@ function SuppliersListPage() {
   useEffect(() => {
     void (async () => {
       setLoading(true);
-      const { data: postsData } = await supabase
-        .from("posts")
-        .select("id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)")
-        .eq("status", "approved")
-        .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
-        .order("created_at", { ascending: false })
-        .limit(60);
 
-      const userIds = Array.from(new Set(((postsData ?? []) as Array<{ user_id: string }>).map((p) => p.user_id)));
-      const [{ data: storesData }, { data: scs }] = await Promise.all([
-        userIds.length
-          ? supabase
-              .from("supplier_stores")
-              .select("id, user_id, name, location, logo_url")
-              .in("user_id", userIds)
-              .eq("status", "approved")
-          : Promise.resolve({ data: [] }),
-        Promise.resolve({ data: [] as unknown[] }),
+      const [{ data: postsData }, { data: allStores }] = await Promise.all([
+        supabase
+          .from("posts")
+          .select("id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)")
+          .eq("status", "approved")
+          .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
+          .order("created_at", { ascending: false })
+          .limit(60),
+        supabase
+          .from("supplier_stores")
+          .select("id, user_id, name, description, location, logo_url, created_at")
+          .eq("status", "approved")
+          .order("created_at", { ascending: false })
+          .limit(60),
       ]);
-      void scs;
 
       const storeByUser = new Map<string, { id: string; name: string; location: string | null; logo_url: string | null }>();
-      for (const s of (storesData ?? []) as Array<{ id: string; user_id: string; name: string; location: string | null; logo_url: string | null }>) {
+      for (const s of (allStores ?? []) as Array<{ id: string; user_id: string; name: string; location: string | null; logo_url: string | null }>) {
         storeByUser.set(s.user_id, { id: s.id, name: s.name, location: s.location, logo_url: s.logo_url });
       }
 
-      const storeIds = Array.from(storeByUser.values()).map((s) => s.id);
-      const { data: scs2 } = storeIds.length
-        ? await supabase
-            .from("supplier_store_categories")
-            .select("store_id, supplier_categories(id, code, name_en, name_km)")
-            .in("store_id", storeIds)
-        : { data: [] };
+      const storeIds = ((allStores ?? []) as Array<{ id: string }>).map((s) => s.id);
+      const [{ data: scs2 }, { data: storePhotos }] = await Promise.all([
+        storeIds.length
+          ? supabase
+              .from("supplier_store_categories")
+              .select("store_id, supplier_categories(id, code, name_en, name_km)")
+              .in("store_id", storeIds)
+          : Promise.resolve({ data: [] }),
+        storeIds.length
+          ? supabase
+              .from("supplier_store_photos")
+              .select("store_id, photo_url")
+              .in("store_id", storeIds)
+              .order("sort_order")
+          : Promise.resolve({ data: [] }),
+      ]);
+
       const catsByStore = new Map<string, SupplierCategory[]>();
       for (const r of (scs2 ?? []) as Array<{ store_id: string; supplier_categories: SupplierCategory }>) {
         const arr = catsByStore.get(r.store_id) ?? [];
         if (r.supplier_categories) arr.push(r.supplier_categories);
         catsByStore.set(r.store_id, arr);
       }
+      const photosByStore = new Map<string, string[]>();
+      for (const p of (storePhotos ?? []) as Array<{ store_id: string; photo_url: string }>) {
+        const arr = photosByStore.get(p.store_id) ?? [];
+        arr.push(p.photo_url);
+        photosByStore.set(p.store_id, arr);
+      }
+
+      const storeList: StoreCardRow[] = ((allStores ?? []) as Array<{ id: string; user_id: string; name: string; description: string | null; location: string | null; logo_url: string | null; created_at: string }>).map((s) => ({
+        ...s,
+        categories: catsByStore.get(s.id) ?? [],
+        photos: (photosByStore.get(s.id) ?? []).slice(0, 3),
+      }));
 
       const list: ProductRow[] = ((postsData ?? []) as Array<{ id: string; user_id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string | null; created_at: string; post_photos: Array<{ photo_url: string }> }>).map((p) => {
         const st = storeByUser.get(p.user_id);
@@ -167,6 +202,7 @@ function SuppliersListPage() {
         };
       });
       setProducts(list);
+      setStoreCards(storeList);
       setLoading(false);
     })();
   }, []);
@@ -186,15 +222,30 @@ function SuppliersListPage() {
       });
   }, [mode]);
 
-  const filtered = products.filter((p) => {
-    if (activeCat && !p.store_categories.some((c) => c.id === activeCat)) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
+  const q = search.toLowerCase();
+  const filteredProducts: FeedItem[] = products
+    .filter((p) => {
+      if (activeCat && !p.store_categories.some((c) => c.id === activeCat)) return false;
+      if (q) {
+        const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    })
+    .map((p) => ({ kind: "product" as const, created_at: p.created_at, product: p }));
+  const filteredStores: FeedItem[] = storeCards
+    .filter((s) => {
+      if (activeCat && !s.categories.some((c) => c.id === activeCat)) return false;
+      if (q) {
+        const hay = `${s.name} ${s.description ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    })
+    .map((s) => ({ kind: "store" as const, created_at: s.created_at, store: s }));
+  const filtered: FeedItem[] = [...filteredProducts, ...filteredStores].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  );
 
   const filteredRentals = rentals.filter((r) => {
     if (rentCat !== "all" && r.category !== rentCat) return false;
@@ -278,12 +329,67 @@ function SuppliersListPage() {
             {!loading && filtered.length === 0 && (
               <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
             )}
-            {filtered.map((p) => {
+            {filtered.map((item) => {
+              if (item.kind === "store") {
+                const s = item.store;
+                return (
+                  <Link
+                    key={`s-${s.id}`}
+                    to="/suppliers/$storeId"
+                    params={{ storeId: s.id }}
+                    className="block rounded-2xl bg-surface p-3 shadow-card active:scale-[0.99]"
+                  >
+                    <div className="flex items-center gap-3">
+                      {s.logo_url ? (
+                        <img src={s.logo_url} alt={s.name} className="h-12 w-12 rounded-lg object-cover" />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
+                          {initials(s.name)}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate text-sm font-bold text-foreground">{s.name}</p>
+                          <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                            {t("supplier_badge")}
+                          </span>
+                        </div>
+                        <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                          {s.location && (
+                            <>
+                              <MapPin className="h-3 w-3" />
+                              <span className="truncate">{s.location}</span>
+                            </>
+                          )}
+                          {s.categories.length > 0 && (
+                            <span className="truncate">
+                              {" · "}
+                              {s.categories.map((c) => (lang === "km" ? c.name_km : c.name_en)).join(" · ")}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    {s.photos.length > 0 && (
+                      <div className="mt-3 grid grid-cols-3 gap-2">
+                        {s.photos.map((ph, i) => (
+                          <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
+                            <img src={ph} alt="" className="h-full w-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {s.description && (
+                      <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{s.description}</p>
+                    )}
+                  </Link>
+                );
+              }
+              const p = item.product;
               const meta = POST_TYPE_LABELS[p.post_type as keyof typeof POST_TYPE_LABELS];
               const heading = p.title || p.content?.split("\n")[0] || "Product";
               return (
-                <div key={p.id} className="rounded-2xl bg-surface p-3 shadow-card">
-                  {/* Store header */}
+                <div key={`p-${p.id}`} className="rounded-2xl bg-surface p-3 shadow-card">
                   {p.store_id && (
                     <Link
                       to="/suppliers/$storeId"
@@ -311,7 +417,6 @@ function SuppliersListPage() {
                     </Link>
                   )}
 
-                  {/* Product body */}
                   <div className="flex gap-3">
                     {p.photo_url && (
                       <img src={p.photo_url} alt="" className="h-24 w-24 shrink-0 rounded-lg bg-muted object-cover" />
