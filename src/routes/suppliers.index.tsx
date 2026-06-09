@@ -88,8 +88,6 @@ function SuppliersListPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("shops");
-  const [cats, setCats] = useState<SupplierCategory[]>([]);
-  const [activeCat, setActiveCat] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [storeCards, setStoreCards] = useState<StoreCardRow[]>([]);
@@ -99,17 +97,6 @@ function SuppliersListPage() {
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
   const [loadingRent, setLoadingRent] = useState(true);
-
-
-
-  useEffect(() => {
-    void supabase
-      .from("supplier_categories")
-      .select("id, code, name_en, name_km")
-      .eq("is_active", true)
-      .order("sort_order")
-      .then(({ data }) => setCats(data ?? []));
-  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -225,7 +212,6 @@ function SuppliersListPage() {
   const q = search.toLowerCase();
   const filteredProducts: FeedItem[] = products
     .filter((p) => {
-      if (activeCat && !p.store_categories.some((c) => c.id === activeCat)) return false;
       if (q) {
         const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -235,7 +221,6 @@ function SuppliersListPage() {
     .map((p) => ({ kind: "product" as const, created_at: p.created_at, product: p }));
   const filteredStores: FeedItem[] = storeCards
     .filter((s) => {
-      if (activeCat && !s.categories.some((c) => c.id === activeCat)) return false;
       if (q) {
         const hay = `${s.name} ${s.description ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -291,29 +276,6 @@ function SuppliersListPage() {
 
       {mode === "shops" ? (
         <>
-          {/* Category filter chips */}
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            <button
-              onClick={() => setActiveCat(null)}
-              className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${
-                activeCat === null ? "bg-primary text-primary-foreground" : "bg-surface text-foreground shadow-card"
-              }`}
-            >
-              {t("filter_all")}
-            </button>
-            {cats.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setActiveCat(c.id === activeCat ? null : c.id)}
-                className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${
-                  activeCat === c.id ? "bg-primary text-primary-foreground" : "bg-surface text-foreground shadow-card"
-                }`}
-              >
-                {lang === "km" ? c.name_km : c.name_en}
-              </button>
-            ))}
-          </div>
-
           <div className="mt-2 flex h-11 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
             <SearchIcon className="h-4 w-4 text-muted-foreground" />
             <input
