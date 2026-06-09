@@ -221,6 +221,7 @@ ${lines.join("\n")}`;
 }
 
 export const aiSearch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }) => {
     try {
