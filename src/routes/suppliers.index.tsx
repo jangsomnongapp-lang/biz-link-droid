@@ -271,93 +271,83 @@ function SuppliersListPage() {
             {!loading && filtered.length === 0 && (
               <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
             )}
-            {filtered.map((s) => (
-              <Link
-                key={s.id}
-                to="/suppliers/$storeId"
-                params={{ storeId: s.id }}
-                className="block rounded-2xl bg-surface p-3 shadow-card active:scale-[0.99]"
-              >
-                <div className="flex items-center gap-3">
-                  {s.logo_url ? (
-                    <img src={s.logo_url} alt={s.name} className="h-12 w-12 rounded-lg object-cover" />
-                  ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
-                      {initials(s.name)}
-                    </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-bold text-foreground">{s.name}</p>
+            {filtered.map((p) => {
+              const meta = POST_TYPE_LABELS[p.post_type as keyof typeof POST_TYPE_LABELS];
+              const heading = p.title || p.content?.split("\n")[0] || "Product";
+              return (
+                <div key={p.id} className="rounded-2xl bg-surface p-3 shadow-card">
+                  {/* Store header */}
+                  {p.store_id && (
+                    <Link
+                      to="/suppliers/$storeId"
+                      params={{ storeId: p.store_id }}
+                      className="flex items-center gap-2 pb-2"
+                    >
+                      {p.store_logo ? (
+                        <img src={p.store_logo} alt={p.store_name ?? ""} className="h-8 w-8 rounded-md object-cover" />
+                      ) : (
+                        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-[10px] font-bold text-primary">
+                          {initials(p.store_name ?? "?")}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-bold text-foreground">{p.store_name}</p>
+                        {p.store_location && (
+                          <p className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                            <MapPin className="h-2.5 w-2.5" /> {p.store_location}
+                          </p>
+                        )}
+                      </div>
                       <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
                         {t("supplier_badge")}
                       </span>
-                    </div>
-                    <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
-                      {s.location && (
-                        <>
-                          <MapPin className="h-3 w-3" />
-                          <span className="truncate">{s.location}</span>
-                        </>
-                      )}
-                      {s.categories.length > 0 && (
-                        <span className="truncate">
-                          {" · "}
-                          {s.categories.map((c) => (lang === "km" ? c.name_km : c.name_en)).join(" · ")}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {s.photos.length > 0 && (
-                  <div className="mt-3 grid grid-cols-3 gap-2">
-                    {s.photos.map((p, i) => (
-                      <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
-                        <img src={p} alt="" className="h-full w-full object-cover" />
+                    </Link>
+                  )}
+
+                  {/* Product body */}
+                  <div className="flex gap-3">
+                    {p.photo_url && (
+                      <img src={p.photo_url} alt="" className="h-24 w-24 shrink-0 rounded-lg bg-muted object-cover" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {meta && (
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${meta.bg} ${meta.fg}`}>
+                            {lang === "km" ? meta.km : meta.en}
+                          </span>
+                        )}
+                        <p className="truncate text-sm font-bold text-foreground">{heading}</p>
                       </div>
-                    ))}
-                  </div>
-                )}
-                {s.products.length > 0 && (
-                  <div className="mt-3 -mx-3 overflow-x-auto px-3">
-                    <div className="flex gap-2">
-                      {s.products.map((p) => (
-                        <div key={p.id} className="w-28 shrink-0 rounded-lg border border-border bg-background p-1.5">
-                          {p.photo_url ? (
-                            <img src={p.photo_url} alt="" className="h-20 w-full rounded-md object-cover" />
+                      {p.price != null && (
+                        <div className="mt-1 flex items-baseline gap-1.5">
+                          {p.discount_price != null ? (
+                            <>
+                              <span className="text-base font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                              <span className="text-xs text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                            </>
                           ) : (
-                            <div className="h-20 w-full rounded-md bg-muted" />
-                          )}
-                          <p className="mt-1 line-clamp-1 text-[11px] font-semibold text-foreground">
-                            {p.title || p.content?.split("\n")[0] || "Product"}
-                          </p>
-                          {p.price != null && (
-                            <p className="text-[10px] font-bold leading-tight">
-                              {p.discount_price != null ? (
-                                <>
-                                  <span className="text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
-                                  <span className="ml-1 text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
-                                </>
-                              ) : (
-                                <span className="text-success">{formatPrice(p.price, p.currency)}</span>
-                              )}
-                            </p>
+                            <span className="text-base font-bold text-success">{formatPrice(p.price, p.currency)}</span>
                           )}
                         </div>
-                      ))}
+                      )}
+                      {p.content && (
+                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{p.content}</p>
+                      )}
                     </div>
                   </div>
-                )}
-                {s.description && (
-                  <div className="mt-2 flex items-center justify-between gap-3">
-                    <p className="line-clamp-2 flex-1 text-xs text-muted-foreground">{s.description}</p>
-                    <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
+
+                  {p.store_id && (
+                    <Link
+                      to="/suppliers/$storeId"
+                      params={{ storeId: p.store_id }}
+                      className="mt-2 flex h-9 w-full items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground active:scale-[0.98]"
+                    >
                       {t("contact_supplier")}
-                    </span>
-                  </div>
-                )}
-              </Link>
-            ))}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </>
 
