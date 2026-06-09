@@ -44,6 +44,22 @@ interface ProductRow {
   store_categories: SupplierCategory[];
 }
 
+interface StoreCardRow {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  logo_url: string | null;
+  location: string | null;
+  created_at: string;
+  categories: SupplierCategory[];
+  photos: string[];
+}
+
+type FeedItem =
+  | { kind: "store"; created_at: string; store: StoreCardRow }
+  | { kind: "product"; created_at: string; product: ProductRow };
+
 interface RentalRow {
   id: string;
   user_id: string;
