@@ -179,13 +179,12 @@ function SuppliersListPage() {
       });
   }, [mode]);
 
-  const filtered = stores.filter((s) => {
-    if (activeCat && !s.categories.some((c) => c.id === activeCat)) return false;
+  const filtered = products.filter((p) => {
+    if (activeCat && !p.store_categories.some((c) => c.id === activeCat)) return false;
     if (search) {
       const q = search.toLowerCase();
-      if (!s.name.toLowerCase().includes(q) && !(s.description ?? "").toLowerCase().includes(q)) {
-        return false;
-      }
+      const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
     }
     return true;
   });
