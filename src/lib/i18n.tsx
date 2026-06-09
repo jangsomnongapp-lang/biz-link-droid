@@ -346,7 +346,7 @@ const dict: Dict = {
   // suppliers
   nav_suppliers: { km: "ហាង", en: "Suppliers" },
   suppliers_title: { km: "ហាងគ្រឿងសំណង់", en: "Suppliers" },
-  search_suppliers_ph: { km: "ស្វែងរកហាង ឬផលិតផល...", en: "Search suppliers or products..." },
+  search_suppliers_ph: { km: "ស្វែងរកហាង ឬ​​ គ្រឿងសំណង់​...", en: "Search suppliers or construction materials..." },
   filter_all: { km: "ទាំងអស់", en: "All" },
   contact_supplier: { km: "ទាក់ទងហាង", en: "Contact supplier" },
   supplier_badge: { km: "ហាង", en: "Supplier" },
