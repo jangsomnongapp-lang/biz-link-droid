@@ -6,6 +6,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPrice } from "@/lib/price";
 
 
 export const Route = createFileRoute("/suppliers/")({
@@ -25,14 +26,26 @@ interface SupplierCategory {
   name_km: string;
 }
 
+interface StoreProduct {
+  id: string;
+  title: string | null;
+  content: string | null;
+  price: number | null;
+  discount_price: number | null;
+  currency: string;
+  photo_url: string | null;
+}
+
 interface StoreRow {
   id: string;
+  user_id: string;
   name: string;
   location: string | null;
   description: string | null;
   logo_url: string | null;
   categories: SupplierCategory[];
   photos: string[];
+  products: StoreProduct[];
 }
 
 interface RentalRow {
@@ -92,12 +105,13 @@ function SuppliersListPage() {
       setLoading(true);
       const { data: storesData } = await supabase
         .from("supplier_stores")
-        .select("id, name, location, description, logo_url")
+        .select("id, user_id, name, location, description, logo_url")
         .eq("status", "approved")
         .order("created_at", { ascending: false });
 
       const ids = (storesData ?? []).map((s) => s.id);
-      const [{ data: scs }, { data: photos }] = await Promise.all([
+      const userIds = (storesData ?? []).map((s) => s.user_id);
+      const [{ data: scs }, { data: photos }, { data: prods }] = await Promise.all([
         ids.length
           ? supabase
               .from("supplier_store_categories")
@@ -110,6 +124,16 @@ function SuppliersListPage() {
               .select("store_id, photo_url")
               .in("store_id", ids)
               .order("sort_order")
+          : Promise.resolve({ data: [] }),
+        userIds.length
+          ? supabase
+              .from("posts")
+              .select("id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)")
+              .in("user_id", userIds)
+              .eq("status", "approved")
+              .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
+              .order("created_at", { ascending: false })
+              .limit(60)
           : Promise.resolve({ data: [] }),
       ]);
 
@@ -125,11 +149,28 @@ function SuppliersListPage() {
         arr.push(p.photo_url);
         photosByStore.set(p.store_id, arr);
       }
+      const productsByUser = new Map<string, StoreProduct[]>();
+      for (const p of (prods ?? []) as Array<{ id: string; user_id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_photos: Array<{ photo_url: string }> }>) {
+        const arr = productsByUser.get(p.user_id) ?? [];
+        if (arr.length < 4) {
+          arr.push({
+            id: p.id,
+            title: p.title,
+            content: p.content,
+            price: p.price,
+            discount_price: p.discount_price,
+            currency: p.currency ?? "USD",
+            photo_url: p.post_photos?.[0]?.photo_url ?? null,
+          });
+        }
+        productsByUser.set(p.user_id, arr);
+      }
 
       const list: StoreRow[] = (storesData ?? []).map((s) => ({
         ...s,
         categories: catsByStore.get(s.id) ?? [],
         photos: (photosByStore.get(s.id) ?? []).slice(0, 3),
+        products: productsByUser.get(s.user_id) ?? [],
       }));
       setStores(list);
       setLoading(false);
@@ -289,6 +330,36 @@ function SuppliersListPage() {
                         <img src={p} alt="" className="h-full w-full object-cover" />
                       </div>
                     ))}
+                  </div>
+                )}
+                {s.products.length > 0 && (
+                  <div className="mt-3 -mx-3 overflow-x-auto px-3">
+                    <div className="flex gap-2">
+                      {s.products.map((p) => (
+                        <div key={p.id} className="w-28 shrink-0 rounded-lg border border-border bg-background p-1.5">
+                          {p.photo_url ? (
+                            <img src={p.photo_url} alt="" className="h-20 w-full rounded-md object-cover" />
+                          ) : (
+                            <div className="h-20 w-full rounded-md bg-muted" />
+                          )}
+                          <p className="mt-1 line-clamp-1 text-[11px] font-semibold text-foreground">
+                            {p.title || p.content?.split("\n")[0] || "Product"}
+                          </p>
+                          {p.price != null && (
+                            <p className="text-[10px] font-bold leading-tight">
+                              {p.discount_price != null ? (
+                                <>
+                                  <span className="text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                                  <span className="ml-1 text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                                </>
+                              ) : (
+                                <span className="text-success">{formatPrice(p.price, p.currency)}</span>
+                              )}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {s.description && (
