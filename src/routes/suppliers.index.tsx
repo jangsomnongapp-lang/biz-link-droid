@@ -6,6 +6,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPrice } from "@/lib/price";
 
 
 export const Route = createFileRoute("/suppliers/")({
