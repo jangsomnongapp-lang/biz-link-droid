@@ -88,8 +88,6 @@ function SuppliersListPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("shops");
-  const [cats, setCats] = useState<SupplierCategory[]>([]);
-  const [activeCat, setActiveCat] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [storeCards, setStoreCards] = useState<StoreCardRow[]>([]);
@@ -99,17 +97,6 @@ function SuppliersListPage() {
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
   const [loadingRent, setLoadingRent] = useState(true);
-
-
-
-  useEffect(() => {
-    void supabase
-      .from("supplier_categories")
-      .select("id, code, name_en, name_km")
-      .eq("is_active", true)
-      .order("sort_order")
-      .then(({ data }) => setCats(data ?? []));
-  }, []);
 
   useEffect(() => {
     if (!user) return;
