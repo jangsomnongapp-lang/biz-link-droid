@@ -68,7 +68,7 @@ function SuppliersListPage() {
   const [cats, setCats] = useState<SupplierCategory[]>([]);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [stores, setStores] = useState<StoreRow[]>([]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
   // rent
