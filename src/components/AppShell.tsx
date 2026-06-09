@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, Newspaper, Bell, User, Menu, Plus, Search, MessageCircle, Store } from "lucide-react";
+import { Home, Newspaper, Bell, User, Menu, Search, MessageCircle, Store } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
@@ -50,9 +50,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <h1 className="text-lg font-bold">{t("app_name")}</h1>
         </div>
         <div className="flex items-center gap-1">
-          <Link to="/listings/new" className="rounded-full p-2 active:bg-white/10" aria-label="New">
-            <Plus className="h-5 w-5" />
-          </Link>
           <Link to="/search" className="rounded-full p-2 active:bg-white/10" aria-label="Search">
             <Search className="h-5 w-5" />
           </Link>
