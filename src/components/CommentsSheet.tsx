@@ -202,7 +202,10 @@ export function CommentsSheet({
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div
+          className="flex-1 overflow-y-auto overscroll-contain px-4 py-3"
+          style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+        >
           {loading ? (
             <div className="text-center text-sm text-muted-foreground">{t("loading")}</div>
           ) : tops.length === 0 ? (
@@ -210,14 +213,17 @@ export function CommentsSheet({
           ) : (
             <ul className="space-y-3">
               {tops.map((c) => (
-                <div key={c.id} className="space-y-2">
-                  {renderComment(c)}
-                  {(repliesByParent.get(c.id) ?? []).map((r) => renderComment(r, true))}
-                </div>
+                <li key={c.id} className="list-none">
+                  <ul className="space-y-2">
+                    {renderComment(c)}
+                    {(repliesByParent.get(c.id) ?? []).map((r) => renderComment(r, true))}
+                  </ul>
+                </li>
               ))}
             </ul>
           )}
         </div>
+
 
         {replyTo && (
           <div className="flex items-center gap-2 border-t border-border bg-muted px-3 py-1.5 text-xs">

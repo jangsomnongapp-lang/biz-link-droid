@@ -362,14 +362,22 @@ function HomePage() {
         setCommentCounts((m) => ({ ...m, [focusPostId!]: cmtRows?.length ?? 0 }));
       }
 
-      // Wait a tick for DOM to render the newly prepended post
-      requestAnimationFrame(() => {
+      // Retry across frames — newly prepended posts (and their images) may
+      // still be laying out, so the element height shifts after first paint.
+      let tries = 0;
+      const tick = () => {
+        if (cancelled) return;
         const el = document.getElementById(`post-${focusPostId}`);
-        if (!el) return;
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-        setHighlightId(focusPostId!);
-        setTimeout(() => setHighlightId(null), 2200);
-      });
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          setHighlightId(focusPostId!);
+          setTimeout(() => setHighlightId(null), 2200);
+          return;
+        }
+        if (tries++ < 20) setTimeout(tick, 100);
+      };
+      requestAnimationFrame(tick);
+
     }
 
     void ensureAndScroll();
