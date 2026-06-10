@@ -680,7 +680,7 @@ function PinnedReplyCard({ p, onClear }: { p: PinnedProduct; onClear: () => void
             </p>
           )}
         </div>
-      </Link>
+      </a>
     </div>
   );
 }
