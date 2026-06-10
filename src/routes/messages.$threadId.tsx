@@ -653,8 +653,8 @@ function PinnedReplyCard({ p, onClear }: { p: PinnedProduct; onClear: () => void
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
-      <Link
-        to={p.href}
+      <a
+        href={p.href}
         className="flex items-center gap-2 rounded-xl border border-border bg-surface p-2 active:opacity-70"
       >
         {p.photo_url ? (
