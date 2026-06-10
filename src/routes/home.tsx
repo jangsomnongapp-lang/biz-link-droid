@@ -611,6 +611,7 @@ function HomePage() {
           </Link>
         ))}
       </div>
+      </>)}
 
       {/* Feed */}
       <div className="mt-2 space-y-2">
