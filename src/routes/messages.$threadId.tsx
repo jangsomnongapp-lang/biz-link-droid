@@ -133,29 +133,79 @@ function ConversationPage() {
         .maybeSingle();
       setOther(profile);
 
-      const pinnedId = (thread as unknown as { pinned_post_id: string | null }).pinned_post_id;
-      if (pinnedId) {
-        const { data: post } = await supabase
-          .from("posts")
-          .select("id, title, content, price, discount_price, currency, post_type, post_photos(photo_url)")
-          .eq("id", pinnedId)
+      // Pin priority: explicit search param wins, otherwise fall back to thread.pinned_post_id (post only)
+      const parsed = pin?.includes(":") ? (pin.split(":") as [string, string]) : null;
+      const pinKind = parsed?.[0] as "post" | "rental" | "listing" | undefined;
+      const pinId = parsed?.[1];
+
+      if (pinKind === "rental" && pinId) {
+        const { data: r } = await supabase
+          .from("rental_listings")
+          .select("id, title, description, price_per_day, currency, rental_photos(photo_url)")
+          .eq("id", pinId)
           .maybeSingle();
-        if (post) {
-          const p = post as unknown as { id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string; post_photos?: Array<{ photo_url: string }> };
+        if (r) {
+          const rr = r as unknown as { id: string; title: string | null; description: string | null; price_per_day: number | null; currency: string | null; rental_photos?: Array<{ photo_url: string }> };
           setPinned({
-            id: p.id,
-            kind: "post",
-            href: `/home?post=${p.id}`,
-            title: p.title,
-            content: p.content,
-            price: p.price,
-            discount_price: p.discount_price,
-            currency: p.currency ?? "USD",
-            post_type: p.post_type,
-            photo_url: p.post_photos?.[0]?.photo_url ?? null,
+            id: rr.id,
+            kind: "rental",
+            href: `/rentals/${rr.id}`,
+            title: rr.title,
+            content: rr.description,
+            price: rr.price_per_day,
+            discount_price: null,
+            currency: rr.currency ?? "USD",
+            post_type: "rental",
+            photo_url: rr.rental_photos?.[0]?.photo_url ?? null,
           });
         }
-
+      } else if (pinKind === "listing" && pinId) {
+        const { data: l } = await supabase
+          .from("listings")
+          .select("id, title, description, budget, listing_photos(photo_url)")
+          .eq("id", pinId)
+          .maybeSingle();
+        if (l) {
+          const ll = l as unknown as { id: string; title: string | null; description: string | null; budget: number | null; listing_photos?: Array<{ photo_url: string }> };
+          setPinned({
+            id: ll.id,
+            kind: "listing",
+            href: `/listings/${ll.id}`,
+            title: ll.title,
+            content: ll.description,
+            price: ll.budget,
+            discount_price: null,
+            currency: "USD",
+            post_type: "listing",
+            photo_url: ll.listing_photos?.[0]?.photo_url ?? null,
+          });
+        }
+      } else {
+        const fallbackPostId = pinKind === "post" && pinId
+          ? pinId
+          : (thread as unknown as { pinned_post_id: string | null }).pinned_post_id;
+        if (fallbackPostId) {
+          const { data: post } = await supabase
+            .from("posts")
+            .select("id, title, content, price, discount_price, currency, post_type, post_photos(photo_url)")
+            .eq("id", fallbackPostId)
+            .maybeSingle();
+          if (post) {
+            const p = post as unknown as { id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string; post_photos?: Array<{ photo_url: string }> };
+            setPinned({
+              id: p.id,
+              kind: "post",
+              href: `/home?post=${p.id}`,
+              title: p.title,
+              content: p.content,
+              price: p.price,
+              discount_price: p.discount_price,
+              currency: p.currency ?? "USD",
+              post_type: p.post_type,
+              photo_url: p.post_photos?.[0]?.photo_url ?? null,
+            });
+          }
+        }
       }
 
       const { data: msgs } = await supabase
