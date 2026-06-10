@@ -630,9 +630,11 @@ function HomePage() {
           type FeedItem =
             | { kind: "post"; created_at: string; data: PostRow }
             | { kind: "rental"; created_at: string; data: RentalRow };
+          const visiblePosts = focused ? posts.filter((p) => p.id === focusPostId) : posts;
+          const visibleRentals = focused ? [] : rentals;
           const items: FeedItem[] = [
-            ...posts.map((p) => ({ kind: "post" as const, created_at: p.created_at, data: p })),
-            ...rentals.map((r) => ({ kind: "rental" as const, created_at: r.created_at, data: r })),
+            ...visiblePosts.map((p) => ({ kind: "post" as const, created_at: p.created_at, data: p })),
+            ...visibleRentals.map((r) => ({ kind: "rental" as const, created_at: r.created_at, data: r })),
           ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
           return items.map((item) => {
             if (item.kind === "rental") {
