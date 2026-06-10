@@ -23,6 +23,7 @@ import { Route as JoinRouteImport } from './routes/join'
 import { Route as InvitationsRouteImport } from './routes/invitations'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FindWorkerRouteImport } from './routes/find-worker'
 import { Route as FindMaterialRouteImport } from './routes/find-material'
 import { Route as AnnounceRouteImport } from './routes/announce'
@@ -131,6 +132,11 @@ const HomeRoute = HomeRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FindWorkerRoute = FindWorkerRouteImport.update({
@@ -337,6 +343,7 @@ export interface FileRoutesByFullPath {
   '/announce': typeof AnnounceRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/invitations': typeof InvitationsRoute
@@ -392,6 +399,7 @@ export interface FileRoutesByTo {
   '/announce': typeof AnnounceRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/invitations': typeof InvitationsRoute
@@ -448,6 +456,7 @@ export interface FileRoutesById {
   '/announce': typeof AnnounceRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
   '/home': typeof HomeRoute
   '/invitations': typeof InvitationsRoute
@@ -505,6 +514,7 @@ export interface FileRouteTypes {
     | '/announce'
     | '/find-material'
     | '/find-worker'
+    | '/forgot-password'
     | '/help'
     | '/home'
     | '/invitations'
@@ -560,6 +570,7 @@ export interface FileRouteTypes {
     | '/announce'
     | '/find-material'
     | '/find-worker'
+    | '/forgot-password'
     | '/help'
     | '/home'
     | '/invitations'
@@ -615,6 +626,7 @@ export interface FileRouteTypes {
     | '/announce'
     | '/find-material'
     | '/find-worker'
+    | '/forgot-password'
     | '/help'
     | '/home'
     | '/invitations'
@@ -671,6 +683,7 @@ export interface RootRouteChildren {
   AnnounceRoute: typeof AnnounceRoute
   FindMaterialRoute: typeof FindMaterialRouteWithChildren
   FindWorkerRoute: typeof FindWorkerRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
   HomeRoute: typeof HomeRoute
   InvitationsRoute: typeof InvitationsRoute
@@ -813,6 +826,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/find-worker': {
@@ -1136,6 +1156,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnounceRoute: AnnounceRoute,
   FindMaterialRoute: FindMaterialRouteWithChildren,
   FindWorkerRoute: FindWorkerRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,
   HomeRoute: HomeRoute,
   InvitationsRoute: InvitationsRoute,
