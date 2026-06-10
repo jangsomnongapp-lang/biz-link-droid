@@ -115,7 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
           <Link to="/messages" className="relative rounded-full p-2 active:bg-white/10" aria-label="Messages">
             <MessageCircle className="h-5 w-5" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive" />
+            <UnreadBadge count={unreadMessages} />
           </Link>
         </div>
       </header>
