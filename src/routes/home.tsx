@@ -518,8 +518,23 @@ function HomePage() {
     if (error && error.code !== "23505") console.error("story_view insert failed", error);
   }
 
+  const focused = !!focusPostId;
+
   return (
     <div>
+      {focused && (
+        <div className="sticky top-[7.25rem] z-10 flex items-center gap-2 border-b border-border bg-surface px-3 py-2 shadow-card">
+          <button
+            onClick={() => nav({ to: "/home", search: {} })}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-foreground active:bg-muted"
+            aria-label="Back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <span className="text-sm font-semibold text-foreground">{t("post") ?? "Post"}</span>
+        </div>
+      )}
+      {!focused && (<>
       {/* Quick post */}
       <div className="mt-2 flex items-center gap-2 bg-surface px-3 py-3 shadow-card">
         <Avatar name={profile?.full_name} url={profile?.avatar_url} size={36} />
