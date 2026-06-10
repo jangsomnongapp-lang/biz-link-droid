@@ -99,6 +99,7 @@ interface Notif {
   related_user_id: string | null;
   related_post_id: string | null;
   related_listing_id: string | null;
+  related_project_id: string | null;
   read_at: string | null;
   created_at: string;
   related_user?: { full_name: string | null; avatar_url: string | null } | null;
@@ -117,7 +118,7 @@ function AlertsPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("notifications")
-        .select("id, user_id, kind, title, body, related_user_id, related_listing_id, related_post_id, read_at, created_at")
+        .select("id, user_id, kind, title, body, related_user_id, related_listing_id, related_post_id, related_project_id, read_at, created_at")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false })
         .limit(50);
@@ -318,6 +319,22 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
       </Link>
     );
   }
+
+  // Project-related notifications → open the project page
+  if (n.kind.startsWith("project_") && n.related_project_id) {
+    return (
+      <Link
+        to="/projects/$projectId"
+        params={{ projectId: n.related_project_id }}
+        className={`${cls} active:opacity-60`}
+      >
+        {avatar}
+        {body}
+        {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+      </Link>
+    );
+  }
+
 
   return (
     <div className={cls}>

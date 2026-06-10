@@ -753,6 +753,7 @@ export type Database = {
           read_at: string | null
           related_listing_id: string | null
           related_post_id: string | null
+          related_project_id: string | null
           related_user_id: string | null
           title: string
           user_id: string
@@ -765,6 +766,7 @@ export type Database = {
           read_at?: string | null
           related_listing_id?: string | null
           related_post_id?: string | null
+          related_project_id?: string | null
           related_user_id?: string | null
           title: string
           user_id: string
@@ -777,6 +779,7 @@ export type Database = {
           read_at?: string | null
           related_listing_id?: string | null
           related_post_id?: string | null
+          related_project_id?: string | null
           related_user_id?: string | null
           title?: string
           user_id?: string
@@ -787,6 +790,13 @@ export type Database = {
             columns: ["related_listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_related_project_id_fkey"
+            columns: ["related_project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
           {
