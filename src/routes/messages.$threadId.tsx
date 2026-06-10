@@ -95,6 +95,8 @@ function ConversationPage() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { threadId } = useParams({ from: "/messages/$threadId" });
+  const { pin } = useSearch({ from: "/messages/$threadId" });
+  const navigate = useNavigate();
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [other, setOther] = useState<OtherProfile | null>(null);
