@@ -638,6 +638,53 @@ function PinnedProductBanner({ p }: { p: PinnedProduct }) {
   );
 }
 
+function PinnedReplyCard({ p, onClear }: { p: PinnedProduct; onClear: () => void }) {
+  const heading = p.title || p.content?.split("\n")[0] || "Item";
+  const kindLabel = p.kind === "rental" ? "rental" : p.kind === "listing" ? "job" : "post";
+  return (
+    <div className="border-t border-border bg-muted/40 px-3 py-2">
+      <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+        <span>Replying about this {kindLabel}</span>
+        <button
+          onClick={onClear}
+          className="rounded-full p-1 active:bg-muted"
+          aria-label="Remove pin"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <Link
+        to={p.href}
+        className="flex items-center gap-2 rounded-xl border border-border bg-surface p-2 active:opacity-70"
+      >
+        {p.photo_url ? (
+          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+            <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
+          </div>
+        ) : (
+          <div className="h-12 w-12 shrink-0 rounded-md bg-muted" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-semibold text-foreground">{heading}</p>
+          {p.price != null && (
+            <p className="text-[11px] font-bold">
+              {p.discount_price != null ? (
+                <>
+                  <span className="text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                  <span className="ml-1 text-[10px] font-normal text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                </>
+              ) : (
+                <span className="text-success">{formatPrice(p.price, p.currency)}</span>
+              )}
+              {p.kind === "rental" && <span className="ml-1 text-[10px] font-normal text-muted-foreground">/day</span>}
+            </p>
+          )}
+        </div>
+      </Link>
+    </div>
+  );
+}
+
 
 function isSafeUrl(url: string): boolean {
   if (typeof url !== "string") return false;
