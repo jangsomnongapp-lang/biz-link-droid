@@ -844,7 +844,7 @@ function HomePage() {
 
               {isSupplierPost && !isOwner && (
                 <button
-                  onClick={() => void contactSupplier(p.user_id, supplier.id)}
+                  onClick={() => void contactSupplier(p.user_id, supplier.id, p.id)}
                   disabled={contactingUser === p.user_id}
                   className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-500 text-sm font-bold text-white shadow active:scale-[0.98] disabled:opacity-50"
                 >
