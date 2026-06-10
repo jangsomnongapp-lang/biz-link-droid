@@ -930,7 +930,7 @@ function HomePage() {
         })()}
 
         {/* Infinite-scroll sentinel: triggers fetchNextPage when in view */}
-        {feedQuery.hasNextPage && (
+        {!focused && feedQuery.hasNextPage && (
           <div ref={sentinelRef} className="flex items-center justify-center py-6 text-xs text-muted-foreground">
             {feedQuery.isFetchingNextPage ? t("loading") : ""}
           </div>
