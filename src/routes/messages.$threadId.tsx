@@ -514,7 +514,7 @@ function ConversationPage() {
             void navigate({
               to: "/messages/$threadId",
               params: { threadId },
-              search: (prev) => ({ ...prev, pin: undefined }),
+              search: (prev: Record<string, unknown>) => ({ ...prev, pin: undefined }),
               replace: true,
             });
           }}
