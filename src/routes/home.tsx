@@ -329,16 +329,54 @@ function HomePage() {
     return () => { void supabase.removeChannel(ch); };
   }, [user, qc]);
 
-  // Scroll the requested post into view once the feed is loaded
+  // Ensure the focused post is in the feed (fetch + prepend if missing),
+  // then scroll it into view and briefly highlight it.
   useEffect(() => {
     if (!focusPostId || loading) return;
-    const el = document.getElementById(`post-${focusPostId}`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      setHighlightId(focusPostId);
-      const tid = setTimeout(() => setHighlightId(null), 2200);
-      return () => clearTimeout(tid);
+    let cancelled = false;
+    const inFeed = posts.some((p) => p.id === focusPostId);
+
+    async function ensureAndScroll() {
+      if (!inFeed) {
+        const { data: pData } = await supabase
+          .from("posts")
+          .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured), post_photos(photo_url)")
+          .eq("id", focusPostId!)
+          .maybeSingle();
+        if (cancelled || !pData) return;
+        const row = pData as unknown as PostRow;
+        setPosts((cur) => (cur.some((p) => p.id === row.id) ? cur : [row, ...cur]));
+        // Hydrate like / comment counts for this single post
+        const [{ data: likeRows }, { data: cmtRows }] = await Promise.all([
+          supabase.from("post_likes").select("user_id").eq("post_id", focusPostId!),
+          supabase.from("post_comments").select("id").eq("post_id", focusPostId!),
+        ]);
+        if (cancelled) return;
+        setLikes((m) => ({
+          ...m,
+          [focusPostId!]: {
+            count: likeRows?.length ?? 0,
+            mine: !!user && !!likeRows?.some((r) => r.user_id === user.id),
+          },
+        }));
+        setCommentCounts((m) => ({ ...m, [focusPostId!]: cmtRows?.length ?? 0 }));
+      }
+
+      // Wait a tick for DOM to render the newly prepended post
+      requestAnimationFrame(() => {
+        const el = document.getElementById(`post-${focusPostId}`);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setHighlightId(focusPostId!);
+        setTimeout(() => setHighlightId(null), 2200);
+      });
     }
+
+    void ensureAndScroll();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusPostId, loading]);
 
   async function adminDelete(id: string) {
