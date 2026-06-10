@@ -232,7 +232,7 @@ function NewProductPage() {
 
 
             <div className="rounded-xl bg-surface p-3 shadow-card">
-              <Label optional>{lang === "km" ? "ការពិពណ៌នា" : "Description"}</Label>
+              <Label optional>{lang === "km" ? "ប" : "Description"}</Label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value.slice(0, 1000))}
