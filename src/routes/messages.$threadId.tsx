@@ -142,6 +142,8 @@ function ConversationPage() {
           const p = post as unknown as { id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string; post_photos?: Array<{ photo_url: string }> };
           setPinned({
             id: p.id,
+            kind: "post",
+            href: `/home?post=${p.id}`,
             title: p.title,
             content: p.content,
             price: p.price,
