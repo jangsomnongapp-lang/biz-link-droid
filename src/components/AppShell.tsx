@@ -131,10 +131,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               : path.startsWith(tab.to);
           const content = (
             <>
-              <Icon
-                className={`h-5 w-5 ${active ? "text-primary" : "text-muted-foreground"}`}
-                strokeWidth={active ? 2.5 : 2}
-              />
+              <span className="relative">
+                <Icon
+                  className={`h-5 w-5 ${active ? "text-primary" : "text-muted-foreground"}`}
+                  strokeWidth={active ? 2.5 : 2}
+                />
+                <UnreadBadge count={tab.badge} />
+              </span>
               <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
                 {tab.label}
               </span>
