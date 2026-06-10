@@ -421,7 +421,7 @@ function HomePage() {
     }
   }
 
-  async function contactSupplier(ownerId: string, storeId: string) {
+  async function contactSupplier(ownerId: string, storeId: string, postId?: string) {
     if (!user || user.id === ownerId) return;
     setContactingUser(ownerId);
     try {
