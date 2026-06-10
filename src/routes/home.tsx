@@ -616,7 +616,7 @@ function HomePage() {
       {/* Feed */}
       <div className="mt-2 space-y-2">
         {loading && <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>}
-        {!loading && posts.length === 0 && (
+        {!loading && !focused && posts.length === 0 && (
           <div className="bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
             {t("no_posts")}
             <div className="mt-3">
@@ -624,6 +624,11 @@ function HomePage() {
                 {t("nav_listings")} →
               </Link>
             </div>
+          </div>
+        )}
+        {!loading && focused && !posts.some((p) => p.id === focusPostId) && (
+          <div className="bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
+            {t("loading")}
           </div>
         )}
         {(() => {
