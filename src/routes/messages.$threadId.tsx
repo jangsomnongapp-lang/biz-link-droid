@@ -49,6 +49,8 @@ interface OtherProfile {
 }
 interface PinnedProduct {
   id: string;
+  kind: "post" | "rental" | "listing";
+  href: string;
   title: string | null;
   content: string | null;
   price: number | null;
