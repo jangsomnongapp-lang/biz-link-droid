@@ -39,6 +39,12 @@ async function sendBrevoSms(toDigitsCountryless: string, message: string) {
   if (!res.ok) {
     const text = await res.text();
     console.error("Brevo SMS failed", res.status, text);
+    if (res.status === 402) {
+      throw new Error("SMS service is out of credits. Please top up your Brevo SMS balance.");
+    }
+    if (res.status === 401 || res.status === 403) {
+      throw new Error("SMS service is not authorized. Check the Brevo API key and sender name.");
+    }
     throw new Error(`SMS send failed (${res.status})`);
   }
 }
