@@ -88,6 +88,9 @@ export const requestPasswordResetSms = createServerFn({ method: "POST" })
     const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
     const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
+    // Send first — only record on success so failed sends don't trigger the throttle.
+    await sendBrevoSms(digits, `BuildHub: your password reset code is ${code}. Expires in 10 minutes.`);
+
     const { error: insErr } = await supabaseAdmin.from("password_reset_codes").insert({
       user_id: user.id,
       phone_digits: digits,
@@ -95,8 +98,6 @@ export const requestPasswordResetSms = createServerFn({ method: "POST" })
       expires_at: expires,
     });
     if (insErr) throw new Error(insErr.message);
-
-    await sendBrevoSms(digits, `BuildHub: your password reset code is ${code}. Expires in 10 minutes.`);
 
     return { ok: true };
   });
