@@ -11,7 +11,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 interface SupplierStoreInfo {
@@ -518,8 +518,23 @@ function HomePage() {
     if (error && error.code !== "23505") console.error("story_view insert failed", error);
   }
 
+  const focused = !!focusPostId;
+
   return (
     <div>
+      {focused && (
+        <div className="sticky top-[7.25rem] z-10 flex items-center gap-2 border-b border-border bg-surface px-3 py-2 shadow-card">
+          <button
+            onClick={() => nav({ to: "/home", search: {} })}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-foreground active:bg-muted"
+            aria-label="Back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <span className="text-sm font-semibold text-foreground">{t("post") ?? "Post"}</span>
+        </div>
+      )}
+      {!focused && (<>
       {/* Quick post */}
       <div className="mt-2 flex items-center gap-2 bg-surface px-3 py-3 shadow-card">
         <Avatar name={profile?.full_name} url={profile?.avatar_url} size={36} />
@@ -596,11 +611,12 @@ function HomePage() {
           </Link>
         ))}
       </div>
+      </>)}
 
       {/* Feed */}
       <div className="mt-2 space-y-2">
         {loading && <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>}
-        {!loading && posts.length === 0 && (
+        {!loading && !focused && posts.length === 0 && (
           <div className="bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
             {t("no_posts")}
             <div className="mt-3">
@@ -610,13 +626,20 @@ function HomePage() {
             </div>
           </div>
         )}
+        {!loading && focused && !posts.some((p) => p.id === focusPostId) && (
+          <div className="bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
+            {t("loading")}
+          </div>
+        )}
         {(() => {
           type FeedItem =
             | { kind: "post"; created_at: string; data: PostRow }
             | { kind: "rental"; created_at: string; data: RentalRow };
+          const visiblePosts = focused ? posts.filter((p) => p.id === focusPostId) : posts;
+          const visibleRentals = focused ? [] : rentals;
           const items: FeedItem[] = [
-            ...posts.map((p) => ({ kind: "post" as const, created_at: p.created_at, data: p })),
-            ...rentals.map((r) => ({ kind: "rental" as const, created_at: r.created_at, data: r })),
+            ...visiblePosts.map((p) => ({ kind: "post" as const, created_at: p.created_at, data: p })),
+            ...visibleRentals.map((r) => ({ kind: "rental" as const, created_at: r.created_at, data: r })),
           ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
           return items.map((item) => {
             if (item.kind === "rental") {
@@ -907,7 +930,7 @@ function HomePage() {
         })()}
 
         {/* Infinite-scroll sentinel: triggers fetchNextPage when in view */}
-        {feedQuery.hasNextPage && (
+        {!focused && feedQuery.hasNextPage && (
           <div ref={sentinelRef} className="flex items-center justify-center py-6 text-xs text-muted-foreground">
             {feedQuery.isFetchingNextPage ? t("loading") : ""}
           </div>
