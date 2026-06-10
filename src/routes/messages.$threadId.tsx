@@ -506,6 +506,21 @@ function ConversationPage() {
         onChange={onPickFile}
       />
 
+      {pinned && (
+        <PinnedReplyCard
+          p={pinned}
+          onClear={() => {
+            setPinned(null);
+            void navigate({
+              to: "/messages/$threadId",
+              params: { threadId },
+              search: (prev) => ({ ...prev, pin: undefined }),
+              replace: true,
+            });
+          }}
+        />
+      )}
+
       <div className="border-t border-border bg-surface p-2">
         {recording ? (
           <div className="flex items-center gap-2">
