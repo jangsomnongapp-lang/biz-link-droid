@@ -66,7 +66,7 @@ function NewListingPage() {
   async function submit() {
     if (!user) return;
     if (!title.trim()) {
-      toast.error(lang === "km" ? "សូមបញ្ចូលចំណងជើង" : "Please enter a title");
+      toast.error(lang === "km" ? "សូមបញ្ចូលគោលបំណង" : "Please enter a title");
       return;
     }
     if (selected.size === 0) {

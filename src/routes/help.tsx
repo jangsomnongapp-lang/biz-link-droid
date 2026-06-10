@@ -35,7 +35,7 @@ const FAQS: QA[] = [
     q: { en: "How do I post a project or job?", km: "តើខ្ញុំប្រកាសការងារយ៉ាងដូចម្តេច?" },
     a: {
       en: "Tap the + icon in the top bar, or open the Project tab and tap New. Add a title, description, photos, and budget.",
-      km: "ចុចលើសញ្ញា + នៅរបារខាងលើ ឬបើកផ្ទាំងការងារ ហើយចុចថ្មី។ បន្ថែមចំណងជើង ការពិពណ៌នា រូបភាព និងថវិកា។",
+      km: "ចុចលើសញ្ញា + នៅរបារខាងលើ ឬបើកផ្ទាំងការងារ ហើយចុចថ្មី។ បន្ថែមគោលបំណង ការពិពណ៌នា រូបភាព និងថវិកា។",
     },
   },
   {
