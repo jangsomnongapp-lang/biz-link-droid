@@ -421,7 +421,7 @@ function HomePage() {
     }
   }
 
-  async function contactSupplier(ownerId: string, storeId: string) {
+  async function contactSupplier(ownerId: string, storeId: string, postId?: string) {
     if (!user || user.id === ownerId) return;
     setContactingUser(ownerId);
     try {
@@ -443,7 +443,7 @@ function HomePage() {
         threadId = created.id;
       }
       void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
-      nav({ to: "/messages/$threadId", params: { threadId } });
+      nav({ to: "/messages/$threadId", params: { threadId }, search: postId ? { pin: `post:${postId}` } : {} });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
     } finally {
@@ -844,7 +844,7 @@ function HomePage() {
 
               {isSupplierPost && !isOwner && (
                 <button
-                  onClick={() => void contactSupplier(p.user_id, supplier.id)}
+                  onClick={() => void contactSupplier(p.user_id, supplier.id, p.id)}
                   disabled={contactingUser === p.user_id}
                   className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-500 text-sm font-bold text-white shadow active:scale-[0.98] disabled:opacity-50"
                 >

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useParams, useSearch, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 
@@ -24,8 +24,9 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/messages/$threadId")({
-  validateSearch: (s: Record<string, unknown>): { project?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { project?: string; pin?: string } => ({
     project: typeof s.project === "string" ? s.project : undefined,
+    pin: typeof s.pin === "string" ? s.pin : undefined,
   }),
   component: () => (
     <RequireAuth>
@@ -48,6 +49,8 @@ interface OtherProfile {
 }
 interface PinnedProduct {
   id: string;
+  kind: "post" | "rental" | "listing";
+  href: string;
   title: string | null;
   content: string | null;
   price: number | null;
@@ -92,6 +95,8 @@ function ConversationPage() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { threadId } = useParams({ from: "/messages/$threadId" });
+  const { pin } = useSearch({ from: "/messages/$threadId" });
+  const navigate = useNavigate();
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [other, setOther] = useState<OtherProfile | null>(null);
@@ -128,27 +133,79 @@ function ConversationPage() {
         .maybeSingle();
       setOther(profile);
 
-      const pinnedId = (thread as unknown as { pinned_post_id: string | null }).pinned_post_id;
-      if (pinnedId) {
-        const { data: post } = await supabase
-          .from("posts")
-          .select("id, title, content, price, discount_price, currency, post_type, post_photos(photo_url)")
-          .eq("id", pinnedId)
+      // Pin priority: explicit search param wins, otherwise fall back to thread.pinned_post_id (post only)
+      const parsed = pin?.includes(":") ? (pin.split(":") as [string, string]) : null;
+      const pinKind = parsed?.[0] as "post" | "rental" | "listing" | undefined;
+      const pinId = parsed?.[1];
+
+      if (pinKind === "rental" && pinId) {
+        const { data: r } = await supabase
+          .from("rental_listings")
+          .select("id, title, description, price_per_day, currency, rental_photos(photo_url)")
+          .eq("id", pinId)
           .maybeSingle();
-        if (post) {
-          const p = post as unknown as { id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string; post_photos?: Array<{ photo_url: string }> };
+        if (r) {
+          const rr = r as unknown as { id: string; title: string | null; description: string | null; price_per_day: number | null; currency: string | null; rental_photos?: Array<{ photo_url: string }> };
           setPinned({
-            id: p.id,
-            title: p.title,
-            content: p.content,
-            price: p.price,
-            discount_price: p.discount_price,
-            currency: p.currency ?? "USD",
-            post_type: p.post_type,
-            photo_url: p.post_photos?.[0]?.photo_url ?? null,
+            id: rr.id,
+            kind: "rental",
+            href: `/rentals/${rr.id}`,
+            title: rr.title,
+            content: rr.description,
+            price: rr.price_per_day,
+            discount_price: null,
+            currency: rr.currency ?? "USD",
+            post_type: "rental",
+            photo_url: rr.rental_photos?.[0]?.photo_url ?? null,
           });
         }
-
+      } else if (pinKind === "listing" && pinId) {
+        const { data: l } = await supabase
+          .from("listings")
+          .select("id, title, description, budget, listing_photos(photo_url)")
+          .eq("id", pinId)
+          .maybeSingle();
+        if (l) {
+          const ll = l as unknown as { id: string; title: string | null; description: string | null; budget: number | null; listing_photos?: Array<{ photo_url: string }> };
+          setPinned({
+            id: ll.id,
+            kind: "listing",
+            href: `/listings/${ll.id}`,
+            title: ll.title,
+            content: ll.description,
+            price: ll.budget,
+            discount_price: null,
+            currency: "USD",
+            post_type: "listing",
+            photo_url: ll.listing_photos?.[0]?.photo_url ?? null,
+          });
+        }
+      } else {
+        const fallbackPostId = pinKind === "post" && pinId
+          ? pinId
+          : (thread as unknown as { pinned_post_id: string | null }).pinned_post_id;
+        if (fallbackPostId) {
+          const { data: post } = await supabase
+            .from("posts")
+            .select("id, title, content, price, discount_price, currency, post_type, post_photos(photo_url)")
+            .eq("id", fallbackPostId)
+            .maybeSingle();
+          if (post) {
+            const p = post as unknown as { id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string; post_photos?: Array<{ photo_url: string }> };
+            setPinned({
+              id: p.id,
+              kind: "post",
+              href: `/home?post=${p.id}`,
+              title: p.title,
+              content: p.content,
+              price: p.price,
+              discount_price: p.discount_price,
+              currency: p.currency ?? "USD",
+              post_type: p.post_type,
+              photo_url: p.post_photos?.[0]?.photo_url ?? null,
+            });
+          }
+        }
       }
 
       const { data: msgs } = await supabase
@@ -179,7 +236,7 @@ function ConversationPage() {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [user, threadId]);
+  }, [user, threadId, pin]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -364,7 +421,7 @@ function ConversationPage() {
         </button>
       </header>
 
-      {pinned && <PinnedProductBanner p={pinned} />}
+      
 
 
 
@@ -448,6 +505,21 @@ function ConversationPage() {
         className="hidden"
         onChange={onPickFile}
       />
+
+      {pinned && (
+        <PinnedReplyCard
+          p={pinned}
+          onClear={() => {
+            setPinned(null);
+            void navigate({
+              to: "/messages/$threadId",
+              params: { threadId },
+              search: (prev: Record<string, unknown>) => ({ ...prev, pin: undefined }),
+              replace: true,
+            });
+          }}
+        />
+      )}
 
       <div className="border-t border-border bg-surface p-2">
         {recording ? (
@@ -562,6 +634,53 @@ function PinnedProductBanner({ p }: { p: PinnedProduct }) {
 
         </div>
       </div>
+    </div>
+  );
+}
+
+function PinnedReplyCard({ p, onClear }: { p: PinnedProduct; onClear: () => void }) {
+  const heading = p.title || p.content?.split("\n")[0] || "Item";
+  const kindLabel = p.kind === "rental" ? "rental" : p.kind === "listing" ? "job" : "post";
+  return (
+    <div className="border-t border-border bg-muted/40 px-3 py-2">
+      <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+        <span>Replying about this {kindLabel}</span>
+        <button
+          onClick={onClear}
+          className="rounded-full p-1 active:bg-muted"
+          aria-label="Remove pin"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <a
+        href={p.href}
+        className="flex items-center gap-2 rounded-xl border border-border bg-surface p-2 active:opacity-70"
+      >
+        {p.photo_url ? (
+          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+            <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
+          </div>
+        ) : (
+          <div className="h-12 w-12 shrink-0 rounded-md bg-muted" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-semibold text-foreground">{heading}</p>
+          {p.price != null && (
+            <p className="text-[11px] font-bold">
+              {p.discount_price != null ? (
+                <>
+                  <span className="text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                  <span className="ml-1 text-[10px] font-normal text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                </>
+              ) : (
+                <span className="text-success">{formatPrice(p.price, p.currency)}</span>
+              )}
+              {p.kind === "rental" && <span className="ml-1 text-[10px] font-normal text-muted-foreground">/day</span>}
+            </p>
+          )}
+        </div>
+      </a>
     </div>
   );
 }

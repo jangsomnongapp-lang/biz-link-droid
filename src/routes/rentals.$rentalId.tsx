@@ -88,7 +88,7 @@ function RentalDetailPage() {
         if (error) throw error;
         threadId = created.id;
       }
-      nav({ to: "/messages/$threadId", params: { threadId } });
+      nav({ to: "/messages/$threadId", params: { threadId }, search: { pin: `rental:${rental.id}` } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
     } finally {
