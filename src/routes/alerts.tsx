@@ -111,7 +111,7 @@ function AlertsPage() {
   const qc = useQueryClient();
   const [items, setItems] = useState<Notif[]>([]);
 
-  useQuery({
+  const { data: queryRows } = useQuery({
     queryKey: ["notifications", user?.id ?? null],
     enabled: !!user,
     staleTime: 30_000,
@@ -137,10 +137,16 @@ function AlertsPage() {
           }
         }
       }
-      setItems(rows);
-      return true;
+      return rows;
     },
   });
+
+  // Hydrate local state from cached / fresh query data so the list renders
+  // even when the query is still fresh (staleTime) and queryFn doesn't re-run.
+  useEffect(() => {
+    if (queryRows) setItems(queryRows);
+  }, [queryRows]);
+
 
   useEffect(() => {
     if (!user) return;
