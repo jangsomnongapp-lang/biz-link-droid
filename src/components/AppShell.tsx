@@ -42,13 +42,63 @@ export function AppShell({ children }: { children: ReactNode }) {
       .then(({ data }) => setMySupplierStoreId(data?.id ?? null));
   }, [user]);
 
+  const { data: unreadAlerts = 0 } = useQuery({
+    queryKey: ["unread-alerts", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 15_000,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user!.id)
+        .is("read_at", null);
+      return count ?? 0;
+    },
+  });
+
+  const { data: unreadMessages = 0 } = useQuery({
+    queryKey: ["unread-messages", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 15_000,
+    queryFn: async () => {
+      const { data: threads } = await supabase
+        .from("message_threads")
+        .select("id, participant_a, participant_b")
+        .or(`participant_a.eq.${user!.id},participant_b.eq.${user!.id}`);
+      if (!threads?.length) return 0;
+      const ids = threads.map((t) => t.id);
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .in("thread_id", ids)
+        .neq("sender_id", user!.id)
+        .is("read_at", null);
+      return count ?? 0;
+    },
+  });
+
+  useEffect(() => {
+    if (!user) return;
+    const inv = () => {
+      qc.invalidateQueries({ queryKey: ["unread-alerts", user.id] });
+      qc.invalidateQueries({ queryKey: ["unread-messages", user.id] });
+    };
+    const ch = supabase
+      .channel(`appshell-unread:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, inv)
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, inv)
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [user, qc]);
+
   const tabs = [
-    { to: "/home", label: t("nav_home"), icon: Home },
-    { to: "/listings", label: t("nav_listings"), icon: Newspaper },
-    { to: "/suppliers", label: t("nav_suppliers"), icon: Store },
-    { to: "/alerts", label: t("nav_alerts"), icon: Bell },
-    { to: "/profile", label: t("nav_profile"), icon: User },
+    { to: "/home", label: t("nav_home"), icon: Home, badge: 0 },
+    { to: "/listings", label: t("nav_listings"), icon: Newspaper, badge: 0 },
+    { to: "/suppliers", label: t("nav_suppliers"), icon: Store, badge: 0 },
+    { to: "/alerts", label: t("nav_alerts"), icon: Bell, badge: unreadAlerts },
+    { to: "/profile", label: t("nav_profile"), icon: User, badge: 0 },
   ] as const;
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
