@@ -97,9 +97,9 @@ function LoginPage() {
               {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          <button type="button" className="mt-2 block w-full text-right text-xs text-white/80">
+          <Link to="/forgot-password" className="mt-2 block w-full text-right text-xs text-white/80 underline">
             {t("forgot_password")}
-          </button>
+          </Link>
         </div>
 
         <button
