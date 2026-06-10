@@ -236,7 +236,7 @@ function ConversationPage() {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [user, threadId]);
+  }, [user, threadId, pin]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
