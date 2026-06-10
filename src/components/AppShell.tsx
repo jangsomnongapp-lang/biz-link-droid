@@ -1,11 +1,21 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Home, Newspaper, Bell, User, Menu, Search, MessageCircle, Store } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
+
+function UnreadBadge({ count }: { count: number }) {
+  if (!count) return null;
+  return (
+    <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
