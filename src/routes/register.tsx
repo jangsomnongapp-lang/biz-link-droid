@@ -220,43 +220,52 @@ function Step1({ roles, setRoles }: { roles: Roles; setRoles: (r: Roles) => void
     { key: "is_provider", titleKey: "role_provider", descKey: "role_provider_desc", icon: Hammer },
     { key: "is_coordinator", titleKey: "role_coordinator", descKey: "role_coordinator_desc", icon: Users },
     { key: "is_organization", titleKey: "role_organization", descKey: "role_organization_desc", icon: Building },
-    { key: "is_client", titleKey: "role_client", descKey: "role_client_desc", icon: Briefcase },
     { key: "is_specialist", titleKey: "role_specialist", descKey: "role_specialist_desc", icon: GraduationCap },
   ];
+  const ownerItem = { key: "is_client" as const, titleKey: "role_client" as const, descKey: "role_client_desc" as const, icon: Briefcase };
+
+  const renderItem = ({ key, titleKey, descKey, icon: Icon }: typeof items[0]) => {
+    const checked = roles[key];
+    return (
+      <button
+        key={key}
+        onClick={() => setRoles({ ...roles, [key]: !checked })}
+        className={`flex items-center gap-3 rounded-xl border-2 bg-surface p-4 text-left transition ${
+          checked ? "border-primary" : "border-border"
+        }`}
+      >
+        <div
+          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${
+            checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface"
+          }`}
+        >
+          {checked && <Check className="h-4 w-4" strokeWidth={3} />}
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <Icon className="h-4 w-4 text-primary" />
+            <span className="font-semibold text-foreground">
+              {t(titleKey)} {lang === "en" ? `/ ${dictKm(titleKey)}` : ""}
+            </span>
+          </div>
+          <p className="mt-0.5 text-xs text-muted-foreground">{t(descKey)}</p>
+        </div>
+      </button>
+    );
+  };
+
   return (
     <div>
       <h1 className="text-xl font-bold text-foreground">{t("who_are_you")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t("select_all_apply")}</p>
       <div className="mt-5 flex flex-col gap-3">
-        {items.map(({ key, titleKey, descKey, icon: Icon }) => {
-          const checked = roles[key];
-          return (
-            <button
-              key={key}
-              onClick={() => setRoles({ ...roles, [key]: !checked })}
-              className={`flex items-center gap-3 rounded-xl border-2 bg-surface p-4 text-left transition ${
-                checked ? "border-primary" : "border-border"
-              }`}
-            >
-              <div
-                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${
-                  checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface"
-                }`}
-              >
-                {checked && <Check className="h-4 w-4" strokeWidth={3} />}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 text-primary" />
-                  <span className="font-semibold text-foreground">
-                    {t(titleKey)} {lang === "en" ? `/ ${dictKm(titleKey)}` : ""}
-                  </span>
-                </div>
-                <p className="mt-0.5 text-xs text-muted-foreground">{t(descKey)}</p>
-              </div>
-            </button>
-          );
-        })}
+        {items.map(renderItem)}
+        <div className="my-1 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground">{lang === "km" ? "ឬ" : "or"}</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+        {renderItem(ownerItem)}
       </div>
     </div>
   );
