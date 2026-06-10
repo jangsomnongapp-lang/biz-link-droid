@@ -421,7 +421,7 @@ function ConversationPage() {
         </button>
       </header>
 
-      {pinned && <PinnedProductBanner p={pinned} />}
+      
 
 
 
