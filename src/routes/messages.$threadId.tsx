@@ -24,8 +24,9 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/messages/$threadId")({
-  validateSearch: (s: Record<string, unknown>): { project?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { project?: string; pin?: string } => ({
     project: typeof s.project === "string" ? s.project : undefined,
+    pin: typeof s.pin === "string" ? s.pin : undefined,
   }),
   component: () => (
     <RequireAuth>
