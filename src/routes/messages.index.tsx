@@ -159,7 +159,7 @@ function MessagesListPage() {
                         {other?.full_name ?? "—"}
                       </div>
                       <div className="truncate text-xs text-muted-foreground">
-                        {th.last_message || (lang === "km" ? "សារថ្មី" : "New conversation")}
+                        {formatPreview(th.last_message, lang)}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
