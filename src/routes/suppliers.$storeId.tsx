@@ -158,7 +158,11 @@ function SupplierProfilePage() {
       );
       if (error) throw error;
       void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
-      nav({ to: "/messages/$threadId", params: { threadId: threadId as string } });
+      nav({
+        to: "/messages/$threadId",
+        params: { threadId: threadId as string },
+        search: postId ? { pin: `post:${postId}` } : {},
+      });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
     } finally {
