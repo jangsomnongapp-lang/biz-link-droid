@@ -107,9 +107,9 @@ function MessagesListPage() {
     return threads.filter((th) => {
       const otherId = th.participant_a === user?.id ? th.participant_b : th.participant_a;
       const name = profiles[otherId]?.full_name?.toLowerCase() ?? "";
-      return name.includes(q) || (th.last_message ?? "").toLowerCase().includes(q);
+      return name.includes(q) || formatPreview(th.last_message, lang).toLowerCase().includes(q);
     });
-  }, [threads, profiles, search, user]);
+  }, [threads, profiles, search, user, lang]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
