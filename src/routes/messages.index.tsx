@@ -8,6 +8,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Search } from "lucide-react";
 import { timeAgo } from "@/lib/format";
 
+const REF_PREFIX = "__REF__:";
+const ATT_PREFIX = "__ATT__:";
+
+function formatPreview(content: string | null, lang: "km" | "en"): string {
+  if (!content) return lang === "km" ? "សារថ្មី" : "New conversation";
+  if (content.startsWith(REF_PREFIX)) {
+    try {
+      const ref = JSON.parse(content.slice(REF_PREFIX.length)) as { kind?: string; title?: string | null };
+      const kindWord =
+        ref.kind === "rental" ? (lang === "km" ? "ការជួល" : "rental")
+        : ref.kind === "listing" ? (lang === "km" ? "ការងារ" : "job")
+        : ref.kind === "store" ? (lang === "km" ? "ហាង" : "shop")
+        : (lang === "km" ? "ផលិតផល" : "product");
+      const label = lang === "km" ? `📌 កំពុងសួរអំពី${kindWord}នេះ` : `📌 Asking about this ${kindWord}`;
+      return ref.title ? `${label}: ${ref.title}` : label;
+    } catch {
+      return lang === "km" ? "សារថ្មី" : "New conversation";
+    }
+  }
+  if (content.startsWith(ATT_PREFIX)) {
+    return lang === "km" ? "📎 ឯកសារភ្ជាប់" : "📎 Attachment";
+  }
+  return content;
+}
+
 export const Route = createFileRoute("/messages/")({
   component: () => (
     <RequireAuth>
