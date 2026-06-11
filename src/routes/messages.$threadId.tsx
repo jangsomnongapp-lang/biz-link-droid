@@ -49,7 +49,7 @@ interface OtherProfile {
 }
 interface PinnedProduct {
   id: string;
-  kind: "post" | "rental" | "listing";
+  kind: "post" | "rental" | "listing" | "store";
   href: string;
   title: string | null;
   content: string | null;
