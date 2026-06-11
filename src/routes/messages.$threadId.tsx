@@ -772,7 +772,11 @@ function ProductReferenceMessage({
   read: string | null;
 }) {
   const heading = item.title || item.content?.split("\n")[0] || "Item";
-  const kindLabel = item.kind === "rental" ? "rental" : item.kind === "listing" ? "job" : "post";
+  const kindLabel =
+    item.kind === "rental" ? "rental"
+    : item.kind === "listing" ? "job"
+    : item.kind === "store" ? "shop"
+    : "product";
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
