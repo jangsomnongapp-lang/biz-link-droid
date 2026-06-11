@@ -161,7 +161,7 @@ function SupplierProfilePage() {
       nav({
         to: "/messages/$threadId",
         params: { threadId: threadId as string },
-        search: postId ? { pin: `post:${postId}` } : {},
+        search: postId ? { pin: `post:${postId}` } : { pin: `store:${storeId}` },
       });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");

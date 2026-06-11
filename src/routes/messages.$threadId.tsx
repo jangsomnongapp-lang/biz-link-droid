@@ -49,7 +49,7 @@ interface OtherProfile {
 }
 interface PinnedProduct {
   id: string;
-  kind: "post" | "rental" | "listing";
+  kind: "post" | "rental" | "listing" | "store";
   href: string;
   title: string | null;
   content: string | null;
@@ -173,12 +173,33 @@ function ConversationPage() {
 
       // Pin priority: explicit search param wins, otherwise fall back to thread.pinned_post_id (post only)
       const parsed = pin?.includes(":") ? (pin.split(":") as [string, string]) : null;
-      const pinKind = parsed?.[0] as "post" | "rental" | "listing" | undefined;
+      const pinKind = parsed?.[0] as "post" | "rental" | "listing" | "store" | undefined;
       const pinId = parsed?.[1];
 
       let nextPinned: PinnedProduct | null = null;
 
-      if (pinKind === "rental" && pinId) {
+      if (pinKind === "store" && pinId) {
+        const { data: s } = await supabase
+          .from("supplier_stores")
+          .select("id, name, description, logo_url")
+          .eq("id", pinId)
+          .maybeSingle();
+        if (s) {
+          const ss = s as unknown as { id: string; name: string; description: string | null; logo_url: string | null };
+          nextPinned = {
+            id: ss.id,
+            kind: "store",
+            href: `/suppliers/${ss.id}`,
+            title: ss.name,
+            content: ss.description,
+            price: null,
+            discount_price: null,
+            currency: "USD",
+            post_type: "store",
+            photo_url: ss.logo_url,
+          };
+        }
+      } else if (pinKind === "rental" && pinId) {
         const { data: r } = await supabase
           .from("rental_listings")
           .select("id, title, description, price_per_day, currency, rental_photos(photo_url)")
@@ -751,7 +772,11 @@ function ProductReferenceMessage({
   read: string | null;
 }) {
   const heading = item.title || item.content?.split("\n")[0] || "Item";
-  const kindLabel = item.kind === "rental" ? "rental" : item.kind === "listing" ? "job" : "post";
+  const kindLabel =
+    item.kind === "rental" ? "rental"
+    : item.kind === "listing" ? "job"
+    : item.kind === "store" ? "shop"
+    : "product";
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
