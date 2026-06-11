@@ -773,6 +773,67 @@ function PinnedReplyCard({ p, onClear }: { p: PinnedProduct; onClear: () => void
   );
 }
 
+function ProductReferenceMessage({
+  item,
+  mine,
+  time,
+  read,
+}: {
+  item: ProductReference;
+  mine: boolean;
+  time: string;
+  read: string | null;
+}) {
+  const heading = item.title || item.content?.split("\n")[0] || "Item";
+  const kindLabel = item.kind === "rental" ? "rental" : item.kind === "listing" ? "job" : "post";
+  return (
+    <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`max-w-[78%] rounded-2xl px-2.5 py-2 text-sm ${
+          mine
+            ? "rounded-br-sm bg-primary text-primary-foreground"
+            : "rounded-bl-sm bg-surface text-foreground shadow-card"
+        }`}
+      >
+        <div className={`mb-1 text-[10px] ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+          Replying about this {kindLabel}
+        </div>
+        <a
+          href={item.href}
+          className={`flex w-60 max-w-full items-center gap-2 rounded-xl p-2 active:opacity-75 ${
+            mine ? "bg-primary-foreground/15" : "bg-muted/70"
+          }`}
+        >
+          {item.photo_url ? (
+            <div className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-muted">
+              <img src={item.photo_url} alt="" className="h-full w-full object-cover" />
+            </div>
+          ) : (
+            <div className="h-11 w-11 shrink-0 rounded-md bg-muted" />
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold">{heading}</p>
+            {item.price != null && (
+              <p className={`text-[11px] font-bold ${mine ? "text-primary-foreground" : "text-success"}`}>
+                {formatPrice(item.discount_price ?? item.price, item.currency)}
+                {item.kind === "rental" && (
+                  <span className={`ml-1 font-normal ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}>
+                    /day
+                  </span>
+                )}
+              </p>
+            )}
+          </div>
+        </a>
+        <div className={`mt-0.5 text-right text-[10px] ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}>
+          {time}
+          {mine && (read ? " ✓✓" : " ✓")}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function isSafeUrl(url: string): boolean {
   if (typeof url !== "string") return false;
