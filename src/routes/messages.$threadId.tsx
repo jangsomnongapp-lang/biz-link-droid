@@ -68,6 +68,13 @@ type Attachment =
   | { kind: "file"; url: string; name: string; mime: string; size: number };
 
 const ATT_PREFIX = "__ATT__:";
+const REF_PREFIX = "__REF__:";
+
+type ProductReference = Pick<
+  PinnedProduct,
+  "id" | "kind" | "href" | "title" | "content" | "price" | "discount_price" | "currency" | "photo_url"
+>;
+
 function encodeAttachment(a: Attachment) {
   return ATT_PREFIX + JSON.stringify(a);
 }
@@ -78,6 +85,37 @@ function decodeAttachment(content: string): Attachment | null {
   } catch {
     return null;
   }
+}
+
+function encodeProductReference(p: PinnedProduct) {
+  const ref: ProductReference = {
+    id: p.id,
+    kind: p.kind,
+    href: p.href,
+    title: p.title,
+    content: p.content,
+    price: p.price,
+    discount_price: p.discount_price,
+    currency: p.currency,
+    photo_url: p.photo_url,
+  };
+  return REF_PREFIX + JSON.stringify(ref);
+}
+
+function decodeProductReference(content: string): ProductReference | null {
+  if (!content.startsWith(REF_PREFIX)) return null;
+  try {
+    const ref = JSON.parse(content.slice(REF_PREFIX.length)) as ProductReference;
+    if (!ref.id || !ref.kind || !ref.href?.startsWith("/")) return null;
+    return ref;
+  } catch {
+    return null;
+  }
+}
+
+function isSameProductReference(content: string, item: PinnedProduct) {
+  const ref = decodeProductReference(content);
+  return ref?.kind === item.kind && ref.id === item.id;
 }
 
 function formatBytes(bytes: number) {
@@ -138,6 +176,8 @@ function ConversationPage() {
       const pinKind = parsed?.[0] as "post" | "rental" | "listing" | undefined;
       const pinId = parsed?.[1];
 
+      let nextPinned: PinnedProduct | null = null;
+
       if (pinKind === "rental" && pinId) {
         const { data: r } = await supabase
           .from("rental_listings")
@@ -146,7 +186,7 @@ function ConversationPage() {
           .maybeSingle();
         if (r) {
           const rr = r as unknown as { id: string; title: string | null; description: string | null; price_per_day: number | null; currency: string | null; rental_photos?: Array<{ photo_url: string }> };
-          setPinned({
+          nextPinned = {
             id: rr.id,
             kind: "rental",
             href: `/rentals/${rr.id}`,
@@ -157,7 +197,7 @@ function ConversationPage() {
             currency: rr.currency ?? "USD",
             post_type: "rental",
             photo_url: rr.rental_photos?.[0]?.photo_url ?? null,
-          });
+          };
         }
       } else if (pinKind === "listing" && pinId) {
         const { data: l } = await supabase
@@ -167,7 +207,7 @@ function ConversationPage() {
           .maybeSingle();
         if (l) {
           const ll = l as unknown as { id: string; title: string | null; description: string | null; budget: number | null; listing_photos?: Array<{ photo_url: string }> };
-          setPinned({
+          nextPinned = {
             id: ll.id,
             kind: "listing",
             href: `/listings/${ll.id}`,
@@ -178,7 +218,7 @@ function ConversationPage() {
             currency: "USD",
             post_type: "listing",
             photo_url: ll.listing_photos?.[0]?.photo_url ?? null,
-          });
+          };
         }
       } else {
         const fallbackPostId = pinKind === "post" && pinId
@@ -192,7 +232,7 @@ function ConversationPage() {
             .maybeSingle();
           if (post) {
             const p = post as unknown as { id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string; post_photos?: Array<{ photo_url: string }> };
-            setPinned({
+            nextPinned = {
               id: p.id,
               kind: "post",
               href: `/home?post=${p.id}`,
@@ -203,17 +243,38 @@ function ConversationPage() {
               currency: p.currency ?? "USD",
               post_type: p.post_type,
               photo_url: p.post_photos?.[0]?.photo_url ?? null,
-            });
+            };
           }
         }
       }
+      setPinned(nextPinned);
 
       const { data: msgs } = await supabase
         .from("messages")
         .select("*")
         .eq("thread_id", threadId)
         .order("created_at", { ascending: true });
-      setMessages((msgs ?? []) as Message[]);
+      const initialMessages = (msgs ?? []) as Message[];
+      setMessages(initialMessages);
+
+      if (
+        nextPinned &&
+        pin &&
+        !initialMessages.some((m) => m.sender_id === user.id && isSameProductReference(m.content, nextPinned!))
+      ) {
+        const { data: created, error } = await supabase
+          .from("messages")
+          .insert({ thread_id: threadId, sender_id: user.id, content: encodeProductReference(nextPinned) })
+          .select("*")
+          .single();
+        if (error) {
+          toast.error(error.message);
+        } else if (created) {
+          setMessages((prev) =>
+            prev.some((m) => m.id === created.id) ? prev : [...prev, created as Message],
+          );
+        }
+      }
 
       await supabase
         .from("messages")
@@ -229,7 +290,8 @@ function ConversationPage() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `thread_id=eq.${threadId}` },
         (payload) => {
-          setMessages((m) => [...m, payload.new as Message]);
+          const next = payload.new as Message;
+          setMessages((m) => (m.some((existing) => existing.id === next.id) ? m : [...m, next]));
         },
       )
       .subscribe();
@@ -430,43 +492,13 @@ function ConversationPage() {
         <div className="mx-auto w-fit rounded-pill bg-muted px-3 py-0.5 text-[11px] font-medium text-muted-foreground">
           {t("today")}
         </div>
-        {pinned && (
-          <div className="flex justify-end">
-            <div className="flex max-w-[78%] flex-col items-end gap-1">
-              <a
-                href={pinned.href}
-                className="flex w-56 items-center gap-2 rounded-2xl border border-border bg-muted/40 p-2 active:opacity-70"
-              >
-                {pinned.photo_url ? (
-                  <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                    <img src={pinned.photo_url} alt="" className="h-full w-full object-cover" />
-                  </div>
-                ) : (
-                  <div className="h-10 w-10 shrink-0 rounded-md bg-muted" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[11px] font-semibold text-foreground">
-                    {pinned.title || pinned.content?.split("\n")[0] || "Item"}
-                  </p>
-                  {pinned.price != null && (
-                    <p className="text-[10px] font-bold text-success">
-                      {formatPrice(pinned.discount_price ?? pinned.price, pinned.currency)}
-                      {pinned.kind === "rental" && (
-                        <span className="ml-1 font-normal text-muted-foreground">/day</span>
-                      )}
-                    </p>
-                  )}
-                </div>
-              </a>
-              <span className="pr-1 text-[10px] text-muted-foreground">
-                Replying about this {pinned.kind === "rental" ? "rental" : pinned.kind === "listing" ? "job" : "post"}
-              </span>
-            </div>
-          </div>
-        )}
         {messages.map((m) => {
           const mine = m.sender_id === user?.id;
           const time = new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          const productRef = decodeProductReference(m.content);
+          if (productRef) {
+            return <ProductReferenceMessage key={m.id} item={productRef} mine={mine} time={time} read={m.read_at} />;
+          }
           const att = decodeAttachment(m.content);
           if (m.content.startsWith("[material_request] ")) {
             return (
@@ -703,6 +735,67 @@ function PinnedReplyCard({ p, onClear }: { p: PinnedProduct; onClear: () => void
           )}
         </div>
       </a>
+    </div>
+  );
+}
+
+function ProductReferenceMessage({
+  item,
+  mine,
+  time,
+  read,
+}: {
+  item: ProductReference;
+  mine: boolean;
+  time: string;
+  read: string | null;
+}) {
+  const heading = item.title || item.content?.split("\n")[0] || "Item";
+  const kindLabel = item.kind === "rental" ? "rental" : item.kind === "listing" ? "job" : "post";
+  return (
+    <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`max-w-[78%] rounded-2xl px-2.5 py-2 text-sm ${
+          mine
+            ? "rounded-br-sm bg-primary text-primary-foreground"
+            : "rounded-bl-sm bg-surface text-foreground shadow-card"
+        }`}
+      >
+        <div className={`mb-1 text-[10px] ${mine ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+          Replying about this {kindLabel}
+        </div>
+        <a
+          href={item.href}
+          className={`flex w-60 max-w-full items-center gap-2 rounded-xl p-2 active:opacity-75 ${
+            mine ? "bg-primary-foreground/15" : "bg-muted/70"
+          }`}
+        >
+          {item.photo_url ? (
+            <div className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-muted">
+              <img src={item.photo_url} alt="" className="h-full w-full object-cover" />
+            </div>
+          ) : (
+            <div className="h-11 w-11 shrink-0 rounded-md bg-muted" />
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold">{heading}</p>
+            {item.price != null && (
+              <p className={`text-[11px] font-bold ${mine ? "text-primary-foreground" : "text-success"}`}>
+                {formatPrice(item.discount_price ?? item.price, item.currency)}
+                {item.kind === "rental" && (
+                  <span className={`ml-1 font-normal ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}>
+                    /day
+                  </span>
+                )}
+              </p>
+            )}
+          </div>
+        </a>
+        <div className={`mt-0.5 text-right text-[10px] ${mine ? "text-primary-foreground/75" : "text-muted-foreground"}`}>
+          {time}
+          {mine && (read ? " ✓✓" : " ✓")}
+        </div>
+      </div>
     </div>
   );
 }

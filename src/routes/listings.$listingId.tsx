@@ -195,6 +195,35 @@ function ListingDetailPage() {
     }
   }
 
+  async function contactOwner() {
+    if (!user || !listing || user.id === listing.user_id) return;
+    setContactingId(listing.user_id);
+    try {
+      const [a, b] = [user.id, listing.user_id].sort();
+      const { data: existing } = await supabase
+        .from("message_threads")
+        .select("id")
+        .eq("participant_a", a)
+        .eq("participant_b", b)
+        .maybeSingle();
+      let threadId = existing?.id;
+      if (!threadId) {
+        const { data: created, error } = await supabase
+          .from("message_threads")
+          .insert({ participant_a: a, participant_b: b })
+          .select("id")
+          .single();
+        if (error) throw error;
+        threadId = created.id;
+      }
+      nav({ to: "/messages/$threadId", params: { threadId }, search: { pin: `listing:${listing.id}` } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setContactingId(null);
+    }
+  }
+
   async function shareListing() {
     if (!listing) return;
     const url = `${window.location.origin}/listings/${listing.id}`;
@@ -468,7 +497,11 @@ function ListingDetailPage() {
         )
       ) : (
         <div className="sticky bottom-0 flex gap-2 border-t border-border bg-surface p-3">
-          <button className="flex h-12 flex-1 items-center justify-center rounded-xl border-2 border-primary text-sm font-semibold text-primary active:scale-[0.99]">
+          <button
+            onClick={() => void contactOwner()}
+            disabled={contactingId === listing.user_id}
+            className="flex h-12 flex-1 items-center justify-center rounded-xl border-2 border-primary text-sm font-semibold text-primary active:scale-[0.99] disabled:opacity-50"
+          >
             {t("contact")}
           </button>
           <button
