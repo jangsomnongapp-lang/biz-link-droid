@@ -492,40 +492,6 @@ function ConversationPage() {
         <div className="mx-auto w-fit rounded-pill bg-muted px-3 py-0.5 text-[11px] font-medium text-muted-foreground">
           {t("today")}
         </div>
-        {pinned && (
-          <div className="flex justify-end">
-            <div className="flex max-w-[78%] flex-col items-end gap-1">
-              <a
-                href={pinned.href}
-                className="flex w-56 items-center gap-2 rounded-2xl border border-border bg-muted/40 p-2 active:opacity-70"
-              >
-                {pinned.photo_url ? (
-                  <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                    <img src={pinned.photo_url} alt="" className="h-full w-full object-cover" />
-                  </div>
-                ) : (
-                  <div className="h-10 w-10 shrink-0 rounded-md bg-muted" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[11px] font-semibold text-foreground">
-                    {pinned.title || pinned.content?.split("\n")[0] || "Item"}
-                  </p>
-                  {pinned.price != null && (
-                    <p className="text-[10px] font-bold text-success">
-                      {formatPrice(pinned.discount_price ?? pinned.price, pinned.currency)}
-                      {pinned.kind === "rental" && (
-                        <span className="ml-1 font-normal text-muted-foreground">/day</span>
-                      )}
-                    </p>
-                  )}
-                </div>
-              </a>
-              <span className="pr-1 text-[10px] text-muted-foreground">
-                Replying about this {pinned.kind === "rental" ? "rental" : pinned.kind === "listing" ? "job" : "post"}
-              </span>
-            </div>
-          </div>
-        )}
         {messages.map((m) => {
           const mine = m.sender_id === user?.id;
           const time = new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
