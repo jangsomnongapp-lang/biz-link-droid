@@ -68,6 +68,13 @@ type Attachment =
   | { kind: "file"; url: string; name: string; mime: string; size: number };
 
 const ATT_PREFIX = "__ATT__:";
+const REF_PREFIX = "__REF__:";
+
+type ProductReference = Pick<
+  PinnedProduct,
+  "id" | "kind" | "href" | "title" | "content" | "price" | "discount_price" | "currency" | "photo_url"
+>;
+
 function encodeAttachment(a: Attachment) {
   return ATT_PREFIX + JSON.stringify(a);
 }
@@ -78,6 +85,37 @@ function decodeAttachment(content: string): Attachment | null {
   } catch {
     return null;
   }
+}
+
+function encodeProductReference(p: PinnedProduct) {
+  const ref: ProductReference = {
+    id: p.id,
+    kind: p.kind,
+    href: p.href,
+    title: p.title,
+    content: p.content,
+    price: p.price,
+    discount_price: p.discount_price,
+    currency: p.currency,
+    photo_url: p.photo_url,
+  };
+  return REF_PREFIX + JSON.stringify(ref);
+}
+
+function decodeProductReference(content: string): ProductReference | null {
+  if (!content.startsWith(REF_PREFIX)) return null;
+  try {
+    const ref = JSON.parse(content.slice(REF_PREFIX.length)) as ProductReference;
+    if (!ref.id || !ref.kind || !ref.href?.startsWith("/")) return null;
+    return ref;
+  } catch {
+    return null;
+  }
+}
+
+function isSameProductReference(content: string, item: PinnedProduct) {
+  const ref = decodeProductReference(content);
+  return ref?.kind === item.kind && ref.id === item.id;
 }
 
 function formatBytes(bytes: number) {
@@ -138,6 +176,8 @@ function ConversationPage() {
       const pinKind = parsed?.[0] as "post" | "rental" | "listing" | undefined;
       const pinId = parsed?.[1];
 
+      let nextPinned: PinnedProduct | null = null;
+
       if (pinKind === "rental" && pinId) {
         const { data: r } = await supabase
           .from("rental_listings")
@@ -146,7 +186,7 @@ function ConversationPage() {
           .maybeSingle();
         if (r) {
           const rr = r as unknown as { id: string; title: string | null; description: string | null; price_per_day: number | null; currency: string | null; rental_photos?: Array<{ photo_url: string }> };
-          setPinned({
+          nextPinned = {
             id: rr.id,
             kind: "rental",
             href: `/rentals/${rr.id}`,
@@ -157,7 +197,7 @@ function ConversationPage() {
             currency: rr.currency ?? "USD",
             post_type: "rental",
             photo_url: rr.rental_photos?.[0]?.photo_url ?? null,
-          });
+          };
         }
       } else if (pinKind === "listing" && pinId) {
         const { data: l } = await supabase
@@ -167,7 +207,7 @@ function ConversationPage() {
           .maybeSingle();
         if (l) {
           const ll = l as unknown as { id: string; title: string | null; description: string | null; budget: number | null; listing_photos?: Array<{ photo_url: string }> };
-          setPinned({
+          nextPinned = {
             id: ll.id,
             kind: "listing",
             href: `/listings/${ll.id}`,
@@ -178,7 +218,7 @@ function ConversationPage() {
             currency: "USD",
             post_type: "listing",
             photo_url: ll.listing_photos?.[0]?.photo_url ?? null,
-          });
+          };
         }
       } else {
         const fallbackPostId = pinKind === "post" && pinId
@@ -192,7 +232,7 @@ function ConversationPage() {
             .maybeSingle();
           if (post) {
             const p = post as unknown as { id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string; post_photos?: Array<{ photo_url: string }> };
-            setPinned({
+            nextPinned = {
               id: p.id,
               kind: "post",
               href: `/home?post=${p.id}`,
@@ -203,17 +243,38 @@ function ConversationPage() {
               currency: p.currency ?? "USD",
               post_type: p.post_type,
               photo_url: p.post_photos?.[0]?.photo_url ?? null,
-            });
+            };
           }
         }
       }
+      setPinned(nextPinned);
 
       const { data: msgs } = await supabase
         .from("messages")
         .select("*")
         .eq("thread_id", threadId)
         .order("created_at", { ascending: true });
-      setMessages((msgs ?? []) as Message[]);
+      const initialMessages = (msgs ?? []) as Message[];
+      setMessages(initialMessages);
+
+      if (
+        nextPinned &&
+        pin &&
+        !initialMessages.some((m) => m.sender_id === user.id && isSameProductReference(m.content, nextPinned!))
+      ) {
+        const { data: created, error } = await supabase
+          .from("messages")
+          .insert({ thread_id: threadId, sender_id: user.id, content: encodeProductReference(nextPinned) })
+          .select("*")
+          .single();
+        if (error) {
+          toast.error(error.message);
+        } else if (created) {
+          setMessages((prev) =>
+            prev.some((m) => m.id === created.id) ? prev : [...prev, created as Message],
+          );
+        }
+      }
 
       await supabase
         .from("messages")
@@ -229,7 +290,8 @@ function ConversationPage() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `thread_id=eq.${threadId}` },
         (payload) => {
-          setMessages((m) => [...m, payload.new as Message]);
+          const next = payload.new as Message;
+          setMessages((m) => (m.some((existing) => existing.id === next.id) ? m : [...m, next]));
         },
       )
       .subscribe();
@@ -467,6 +529,10 @@ function ConversationPage() {
         {messages.map((m) => {
           const mine = m.sender_id === user?.id;
           const time = new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          const productRef = decodeProductReference(m.content);
+          if (productRef) {
+            return <ProductReferenceMessage key={m.id} item={productRef} mine={mine} time={time} read={m.read_at} />;
+          }
           const att = decodeAttachment(m.content);
           if (m.content.startsWith("[material_request] ")) {
             return (
