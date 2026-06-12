@@ -266,6 +266,28 @@ function RentalDetailPage() {
           </button>
         </div>
       )}
+
+      <EditTextDialog
+        open={editing}
+        title={t("edit")}
+        fields={[
+          { key: "title", label: t("listing_title"), initial: rental.title, required: true },
+          { key: "description", label: t("description"), initial: rental.description ?? "", type: "textarea" },
+          { key: "location", label: t("location"), initial: rental.location, required: true },
+          { key: "price_per_day", label: t("price_per_day_label"), initial: String(rental.price_per_day), type: "number" },
+        ]}
+        onCancel={() => setEditing(false)}
+        onSave={saveEdits}
+      />
+
+      <ConfirmDialog
+        open={deleting}
+        title={t("delete")}
+        description={t("delete_confirm_desc")}
+        destructive
+        onConfirm={() => void deleteRental()}
+        onCancel={() => setDeleting(false)}
+      />
     </div>
   );
 }
