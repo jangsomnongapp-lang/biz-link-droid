@@ -1002,7 +1002,9 @@ function HomePage() {
         title={t("delete")}
         description={t("delete_confirm_desc")}
         destructive
-        onConfirm={() => deletingPostId && void deletePost(deletingPostId)}
+        onConfirm={() => {
+          if (deletingPostId) void deletePost(deletingPostId);
+        }}
         onCancel={() => setDeletingPostId(null)}
       />
     </div>
