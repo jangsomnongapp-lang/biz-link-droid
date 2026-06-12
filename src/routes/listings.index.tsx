@@ -71,6 +71,8 @@ function ListingsPage() {
 
   const listings: ListingRow[] = data?.listings ?? [];
   const appliedIds = new Set<string>(data?.appliedIds ?? []);
+  const [editTarget, setEditTarget] = useState<ListingRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ListingRow | null>(null);
 
   useEffect(() => {
     if (!user) return;
