@@ -226,6 +226,26 @@ function ListingsPage() {
           );
         })}
       </div>
+
+      <EditTextDialog
+        open={!!editTarget}
+        title={t("edit") + " · " + t("project_detail")}
+        fields={[
+          { key: "title", label: t("title") ?? "Title", initial: editTarget?.title ?? "", required: true },
+          { key: "description", label: t("description") ?? "Description", initial: editTarget?.description ?? "", type: "textarea" },
+          { key: "location", label: t("location"), initial: editTarget?.location ?? "" },
+          { key: "budget", label: t("budget"), initial: editTarget?.budget != null ? String(editTarget.budget) : "", type: "number" },
+        ]}
+        onCancel={() => setEditTarget(null)}
+        onSave={saveEdit}
+      />
+      <ConfirmDialog
+        open={!!deleteTarget}
+        description={t("confirm_delete") ?? undefined}
+        destructive
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
