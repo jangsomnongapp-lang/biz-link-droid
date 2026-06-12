@@ -394,6 +394,15 @@ function SupplierProfilePage() {
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleting}
+        title={t("delete")}
+        description={t("delete_confirm_desc")}
+        destructive
+        onConfirm={() => void deleteStore()}
+        onCancel={() => setDeleting(false)}
+      />
     </div>
   );
 }
