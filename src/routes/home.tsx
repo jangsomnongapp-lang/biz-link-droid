@@ -976,6 +976,35 @@ function HomePage() {
           onCountChange={(n) => setRentalCommentCounts((m) => ({ ...m, [openRentalComments]: n }))}
         />
       )}
+
+      <EditTextDialog
+        open={!!editingPost}
+        title={t("edit")}
+        fields={
+          editingPost
+            ? [
+                {
+                  key: "content",
+                  label: t("description"),
+                  initial: editingPost.content ?? "",
+                  type: "textarea",
+                  required: true,
+                },
+              ]
+            : []
+        }
+        onCancel={() => setEditingPost(null)}
+        onSave={saveEditPost}
+      />
+
+      <ConfirmDialog
+        open={!!deletingPostId}
+        title={t("delete")}
+        description={t("delete_confirm_desc")}
+        destructive
+        onConfirm={() => deletingPostId && void deletePost(deletingPostId)}
+        onCancel={() => setDeletingPostId(null)}
+      />
     </div>
   );
 }
