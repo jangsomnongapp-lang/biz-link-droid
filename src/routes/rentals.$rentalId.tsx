@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { ReportMenu } from "@/components/ReportMenu";
+import { OwnerMenu } from "@/components/OwnerMenu";
+import { EditTextDialog } from "@/components/EditTextDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,6 +57,8 @@ function RentalDetailPage() {
   const [rental, setRental] = useState<RentalDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [contacting, setContacting] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     void supabase
@@ -117,6 +122,12 @@ function RentalDetailPage() {
         <h1 className="flex-1 text-center text-base font-semibold">{t("rental_detail")}</h1>
         {user && user.id !== rental.user_id ? (
           <ReportMenu targetKind="post" targetId={rental.id} />
+        ) : user && user.id === rental.user_id ? (
+          <OwnerMenu
+            iconClassName="text-white"
+            onEdit={() => setEditing(true)}
+            onDelete={() => setDeleting(true)}
+          />
         ) : (
           <div className="w-9" />
         )}
