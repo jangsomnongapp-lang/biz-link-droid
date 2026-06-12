@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
+import { OwnerMenu } from "@/components/OwnerMenu";
+import { EditTextDialog } from "@/components/EditTextDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,6 +71,8 @@ function ListingsPage() {
 
   const listings: ListingRow[] = data?.listings ?? [];
   const appliedIds = new Set<string>(data?.appliedIds ?? []);
+  const [editTarget, setEditTarget] = useState<ListingRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ListingRow | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -91,6 +96,38 @@ function ListingsPage() {
     }
     qc.invalidateQueries({ queryKey: ["listings:index", user.id] });
     toast.success(lang === "km" ? "បានដាក់ពាក្យ" : "Applied!");
+  }
+
+  async function saveEdit(values: Record<string, string>) {
+    if (!editTarget) return;
+    const title = (values.title ?? "").trim();
+    const description = (values.description ?? "").trim() || null;
+    const location = (values.location ?? "").trim() || null;
+    const budgetRaw = (values.budget ?? "").trim();
+    const budget = budgetRaw ? Number(budgetRaw) : null;
+    if (!title) return;
+    const { error } = await supabase
+      .from("listings")
+      .update({ title, description, location, budget })
+      .eq("id", editTarget.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setEditTarget(null);
+    if (user) qc.invalidateQueries({ queryKey: ["listings:index", user.id] });
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("listings").delete().eq("id", deleteTarget.id);
+    if (error) {
+      toast.error(t("delete_failed"));
+      return;
+    }
+    toast.success(t("deleted"));
+    setDeleteTarget(null);
+    if (user) qc.invalidateQueries({ queryKey: ["listings:index", user.id] });
   }
 
 
@@ -132,6 +169,14 @@ function ListingsPage() {
                     {l.location ? ` · ${l.location}` : ""}
                   </div>
                 </div>
+                {isOwn && (
+                  <div onClick={(e) => e.preventDefault()}>
+                    <OwnerMenu
+                      onEdit={() => setEditTarget(l)}
+                      onDelete={() => setDeleteTarget(l)}
+                    />
+                  </div>
+                )}
               </div>
               <h3 className="mt-2 text-base font-semibold text-foreground">{l.title}</h3>
               {l.description && (
@@ -181,6 +226,26 @@ function ListingsPage() {
           );
         })}
       </div>
+
+      <EditTextDialog
+        open={!!editTarget}
+        title={t("edit") + " · " + t("project_detail")}
+        fields={[
+          { key: "title", label: t("title") ?? "Title", initial: editTarget?.title ?? "", required: true },
+          { key: "description", label: t("description") ?? "Description", initial: editTarget?.description ?? "", type: "textarea" },
+          { key: "location", label: t("location"), initial: editTarget?.location ?? "" },
+          { key: "budget", label: t("budget"), initial: editTarget?.budget != null ? String(editTarget.budget) : "", type: "number" },
+        ]}
+        onCancel={() => setEditTarget(null)}
+        onSave={saveEdit}
+      />
+      <ConfirmDialog
+        open={!!deleteTarget}
+        description={t("confirm_delete") ?? undefined}
+        destructive
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
