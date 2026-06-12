@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { ReportMenu } from "@/components/ReportMenu";
+import { OwnerMenu } from "@/components/OwnerMenu";
+import { EditTextDialog } from "@/components/EditTextDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,6 +57,8 @@ function ListingDetailPage() {
   const [postedCount, setPostedCount] = useState(0);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [contactingId, setContactingId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     void supabase
@@ -243,6 +248,37 @@ function ListingDetailPage() {
     }
   }
 
+  async function saveEdits(values: Record<string, string>) {
+    if (!listing) return;
+    const title = (values.title ?? "").trim();
+    const description = (values.description ?? "").trim() || null;
+    const location = (values.location ?? "").trim() || null;
+    const budgetRaw = (values.budget ?? "").trim();
+    const budget = budgetRaw ? Number(budgetRaw) : null;
+    if (!title) return;
+    const { error } = await supabase
+      .from("listings")
+      .update({ title, description, location, budget })
+      .eq("id", listing.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setListing({ ...listing, title, description, location, budget });
+    setEditing(false);
+  }
+
+  async function deleteListing() {
+    if (!listing) return;
+    const { error } = await supabase.from("listings").delete().eq("id", listing.id);
+    if (error) {
+      toast.error(t("delete_failed"));
+      return;
+    }
+    toast.success(t("deleted"));
+    nav({ to: "/listings" });
+  }
+
   if (loading)
     return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">{t("loading")}</div>;
   if (!listing)
@@ -264,8 +300,14 @@ function ListingDetailPage() {
         >
           <Share2 className="h-5 w-5" />
         </button>
-        {!isOwn && (
+        {!isOwn ? (
           <ReportMenu targetKind="listing" targetId={listing.id} iconClassName="text-primary-foreground" />
+        ) : (
+          <OwnerMenu
+            iconClassName="text-primary-foreground"
+            onEdit={() => setEditing(true)}
+            onDelete={() => setDeleting(true)}
+          />
         )}
       </header>
 
@@ -584,6 +626,32 @@ function ListingDetailPage() {
           </div>
         </div>
       )}
+
+      <EditTextDialog
+        open={editing}
+        title={t("edit")}
+        fields={
+          listing
+            ? [
+                { key: "title", label: t("listing_title"), initial: listing.title, required: true },
+                { key: "description", label: t("description"), initial: listing.description ?? "", type: "textarea" },
+                { key: "location", label: t("location"), initial: listing.location ?? "" },
+                { key: "budget", label: t("budget"), initial: listing.budget != null ? String(listing.budget) : "", type: "number" },
+              ]
+            : []
+        }
+        onCancel={() => setEditing(false)}
+        onSave={saveEdits}
+      />
+
+      <ConfirmDialog
+        open={deleting}
+        title={t("delete")}
+        description={t("delete_confirm_desc")}
+        destructive
+        onConfirm={() => void deleteListing()}
+        onCancel={() => setDeleting(false)}
+      />
     </div>
   );
 }

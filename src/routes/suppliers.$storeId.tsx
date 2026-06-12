@@ -1,9 +1,10 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, MoreHorizontal, MapPin, MessageCircle, Pencil } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, MapPin, MessageCircle, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { ShareButton } from "@/components/ShareButton";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,6 +69,7 @@ function SupplierProfilePage() {
   const [postsCount, setPostsCount] = useState(0);
   const [contacting, setContacting] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!user || !store || user.id !== store.user_id) return;
@@ -170,6 +172,17 @@ function SupplierProfilePage() {
     }
   }
 
+  async function deleteStore() {
+    if (!store) return;
+    const { error } = await supabase.from("supplier_stores").delete().eq("id", store.id);
+    if (error) {
+      toast.error(t("delete_failed"));
+      return;
+    }
+    toast.success(t("deleted"));
+    nav({ to: "/suppliers" });
+  }
+
   if (!store) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
@@ -196,14 +209,24 @@ function SupplierProfilePage() {
               className="rounded-full p-1 active:bg-white/10"
             />
             {isOwner ? (
-              <Link
-                to="/suppliers/$storeId/edit"
-                params={{ storeId }}
-                className="rounded-full p-1 active:bg-white/10"
-                aria-label={t("edit_store")}
-              >
-                <Pencil className="h-5 w-5" />
-              </Link>
+              <>
+                <Link
+                  to="/suppliers/$storeId/edit"
+                  params={{ storeId }}
+                  className="rounded-full p-1 active:bg-white/10"
+                  aria-label={t("edit_store")}
+                >
+                  <Pencil className="h-5 w-5" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setDeleting(true)}
+                  className="rounded-full p-1 active:bg-white/10"
+                  aria-label={t("delete")}
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+              </>
             ) : (
               <button className="rounded-full p-1 active:bg-white/10" aria-label="more">
                 <MoreHorizontal className="h-5 w-5" />
@@ -371,6 +394,15 @@ function SupplierProfilePage() {
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleting}
+        title={t("delete")}
+        description={t("delete_confirm_desc")}
+        destructive
+        onConfirm={() => void deleteStore()}
+        onCancel={() => setDeleting(false)}
+      />
     </div>
   );
 }

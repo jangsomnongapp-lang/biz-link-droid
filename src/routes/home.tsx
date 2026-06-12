@@ -7,6 +7,9 @@ import { Avatar } from "@/components/Avatar";
 import { CommentsSheet } from "@/components/CommentsSheet";
 import { RentalCommentsSheet } from "@/components/RentalCommentsSheet";
 import { ReportMenu } from "@/components/ReportMenu";
+import { OwnerMenu } from "@/components/OwnerMenu";
+import { EditTextDialog } from "@/components/EditTextDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,6 +99,8 @@ function HomePage() {
   const [rentalLikes, setRentalLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
   const [rentalCommentCounts, setRentalCommentCounts] = useState<Record<string, number>>({});
   const [openRentalComments, setOpenRentalComments] = useState<string | null>(null);
+  const [editingPost, setEditingPost] = useState<PostRow | null>(null);
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
 
   // Profile + stories load once per user (cheap, separate from paginated feed)
   useQuery({
@@ -387,15 +392,27 @@ function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusPostId, loading]);
 
-  async function adminDelete(id: string) {
-    if (!confirm(t("admin_confirm_desc"))) return;
+  async function deletePost(id: string) {
     const { error } = await supabase.from("posts").delete().eq("id", id);
     if (error) {
       toast.error(t("delete_failed"));
       return;
     }
     setPosts((p) => p.filter((x) => x.id !== id));
-    toast.success("OK");
+    setDeletingPostId(null);
+    toast.success(t("deleted"));
+  }
+
+  async function saveEditPost(values: Record<string, string>) {
+    if (!editingPost) return;
+    const content = (values.content ?? "").trim();
+    const { error } = await supabase.from("posts").update({ content }).eq("id", editingPost.id);
+    if (error) {
+      toast.error(t("error_generic"));
+      return;
+    }
+    setPosts((p) => p.map((x) => (x.id === editingPost.id ? { ...x, content } : x)));
+    setEditingPost(null);
   }
 
   async function toggleLike(postId: string) {
@@ -781,9 +798,9 @@ function HomePage() {
                 isSupplierPost ? "border-l-4 border-amber-500" : ""
               } ${highlightId === p.id ? "ring-2 ring-primary" : ""}`}
             >
-              {isAdmin && (
+              {isAdmin && !isOwner && (
                 <button
-                  onClick={() => void adminDelete(p.id)}
+                  onClick={() => setDeletingPostId(p.id)}
                   className="absolute -top-1 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-white shadow active:scale-95"
                   aria-label="Delete"
                 >
@@ -842,7 +859,14 @@ function HomePage() {
                     <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
                   </Link>
                 )}
-                {user?.id !== p.user_id && <ReportMenu targetKind="post" targetId={p.id} />}
+                {isOwner ? (
+                  <OwnerMenu
+                    onEdit={() => setEditingPost(p)}
+                    onDelete={() => setDeletingPostId(p.id)}
+                  />
+                ) : (
+                  <ReportMenu targetKind="post" targetId={p.id} />
+                )}
               </header>
               {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
               {isSupplierPost ? (
@@ -952,6 +976,37 @@ function HomePage() {
           onCountChange={(n) => setRentalCommentCounts((m) => ({ ...m, [openRentalComments]: n }))}
         />
       )}
+
+      <EditTextDialog
+        open={!!editingPost}
+        title={t("edit")}
+        fields={
+          editingPost
+            ? [
+                {
+                  key: "content",
+                  label: t("description"),
+                  initial: editingPost.content ?? "",
+                  type: "textarea",
+                  required: true,
+                },
+              ]
+            : []
+        }
+        onCancel={() => setEditingPost(null)}
+        onSave={saveEditPost}
+      />
+
+      <ConfirmDialog
+        open={!!deletingPostId}
+        title={t("delete")}
+        description={t("delete_confirm_desc")}
+        destructive
+        onConfirm={() => {
+          if (deletingPostId) void deletePost(deletingPostId);
+        }}
+        onCancel={() => setDeletingPostId(null)}
+      />
     </div>
   );
 }

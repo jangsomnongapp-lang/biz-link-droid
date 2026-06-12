@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { ReportMenu } from "@/components/ReportMenu";
+import { OwnerMenu } from "@/components/OwnerMenu";
+import { EditTextDialog } from "@/components/EditTextDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,6 +57,8 @@ function RentalDetailPage() {
   const [rental, setRental] = useState<RentalDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [contacting, setContacting] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     void supabase
@@ -96,6 +101,37 @@ function RentalDetailPage() {
     }
   }
 
+  async function saveEdits(values: Record<string, string>) {
+    if (!rental) return;
+    const title = (values.title ?? "").trim();
+    const description = (values.description ?? "").trim() || null;
+    const location = (values.location ?? "").trim();
+    const priceRaw = (values.price_per_day ?? "").trim();
+    const price_per_day = priceRaw ? Number(priceRaw) : rental.price_per_day;
+    if (!title || !location) return;
+    const { error } = await supabase
+      .from("rental_listings")
+      .update({ title, description, location, price_per_day })
+      .eq("id", rental.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setRental({ ...rental, title, description, location, price_per_day });
+    setEditing(false);
+  }
+
+  async function deleteRental() {
+    if (!rental) return;
+    const { error } = await supabase.from("rental_listings").delete().eq("id", rental.id);
+    if (error) {
+      toast.error(t("delete_failed"));
+      return;
+    }
+    toast.success(t("deleted"));
+    nav({ to: "/suppliers" });
+  }
+
   if (loading) {
     return <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>;
   }
@@ -117,6 +153,12 @@ function RentalDetailPage() {
         <h1 className="flex-1 text-center text-base font-semibold">{t("rental_detail")}</h1>
         {user && user.id !== rental.user_id ? (
           <ReportMenu targetKind="post" targetId={rental.id} />
+        ) : user && user.id === rental.user_id ? (
+          <OwnerMenu
+            iconClassName="text-white"
+            onEdit={() => setEditing(true)}
+            onDelete={() => setDeleting(true)}
+          />
         ) : (
           <div className="w-9" />
         )}
@@ -224,6 +266,28 @@ function RentalDetailPage() {
           </button>
         </div>
       )}
+
+      <EditTextDialog
+        open={editing}
+        title={t("edit")}
+        fields={[
+          { key: "title", label: t("listing_title"), initial: rental.title, required: true },
+          { key: "description", label: t("description"), initial: rental.description ?? "", type: "textarea" },
+          { key: "location", label: t("location"), initial: rental.location, required: true },
+          { key: "price_per_day", label: t("price_per_day_label"), initial: String(rental.price_per_day), type: "number" },
+        ]}
+        onCancel={() => setEditing(false)}
+        onSave={saveEdits}
+      />
+
+      <ConfirmDialog
+        open={deleting}
+        title={t("delete")}
+        description={t("delete_confirm_desc")}
+        destructive
+        onConfirm={() => void deleteRental()}
+        onCancel={() => setDeleting(false)}
+      />
     </div>
   );
 }

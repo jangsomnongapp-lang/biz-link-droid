@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { X, Send, Heart, CornerDownRight } from "lucide-react";
+import { X, Send, Heart, CornerDownRight, Pencil, Trash2, Check } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -39,6 +39,35 @@ export function CommentsSheet({
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [replyTo, setReplyTo] = useState<CommentRow | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+
+  async function deleteComment(id: string) {
+    if (!confirm(t("delete_confirm_desc"))) return;
+    const { error } = await supabase.from("post_comments").delete().eq("id", id);
+    if (error) {
+      toast.error(t("delete_failed"));
+      return;
+    }
+    const next = items.filter((c) => c.id !== id && c.parent_id !== id);
+    setItems(next);
+    onCountChange?.(next.length);
+  }
+
+  async function saveEdit(id: string) {
+    const content = editText.trim();
+    if (!content) return;
+    const { error } = await supabase
+      .from("post_comments")
+      .update({ content })
+      .eq("id", id);
+    if (error) {
+      toast.error(t("error_generic"));
+      return;
+    }
+    setItems((arr) => arr.map((c) => (c.id === id ? { ...c, content } : c)));
+    setEditingId(null);
+  }
 
   useEffect(() => {
     void (async () => {
@@ -162,7 +191,36 @@ export function CommentsSheet({
             >
               {c.profiles?.full_name ?? "User"}
             </Link>
-            <div className="mt-0.5 text-sm leading-snug">{c.content}</div>
+            {editingId === c.id ? (
+              <div className="mt-1 flex items-center gap-1.5">
+                <input
+                  autoFocus
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void saveEdit(c.id);
+                    if (e.key === "Escape") setEditingId(null);
+                  }}
+                  className="h-7 flex-1 rounded-full border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                />
+                <button
+                  onClick={() => void saveEdit(c.id)}
+                  className="rounded-full bg-primary p-1 text-primary-foreground active:scale-95"
+                  aria-label="Save"
+                >
+                  <Check className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setEditingId(null)}
+                  className="rounded-full bg-muted-foreground/20 p-1 active:scale-95"
+                  aria-label="Cancel"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="mt-0.5 text-sm leading-snug">{c.content}</div>
+            )}
           </div>
           <div className="mt-1 flex items-center gap-3 pl-3 text-[11px] text-muted-foreground">
             <span>{timeAgo(c.created_at, t)}</span>
@@ -182,6 +240,25 @@ export function CommentsSheet({
               >
                 {t("reply")}
               </button>
+            )}
+            {user?.id === c.user_id && editingId !== c.id && (
+              <>
+                <button
+                  onClick={() => {
+                    setEditingId(c.id);
+                    setEditText(c.content);
+                  }}
+                  className="flex items-center gap-0.5 font-medium active:opacity-60"
+                >
+                  <Pencil className="h-3 w-3" /> {t("edit")}
+                </button>
+                <button
+                  onClick={() => void deleteComment(c.id)}
+                  className="flex items-center gap-0.5 font-medium text-destructive active:opacity-60"
+                >
+                  <Trash2 className="h-3 w-3" /> {t("delete")}
+                </button>
+              </>
             )}
           </div>
         </div>
