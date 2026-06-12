@@ -633,7 +633,7 @@ function ListingDetailPage() {
         fields={
           listing
             ? [
-                { key: "title", label: t("title"), initial: listing.title, required: true },
+                { key: "title", label: t("listing_title"), initial: listing.title, required: true },
                 { key: "description", label: t("description"), initial: listing.description ?? "", type: "textarea" },
                 { key: "location", label: t("location"), initial: listing.location ?? "" },
                 { key: "budget", label: t("budget"), initial: listing.budget != null ? String(listing.budget) : "", type: "number" },
