@@ -101,6 +101,37 @@ function RentalDetailPage() {
     }
   }
 
+  async function saveEdits(values: Record<string, string>) {
+    if (!rental) return;
+    const title = (values.title ?? "").trim();
+    const description = (values.description ?? "").trim() || null;
+    const location = (values.location ?? "").trim();
+    const priceRaw = (values.price_per_day ?? "").trim();
+    const price_per_day = priceRaw ? Number(priceRaw) : rental.price_per_day;
+    if (!title || !location) return;
+    const { error } = await supabase
+      .from("rental_listings")
+      .update({ title, description, location, price_per_day })
+      .eq("id", rental.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setRental({ ...rental, title, description, location, price_per_day });
+    setEditing(false);
+  }
+
+  async function deleteRental() {
+    if (!rental) return;
+    const { error } = await supabase.from("rental_listings").delete().eq("id", rental.id);
+    if (error) {
+      toast.error(t("delete_failed"));
+      return;
+    }
+    toast.success(t("deleted"));
+    nav({ to: "/suppliers" });
+  }
+
   if (loading) {
     return <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>;
   }
