@@ -98,6 +98,38 @@ function ListingsPage() {
     toast.success(lang === "km" ? "បានដាក់ពាក្យ" : "Applied!");
   }
 
+  async function saveEdit(values: Record<string, string>) {
+    if (!editTarget) return;
+    const title = (values.title ?? "").trim();
+    const description = (values.description ?? "").trim() || null;
+    const location = (values.location ?? "").trim() || null;
+    const budgetRaw = (values.budget ?? "").trim();
+    const budget = budgetRaw ? Number(budgetRaw) : null;
+    if (!title) return;
+    const { error } = await supabase
+      .from("listings")
+      .update({ title, description, location, budget })
+      .eq("id", editTarget.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setEditTarget(null);
+    if (user) qc.invalidateQueries({ queryKey: ["listings:index", user.id] });
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("listings").delete().eq("id", deleteTarget.id);
+    if (error) {
+      toast.error(t("delete_failed"));
+      return;
+    }
+    toast.success(t("deleted"));
+    setDeleteTarget(null);
+    if (user) qc.invalidateQueries({ queryKey: ["listings:index", user.id] });
+  }
+
 
   return (
     <div className="px-3 pt-3">
