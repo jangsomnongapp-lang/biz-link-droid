@@ -169,6 +169,14 @@ function ListingsPage() {
                     {l.location ? ` · ${l.location}` : ""}
                   </div>
                 </div>
+                {isOwn && (
+                  <div onClick={(e) => e.preventDefault()}>
+                    <OwnerMenu
+                      onEdit={() => setEditTarget(l)}
+                      onDelete={() => setDeleteTarget(l)}
+                    />
+                  </div>
+                )}
               </div>
               <h3 className="mt-2 text-base font-semibold text-foreground">{l.title}</h3>
               {l.description && (
