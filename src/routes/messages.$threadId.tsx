@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useParams, useSearch, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 
 import { Avatar } from "@/components/Avatar";
@@ -129,8 +129,30 @@ function formatDuration(s: number) {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
+function localDateKey(iso: string) {
+  const date = new Date(iso);
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+}
+
+function formatMessageDate(iso: string, lang: "km" | "en", todayLabel: string, yesterdayLabel: string) {
+  const date = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  if (localDateKey(iso) === localDateKey(today.toISOString())) return todayLabel;
+  if (localDateKey(iso) === localDateKey(yesterday.toISOString())) return yesterdayLabel;
+
+  return new Intl.DateTimeFormat(lang === "km" ? "km-KH" : "en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    ...(date.getFullYear() !== today.getFullYear() ? { year: "numeric" } : {}),
+  }).format(date);
+}
+
 function ConversationPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
   const { threadId } = useParams({ from: "/messages/$threadId" });
   const { pin } = useSearch({ from: "/messages/$threadId" });
@@ -510,48 +532,62 @@ function ConversationPage() {
 
 
       <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
-        <div className="mx-auto w-fit rounded-pill bg-muted px-3 py-0.5 text-[11px] font-medium text-muted-foreground">
-          {t("today")}
-        </div>
-        {messages.map((m) => {
+        {messages.map((m, index) => {
           const mine = m.sender_id === user?.id;
           const time = new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          const showDate = index === 0 || localDateKey(messages[index - 1].created_at) !== localDateKey(m.created_at);
+          const dateSeparator = showDate ? (
+            <div className="mx-auto w-fit rounded-pill bg-muted px-3 py-0.5 text-[11px] font-medium text-muted-foreground">
+              {formatMessageDate(m.created_at, lang, t("today"), t("yesterday"))}
+            </div>
+          ) : null;
           const productRef = decodeProductReference(m.content);
           if (productRef) {
-            return <ProductReferenceMessage key={m.id} item={productRef} mine={mine} time={time} read={m.read_at} />;
+            return (
+              <Fragment key={m.id}>
+                {dateSeparator}
+                <ProductReferenceMessage item={productRef} mine={mine} time={time} read={m.read_at} />
+              </Fragment>
+            );
           }
           const att = decodeAttachment(m.content);
           if (m.content.startsWith("[material_request] ")) {
             return (
-              <div key={m.id} className="mx-auto max-w-[90%] rounded-xl border-2 border-[#c87000] bg-[#c87000]/10 px-3 py-2 text-center text-xs font-semibold text-[#c87000]">
-                📦 {m.content.replace("[material_request] ", "")}
-              </div>
+              <Fragment key={m.id}>
+                {dateSeparator}
+                <div className="mx-auto max-w-[90%] rounded-xl border-2 border-[#c87000] bg-[#c87000]/10 px-3 py-2 text-center text-xs font-semibold text-[#c87000]">
+                  📦 {m.content.replace("[material_request] ", "")}
+                </div>
+              </Fragment>
             );
           }
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm ${
-                  mine
-                    ? "rounded-br-sm bg-primary text-primary-foreground"
-                    : "rounded-bl-sm bg-surface text-foreground shadow-card"
-                }`}
-              >
-                {att ? (
-                  <AttachmentView att={att} mine={mine} />
-                ) : (
-                  <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                )}
+            <Fragment key={m.id}>
+              {dateSeparator}
+              <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`mt-0.5 text-right text-[10px] ${
-                    mine ? "text-white/75" : "text-muted-foreground"
+                  className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm ${
+                    mine
+                      ? "rounded-br-sm bg-primary text-primary-foreground"
+                      : "rounded-bl-sm bg-surface text-foreground shadow-card"
                   }`}
                 >
-                  {time}
-                  {mine && (m.read_at ? " ✓✓" : " ✓")}
+                  {att ? (
+                    <AttachmentView att={att} mine={mine} />
+                  ) : (
+                    <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                  )}
+                  <div
+                    className={`mt-0.5 text-right text-[10px] ${
+                      mine ? "text-white/75" : "text-muted-foreground"
+                    }`}
+                  >
+                    {time}
+                    {mine && (m.read_at ? " ✓✓" : " ✓")}
+                  </div>
                 </div>
               </div>
-            </div>
+            </Fragment>
           );
         })}
       </div>
