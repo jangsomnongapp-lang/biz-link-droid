@@ -18,6 +18,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OnlineOrdersRouteImport } from './routes/online-orders'
+import { Route as MyPostsRouteImport } from './routes/my-posts'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as InvitationsRouteImport } from './routes/invitations'
@@ -107,6 +108,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const OnlineOrdersRoute = OnlineOrdersRouteImport.update({
   id: '/online-orders',
   path: '/online-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyPostsRoute = MyPostsRouteImport.update({
+  id: '/my-posts',
+  path: '/my-posts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -349,6 +355,7 @@ export interface FileRoutesByFullPath {
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/my-posts': typeof MyPostsRoute
   '/online-orders': typeof OnlineOrdersRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
@@ -405,6 +412,7 @@ export interface FileRoutesByTo {
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/my-posts': typeof MyPostsRoute
   '/online-orders': typeof OnlineOrdersRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
@@ -462,6 +470,7 @@ export interface FileRoutesById {
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/my-posts': typeof MyPostsRoute
   '/online-orders': typeof OnlineOrdersRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRouteWithChildren
@@ -520,6 +529,7 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/join'
     | '/login'
+    | '/my-posts'
     | '/online-orders'
     | '/privacy'
     | '/profile'
@@ -576,6 +586,7 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/join'
     | '/login'
+    | '/my-posts'
     | '/online-orders'
     | '/privacy'
     | '/profile'
@@ -632,6 +643,7 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/join'
     | '/login'
+    | '/my-posts'
     | '/online-orders'
     | '/privacy'
     | '/profile'
@@ -689,6 +701,7 @@ export interface RootRouteChildren {
   InvitationsRoute: typeof InvitationsRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
+  MyPostsRoute: typeof MyPostsRoute
   OnlineOrdersRoute: typeof OnlineOrdersRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRouteWithChildren
@@ -791,6 +804,13 @@ declare module '@tanstack/react-router' {
       path: '/online-orders'
       fullPath: '/online-orders'
       preLoaderRoute: typeof OnlineOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-posts': {
+      id: '/my-posts'
+      path: '/my-posts'
+      fullPath: '/my-posts'
+      preLoaderRoute: typeof MyPostsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1162,6 +1182,7 @@ const rootRouteChildren: RootRouteChildren = {
   InvitationsRoute: InvitationsRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
+  MyPostsRoute: MyPostsRoute,
   OnlineOrdersRoute: OnlineOrdersRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRouteWithChildren,

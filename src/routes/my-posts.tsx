@@ -72,7 +72,10 @@ function MyContentPage() {
       const item = editing.item as Project;
       ({ error } = await supabase.from("listings").update({ title: values.title.trim(), description: values.description.trim() || null, location: values.location.trim() || null, budget: values.budget ? Number(values.budget) : null }).eq("id", item.id).eq("user_id", user.id));
     }
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setEditing(null);
     void invalidate();
   }
@@ -91,7 +94,10 @@ function MyContentPage() {
         const ext = file.name.split(".").pop() || "jpg";
         const path = `${user.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
         const upload = await supabase.storage.from("rental-photos").upload(path, file, { contentType: file.type });
-        if (upload.error) return toast.error(upload.error.message);
+        if (upload.error) {
+          toast.error(upload.error.message);
+          return;
+        }
         newUrls.push(supabase.storage.from("rental-photos").getPublicUrl(path).data.publicUrl);
       }
     } else {
@@ -99,16 +105,25 @@ function MyContentPage() {
     }
     if (removedIds.length) {
       const result = await supabase.from(relation).delete().in("id", removedIds);
-      if (result.error) return toast.error(result.error.message);
+      if (result.error) {
+        toast.error(result.error.message);
+        return;
+      }
     }
     if (newUrls.length) {
       const rows = newUrls.map((photo_url) => ({ [foreignKey]: item.id, photo_url }));
       const result = await supabase.from(relation).insert(rows as never);
-      if (result.error) return toast.error(result.error.message);
+      if (result.error) {
+        toast.error(result.error.message);
+        return;
+      }
     }
     if (kind === "post") {
       const result = await supabase.from("posts").update({ video_url: media.videoUrl }).eq("id", item.id).eq("user_id", user.id);
-      if (result.error) return toast.error(result.error.message);
+      if (result.error) {
+        toast.error(result.error.message);
+        return;
+      }
     }
     setMediaEditing(null);
     void invalidate();
