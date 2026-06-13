@@ -254,6 +254,15 @@ function SuppliersListPage() {
           {lang === "km" ? "ដាក់ផលិតផល" : "Post my product"}
         </Link>
       )}
+      {mode === "rent" && isSupplier && (
+        <Link
+          to="/rentals/new"
+          className="fixed bottom-20 right-4 z-30 flex items-center gap-2 rounded-full bg-[#534AB7] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-[#534AB7]/30 active:scale-95"
+        >
+          <Plus className="h-5 w-5" />
+          {lang === "km" ? "បង្ហោះជួល" : "Post my rental"}
+        </Link>
+      )}
       {/* Mode toggle */}
       <div className="mb-3 grid grid-cols-2 gap-2">
         <button
