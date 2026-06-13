@@ -1,400 +1,213 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { ArrowLeft, BriefcaseBusiness, FileText, House, ImagePlus, MapPin } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
-import { Avatar } from "@/components/Avatar";
 import { OwnerMenu } from "@/components/OwnerMenu";
-import { EditTextDialog } from "@/components/EditTextDialog";
+import { EditTextDialog, type EditTextField } from "@/components/EditTextDialog";
+import { ContentMediaDialog } from "@/components/ContentMediaDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { CommentsSheet } from "@/components/CommentsSheet";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
-import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import {
-  ArrowLeft,
-  ThumbsUp,
-  MessageSquare,
-  Share2,
-} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/my-posts")({
-  component: () => (
-    <RequireAuth>
-      <AppShell>
-        <MyPostsPage />
-      </AppShell>
-    </RequireAuth>
-  ),
+  component: () => <RequireAuth><AppShell><MyContentPage /></AppShell></RequireAuth>,
 });
 
-interface PostRow {
-  id: string;
-  user_id: string;
-  content: string | null;
-  video_url: string | null;
-  created_at: string;
-  profiles: { full_name: string | null; avatar_url: string | null } | null;
-  post_photos: { photo_url: string }[];
-}
+type Kind = "post" | "rental" | "project";
+type Photo = { id: string; photo_url: string };
+type Post = { id: string; content: string | null; title: string | null; video_url: string | null; created_at: string; status: string; post_photos: Photo[] };
+type Rental = { id: string; title: string; description: string | null; location: string; price_per_day: number; min_days: number; created_at: string; status: string; rental_photos: Photo[] };
+type Project = { id: string; title: string; description: string | null; location: string | null; budget: number | null; created_at: string; status: string; listing_photos: Photo[] };
+type Target = { kind: Kind; item: Post | Rental | Project };
 
-function MyPostsPage() {
-  const { t } = useI18n();
+function MyContentPage() {
+  const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
   const qc = useQueryClient();
+  const [tab, setTab] = useState<Kind>("post");
+  const [editing, setEditing] = useState<Target | null>(null);
+  const [mediaEditing, setMediaEditing] = useState<Target | null>(null);
+  const [deleting, setDeleting] = useState<Target | null>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["my-posts", user?.id ?? null],
+    queryKey: ["my-content", user?.id ?? null],
     enabled: !!user,
-    staleTime: 30_000,
     queryFn: async () => {
-      if (!user) return { posts: [], likes: {}, commentCounts: {} };
-      const { data: rows } = await supabase
-        .from("posts")
-        .select(
-          "id, user_id, content, video_url, created_at, profiles(full_name, avatar_url), post_photos(photo_url)"
-        )
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      const postRows = (rows as PostRow[] | null) ?? [];
-      const likeMap: Record<string, { count: number; mine: boolean }> = {};
-      const cMap: Record<string, number> = {};
-
-      if (postRows.length > 0) {
-        const ids = postRows.map((p) => p.id);
-        for (const id of ids) {
-          likeMap[id] = { count: 0, mine: false };
-          cMap[id] = 0;
-        }
-        const [{ data: likeRows }, { data: commentRows }] = await Promise.all([
-          supabase.from("post_likes").select("post_id, user_id").in("post_id", ids),
-          supabase.from("post_comments").select("post_id").in("post_id", ids),
-        ]);
-        for (const r of likeRows ?? []) {
-          const e = likeMap[r.post_id];
-          if (!e) continue;
-          e.count += 1;
-          if (r.user_id === user.id) e.mine = true;
-        }
-        for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
-      }
-
-      return { posts: postRows, likes: likeMap, commentCounts: cMap };
+      if (!user) return { posts: [], rentals: [], projects: [] };
+      const [posts, rentals, projects] = await Promise.all([
+        supabase.from("posts").select("id, content, title, video_url, created_at, status, post_photos(id, photo_url)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("rental_listings").select("id, title, description, location, price_per_day, min_days, created_at, status, rental_photos(id, photo_url)").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("listings").select("id, title, description, location, budget, created_at, status, listing_photos(id, photo_url)").eq("user_id", user.id).order("created_at", { ascending: false }),
+      ]);
+      if (posts.error || rentals.error || projects.error) throw posts.error ?? rentals.error ?? projects.error;
+      return { posts: (posts.data ?? []) as Post[], rentals: (rentals.data ?? []) as Rental[], projects: (projects.data ?? []) as Project[] };
     },
   });
 
-  const posts = data?.posts ?? [];
-  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
-  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
-  const [openComments, setOpenComments] = useState<string | null>(null);
-  const [editingPost, setEditingPost] = useState<PostRow | null>(null);
-  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["my-content", user?.id ?? null] });
+  const tabs = [
+    { id: "post" as const, label: lang === "km" ? "ការបង្ហោះ" : "Posts", icon: FileText, count: data?.posts.length ?? 0 },
+    { id: "rental" as const, label: lang === "km" ? "ការជួល" : "Rentals", icon: House, count: data?.rentals.length ?? 0 },
+    { id: "project" as const, label: lang === "km" ? "គម្រោង" : "Projects", icon: BriefcaseBusiness, count: data?.projects.length ?? 0 },
+  ];
+  const items = tab === "post" ? data?.posts ?? [] : tab === "rental" ? data?.rentals ?? [] : data?.projects ?? [];
 
-  useEffect(() => {
-    if (data) {
-      setLikes(data.likes);
-      setCommentCounts(data.commentCounts);
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (!user) return;
-    const inv = () => qc.invalidateQueries({ queryKey: ["my-posts", user.id] });
-    const ch = supabase
-      .channel(`my-posts:${user.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, inv)
-      .on("postgres_changes", { event: "*", schema: "public", table: "post_likes" }, inv)
-      .on("postgres_changes", { event: "*", schema: "public", table: "post_comments" }, inv)
-      .subscribe();
-    return () => { void supabase.removeChannel(ch); };
-  }, [user, qc]);
-
-  async function deletePost(id: string) {
-    const { error } = await supabase.from("posts").delete().eq("id", id);
-    if (error) {
-      toast.error(t("delete_failed"));
-      return;
-    }
-    setDeletingPostId(null);
-    toast.success(t("deleted"));
-    if (user) qc.invalidateQueries({ queryKey: ["my-posts", user.id] });
-  }
-
-  async function saveEditPost(values: Record<string, string>) {
-    if (!editingPost) return;
-    const content = (values.content ?? "").trim();
-    const { error } = await supabase.from("posts").update({ content }).eq("id", editingPost.id);
-    if (error) {
-      toast.error(t("error_generic"));
-      return;
-    }
-    setEditingPost(null);
-    if (user) qc.invalidateQueries({ queryKey: ["my-posts", user.id] });
-  }
-
-  async function toggleLike(postId: string) {
-    if (!user) return;
-    const cur = likes[postId] ?? { count: 0, mine: false };
-    setLikes((m) => ({
-      ...m,
-      [postId]: { count: cur.count + (cur.mine ? -1 : 1), mine: !cur.mine },
-    }));
-    if (cur.mine) {
-      const { error } = await supabase
-        .from("post_likes")
-        .delete()
-        .eq("post_id", postId)
-        .eq("user_id", user.id);
-      if (error) setLikes((m) => ({ ...m, [postId]: cur }));
+  async function saveText(values: Record<string, string>) {
+    if (!editing || !user) return;
+    let error: { message: string } | null = null;
+    if (editing.kind === "post") {
+      const item = editing.item as Post;
+      ({ error } = await supabase.from("posts").update({ title: values.title.trim() || null, content: values.content.trim() || null }).eq("id", item.id).eq("user_id", user.id));
+    } else if (editing.kind === "rental") {
+      const item = editing.item as Rental;
+      ({ error } = await supabase.from("rental_listings").update({ title: values.title.trim(), description: values.description.trim() || null, location: values.location.trim(), price_per_day: Number(values.price_per_day), min_days: Number(values.min_days) || 1 }).eq("id", item.id).eq("user_id", user.id));
     } else {
-      const { error } = await supabase
-        .from("post_likes")
-        .insert({ post_id: postId, user_id: user.id });
-      if (error) setLikes((m) => ({ ...m, [postId]: cur }));
+      const item = editing.item as Project;
+      ({ error } = await supabase.from("listings").update({ title: values.title.trim(), description: values.description.trim() || null, location: values.location.trim() || null, budget: values.budget ? Number(values.budget) : null }).eq("id", item.id).eq("user_id", user.id));
     }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setEditing(null);
+    void invalidate();
   }
 
-  async function sharePost(postId: string) {
-    const url = `${window.location.origin}/home?post=${postId}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: t("app_name"), url });
+  async function saveMedia(media: { photos: string[]; newFiles: File[]; videoUrl: string | null }) {
+    if (!mediaEditing || !user) return;
+    const { kind, item } = mediaEditing;
+    const relation = kind === "post" ? "post_photos" : kind === "rental" ? "rental_photos" : "listing_photos";
+    const foreignKey = kind === "post" ? "post_id" : "listing_id";
+    const current = getPhotos(mediaEditing);
+    const kept = new Set(media.photos);
+    const removedIds = current.filter((photo) => !kept.has(photo.photo_url)).map((photo) => photo.id);
+    let newUrls: string[] = [];
+    if (kind === "rental") {
+      for (const file of media.newFiles) {
+        const ext = file.name.split(".").pop() || "jpg";
+        const path = `${user.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+        const upload = await supabase.storage.from("rental-photos").upload(path, file, { contentType: file.type });
+        if (upload.error) {
+          toast.error(upload.error.message);
+          return;
+        }
+        newUrls.push(supabase.storage.from("rental-photos").getPublicUrl(path).data.publicUrl);
+      }
+    } else {
+      newUrls = await Promise.all(media.newFiles.map(fileToDataUrl));
+    }
+    if (removedIds.length) {
+      const result = await supabase.from(relation).delete().in("id", removedIds);
+      if (result.error) {
+        toast.error(result.error.message);
         return;
       }
-    } catch {
-      // fall through
     }
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success(t("share_link_copied"));
-    } catch {
-      toast.error(t("error_generic"));
+    if (newUrls.length) {
+      const rows = newUrls.map((photo_url) => ({ [foreignKey]: item.id, photo_url }));
+      const result = await supabase.from(relation).insert(rows as never);
+      if (result.error) {
+        toast.error(result.error.message);
+        return;
+      }
     }
+    if (kind === "post") {
+      const result = await supabase.from("posts").update({ video_url: media.videoUrl }).eq("id", item.id).eq("user_id", user.id);
+      if (result.error) {
+        toast.error(result.error.message);
+        return;
+      }
+    }
+    setMediaEditing(null);
+    void invalidate();
   }
 
+  async function confirmDelete() {
+    if (!deleting || !user) return;
+    const table = deleting.kind === "post" ? "posts" : deleting.kind === "rental" ? "rental_listings" : "listings";
+    const result = await supabase.from(table).delete().eq("id", deleting.item.id).eq("user_id", user.id);
+    if (result.error) {
+      toast.error(result.error.message);
+      return;
+    }
+    setDeleting(null);
+    toast.success(t("deleted"));
+    void invalidate();
+  }
+
+  const fields = editing ? getFields(editing, t) : [];
+  const mediaPhotos = mediaEditing ? getPhotos(mediaEditing).map((photo) => photo.photo_url) : [];
+  const mediaVideo = mediaEditing?.kind === "post" ? (mediaEditing.item as Post).video_url : null;
+
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="min-h-screen bg-background pb-10">
       <header className="sticky top-0 z-20 flex h-14 items-center border-b border-border bg-surface px-2">
-        <button
-          onClick={() => nav({ to: "/settings" })}
-          className="rounded-full p-2 active:bg-muted"
-          aria-label="Back"
-        >
-          <ArrowLeft className="h-5 w-5 text-foreground" />
-        </button>
-        <h1 className="flex-1 text-center text-base font-semibold text-foreground">
-          {t("my_posts")}
-        </h1>
+        <Button variant="ghost" size="icon" onClick={() => nav({ to: "/settings" })} aria-label={t("back")}><ArrowLeft className="h-5 w-5" /></Button>
+        <h1 className="flex-1 text-center text-base font-semibold">{lang === "km" ? "មាតិការបស់ខ្ញុំ" : "My Content"}</h1>
         <div className="w-9" />
       </header>
-
-      <div className="flex-1 space-y-2 p-3 pb-10">
-        {isLoading && (
-          <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>
-        )}
-        {!isLoading && posts.length === 0 && (
-          <div className="rounded-xl bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
-            {t("no_posts")}
-          </div>
-        )}
-        {posts.map((p) => {
-          const l = likes[p.id] ?? { count: 0, mine: false };
-          const cc = commentCounts[p.id] ?? 0;
-          return (
-            <article
-              key={p.id}
-              className="relative rounded-xl bg-surface px-4 py-3 shadow-card"
-            >
-              <header className="flex items-center gap-3">
-                <Avatar
-                  name={p.profiles?.full_name}
-                  url={p.profiles?.avatar_url}
-                  size={40}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="truncate text-sm font-semibold text-foreground">
-                    {p.profiles?.full_name ?? "User"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {timeAgo(p.created_at, t)}
-                  </div>
-                </div>
-                <OwnerMenu
-                  onEdit={() => setEditingPost(p)}
-                  onDelete={() => setDeletingPostId(p.id)}
-                />
-              </header>
-
-              {p.content && (
-                <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>
-              )}
-              {p.post_photos[0] && (
-                <img
-                  src={p.post_photos[0].photo_url}
-                  loading="lazy"
-                  decoding="async"
-                  className="mt-3 w-full rounded-lg object-cover"
-                  alt=""
-                />
-              )}
-              {p.video_url && <VideoEmbed url={p.video_url} />}
-
-              {(l.count > 0 || cc > 0) && (
-                <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    {l.count > 0 && (
-                      <>
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                          <ThumbsUp className="h-2.5 w-2.5" strokeWidth={3} />
-                        </span>
-                        {l.count}
-                      </>
-                    )}
-                  </span>
-                  {cc > 0 && (
-                    <button
-                      onClick={() => setOpenComments(p.id)}
-                      className="active:underline"
-                    >
-                      {cc} {t("comments").toLowerCase()}
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <footer className="mt-2 flex border-t border-border pt-1">
-                <button
-                  onClick={() => void toggleLike(p.id)}
-                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium active:bg-muted ${
-                    l.mine ? "text-primary" : "text-muted-foreground"
-                  }`}
-                >
-                  <ThumbsUp className="h-4 w-4" fill={l.mine ? "currentColor" : "none"} />
-                  {t("like")}
-                </button>
-                <button
-                  onClick={() => setOpenComments(p.id)}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  {t("comment")}
-                </button>
-                <button
-                  onClick={() => void sharePost(p.id)}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
-                >
-                  <Share2 className="h-4 w-4" />
-                  {t("share")}
-                </button>
-              </footer>
-            </article>
-          );
-        })}
+      <div className="grid grid-cols-3 border-b border-border bg-surface p-2">
+        {tabs.map(({ id, label, icon: Icon, count }) => (
+          <Button key={id} variant={tab === id ? "default" : "ghost"} className="gap-1.5" onClick={() => setTab(id)}><Icon className="h-4 w-4" />{label} <span className="text-xs opacity-70">{count}</span></Button>
+        ))}
       </div>
-
-      {openComments && (
-        <CommentsSheet
-          postId={openComments}
-          onClose={() => setOpenComments(null)}
-          onCountChange={(n) => setCommentCounts((m) => ({ ...m, [openComments]: n }))}
-        />
-      )}
-
-      <EditTextDialog
-        open={!!editingPost}
-        title={t("edit")}
-        fields={
-          editingPost
-            ? [
-                {
-                  key: "content",
-                  label: t("description"),
-                  initial: editingPost.content ?? "",
-                  type: "textarea",
-                  required: true,
-                },
-              ]
-            : []
-        }
-        onCancel={() => setEditingPost(null)}
-        onSave={saveEditPost}
-      />
-
-      <ConfirmDialog
-        open={!!deletingPostId}
-        title={t("delete")}
-        description={t("delete_confirm_desc")}
-        destructive
-        onConfirm={() => {
-          if (deletingPostId) void deletePost(deletingPostId);
-        }}
-        onCancel={() => setDeletingPostId(null)}
-      />
+      <main className="space-y-3 p-3">
+        {isLoading && <p className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
+        {!isLoading && items.length === 0 && <p className="rounded-xl bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">{lang === "km" ? "មិនទាន់មានទិន្នន័យ" : `No ${tab}s yet`}</p>}
+        {items.map((item) => <ContentCard key={item.id} kind={tab} item={item} onEdit={() => setEditing({ kind: tab, item })} onMedia={() => setMediaEditing({ kind: tab, item })} onDelete={() => setDeleting({ kind: tab, item })} />)}
+      </main>
+      <EditTextDialog open={!!editing} title={t("edit")} fields={fields} onCancel={() => setEditing(null)} onSave={saveText} />
+      <ContentMediaDialog open={!!mediaEditing} title={lang === "km" ? "កែរូបថត និងវីដេអូ" : "Edit photos and video"} photos={mediaPhotos} videoUrl={mediaVideo} allowVideo={mediaEditing?.kind === "post"} onCancel={() => setMediaEditing(null)} onSave={saveMedia} />
+      <ConfirmDialog open={!!deleting} title={t("delete")} description={t("delete_confirm_desc")} destructive onConfirm={() => void confirmDelete()} onCancel={() => setDeleting(null)} />
     </div>
   );
 }
 
-function isSafeHttpUrl(raw: string): string | null {
-  try {
-    const u = new URL(raw);
-    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
-    return u.toString();
-  } catch {
-    return null;
-  }
+function ContentCard({ kind, item, onEdit, onMedia, onDelete }: { kind: Kind; item: Post | Rental | Project; onEdit: () => void; onMedia: () => void; onDelete: () => void }) {
+  const { t } = useI18n();
+  const photos = getPhotos({ kind, item });
+  const title = kind === "post" ? (item as Post).title || (item as Post).content || t("my_posts") : (item as Rental | Project).title;
+  const description = kind === "post" ? (item as Post).content : (item as Rental | Project).description;
+  const href = kind === "rental" ? "/rentals/$rentalId" : kind === "project" ? "/listings/$listingId" : "/home";
+  const params = kind === "rental" ? { rentalId: item.id } : kind === "project" ? { listingId: item.id } : undefined;
+  return (
+    <article className="overflow-hidden rounded-xl bg-surface shadow-card">
+      {photos[0] && <img src={photos[0].photo_url} alt="" className="aspect-[16/9] w-full object-cover" loading="lazy" />}
+      <div className="p-3">
+        <div className="flex items-start gap-2">
+          <div className="min-w-0 flex-1"><h2 className="line-clamp-2 text-sm font-semibold text-foreground">{title}</h2><p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(item.created_at, t)} · {item.status}</p></div>
+          <OwnerMenu onEdit={onEdit} onDelete={onDelete} />
+        </div>
+        {description && description !== title && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{description}</p>}
+        {"location" in item && item.location && <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3.5 w-3.5" />{item.location}</p>}
+        <div className="mt-3 flex gap-2 border-t border-border pt-2">
+          <Button variant="outline" size="sm" className="flex-1" onClick={onMedia}><ImagePlus className="h-4 w-4" />{t("photos")}</Button>
+          <Button asChild variant="ghost" size="sm" className="flex-1"><Link to={href} params={params as never}>{t("view")}</Link></Button>
+        </div>
+      </div>
+    </article>
+  );
 }
 
-function VideoEmbed({ url }: { url: string }) {
-  const trimmed = url.trim();
-  const safeHref = isSafeHttpUrl(trimmed);
-  let embed: string | null = null;
-  if (safeHref) {
-    try {
-      const u = new URL(safeHref);
-      const host = u.hostname.replace(/^www\./, "");
-      if (host === "youtube.com" || host === "m.youtube.com") {
-        const v = u.searchParams.get("v");
-        if (v) embed = `https://www.youtube.com/embed/${v}`;
-        else if (u.pathname.startsWith("/shorts/"))
-          embed = `https://www.youtube.com/embed/${u.pathname.split("/")[2]}`;
-      } else if (host === "youtu.be") {
-        embed = `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
-      } else if (host === "vimeo.com") {
-        const id = u.pathname.split("/").filter(Boolean)[0];
-        if (id) embed = `https://player.vimeo.com/video/${id}`;
-      }
-    } catch {
-      /* noop */
-    }
-  }
+function getPhotos(target: Target): Photo[] {
+  if (target.kind === "post") return (target.item as Post).post_photos;
+  if (target.kind === "rental") return (target.item as Rental).rental_photos;
+  return (target.item as Project).listing_photos;
+}
 
-  if (embed) {
-    return (
-      <div className="mt-3 aspect-video overflow-hidden rounded-lg bg-black">
-        <iframe
-          src={embed}
-          className="h-full w-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-    );
-  }
+function getFields(target: Target, t: ReturnType<typeof useI18n>["t"]): EditTextField[] {
+  if (target.kind === "post") { const p = target.item as Post; return [{ key: "title", label: t("title"), initial: p.title ?? "" }, { key: "content", label: t("description"), initial: p.content ?? "", type: "textarea", required: true }]; }
+  if (target.kind === "rental") { const r = target.item as Rental; return [{ key: "title", label: t("title"), initial: r.title, required: true }, { key: "description", label: t("description"), initial: r.description ?? "", type: "textarea" }, { key: "location", label: t("location"), initial: r.location, required: true }, { key: "price_per_day", label: t("price_per_day_label"), initial: String(r.price_per_day), type: "number", required: true }, { key: "min_days", label: t("min_days"), initial: String(r.min_days), type: "number", required: true }]; }
+  const p = target.item as Project; return [{ key: "title", label: t("title"), initial: p.title, required: true }, { key: "description", label: t("description"), initial: p.description ?? "", type: "textarea" }, { key: "location", label: t("location"), initial: p.location ?? "" }, { key: "budget", label: t("budget"), initial: p.budget == null ? "" : String(p.budget), type: "number" }];
+}
 
-  if (!safeHref) return null;
-
-  return (
-    <a
-      href={safeHref}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="mt-3 block truncate rounded-lg border border-border bg-background px-3 py-2 text-sm text-primary underline"
-    >
-      {safeHref}
-    </a>
-  );
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(file); });
 }
