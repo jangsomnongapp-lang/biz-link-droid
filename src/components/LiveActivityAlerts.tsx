@@ -28,6 +28,7 @@ export function LiveActivityAlerts() {
 
   useEffect(() => {
     if (!user) return;
+    const userId = user.id;
 
     async function getProfile(userId: string | null) {
       if (!userId) return null;
@@ -81,7 +82,7 @@ export function LiveActivityAlerts() {
     }
 
     async function handleNotification(notification: Notification) {
-      if (notification.user_id !== user.id || notification.kind === "message") return;
+      if (notification.user_id !== userId || notification.kind === "message") return;
       const profile = await getProfile(notification.related_user_id);
       const name = profile?.full_name ?? (lang === "km" ? "នរណាម្នាក់" : "Someone");
       const titleByKind: Record<string, string> = {
@@ -110,13 +111,13 @@ export function LiveActivityAlerts() {
     }
 
     async function handleMessage(message: Message) {
-      if (message.sender_id === user.id) return;
+      if (message.sender_id === userId) return;
       const { data: thread } = await supabase
         .from("message_threads")
         .select("participant_a, participant_b")
         .eq("id", message.thread_id)
         .maybeSingle();
-      if (!thread || (thread.participant_a !== user.id && thread.participant_b !== user.id)) return;
+      if (!thread || (thread.participant_a !== userId && thread.participant_b !== userId)) return;
 
       const profile = await getProfile(message.sender_id);
       const name = profile?.full_name ?? (lang === "km" ? "នរណាម្នាក់" : "Someone");
@@ -131,10 +132,10 @@ export function LiveActivityAlerts() {
     }
 
     const channel = supabase
-      .channel(`live-activity-alerts:${user.id}`)
+      .channel(`live-activity-alerts:${userId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
         (payload) => void handleNotification(payload.new as Notification),
       )
       .on(

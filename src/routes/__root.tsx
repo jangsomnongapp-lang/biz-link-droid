@@ -5,6 +5,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { DailyTicketGate } from "@/components/DailyTicketGate";
+import { LiveActivityAlerts } from "@/components/LiveActivityAlerts";
 
 import appCss from "../styles.css?url";
 
@@ -80,6 +81,7 @@ function RootComponent() {
             <Outlet />
           </div>
           <DailyTicketGate />
+           <LiveActivityAlerts />
           <Toaster position="top-center" />
         </AuthProvider>
       </I18nProvider>
