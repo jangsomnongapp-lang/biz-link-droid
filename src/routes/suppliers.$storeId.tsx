@@ -275,7 +275,7 @@ function SupplierProfilePage() {
 
       {/* Online orders (owner only) */}
       {isOwner && (
-        <div className="border-b border-border bg-surface px-5 py-3">
+        <div className="border-b border-border bg-surface px-5 py-3 space-y-2">
           <Link
             to="/online-orders"
             className="flex items-center justify-between rounded-xl bg-[#c87000] px-4 py-3 text-sm font-bold text-white active:scale-[0.98]"
@@ -288,6 +288,14 @@ function SupplierProfilePage() {
                 {pendingRequests}
               </span>
             )}
+          </Link>
+          <Link
+            to="/rentals/new"
+            className="flex items-center justify-between rounded-xl bg-[#534AB7] px-4 py-3 text-sm font-bold text-white active:scale-[0.98]"
+          >
+            <span className="flex items-center gap-2">
+              🔧 {lang === "km" ? "បង្ហោះសម្រាប់ជួល" : "List for rent"}
+            </span>
           </Link>
         </div>
       )}
