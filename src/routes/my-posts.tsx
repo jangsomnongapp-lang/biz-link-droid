@@ -133,7 +133,10 @@ function MyContentPage() {
     if (!deleting || !user) return;
     const table = deleting.kind === "post" ? "posts" : deleting.kind === "rental" ? "rental_listings" : "listings";
     const result = await supabase.from(table).delete().eq("id", deleting.item.id).eq("user_id", user.id);
-    if (result.error) return toast.error(result.error.message);
+    if (result.error) {
+      toast.error(result.error.message);
+      return;
+    }
     setDeleting(null);
     toast.success(t("deleted"));
     void invalidate();
