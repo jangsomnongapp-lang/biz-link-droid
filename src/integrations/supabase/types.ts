@@ -2046,6 +2046,44 @@ export type Database = {
         Args: { _draw_period_start: string; _ticket_type: string }
         Returns: number
       }
+      get_public_profiles: {
+        Args: { _ids: string[] }
+        Returns: {
+          about_me: string
+          avatar_url: string
+          created_at: string
+          full_name: string
+          id: string
+          is_client: boolean
+          is_coordinator: boolean
+          is_featured: boolean
+          is_organization: boolean
+          is_provider: boolean
+          is_recruiter: boolean
+          is_specialist: boolean
+          is_supplier: boolean
+          is_verified: boolean
+          language: string
+          member_number: number
+          updated_at: string
+        }[]
+      }
+      get_public_supplier_stores: {
+        Args: { _store_ids?: string[] }
+        Returns: {
+          contact_count: number
+          created_at: string
+          description: string
+          id: string
+          location: string
+          logo_url: string
+          name: string
+          status: string
+          updated_at: string
+          user_id: string
+          view_count: number
+        }[]
+      }
       get_supplier_invite_by_token: {
         Args: { _token: string }
         Returns: {
