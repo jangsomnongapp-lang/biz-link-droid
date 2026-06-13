@@ -226,6 +226,7 @@ function SettingsPage() {
             <Row to="/profile/portfolio" icon={ImageIcon} iconBg="bg-emerald-100" iconColor="text-emerald-600" label={t("update_profile")} />
           </>
         )}
+        <Row to="/profile" icon={FileText} iconBg="bg-sky-100" iconColor="text-sky-600" label={t("view_my_posts") ?? "My Posts"} />
         <Row to="/rewards" icon={Gift} iconBg="bg-orange-100" iconColor="text-orange-600" label={lang === "km" ? "BuildHub Rewards" : "BuildHub Rewards"} />
         <RowButton onClick={() => setPwOpen(true)} icon={Lock} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("change_password")} />
         <RowButton onClick={() => setPhoneOpen(true)} icon={Smartphone} iconBg="bg-slate-200" iconColor="text-slate-700" label={t("change_phone")} />
