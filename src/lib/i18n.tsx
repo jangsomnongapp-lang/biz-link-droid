@@ -94,6 +94,8 @@ const dict: Dict = {
   portfolio: { km: "បទពិសោធន៍", en: "Portfolio" },
   my_posts: { km: "បង្ហោះរបស់ខ្ញុំ", en: "My Posts" },
   view_my_posts: { km: "មើលបង្ហោះរបស់ខ្ញុំ", en: "View My Posts" },
+  my_content: { km: "មាតិការបស់ខ្ញុំ", en: "My Content" },
+  view_my_content: { km: "មើលការបង្ហោះ ការជួល និងគម្រោង", en: "View My Posts, Rentals & Projects" },
   active: { km: "កំពុងដំណើរការ", en: "Active" },
   closed: { km: "បិទ", en: "Closed" },
   save_changes: { km: "រក្សាទុក", en: "Save changes" },
