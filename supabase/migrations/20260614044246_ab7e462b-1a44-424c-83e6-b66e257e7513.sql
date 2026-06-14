@@ -1,0 +1,1 @@
+ALTER TABLE public.rental_requests ADD COLUMN currency text NOT NULL DEFAULT 'USD' CHECK (currency IN ('USD', 'KHR'));

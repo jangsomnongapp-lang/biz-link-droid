@@ -4,7 +4,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, MapPin, DollarSign, Truck, HardHat, Wrench, Hammer } from "lucide-react";
+import { ArrowLeft, MapPin, Truck, HardHat, Wrench, Hammer } from "lucide-react";
 import { ProvinceSelect } from "@/components/ProvinceSelect";
 import { toast } from "sonner";
 
@@ -35,6 +35,7 @@ function NewRentalRequestPage() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<Cat | null>(null);
   const [budget, setBudget] = useState("");
+  const [currency, setCurrency] = useState<"USD" | "KHR">("USD");
   const [neededFrom, setNeededFrom] = useState("");
   const [location, setLocation] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -54,6 +55,7 @@ function NewRentalRequestPage() {
         category,
         location: location.trim().slice(0, 120),
         budget_per_day: budget ? Number(budget) : null,
+        currency,
         needed_from: neededFrom || null,
       });
       if (error) throw error;
@@ -129,9 +131,17 @@ function NewRentalRequestPage() {
           <Label>Budget & timing</Label>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="mb-1 text-sm font-medium">Max $/day <span className="text-xs font-normal text-text-hint">optional</span></p>
+              <p className="mb-1 text-sm font-medium">Max / day <span className="text-xs font-normal text-text-hint">optional</span></p>
               <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-[#534AB7]">
-                <DollarSign className="ml-2 h-4 w-4 text-success" />
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value === "KHR" ? "KHR" : "USD")}
+                  aria-label="Currency"
+                  className="h-full border-r border-border bg-muted px-2 text-xs font-semibold text-foreground outline-none"
+                >
+                  <option value="USD">$ USD</option>
+                  <option value="KHR">៛ KHR</option>
+                </select>
                 <input
                   value={budget}
                   onChange={(e) => setBudget(e.target.value.replace(/[^0-9.]/g, ""))}
