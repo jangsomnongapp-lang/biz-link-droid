@@ -1,10 +1,11 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Plus, FileText } from "lucide-react";
+import { ArrowLeft, Camera, Plus, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/find-material")({
   component: () => (
@@ -49,6 +50,22 @@ function FindMaterialEntry() {
       </header>
 
       <div className="flex flex-col gap-3 px-4 py-6">
+        <Button asChild size="lg" className="h-auto justify-start rounded-2xl px-4 py-4 shadow-card">
+          <Link to="/find-material/new" search={{ scan: true }}>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/20">
+              <Camera className="h-5 w-5" />
+            </span>
+            <span className="text-left">
+              <span className="block text-base font-bold">
+                {lang === "km" ? "ស្កេនរូបភាព" : "Scan picture"}
+              </span>
+              <span className="block text-xs font-normal text-primary-foreground/80">
+                {lang === "km" ? "ថតរូបដើម្បីស្វែងរកផលិតផល" : "Take a photo to identify the product"}
+              </span>
+            </span>
+          </Link>
+        </Button>
+
         <Link
           to="/find-material/new"
           className="flex items-center gap-3 rounded-2xl bg-[#c87000] px-4 py-4 text-white shadow-card active:opacity-90"
