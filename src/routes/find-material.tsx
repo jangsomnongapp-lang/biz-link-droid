@@ -8,7 +8,6 @@ import { useI18n } from "@/lib/i18n";
 import { smartAutofill } from "@/lib/smart-autofill.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, LoaderCircle, Plus, FileText } from "lucide-react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/find-material")({
   component: () => (
