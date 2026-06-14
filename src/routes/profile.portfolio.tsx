@@ -164,7 +164,7 @@ function PortfolioPage() {
         {/* My projects */}
         <div className="rounded-xl bg-surface p-4 shadow-card">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-foreground">{t("my_projects")}</h3>
+            <h3 className="text-sm font-bold text-foreground">{t("nav_listings")}</h3>
             <Link
               to="/listings/new"
               className="rounded-pill bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground active:scale-[0.99]"
