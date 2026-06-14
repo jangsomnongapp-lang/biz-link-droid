@@ -41,7 +41,7 @@ export function CategoryImage({ code, name }: { code: string; name: string }) {
       src={src}
       alt={name}
       loading="lazy"
-      className="h-full w-full object-contain"
+      className="h-full w-full object-cover"
     />
   );
 }
