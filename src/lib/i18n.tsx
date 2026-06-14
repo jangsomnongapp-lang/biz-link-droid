@@ -456,6 +456,7 @@ const dict: Dict = {
   rental_request_desc_ph: { km: "ពិពណ៌នាអ្វីដែលអ្នកត្រូវការ…", en: "Describe what you need…" },
   rental_request_budget_timing: { km: "ថវិកា និងពេលវេលា", en: "Budget & timing" },
   rental_request_max_day: { km: "អតិបរមា / ថ្ងៃ", en: "Max / day" },
+  currency: { km: "រូបិយប័ណ្ណ", en: "Currency" },
   rental_request_needed_from: { km: "ត្រូវការចាប់ពី", en: "Needed from" },
   rental_request_post: { km: "បង្ហោះសំណើ", en: "Post request" },
   rental_request_posted: { km: "បានបង្ហោះសំណើ", en: "Request posted" },
