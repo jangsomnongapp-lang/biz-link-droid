@@ -6,7 +6,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 const TELEGRAM_BOT_USERNAME = "Jangsomnong_bot";
 
 function normalize(phone: string) {
-  return phone.replace(/\D/g, "").replace(/^0+/, "");
+  return phone.replace(/\D/g, "").replace(/^855/, "").replace(/^0+/, "");
+}
+
+function phoneLookupVariants(digits: string) {
+  return [`+855${digits}`, `+8550${digits}`, `0${digits}`, digits];
 }
 function hashCode(code: string) {
   return createHash("sha256").update(code).digest("hex");
@@ -41,7 +45,8 @@ export const requestPasswordResetTelegram = createServerFn({ method: "POST" })
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("id")
-      .eq("phone", `+855${digits}`)
+      .in("phone", phoneLookupVariants(digits))
+      .limit(1)
       .maybeSingle();
 
     const resetId = randomUUID();
