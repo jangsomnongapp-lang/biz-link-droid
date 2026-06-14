@@ -43,7 +43,7 @@ function NewRentalRequestPage() {
   async function submit() {
     if (!user) return;
     if (!title.trim() || !category || !location.trim()) {
-      toast.error("Please fill all required fields");
+      toast.error(t("fill_required_fields"));
       return;
     }
     setSubmitting(true);
@@ -59,7 +59,7 @@ function NewRentalRequestPage() {
         needed_from: neededFrom || null,
       });
       if (error) throw error;
-      toast.success("Request posted");
+      toast.success(t("rental_request_posted"));
       nav({ to: "/suppliers" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
@@ -74,7 +74,7 @@ function NewRentalRequestPage() {
         <Link to="/profile" className="rounded-full p-2 active:bg-white/10">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <h1 className="flex-1 text-center text-base font-semibold">Looking to rent</h1>
+        <h1 className="flex-1 text-center text-base font-semibold">{t("rental_request_title")}</h1>
         <div className="w-9" />
       </header>
 
@@ -82,22 +82,22 @@ function NewRentalRequestPage() {
         <Card>
           <Label>{t("details")}</Label>
           <div>
-            <p className="mb-1 text-sm font-medium">What are you looking for? <span className="text-destructive">*</span></p>
+            <p className="mb-1 text-sm font-medium">{t("rental_request_question")} <span className="text-destructive">*</span></p>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={120}
-              placeholder="e.g. Need a mini-excavator"
+              placeholder={t("rental_request_title_ph")}
               className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-[#534AB7]"
             />
           </div>
           <div>
-            <p className="mb-1 text-sm font-medium">{t("description")} <span className="text-xs font-normal text-text-hint">optional</span></p>
+            <p className="mb-1 text-sm font-medium">{t("description")} <span className="text-xs font-normal text-text-hint">{t("optional")}</span></p>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               maxLength={1000}
-              placeholder="Describe what you need…"
+              placeholder={t("rental_request_desc_ph")}
               rows={3}
               className="w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-[#534AB7]"
             />
@@ -128,15 +128,15 @@ function NewRentalRequestPage() {
         </Card>
 
         <Card>
-          <Label>Budget & timing</Label>
+          <Label>{t("rental_request_budget_timing")}</Label>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="mb-1 text-sm font-medium">Max / day <span className="text-xs font-normal text-text-hint">optional</span></p>
+              <p className="mb-1 text-sm font-medium">{t("rental_request_max_day")} <span className="text-xs font-normal text-text-hint">{t("optional")}</span></p>
               <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-[#534AB7]">
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value === "KHR" ? "KHR" : "USD")}
-                  aria-label="Currency"
+                  aria-label={t("currency")}
                   className="h-full border-r border-border bg-muted px-2 text-xs font-semibold text-foreground outline-none"
                 >
                   <option value="USD">$ USD</option>
@@ -152,7 +152,7 @@ function NewRentalRequestPage() {
               </div>
             </div>
             <div>
-              <p className="mb-1 text-sm font-medium">Needed from <span className="text-xs font-normal text-text-hint">optional</span></p>
+              <p className="mb-1 text-sm font-medium">{t("rental_request_needed_from")} <span className="text-xs font-normal text-text-hint">{t("optional")}</span></p>
               <input
                 type="date"
                 value={neededFrom}
@@ -175,7 +175,7 @@ function NewRentalRequestPage() {
           disabled={submitting}
           className="flex h-12 w-full items-center justify-center rounded-xl bg-[#534AB7] text-sm font-semibold text-white active:scale-[0.99] disabled:opacity-60"
         >
-          {submitting ? t("loading") : "Post request"}
+          {submitting ? t("loading") : t("rental_request_post")}
         </button>
       </div>
     </div>
