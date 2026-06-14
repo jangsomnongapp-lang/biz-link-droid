@@ -1,21 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-import { z } from "zod";
-
-const InputSchema = z.object({
-  flow: z.enum(["material", "rental", "supplier"]),
-  text: z.string().max(1000).optional(),
-  imageDataUrl: z.string().max(7_500_000).optional(),
-});
+import { sanitizeSmartAutofillInput } from "@/lib/smart-autofill.schema";
 
 export const smartAutofill = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => InputSchema.parse(data))
+  .inputValidator((data: unknown) => sanitizeSmartAutofillInput(data))
   .handler(async ({ data }) => {
     try {
+      if (!data.valid) return null;
       const url = process.env.SUPABASE_URL;
       const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
-      const authorization = getRequest().headers.get("authorization");
+      const authorization = getRequest()?.headers.get("authorization") ?? "";
       const token = authorization?.startsWith("Bearer ") ? authorization.slice(7) : "";
       if (!url || !publishableKey || !token) return null;
 
