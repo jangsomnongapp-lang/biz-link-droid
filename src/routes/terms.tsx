@@ -13,7 +13,7 @@ export const Route = createFileRoute("/terms")({
 });
 
 function TermsPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-background pb-10">
@@ -21,7 +21,7 @@ function TermsPage() {
         <button
           onClick={() => navigate({ to: "/settings" })}
           className="rounded-full p-2 active:bg-white/10"
-          aria-label="Back"
+          aria-label={t("back_label")}
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
@@ -30,12 +30,22 @@ function TermsPage() {
       </header>
 
       <article className="mx-auto max-w-2xl space-y-5 px-4 py-5 text-sm leading-relaxed text-foreground">
-        <p className="text-xs text-muted-foreground">Last updated: April 2026</p>
+        <p className="text-xs text-muted-foreground">{t("last_updated_april_2026")}</p>
 
-        <Section title="1. Acceptance of terms">
-          By creating an account or using BuildHub, you agree to these Terms & Conditions.
-          If you do not agree, please do not use the app.
-        </Section>
+        {lang === "km" ? <>
+          <Section title="១. ការយល់ព្រមលើលក្ខខណ្ឌ">តាមរយៈការបង្កើតគណនី ឬប្រើប្រាស់ BuildHub អ្នកយល់ព្រមតាមលក្ខខណ្ឌទាំងនេះ។ បើមិនយល់ព្រម សូមកុំប្រើកម្មវិធី។</Section>
+          <Section title="២. សិទ្ធិប្រើប្រាស់">អ្នកត្រូវមានអាយុយ៉ាងតិច ១៨ ឆ្នាំ និងអាចចុះកិច្ចសន្យាតាមច្បាប់។ អ្នកទទួលខុសត្រូវចំពោះភាពត្រឹមត្រូវនៃព័ត៌មានដែលបានផ្តល់។</Section>
+          <Section title="៣. គណនី និងសុវត្ថិភាព">រក្សាពាក្យសម្ងាត់របស់អ្នកជាការសម្ងាត់។ អ្នកទទួលខុសត្រូវចំពោះសកម្មភាពក្នុងគណនី និងត្រូវជូនដំណឹងភ្លាមៗបើសង្ស័យថាមានការចូលប្រើដោយគ្មានសិទ្ធិ។</Section>
+          <Section title="៤. មាតិការបស់អ្នកប្រើ">អ្នកនៅតែជាម្ចាស់មាតិកាដែលបានបង្ហោះ ប៉ុន្តែផ្តល់សិទ្ធិឱ្យ BuildHub បង្ហាញវានៅលើវេទិកា។ ហាមបង្ហោះមាតិកាខុសច្បាប់ បំពាន បោកបញ្ឆោត ឬរំលោភសិទ្ធិ។</Section>
+          <Section title="៥. ការងារ គម្រោង និងការទូទាត់">BuildHub ភ្ជាប់អតិថិជន និងអ្នកជំនាញ។ កិច្ចព្រមព្រៀង ការទូទាត់ និងការងារគឺរវាងភាគីពាក់ព័ន្ធ។ BuildHub មិនទទួលខុសត្រូវចំពោះគុណភាព សុវត្ថិភាព ភាពស្របច្បាប់ ឬការទូទាត់ទេ។</Section>
+          <Section title="៦. សកម្មភាពហាមឃាត់">ហាមផ្ញើសាររំខាន បៀតបៀន បោកប្រាស់ ទាញយកទិន្នន័យ ឬព្យាយាមរំលងសុវត្ថិភាព។ ការបំពានអាចនាំឱ្យលុបមាតិកា ឬផ្អាកគណនី។</Section>
+          <Section title="៧. ការត្រួតពិនិត្យ">យើងអាចពិនិត្យ កែសម្រួល ឬលុបមាតិកាដែលរំលោភលក្ខខណ្ឌ ឬច្បាប់ និងផ្អាកគណនីតាមការចាំបាច់។</Section>
+          <Section title="៨. ការបដិសេធការធានា">សេវាត្រូវបានផ្តល់ជូនតាមស្ថានភាពជាក់ស្តែង ដោយគ្មានការធានា។ យើងមិនធានាថាសេវានឹងដំណើរការដោយមិនដាច់ ឬគ្មានកំហុសទេ។</Section>
+          <Section title="៩. ដែនកំណត់នៃការទទួលខុសត្រូវ">តាមកម្រិតអតិបរមាដែលច្បាប់អនុញ្ញាត BuildHub មិនទទួលខុសត្រូវចំពោះការខូចខាតដោយប្រយោល ឬបន្តបន្ទាប់ពីការប្រើវេទិកាទេ។</Section>
+          <Section title="១០. ការផ្លាស់ប្តូរ">យើងអាចកែប្រែលក្ខខណ្ឌទាំងនេះ។ ការបន្តប្រើប្រាស់ក្រោយការកែប្រែមានន័យថាអ្នកយល់ព្រមនឹងលក្ខខណ្ឌថ្មី។</Section>
+          <Section title="១១. ទំនាក់ទំនង">មានសំណួរអំពីលក្ខខណ្ឌ? សូមចូលទៅ ការកំណត់ → រាយការណ៍បញ្ហា។</Section>
+        </> : <>
+          <Section title="1. Acceptance of terms">By creating an account or using BuildHub, you agree to these Terms & Conditions. If you do not agree, please do not use the app.</Section>
 
         <Section title="2. Eligibility">
           You must be at least 18 years old and legally able to enter contracts to use the
@@ -87,6 +97,7 @@ function TermsPage() {
         <Section title="11. Contact">
           Questions about these terms? Reach us through Settings → Report a problem.
         </Section>
+        </>}
       </article>
     </div>
   );

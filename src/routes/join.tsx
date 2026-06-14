@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-r
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/join")({
   validateSearch: (s: Record<string, unknown>): { ref?: string } => ({
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/join")({
 function JoinPage() {
   const { ref } = useSearch({ from: "/join" });
   const { user, loading } = useAuth();
+  const { t } = useI18n();
   const nav = useNavigate();
 
   useEffect(() => {
@@ -42,9 +44,9 @@ function JoinPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
-        <p className="text-sm text-muted-foreground">Loading invitation...</p>
+        <p className="text-sm text-muted-foreground">{t("loading_invitation")}</p>
         <Link to="/" className="mt-3 inline-block text-sm font-semibold text-primary">
-          Continue to app →
+          {t("continue_to_app")}
         </Link>
       </div>
     </div>
