@@ -48,6 +48,7 @@ import { Route as PostsNewRouteImport } from './routes/posts.new'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
 import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
+import { Route as FindMaterialResultsRouteImport } from './routes/find-material.results'
 import { Route as FindMaterialNewRouteImport } from './routes/find-material.new'
 import { Route as FindMaterialMineRouteImport } from './routes/find-material.mine'
 import { Route as AdminTelegramRouteImport } from './routes/admin.telegram'
@@ -261,6 +262,11 @@ const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
   path: '/listings/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FindMaterialResultsRoute = FindMaterialResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => FindMaterialRoute,
+} as any)
 const FindMaterialNewRoute = FindMaterialNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -380,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/admin/telegram': typeof AdminTelegramRoute
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
+  '/find-material/results': typeof FindMaterialResultsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -438,6 +445,7 @@ export interface FileRoutesByTo {
   '/admin/telegram': typeof AdminTelegramRoute
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
+  '/find-material/results': typeof FindMaterialResultsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -497,6 +505,7 @@ export interface FileRoutesById {
   '/admin/telegram': typeof AdminTelegramRoute
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
+  '/find-material/results': typeof FindMaterialResultsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -557,6 +566,7 @@ export interface FileRouteTypes {
     | '/admin/telegram'
     | '/find-material/mine'
     | '/find-material/new'
+    | '/find-material/results'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -615,6 +625,7 @@ export interface FileRouteTypes {
     | '/admin/telegram'
     | '/find-material/mine'
     | '/find-material/new'
+    | '/find-material/results'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -673,6 +684,7 @@ export interface FileRouteTypes {
     | '/admin/telegram'
     | '/find-material/mine'
     | '/find-material/new'
+    | '/find-material/results'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -1030,6 +1042,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/find-material/results': {
+      id: '/find-material/results'
+      path: '/results'
+      fullPath: '/find-material/results'
+      preLoaderRoute: typeof FindMaterialResultsRouteImport
+      parentRoute: typeof FindMaterialRoute
+    }
     '/find-material/new': {
       id: '/find-material/new'
       path: '/new'
@@ -1155,11 +1174,13 @@ declare module '@tanstack/react-router' {
 interface FindMaterialRouteChildren {
   FindMaterialMineRoute: typeof FindMaterialMineRoute
   FindMaterialNewRoute: typeof FindMaterialNewRoute
+  FindMaterialResultsRoute: typeof FindMaterialResultsRoute
 }
 
 const FindMaterialRouteChildren: FindMaterialRouteChildren = {
   FindMaterialMineRoute: FindMaterialMineRoute,
   FindMaterialNewRoute: FindMaterialNewRoute,
+  FindMaterialResultsRoute: FindMaterialResultsRoute,
 }
 
 const FindMaterialRouteWithChildren = FindMaterialRoute._addFileChildren(

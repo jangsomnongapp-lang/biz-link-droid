@@ -48,8 +48,8 @@ function ScanResultsPage() {
           q
             .replace(/[^\p{L}\p{N}\s-]/gu, " ")
             .split(/\s+/)
-            .map((term) => term.trim())
-            .filter((term) => term.length >= 2),
+            .map((term: string) => term.trim())
+            .filter((term: string) => term.length >= 2),
         ),
       ).slice(0, 6);
       const filters = [q.trim(), ...terms]
