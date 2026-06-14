@@ -683,7 +683,7 @@ function ProfilePage() {
 
       {/* My listings */}
       <Section
-        title={t("my_projects")}
+        title={t("nav_listings")}
         action={
           myListings.length > 3 ? (
             <button
