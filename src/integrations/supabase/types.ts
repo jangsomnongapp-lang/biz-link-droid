@@ -1972,6 +1972,51 @@ export type Database = {
         }
         Relationships: []
       }
+      telegram_password_resets: {
+        Row: {
+          attempts: number
+          code_hash: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          last_sent_at: string | null
+          phone_digits: string
+          start_token_hash: string
+          telegram_chat_id: number | null
+          updated_at: string
+          used_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          code_hash?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          last_sent_at?: string | null
+          phone_digits: string
+          start_token_hash: string
+          telegram_chat_id?: number | null
+          updated_at?: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_sent_at?: string | null
+          phone_digits?: string
+          start_token_hash?: string
+          telegram_chat_id?: number | null
+          updated_at?: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_categories: {
         Row: {
           category_id: string
