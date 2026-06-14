@@ -1,11 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { AutofillHint } from "@/components/AutofillHint";
+import { smartAutofill } from "@/lib/smart-autofill.functions";
 
 export const Route = createFileRoute("/posts/new")({
   component: () => (
@@ -44,9 +47,41 @@ function NewProductPage() {
   const [price, setPrice] = useState("");
   const [discountPrice, setDiscountPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [marketPriceRange, setMarketPriceRange] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofilled, setAutofilled] = useState<Set<string>>(new Set());
   const fileInput = useRef<HTMLInputElement>(null);
+  const fillForm = useServerFn(smartAutofill);
+  const requestId = useRef(0);
+
+  async function runAutofill(input: { text?: string; imageDataUrl?: string }) {
+    const id = ++requestId.current;
+    setAutofilling(true);
+    try {
+      const result = await fillForm({ data: { flow: "supplier", ...input } });
+      if (!result || id !== requestId.current) return;
+      const filled = new Set<string>();
+      if (!title.trim() && result.name) { setTitle(result.name); filled.add("title"); }
+      if (!category.trim() && result.category) { setCategory(result.category); filled.add("category"); }
+      if (!description.trim() && result.description) { setDescription(result.description); filled.add("description"); }
+      if (result.marketPriceRange) setMarketPriceRange(result.marketPriceRange);
+      setAutofilled((previous) => new Set([...previous, ...filled]));
+    } catch {
+      // Silent fallback keeps manual entry available.
+    } finally {
+      if (id === requestId.current) setAutofilling(false);
+    }
+  }
+
+  useEffect(() => {
+    const text = [title, category, description].filter(Boolean).join(". ").trim();
+    if (text.length < 3) return;
+    const timer = window.setTimeout(() => void runAutofill({ text }), 800);
+    return () => window.clearTimeout(timer);
+  }, [title, category, description]);
 
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -61,6 +96,7 @@ function NewProductPage() {
       r.onerror = reject;
       r.readAsDataURL(file);
     });
+    void runAutofill({ imageDataUrl: dataUrl, text: [title, category, description].filter(Boolean).join(". ") });
     setPhotos((p) => [...p, dataUrl].slice(0, 4));
   }
 
@@ -79,7 +115,7 @@ function NewProductPage() {
         setSubmitting(false);
         return;
       }
-      const content = [title.trim(), description.trim()].filter(Boolean).join("\n");
+      const content = [title.trim(), category.trim() ? `Category: ${category.trim()}` : "", description.trim()].filter(Boolean).join("\n");
       const { data, error } = await supabase
         .from("posts")
         .insert({
@@ -169,6 +205,18 @@ function NewProductPage() {
                 placeholder={lang === "km" ? "ឧ. ស៊ីម៉ងត៍ 50kg" : "e.g. Cement 50kg"}
                 className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
               />
+              <AutofillHint loading={autofilling && !title} filled={autofilled.has("title")} />
+            </div>
+
+            <div className="rounded-xl bg-surface p-3 shadow-card">
+              <Label required>{lang === "km" ? "ប្រភេទផលិតផល" : "Product category"}</Label>
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value.slice(0, 80))}
+                placeholder={lang === "km" ? "ឧ. សម្ភារៈសំណង់" : "e.g. Building materials"}
+                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+              />
+              <AutofillHint loading={autofilling && !category} filled={autofilled.has("category")} />
             </div>
 
             <div className="space-y-3 rounded-xl bg-surface p-3 shadow-card">
@@ -194,6 +242,11 @@ function NewProductPage() {
                     );
                   })}
                 </div>
+                {marketPriceRange && (
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    {lang === "km" ? "តម្លៃទីផ្សារយោង" : "Market reference"}: {marketPriceRange}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -240,6 +293,7 @@ function NewProductPage() {
                 placeholder={lang === "km" ? "បរិយាយផលិតផល…" : "Describe the product…"}
                 className="w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-primary"
               />
+              <AutofillHint loading={autofilling && !description} filled={autofilled.has("description")} />
             </div>
 
             <div className="rounded-xl bg-surface p-3 shadow-card">

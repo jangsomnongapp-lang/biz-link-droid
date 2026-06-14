@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
@@ -8,6 +9,8 @@ import { ArrowLeft, MapPin, Plus, X, Truck, HardHat, Wrench, Hammer } from "luci
 import { ProvinceSelect } from "@/components/ProvinceSelect";
 
 import { toast } from "sonner";
+import { AutofillHint } from "@/components/AutofillHint";
+import { smartAutofill } from "@/lib/smart-autofill.functions";
 
 export const Route = createFileRoute("/rentals/new")({
   component: () => (
@@ -36,12 +39,44 @@ function NewRentalPage() {
   const [price, setPrice] = useState("");
   const [currency, setCurrency] = useState<"USD" | "KHR">("USD");
   const [minDays, setMinDays] = useState("1");
+  const [quantity, setQuantity] = useState("");
   const [availability, setAvailability] = useState<"now" | "from_date">("now");
   const [availableFrom, setAvailableFrom] = useState("");
   const [location, setLocation] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofilled, setAutofilled] = useState<Set<string>>(new Set());
   const fileInput = useRef<HTMLInputElement>(null);
+  const fillForm = useServerFn(smartAutofill);
+  const requestId = useRef(0);
+
+  async function runAutofill(input: { text?: string; imageDataUrl?: string }) {
+    const id = ++requestId.current;
+    setAutofilling(true);
+    try {
+      const result = await fillForm({ data: { flow: "rental", ...input } });
+      if (!result || id !== requestId.current) return;
+      const filled = new Set<string>();
+      if (!title.trim() && result.name) { setTitle(result.name); filled.add("title"); }
+      if (!description.trim() && result.description) { setDescription(result.description); filled.add("description"); }
+      if (!category && CATS.some((c) => c.id === result.category)) { setCategory(result.category as Cat); filled.add("category"); }
+      if (!quantity && result.quantity) { setQuantity(result.quantity.replace(/\D/g, "")); filled.add("quantity"); }
+      if (minDays === "1" && result.durationDays) { setMinDays(result.durationDays.replace(/\D/g, "") || "1"); filled.add("duration"); }
+      setAutofilled((previous) => new Set([...previous, ...filled]));
+    } catch {
+      // Silent fallback keeps manual entry available.
+    } finally {
+      if (id === requestId.current) setAutofilling(false);
+    }
+  }
+
+  useEffect(() => {
+    const text = [title, description].filter(Boolean).join(". ").trim();
+    if (text.length < 3) return;
+    const timer = window.setTimeout(() => void runAutofill({ text }), 800);
+    return () => window.clearTimeout(timer);
+  }, [title, description]);
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -52,6 +87,13 @@ function NewRentalPage() {
       return;
     }
     try {
+      const imageDataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      void runAutofill({ imageDataUrl, text: [title, description].filter(Boolean).join(". ") });
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: upErr } = await supabase.storage
@@ -78,7 +120,7 @@ function NewRentalPage() {
         .insert({
           user_id: user.id,
           title: title.trim(),
-          description: description.trim() || null,
+          description: [description.trim(), quantity ? `Quantity: ${quantity}` : ""].filter(Boolean).join("\n") || null,
           category,
           price_per_day: Number(price),
           currency,
@@ -156,6 +198,7 @@ function NewRentalPage() {
               placeholder={t("rental_name_ph")}
               className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-[#534AB7]"
             />
+            <AutofillHint loading={autofilling && !title} filled={autofilled.has("title")} />
           </div>
           <div>
             <p className="mb-1 text-sm font-medium">{t("description")} <span className="text-xs font-normal text-text-hint">{t("optional")}</span></p>
@@ -166,6 +209,7 @@ function NewRentalPage() {
               rows={3}
               className="w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-[#534AB7]"
             />
+            <AutofillHint loading={autofilling && !description} filled={autofilled.has("description")} />
           </div>
           <div>
             <p className="mb-2 text-sm font-medium">{t("category_label")} <span className="text-destructive">*</span></p>
@@ -189,6 +233,7 @@ function NewRentalPage() {
                 );
               })}
             </div>
+            <AutofillHint loading={autofilling && !category} filled={autofilled.has("category")} />
           </div>
         </Card>
 
@@ -225,7 +270,19 @@ function NewRentalPage() {
                 placeholder="1"
                 className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-[#534AB7]"
               />
+              <AutofillHint loading={autofilling} filled={autofilled.has("duration")} />
             </div>
+          </div>
+          <div>
+            <p className="mb-1 text-sm font-medium">{t("quantity")} <span className="text-xs font-normal text-text-hint">{t("optional")}</span></p>
+            <input
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ""))}
+              inputMode="numeric"
+              placeholder="1"
+              className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+            />
+            <AutofillHint loading={autofilling && !quantity} filled={autofilled.has("quantity")} />
           </div>
           <div>
             <p className="mb-2 text-sm font-medium">{t("available_from")}</p>
