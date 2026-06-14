@@ -461,6 +461,18 @@ const dict: Dict = {
   rental_request_post: { km: "បង្ហោះសំណើ", en: "Post request" },
   rental_request_posted: { km: "បានបង្ហោះសំណើ", en: "Request posted" },
   fill_required_fields: { km: "សូមបំពេញព័ត៌មានដែលចាំបាច់ទាំងអស់", en: "Please fill all required fields" },
+  page_not_found: { km: "រកមិនឃើញទំព័រ", en: "Page not found" },
+  go_home: { km: "ទៅទំព័រដើម", en: "Go home" },
+  back_label: { km: "ត្រឡប់", en: "Back" },
+  loading_invitation: { km: "កំពុងផ្ទុកការអញ្ជើញ...", en: "Loading invitation..." },
+  continue_to_app: { km: "បន្តទៅកម្មវិធី →", en: "Continue to app →" },
+  supplier_profile: { km: "ប្រវត្តិរូបអ្នកផ្គត់ផ្គង់", en: "Supplier Profile" },
+  no_rental_requests: { km: "មិនទាន់មានសំណើជួលទេ។ សូមបង្ហោះមុនគេ។", en: "No requests yet. Be the first to post." },
+  max_4_photos: { km: "អតិបរមា ៤ រូប", en: "Max 4 photos" },
+  max_4: { km: "អតិបរមា ៤", en: "max 4" },
+  upload_failed: { km: "បង្ហោះមិនបានសម្រេច", en: "Upload failed" },
+  error_generic: { km: "មានបញ្ហាកើតឡើង", en: "Error" },
+  last_updated_april_2026: { km: "បានធ្វើបច្ចុប្បន្នភាពចុងក្រោយ៖ ខែមេសា ឆ្នាំ២០២៦", en: "Last updated: April 2026" },
 };
 
 interface I18nCtx {
