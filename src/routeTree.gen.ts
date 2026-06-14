@@ -60,6 +60,7 @@ import { Route as SuppliersStoreIdEditRouteImport } from './routes/suppliers.$st
 import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
 import { Route as RentalsRequestNewRouteImport } from './routes/rentals.request.new'
 import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
+import { Route as ApiPublicTelegramPasswordResetRouteImport } from './routes/api/public/telegram-password-reset'
 import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -320,6 +321,12 @@ const ProjectsNewWorkerIdRoute = ProjectsNewWorkerIdRouteImport.update({
   path: '/projects/new/$workerId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTelegramPasswordResetRoute =
+  ApiPublicTelegramPasswordResetRouteImport.update({
+    id: '/api/public/telegram-password-reset',
+    path: '/api/public/telegram-password-reset',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTelegramNotifyRoute = ApiPublicTelegramNotifyRouteImport.update({
   id: '/api/public/telegram-notify',
   path: '/api/public/telegram-notify',
@@ -391,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
+  '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
   '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
@@ -448,6 +456,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
+  '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
   '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
@@ -506,6 +515,7 @@ export interface FileRoutesById {
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
+  '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
   '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
@@ -565,6 +575,7 @@ export interface FileRouteTypes {
     | '/messages/'
     | '/suppliers/'
     | '/api/public/telegram-notify'
+    | '/api/public/telegram-password-reset'
     | '/projects/new/$workerId'
     | '/rentals/request/new'
     | '/supplier/join/$token'
@@ -622,6 +633,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/suppliers'
     | '/api/public/telegram-notify'
+    | '/api/public/telegram-password-reset'
     | '/projects/new/$workerId'
     | '/rentals/request/new'
     | '/supplier/join/$token'
@@ -679,6 +691,7 @@ export interface FileRouteTypes {
     | '/messages/'
     | '/suppliers/'
     | '/api/public/telegram-notify'
+    | '/api/public/telegram-password-reset'
     | '/projects/new/$workerId'
     | '/rentals/request/new'
     | '/supplier/join/$token'
@@ -733,6 +746,7 @@ export interface RootRouteChildren {
   MessagesIndexRoute: typeof MessagesIndexRoute
   SuppliersIndexRoute: typeof SuppliersIndexRoute
   ApiPublicTelegramNotifyRoute: typeof ApiPublicTelegramNotifyRoute
+  ApiPublicTelegramPasswordResetRoute: typeof ApiPublicTelegramPasswordResetRoute
   ProjectsNewWorkerIdRoute: typeof ProjectsNewWorkerIdRoute
   RentalsRequestNewRoute: typeof RentalsRequestNewRoute
   SupplierJoinTokenRoute: typeof SupplierJoinTokenRoute
@@ -1100,6 +1114,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsNewWorkerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/telegram-password-reset': {
+      id: '/api/public/telegram-password-reset'
+      path: '/api/public/telegram-password-reset'
+      fullPath: '/api/public/telegram-password-reset'
+      preLoaderRoute: typeof ApiPublicTelegramPasswordResetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/telegram-notify': {
       id: '/api/public/telegram-notify'
       path: '/api/public/telegram-notify'
@@ -1214,6 +1235,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesIndexRoute: MessagesIndexRoute,
   SuppliersIndexRoute: SuppliersIndexRoute,
   ApiPublicTelegramNotifyRoute: ApiPublicTelegramNotifyRoute,
+  ApiPublicTelegramPasswordResetRoute: ApiPublicTelegramPasswordResetRoute,
   ProjectsNewWorkerIdRoute: ProjectsNewWorkerIdRoute,
   RentalsRequestNewRoute: RentalsRequestNewRoute,
   SupplierJoinTokenRoute: SupplierJoinTokenRoute,
