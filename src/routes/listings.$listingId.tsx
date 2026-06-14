@@ -282,7 +282,7 @@ function ListingDetailPage() {
   if (loading)
     return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">{t("loading")}</div>;
   if (!listing)
-    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Not found</div>;
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">{t("page_not_found")}</div>;
 
   const isOwn = user?.id === listing.user_id;
 

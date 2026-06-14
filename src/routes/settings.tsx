@@ -210,7 +210,7 @@ function SettingsPage() {
               icon={Store}
               iconBg="bg-emerald-100"
               iconColor="text-emerald-600"
-              label="Supplier Profile"
+              label={t("supplier_profile")}
             />
             <RowButton
               onClick={() => navigate({ to: "/suppliers/$storeId/edit", params: { storeId: mySupplierStoreId } })}
@@ -311,19 +311,19 @@ function SettingsPage() {
             icon={Send}
             iconBg="bg-sky-100"
             iconColor="text-sky-600"
-            label="Telegram notifications"
+            label={t("telegram_notifications")}
           />
         </Group>
       )}
 
       {(profile?.is_super_user || profile?.master_account_id) && (
-        <Group title="Super user">
+        <Group title={t("super_user")}>
           <RowButton
             onClick={() => navigate({ to: "/superuser/panel" })}
             icon={UserCog}
             iconBg="bg-indigo-100"
             iconColor="text-indigo-600"
-            label="Switch identity"
+            label={t("switch_identity")}
           />
         </Group>
       )}

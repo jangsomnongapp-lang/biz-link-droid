@@ -409,11 +409,11 @@ function ConversationPage() {
       "text/plain",
     ];
     if (file.type && !ALLOWED_DOC_TYPES.includes(file.type)) {
-      toast.error("Unsupported file type");
+      toast.error(t("unsupported_file_type"));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File must be under 5MB");
+      toast.error(t("file_under_5mb"));
       return;
     }
     setSending(true);
@@ -449,11 +449,11 @@ function ConversationPage() {
         const duration = (Date.now() - recordStartRef.current) / 1000;
         // Cap voice messages: 2 MB and 2 minutes
         if (blob.size > 2 * 1024 * 1024) {
-          toast.error("Voice message too large (max 2 MB)");
+          toast.error(t("voice_too_large"));
           return;
         }
         if (duration > 120) {
-          toast.error("Voice message too long (max 2 minutes)");
+          toast.error(t("voice_too_long"));
           return;
         }
         setSending(true);
@@ -473,7 +473,7 @@ function ConversationPage() {
       mr.start();
       setRecording(true);
     } catch {
-      toast.error("Microphone access denied");
+      toast.error(t("microphone_denied"));
     }
   }
 

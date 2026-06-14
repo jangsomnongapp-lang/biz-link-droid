@@ -48,7 +48,7 @@ function NewRentalPage() {
     e.target.value = "";
     if (!file || !user) return;
     if (photos.length >= 4) {
-      toast.error("Max 4 photos");
+      toast.error(t("max_4_photos"));
       return;
     }
     try {
@@ -61,14 +61,14 @@ function NewRentalPage() {
       const { data: pub } = supabase.storage.from("rental-photos").getPublicUrl(path);
       setPhotos((p) => [...p, pub.publicUrl]);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Upload failed");
+      toast.error(err instanceof Error ? err.message : t("upload_failed"));
     }
   }
 
   async function submit() {
     if (!user) return;
     if (!title.trim() || !category || !price || !location.trim()) {
-      toast.error("Please fill all required fields");
+      toast.error(t("fill_required_fields"));
       return;
     }
     setSubmitting(true);
@@ -99,7 +99,7 @@ function NewRentalPage() {
       toast.success(t("rental_review_notice"));
       nav({ to: "/profile" });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Error");
+      toast.error(e instanceof Error ? e.message : t("error_generic"));
     } finally {
       setSubmitting(false);
     }
@@ -117,7 +117,7 @@ function NewRentalPage() {
 
       <div className="flex-1 space-y-3 p-3 pb-24">
         <Card>
-          <Label>{t("photos")} <span className="ml-1 text-xs font-normal text-muted-foreground">max 4</span></Label>
+          <Label>{t("photos")} <span className="ml-1 text-xs font-normal text-muted-foreground">{t("max_4")}</span></Label>
           <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPickFile} />
           <div className="grid grid-cols-4 gap-2">
             <button
@@ -158,7 +158,7 @@ function NewRentalPage() {
             />
           </div>
           <div>
-            <p className="mb-1 text-sm font-medium">{t("description")} <span className="text-xs font-normal text-text-hint">optional</span></p>
+            <p className="mb-1 text-sm font-medium">{t("description")} <span className="text-xs font-normal text-text-hint">{t("optional")}</span></p>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -201,7 +201,7 @@ function NewRentalPage() {
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value === "KHR" ? "KHR" : "USD")}
-                  aria-label="Currency"
+                  aria-label={t("currency")}
                   className="h-full border-r border-border bg-muted px-2 text-xs font-semibold text-foreground outline-none"
                 >
                   <option value="USD">$ USD</option>
@@ -217,7 +217,7 @@ function NewRentalPage() {
               </div>
             </div>
             <div>
-              <p className="mb-1 text-sm font-medium">{t("min_days")} <span className="text-xs font-normal text-text-hint">optional</span></p>
+              <p className="mb-1 text-sm font-medium">{t("min_days")} <span className="text-xs font-normal text-text-hint">{t("optional")}</span></p>
               <input
                 value={minDays}
                 onChange={(e) => setMinDays(e.target.value.replace(/[^0-9]/g, ""))}

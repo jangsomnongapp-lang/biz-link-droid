@@ -641,7 +641,7 @@ function RentMode({
 
           {loadingReq && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
           {!loadingReq && filteredRequests.length === 0 && (
-            <p className="py-10 text-center text-sm text-muted-foreground">No requests yet. Be the first to post.</p>
+            <p className="py-10 text-center text-sm text-muted-foreground">{t("no_rental_requests")}</p>
           )}
           {filteredRequests.map((r) => (
             <div key={r.id} className="rounded-2xl border border-dashed border-[#7F77DD] bg-surface p-3 shadow-card">

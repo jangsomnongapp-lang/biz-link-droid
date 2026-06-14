@@ -134,7 +134,7 @@ function RewardsPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => nav({ to: "/settings" })}
-              aria-label="Back"
+              aria-label={lang === "km" ? "ត្រឡប់" : "Back"}
               className="h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-700 active:bg-zinc-200 flex flex-row"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -144,11 +144,11 @@ function RewardsPage() {
             </div>
             <div>
               <div className="text-base font-bold leading-tight">{lang === "km" ? "រង្វាន់របស់ខ្ញុំ" : "My rewards"}</div>
-              <div className="text-[11px] text-zinc-500">My prizes and tickets</div>
+              <div className="text-[11px] text-zinc-500">{lang === "km" ? "រង្វាន់ និងសំបុត្ររបស់ខ្ញុំ" : "My prizes and tickets"}</div>
             </div>
           </div>
           <div className="flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-bold text-white shadow">
-            Day {cycleDay} <Flame className="h-3.5 w-3.5" />
+            {lang === "km" ? `ថ្ងៃទី ${cycleDay}` : `Day ${cycleDay}`} <Flame className="h-3.5 w-3.5" />
           </div>
         </div>
 
@@ -158,7 +158,7 @@ function RewardsPage() {
           <>
             {/* Today's active ticket label */}
             <div className="mt-5 text-[12px] text-zinc-500 font-bold uppercase tracking-wider">
-              Streak
+              {lang === "km" ? "ការបន្តប្រចាំថ្ងៃ" : "Streak"}
             </div>
 
             {/* Lottery ticket (yellow) */}
@@ -178,14 +178,14 @@ function RewardsPage() {
                 <div className="flex w-24 flex-col items-center rounded-lg bg-yellow-100 p-2 text-center ring-1 ring-orange-300/50">
                   <Beer className="h-7 w-7 text-orange-500" />
                   <div className="mt-1 text-[10px] leading-tight text-zinc-700">
-                    Daily $1<br />Weekly $15<br />Monthly $40
+                     {lang === "km" ? <>ប្រចាំថ្ងៃ $1<br />ប្រចាំសប្តាហ៍ $15<br />ប្រចាំខែ $40</> : <>Daily $1<br />Weekly $15<br />Monthly $40</>}
                   </div>
                 </div>
               </div>
               <div className="flex items-center justify-between border-t-2 border-dashed border-orange-300 bg-yellow-300 px-4 py-2 text-sm font-bold text-zinc-900">
                 <span className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-emerald-600" />
-                  {ticketNum !== null ? "Validated ✓" : (lang === "km" ? "មិនទាន់ឆែក" : "Not checked in")}
+                   {ticketNum !== null ? (lang === "km" ? "បានបញ្ជាក់ ✓" : "Validated ✓") : (lang === "km" ? "មិនទាន់ឆែក" : "Not checked in")}
                 </span>
                 <span className="font-mono text-orange-700">#{ticketDisplay}</span>
               </div>
@@ -195,14 +195,16 @@ function RewardsPage() {
             <div className="mt-4 rounded-2xl bg-zinc-50 p-4 ring-1 ring-zinc-200">
               <div className="flex items-end justify-between">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wide text-zinc-500">Streak</div>
+                  <div className="text-[11px] uppercase tracking-wide text-zinc-500">{lang === "km" ? "ការបន្តប្រចាំថ្ងៃ" : "Streak"}</div>
                   <div className="mt-1 text-lg font-bold">
                     <span className="text-orange-500">{cycleDay}</span>
-                    <span className="text-zinc-500 text-sm"> / {goal} days</span>
+                    <span className="text-zinc-500 text-sm"> / {goal} {lang === "km" ? "ថ្ងៃ" : "days"}</span>
                   </div>
                 </div>
                 <div className="text-[11px] text-zinc-500">
-                  {remaining > 0 ? `${remaining} more → monthly ticket` : "Monthly ticket unlocked!"}
+                  {remaining > 0
+                    ? (lang === "km" ? `នៅសល់ ${remaining} ថ្ងៃ → សំបុត្រប្រចាំខែ` : `${remaining} more → monthly ticket`)
+                    : (lang === "km" ? "បានបើកសំបុត្រប្រចាំខែ!" : "Monthly ticket unlocked!")}
                 </div>
               </div>
               <div className="mt-3 flex items-center justify-between gap-1.5">
@@ -221,7 +223,7 @@ function RewardsPage() {
 
             {/* Active tickets */}
             <div className="mt-4 rounded-2xl bg-zinc-50 p-4 ring-1 ring-zinc-200">
-              <div className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Active tickets</div>
+              <div className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">{lang === "km" ? "សំបុត្រដែលមានសុពលភាព" : "Active tickets"}</div>
               <div className="mt-3 space-y-3">
                 <DrawRowItem
                   title={lang === "km" ? "ឆ្នោតប្រចាំសប្តាហ៍" : "Weekly draw"}
@@ -246,10 +248,10 @@ function RewardsPage() {
                   <Beer className="h-5 w-5 text-white" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-bold text-orange-700">You won today's draw!</div>
-                  <div className="text-[11px] text-orange-600">2 beers waiting · {hoursLeft(activeClaim.expires_at)}h left to claim</div>
+                  <div className="text-sm font-bold text-orange-700">{lang === "km" ? "អ្នកបានឈ្នះឆ្នោតថ្ងៃនេះ!" : "You won today's draw!"}</div>
+                  <div className="text-[11px] text-orange-600">{lang === "km" ? `មានរង្វាន់កំពុងរង់ចាំ · នៅសល់ ${hoursLeft(activeClaim.expires_at)} ម៉ោង` : `2 beers waiting · ${hoursLeft(activeClaim.expires_at)}h left to claim`}</div>
                 </div>
-                <span className="rounded-full bg-orange-500 px-3 py-1.5 text-xs font-bold text-white">Claim</span>
+                <span className="rounded-full bg-orange-500 px-3 py-1.5 text-xs font-bold text-white">{lang === "km" ? "ទាមទារ" : "Claim"}</span>
               </button>
             )}
 
@@ -263,7 +265,7 @@ function RewardsPage() {
               </div>
               <div className="flex-1">
                 <div className="text-sm font-bold">BuildHub Rewards</div>
-                <div className="text-[11px] text-zinc-500">Questions about prizes? Chat with us</div>
+                <div className="text-[11px] text-zinc-500">{lang === "km" ? "មានសំណួរអំពីរង្វាន់? ជជែកជាមួយយើង" : "Questions about prizes? Chat with us"}</div>
               </div>
               <ChevronRight className="h-4 w-4 text-zinc-400" />
             </button>

@@ -136,7 +136,7 @@ function RentalDetailPage() {
     return <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>;
   }
   if (!rental) {
-    return <div className="p-6 text-center text-sm text-muted-foreground">Not found</div>;
+    return <div className="p-6 text-center text-sm text-muted-foreground">{t("page_not_found")}</div>;
   }
 
   const catLabel = CAT_LABELS[rental.category]?.[lang] ?? rental.category;

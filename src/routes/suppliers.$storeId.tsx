@@ -201,7 +201,7 @@ function SupplierProfilePage() {
           <Link to="/suppliers" className="rounded-full p-1 active:bg-white/10">
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h2 className="text-base font-semibold">Supplier Profile</h2>
+          <h2 className="text-base font-semibold">{t("supplier_profile")}</h2>
           <div className="flex items-center gap-1">
             <ShareButton
               path={`/suppliers/${storeId}`}
