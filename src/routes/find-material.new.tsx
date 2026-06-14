@@ -12,6 +12,9 @@ import { AutofillHint } from "@/components/AutofillHint";
 import { smartAutofill } from "@/lib/smart-autofill.functions";
 
 export const Route = createFileRoute("/find-material/new")({
+  validateSearch: (search: Record<string, unknown>): { scan?: boolean } => ({
+    scan: search.scan === true || search.scan === "true",
+  }),
   component: () => (
     <RequireAuth>
       <NewMaterialPage />
@@ -43,6 +46,7 @@ const CATEGORIES: { id: Cat; en: string; km: string; emoji: string }[] = [
 ];
 
 function NewMaterialPage() {
+  const { scan } = Route.useSearch();
   const { lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
@@ -60,6 +64,13 @@ function NewMaterialPage() {
   const fileInput = useRef<HTMLInputElement>(null);
   const fillForm = useServerFn(smartAutofill);
   const requestId = useRef(0);
+  const openedScanner = useRef(false);
+
+  useEffect(() => {
+    if (!scan || openedScanner.current) return;
+    openedScanner.current = true;
+    fileInput.current?.click();
+  }, [scan]);
 
   async function runAutofill(input: { text?: string; imageDataUrl?: string }) {
     const id = ++requestId.current;
@@ -310,6 +321,7 @@ function NewMaterialPage() {
             ref={fileInput}
             type="file"
             accept="image/*"
+            capture={scan ? "environment" : undefined}
             className="hidden"
             onChange={onPickFile}
           />
