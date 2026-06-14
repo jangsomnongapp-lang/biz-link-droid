@@ -8,7 +8,6 @@ import { useI18n } from "@/lib/i18n";
 import { smartAutofill } from "@/lib/smart-autofill.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, LoaderCircle, Plus, FileText } from "lucide-react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/find-material")({
   component: () => (
@@ -50,14 +49,12 @@ function FindMaterialEntry() {
       const result = await identifyProduct({ data: { flow: "material", imageDataUrl } });
       const product = result?.name?.trim();
       if (!product) {
-        toast.error(
-          lang === "km" ? "មិនអាចស្គាល់ផលិតផលនេះបានទេ" : "Could not identify this product",
-        );
+        window.location.assign("/find-material/results");
         return;
       }
-      window.location.assign(`/suppliers?q=${encodeURIComponent(product)}`);
+      window.location.assign(`/find-material/results?q=${encodeURIComponent(product)}`);
     } catch {
-      toast.error(lang === "km" ? "សូមសាកល្បងរូបភាពផ្សេង" : "Please try another picture");
+      window.location.assign("/find-material/results");
     } finally {
       setScanning(false);
     }
