@@ -450,6 +450,16 @@ const dict: Dict = {
     en: "Your listing will be reviewed before going live.",
   },
   no_rentals_listed: { km: "មិនទាន់មានការជួល", en: "No rentals available yet" },
+  rental_request_title: { km: "កំពុងស្វែងរកជួល", en: "Looking to rent" },
+  rental_request_question: { km: "តើអ្នកកំពុងស្វែងរកអ្វី?", en: "What are you looking for?" },
+  rental_request_title_ph: { km: "ឧ. ត្រូវការអេស្កាវ៉ាទ័រខ្នាតតូច", en: "e.g. Need a mini-excavator" },
+  rental_request_desc_ph: { km: "ពិពណ៌នាអ្វីដែលអ្នកត្រូវការ…", en: "Describe what you need…" },
+  rental_request_budget_timing: { km: "ថវិកា និងពេលវេលា", en: "Budget & timing" },
+  rental_request_max_day: { km: "អតិបរមា / ថ្ងៃ", en: "Max / day" },
+  rental_request_needed_from: { km: "ត្រូវការចាប់ពី", en: "Needed from" },
+  rental_request_post: { km: "បង្ហោះសំណើ", en: "Post request" },
+  rental_request_posted: { km: "បានបង្ហោះសំណើ", en: "Request posted" },
+  fill_required_fields: { km: "សូមបំពេញព័ត៌មានដែលចាំបាច់ទាំងអស់", en: "Please fill all required fields" },
 };
 
 interface I18nCtx {
