@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
-import { phoneToEmail, useAuth } from "@/lib/auth";
+import { phoneLoginEmails, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
@@ -29,11 +29,16 @@ function LoginPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: phoneToEmail(phone),
-        password,
-      });
-      if (error) throw error;
+      let loginError: Error | null = null;
+      for (const email of phoneLoginEmails(phone)) {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (!error) {
+          loginError = null;
+          break;
+        }
+        loginError = error;
+      }
+      if (loginError) throw loginError;
       nav({ to: "/home" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error");
