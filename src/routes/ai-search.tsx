@@ -5,13 +5,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useI18n } from "@/lib/i18n";
 import { aiSearch } from "@/lib/ai-search.functions";
-import {
-  ArrowLeft,
-  Search,
-  Store,
-  ClipboardList,
-  MapPin,
-} from "lucide-react";
+import { ArrowLeft, Search, Store, ClipboardList, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/ai-search")({
@@ -50,13 +44,15 @@ function AiSearchPage() {
   }
 
   useEffect(() => {
-    if (q.trim().length < 3) { setResult(null); return; }
+    if (q.trim().length < 3) {
+      setResult(null);
+      return;
+    }
     const timer = window.setTimeout(() => void run(), 800);
     return () => window.clearTimeout(timer);
   }, [q]);
 
-  const empty =
-    result && !result.error && result.recommendations.length === 0;
+  const empty = result && !result.error && result.recommendations.length === 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -143,11 +139,7 @@ function RecCard({ r }: { r: Rec }) {
       >
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
           {s.logo_url ? (
-            <img
-              src={s.logo_url}
-              alt={s.name}
-              className="h-full w-full object-cover"
-            />
+            <img src={s.logo_url} alt={s.name} className="h-full w-full object-cover" />
           ) : (
             <Store className="h-5 w-5 text-muted-foreground" />
           )}
@@ -179,14 +171,10 @@ function RecCard({ r }: { r: Rec }) {
         <div className="min-w-0 flex-1">
           <div className="line-clamp-1 text-sm font-semibold">{l.title}</div>
           {l.description && (
-            <div className="line-clamp-1 text-xs text-muted-foreground">
-              {l.description}
-            </div>
+            <div className="line-clamp-1 text-xs text-muted-foreground">{l.description}</div>
           )}
           {l.budget != null && (
-            <div className="mt-0.5 text-[11px] font-semibold text-primary">
-              ${l.budget}
-            </div>
+            <div className="mt-0.5 text-[11px] font-semibold text-primary">${l.budget}</div>
           )}
           <ReasonChip reason={r.reason} />
         </div>
@@ -203,13 +191,9 @@ function RecCard({ r }: { r: Rec }) {
       >
         <Avatar name={p.full_name} url={p.avatar_url} size={48} />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold">
-            {p.full_name ?? "—"}
-          </div>
+          <div className="truncate text-sm font-semibold">{p.full_name ?? "—"}</div>
           {p.about_me && (
-            <div className="line-clamp-1 text-xs text-muted-foreground">
-              {p.about_me}
-            </div>
+            <div className="line-clamp-1 text-xs text-muted-foreground">{p.about_me}</div>
           )}
           <ReasonChip reason={r.reason} />
         </div>

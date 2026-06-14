@@ -28,11 +28,12 @@ export async function generateSmartAutofill(input: {
     baseURL: "https://ai.gateway.lovable.dev/v1",
     headers: { "Lovable-API-Key": key },
   });
-  const categoryChoices = input.flow === "material"
-    ? "electrical, cement, steel, zinc, tools, timber, sanitary, paint, other"
-    : input.flow === "rental"
-      ? "vehicles, heavy, light, tools"
-      : "a short construction product category name";
+  const categoryChoices =
+    input.flow === "material"
+      ? "electrical, cement, steel, zinc, tools, timber, sanitary, paint, other"
+      : input.flow === "rental"
+        ? "vehicles, heavy, light, tools"
+        : "a short construction product category name";
   const prompt = `Identify the construction item for a Cambodia marketplace ${input.flow} form.
 Return concise, practical field values in the user's language when text is provided.
 Category must be one of: ${categoryChoices}.
@@ -41,10 +42,9 @@ For rental: include likely quantity and rental duration in whole days only when 
 For supplier: include a broad category and a realistic Cambodia market price range as reference; never return a single exact price.
 Unknown values must be empty strings or empty arrays. Do not mention technology.
 User text: ${input.text?.slice(0, 1000) ?? ""}`;
-  const content: Array<
-    | { type: "text"; text: string }
-    | { type: "image"; image: string }
-  > = [{ type: "text", text: prompt }];
+  const content: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [
+    { type: "text", text: prompt },
+  ];
   if (input.imageDataUrl?.startsWith("data:image/")) {
     content.push({ type: "image", image: input.imageDataUrl });
   }

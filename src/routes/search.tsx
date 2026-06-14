@@ -161,8 +161,7 @@ function SearchPage() {
     { id: "posts", en: "Posts", km: "ប្រកាស", icon: FileText },
   ];
 
-  const totalCount =
-    people.length + suppliers.length + listings.length + posts.length;
+  const totalCount = people.length + suppliers.length + listings.length + posts.length;
 
   const showEmpty = useMemo(() => {
     if (!submitted || loading) return false;
@@ -221,9 +220,7 @@ function SearchPage() {
                     key={tb.id}
                     onClick={() => setTab(tb.id)}
                     className={`whitespace-nowrap rounded-t-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
-                      active
-                        ? "bg-background text-primary"
-                        : "text-white/80 active:bg-white/10"
+                      active ? "bg-background text-primary" : "text-white/80 active:bg-white/10"
                     }`}
                   >
                     {lang === "km" ? tb.km : tb.en}
@@ -249,9 +246,7 @@ function SearchPage() {
           </div>
         ) : showEmpty ? (
           <div className="px-4 py-16 text-center text-sm text-muted-foreground">
-            {lang === "km"
-              ? `មិនមានលទ្ធផលសម្រាប់ "${submitted}"`
-              : `No results for "${submitted}"`}
+            {lang === "km" ? `មិនមានលទ្ធផលសម្រាប់ "${submitted}"` : `No results for "${submitted}"`}
           </div>
         ) : (
           <div className="flex flex-col gap-2 py-2">
@@ -361,13 +356,9 @@ function PersonItem({ p }: { p: PersonRow }) {
     >
       <Avatar name={p.full_name} url={p.avatar_url} size={48} />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold text-foreground">
-          {p.full_name ?? "—"}
-        </div>
+        <div className="truncate text-sm font-semibold text-foreground">{p.full_name ?? "—"}</div>
         {p.about_me && (
-          <div className="line-clamp-1 text-xs text-muted-foreground">
-            {p.about_me}
-          </div>
+          <div className="line-clamp-1 text-xs text-muted-foreground">{p.about_me}</div>
         )}
       </div>
     </Link>
@@ -412,13 +403,9 @@ function ListingItem({ l, lang }: { l: ListingRow; lang: "km" | "en" }) {
         <ClipboardList className="h-5 w-5 text-primary" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="line-clamp-1 text-sm font-semibold text-foreground">
-          {l.title}
-        </div>
+        <div className="line-clamp-1 text-sm font-semibold text-foreground">{l.title}</div>
         {l.description && (
-          <div className="line-clamp-1 text-xs text-muted-foreground">
-            {l.description}
-          </div>
+          <div className="line-clamp-1 text-xs text-muted-foreground">{l.description}</div>
         )}
         <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
           {l.location && (
@@ -465,9 +452,7 @@ function highlight(text: string, term: string) {
   return (
     <>
       {text.slice(0, idx)}
-      <mark className="bg-yellow-200 text-foreground">
-        {text.slice(idx, idx + term.length)}
-      </mark>
+      <mark className="bg-yellow-200 text-foreground">{text.slice(idx, idx + term.length)}</mark>
       {text.slice(idx + term.length)}
     </>
   );

@@ -20,19 +20,26 @@ export const Route = createFileRoute("/find-material/new")({
 });
 
 type Cat =
-  | "electrical" | "cement" | "steel" | "zinc" | "tools"
-  | "timber" | "sanitary" | "paint" | "other";
+  | "electrical"
+  | "cement"
+  | "steel"
+  | "zinc"
+  | "tools"
+  | "timber"
+  | "sanitary"
+  | "paint"
+  | "other";
 
 const CATEGORIES: { id: Cat; en: string; km: string; emoji: string }[] = [
   { id: "electrical", en: "Electrical", km: "អគ្គិសនី", emoji: "⚡" },
-  { id: "cement",     en: "Cement",     km: "ស៊ីម៉ងត៍",  emoji: "🧱" },
-  { id: "steel",      en: "Steel",      km: "ដែក",       emoji: "🔩" },
-  { id: "zinc",       en: "Zinc",       km: "ស័ង្កសី",   emoji: "🏠" },
-  { id: "tools",      en: "Tools",      km: "ឧបករណ៍",   emoji: "🛠️" },
-  { id: "timber",     en: "Timber",     km: "ឈើ",        emoji: "🪵" },
-  { id: "sanitary",   en: "Sanitary",   km: "បង្គន់",   emoji: "🚿" },
-  { id: "paint",      en: "Paint",      km: "ថ្នាំលាប",  emoji: "🎨" },
-  { id: "other",      en: "Other",      km: "ផ្សេងៗ",    emoji: "📦" },
+  { id: "cement", en: "Cement", km: "ស៊ីម៉ងត៍", emoji: "🧱" },
+  { id: "steel", en: "Steel", km: "ដែក", emoji: "🔩" },
+  { id: "zinc", en: "Zinc", km: "ស័ង្កសី", emoji: "🏠" },
+  { id: "tools", en: "Tools", km: "ឧបករណ៍", emoji: "🛠️" },
+  { id: "timber", en: "Timber", km: "ឈើ", emoji: "🪵" },
+  { id: "sanitary", en: "Sanitary", km: "បង្គន់", emoji: "🚿" },
+  { id: "paint", en: "Paint", km: "ថ្នាំលាប", emoji: "🎨" },
+  { id: "other", en: "Other", km: "ផ្សេងៗ", emoji: "📦" },
 ];
 
 function NewMaterialPage() {
@@ -61,10 +68,22 @@ function NewMaterialPage() {
       const result = await fillForm({ data: { flow: "material", ...input } });
       if (!result || id !== requestId.current) return;
       const filled = new Set<string>();
-      if (!itemName.trim() && result.name) { setItemName(result.name); filled.add("name"); }
-      if (!category && CATEGORIES.some((c) => c.id === result.category)) { setCategory(result.category as Cat); filled.add("category"); }
-      if (!note.trim() && result.description) { setNote(result.description.slice(0, 200)); filled.add("description"); }
-      if (!quantity && result.quantity) { setQuantity(result.quantity.replace(/\D/g, "")); filled.add("quantity"); }
+      if (!itemName.trim() && result.name) {
+        setItemName(result.name);
+        filled.add("name");
+      }
+      if (!category && CATEGORIES.some((c) => c.id === result.category)) {
+        setCategory(result.category as Cat);
+        filled.add("category");
+      }
+      if (!note.trim() && result.description) {
+        setNote(result.description.slice(0, 200));
+        filled.add("description");
+      }
+      if (!quantity && result.quantity) {
+        setQuantity(result.quantity.replace(/\D/g, ""));
+        filled.add("quantity");
+      }
       setSuggestions([...result.related, ...result.alternatives].filter(Boolean).slice(0, 6));
       setAutofilled((previous) => new Set([...previous, ...filled]));
     } catch {
@@ -97,7 +116,10 @@ function NewMaterialPage() {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file || !user) return;
-    if (photos.length >= 3) { toast.error(lang === "km" ? "អតិបរមា ៣ រូប" : "Max 3 photos"); return; }
+    if (photos.length >= 3) {
+      toast.error(lang === "km" ? "អតិបរមា ៣ រូប" : "Max 3 photos");
+      return;
+    }
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(file)) return;
     try {
@@ -135,9 +157,18 @@ function NewMaterialPage() {
 
   async function submit() {
     if (!user) return;
-    if (!category) { toast.error(lang === "km" ? "ជ្រើសប្រភេទ" : "Select a category"); return; }
-    if (photos.length < 1) { toast.error(lang === "km" ? "ត្រូវការយ៉ាងហោចណាស់ ១ រូប" : "At least 1 photo required"); return; }
-    if (!quantity || Number(quantity) <= 0) { toast.error(lang === "km" ? "បញ្ចូលចំនួន" : "Enter quantity"); return; }
+    if (!category) {
+      toast.error(lang === "km" ? "ជ្រើសប្រភេទ" : "Select a category");
+      return;
+    }
+    if (photos.length < 1) {
+      toast.error(lang === "km" ? "ត្រូវការយ៉ាងហោចណាស់ ១ រូប" : "At least 1 photo required");
+      return;
+    }
+    if (!quantity || Number(quantity) <= 0) {
+      toast.error(lang === "km" ? "បញ្ចូលចំនួន" : "Enter quantity");
+      return;
+    }
     setSubmitting(true);
     try {
       const geo = await getGeo();
@@ -156,9 +187,11 @@ function NewMaterialPage() {
         .single();
       if (error) {
         if (error.message?.includes("active_request_limit_reached")) {
-          toast.error(lang === "km"
-            ? "អ្នកមានការស្វែងរក ១០ រួចហើយ។ បោះបង់មួយដើម្បីបន្ត។"
-            : "You have 10 active searches. Cancel one to start a new search.");
+          toast.error(
+            lang === "km"
+              ? "អ្នកមានការស្វែងរក ១០ រួចហើយ។ បោះបង់មួយដើម្បីបន្ត។"
+              : "You have 10 active searches. Cancel one to start a new search.",
+          );
           return;
         }
         throw error;
@@ -231,7 +264,9 @@ function NewMaterialPage() {
 
       <section className="mt-2 bg-surface p-4 shadow-card">
         <label className="mb-2 block text-sm font-semibold text-foreground">
-          {lang === "km" ? "រូបថតផលិតផល * (អប្បបរមា ១ · អតិបរមា ៣)" : "Product photos * (Min 1 · Max 3)"}
+          {lang === "km"
+            ? "រូបថតផលិតផល * (អប្បបរមា ១ · អតិបរមា ៣)"
+            : "Product photos * (Min 1 · Max 3)"}
         </label>
         <div className="grid grid-cols-3 gap-2">
           {[0, 1, 2].map((i) => {
@@ -244,7 +279,11 @@ function NewMaterialPage() {
                     src={url}
                     alt=""
                     className="h-full w-full object-cover"
-                    fallback={<div className="flex h-full w-full items-center justify-center text-muted-foreground/40">…</div>}
+                    fallback={
+                      <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
+                        …
+                      </div>
+                    }
                   />
                   <button
                     type="button"
@@ -267,7 +306,13 @@ function NewMaterialPage() {
               </button>
             );
           })}
-          <input ref={fileInput} type="file" accept="image/*" className="hidden" onChange={onPickFile} />
+          <input
+            ref={fileInput}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onPickFile}
+          />
         </div>
       </section>
 
@@ -275,7 +320,9 @@ function NewMaterialPage() {
         <label className="mb-2 block text-sm font-semibold text-foreground">
           {lang === "km" ? "ឈ្មោះសម្ភារៈ" : "Material name"}
         </label>
-        {autofilling && !itemName ? <div className="h-11 animate-pulse rounded-xl bg-primary/10" /> : (
+        {autofilling && !itemName ? (
+          <div className="h-11 animate-pulse rounded-xl bg-primary/10" />
+        ) : (
           <input
             value={itemName}
             onChange={(e) => setItemName(e.target.value.slice(0, 120))}
@@ -304,19 +351,31 @@ function NewMaterialPage() {
 
       <section className="mt-2 bg-surface p-4 shadow-card">
         <label className="mb-2 block text-sm font-semibold text-foreground">
-          {lang === "km" ? "កំណត់ចំណាំ" : "Note"} <span className="text-muted-foreground">({lang === "km" ? "ស្រេចចិត្ត" : "optional"})</span>
+          {lang === "km" ? "កំណត់ចំណាំ" : "Note"}{" "}
+          <span className="text-muted-foreground">
+            ({lang === "km" ? "ស្រេចចិត្ត" : "optional"})
+          </span>
         </label>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value.slice(0, 200))}
-          placeholder={lang === "km" ? "ឧ. ត្រូវការដឹកជញ្ជូនទៅសៀមរាប" : "e.g. Need delivery to Siem Reap centre"}
+          placeholder={
+            lang === "km"
+              ? "ឧ. ត្រូវការដឹកជញ្ជូនទៅសៀមរាប"
+              : "e.g. Need delivery to Siem Reap centre"
+          }
           className="min-h-[64px] w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-[#c87000] focus:outline-none"
         />
         <AutofillHint loading={autofilling && !note} filled={autofilled.has("description")} />
         {suggestions.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
             {suggestions.map((suggestion) => (
-              <button key={suggestion} type="button" onClick={() => setItemName(suggestion)} className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+              <button
+                key={suggestion}
+                type="button"
+                onClick={() => setItemName(suggestion)}
+                className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground"
+              >
                 {suggestion}
               </button>
             ))}
@@ -333,7 +392,9 @@ function NewMaterialPage() {
             type="button"
             onClick={() => setLocationFilter("near_me")}
             className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-3 text-xs font-semibold ${
-              locationFilter === "near_me" ? "border-[#c87000] bg-[#c87000]/10 text-[#c87000]" : "border-border text-foreground"
+              locationFilter === "near_me"
+                ? "border-[#c87000] bg-[#c87000]/10 text-[#c87000]"
+                : "border-border text-foreground"
             }`}
           >
             <MapPin className="h-5 w-5" />
@@ -346,7 +407,9 @@ function NewMaterialPage() {
             type="button"
             onClick={() => setLocationFilter("anywhere")}
             className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-3 text-xs font-semibold ${
-              locationFilter === "anywhere" ? "border-[#c87000] bg-[#c87000]/10 text-[#c87000]" : "border-border text-foreground"
+              locationFilter === "anywhere"
+                ? "border-[#c87000] bg-[#c87000]/10 text-[#c87000]"
+                : "border-border text-foreground"
             }`}
           >
             <Globe2 className="h-5 w-5" />
@@ -365,15 +428,21 @@ function NewMaterialPage() {
           className="w-full rounded-xl bg-[#c87000] py-3 text-sm font-bold text-white disabled:opacity-50"
         >
           {submitting
-            ? (lang === "km" ? "កំពុងផ្ញើ..." : "Sending...")
-            : (lang === "km" ? "ផ្ញើសំណើទៅអ្នកផ្គត់ផ្គង់" : "Send request to suppliers")}
+            ? lang === "km"
+              ? "កំពុងផ្ញើ..."
+              : "Sending..."
+            : lang === "km"
+              ? "ផ្ញើសំណើទៅអ្នកផ្គត់ផ្គង់"
+              : "Send request to suppliers"}
         </button>
         <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
           {category
-            ? (lang === "km"
-                ? `អ្នកផ្គត់ផ្គង់ក្នុងប្រភេទ ${CATEGORIES.find((c) => c.id === category)?.km} ${locationFilter === "near_me" ? "ក្នុង ២០គម" : "ទូទាំងកម្ពុជា"} នឹងទទួលបាន`
-                : `Suppliers in ${CATEGORIES.find((c) => c.id === category)?.en} ${locationFilter === "near_me" ? "within 20km" : "across Cambodia"} will be notified`)
-            : (lang === "km" ? "ជ្រើសប្រភេទមួយ" : "Pick a category first")}
+            ? lang === "km"
+              ? `អ្នកផ្គត់ផ្គង់ក្នុងប្រភេទ ${CATEGORIES.find((c) => c.id === category)?.km} ${locationFilter === "near_me" ? "ក្នុង ២០គម" : "ទូទាំងកម្ពុជា"} នឹងទទួលបាន`
+              : `Suppliers in ${CATEGORIES.find((c) => c.id === category)?.en} ${locationFilter === "near_me" ? "within 20km" : "across Cambodia"} will be notified`
+            : lang === "km"
+              ? "ជ្រើសប្រភេទមួយ"
+              : "Pick a category first"}
         </p>
       </div>
     </div>
