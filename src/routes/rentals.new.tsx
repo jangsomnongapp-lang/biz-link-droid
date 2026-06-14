@@ -4,7 +4,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, MapPin, DollarSign, Plus, X, Truck, HardHat, Wrench, Hammer } from "lucide-react";
+import { ArrowLeft, MapPin, Plus, X, Truck, HardHat, Wrench, Hammer } from "lucide-react";
 import { ProvinceSelect } from "@/components/ProvinceSelect";
 
 import { toast } from "sonner";
@@ -34,6 +34,7 @@ function NewRentalPage() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<Cat | null>(null);
   const [price, setPrice] = useState("");
+  const [currency, setCurrency] = useState<"USD" | "KHR">("USD");
   const [minDays, setMinDays] = useState("1");
   const [availability, setAvailability] = useState<"now" | "from_date">("now");
   const [availableFrom, setAvailableFrom] = useState("");
@@ -80,6 +81,7 @@ function NewRentalPage() {
           description: description.trim() || null,
           category,
           price_per_day: Number(price),
+          currency,
           min_days: Number(minDays) || 1,
           availability,
           available_from: availability === "from_date" ? availableFrom || null : null,
@@ -196,7 +198,15 @@ function NewRentalPage() {
             <div>
               <p className="mb-1 text-sm font-medium">{t("price_per_day_label")} <span className="text-destructive">*</span></p>
               <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-[#534AB7]">
-                <DollarSign className="ml-2 h-4 w-4 text-success" />
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value === "KHR" ? "KHR" : "USD")}
+                  aria-label="Currency"
+                  className="h-full border-r border-border bg-muted px-2 text-xs font-semibold text-foreground outline-none"
+                >
+                  <option value="USD">$ USD</option>
+                  <option value="KHR">៛ KHR</option>
+                </select>
                 <input
                   value={price}
                   onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, ""))}
