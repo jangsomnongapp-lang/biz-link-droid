@@ -15,8 +15,6 @@ import {
   Users,
   LayoutGrid,
   MapPin,
-  Sparkles,
-  ChevronRight,
 } from "lucide-react";
 
 export const Route = createFileRoute("/search")({
@@ -163,8 +161,7 @@ function SearchPage() {
     { id: "posts", en: "Posts", km: "ប្រកាស", icon: FileText },
   ];
 
-  const totalCount =
-    people.length + suppliers.length + listings.length + posts.length;
+  const totalCount = people.length + suppliers.length + listings.length + posts.length;
 
   const showEmpty = useMemo(() => {
     if (!submitted || loading) return false;
@@ -213,46 +210,6 @@ function SearchPage() {
             )}
           </div>
         </div>
-        <Link
-          to="/ai-search"
-          className="group relative mt-3 flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3 text-left text-white shadow-[0_8px_24px_-8px_rgba(236,72,153,0.55)] ring-1 ring-white/15 transition-transform active:scale-[0.98]"
-          style={{
-            background:
-              "linear-gradient(110deg, #6366f1 0%, #a855f7 35%, #ec4899 70%, #f59e0b 100%)",
-          }}
-        >
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -left-12 top-0 h-full w-16 -skew-x-12 bg-white/25 blur-md opacity-0 transition-all duration-700 group-hover:left-[110%] group-hover:opacity-100"
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-60"
-            style={{
-              background:
-                "radial-gradient(120% 80% at 0% 0%, rgba(255,255,255,0.25), transparent 50%), radial-gradient(80% 60% at 100% 100%, rgba(255,255,255,0.12), transparent 60%)",
-            }}
-          />
-          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 backdrop-blur-sm">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          <div className="relative min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-bold leading-tight tracking-tight">
-                {lang === "km" ? "សាកល្បង AI ស្វែងរក" : "Try AI search"}
-              </span>
-              <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ring-1 ring-white/30">
-                New
-              </span>
-            </div>
-            <div className="truncate text-[11px] leading-tight text-white/85">
-              {lang === "km"
-                ? "ពិពណ៌នាអ្វីដែលអ្នកត្រូវការតាមពាក្យរបស់អ្នក"
-                : "Describe what you need in your own words"}
-            </div>
-          </div>
-          <ChevronRight className="relative h-4 w-4 shrink-0 opacity-90 transition-transform group-hover:translate-x-0.5" />
-        </Link>
         {submitted && (
           <div className="-mx-3 mt-2 overflow-x-auto">
             <div className="flex gap-1 px-3">
@@ -263,9 +220,7 @@ function SearchPage() {
                     key={tb.id}
                     onClick={() => setTab(tb.id)}
                     className={`whitespace-nowrap rounded-t-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
-                      active
-                        ? "bg-background text-primary"
-                        : "text-white/80 active:bg-white/10"
+                      active ? "bg-background text-primary" : "text-white/80 active:bg-white/10"
                     }`}
                   >
                     {lang === "km" ? tb.km : tb.en}
@@ -291,9 +246,7 @@ function SearchPage() {
           </div>
         ) : showEmpty ? (
           <div className="px-4 py-16 text-center text-sm text-muted-foreground">
-            {lang === "km"
-              ? `មិនមានលទ្ធផលសម្រាប់ "${submitted}"`
-              : `No results for "${submitted}"`}
+            {lang === "km" ? `មិនមានលទ្ធផលសម្រាប់ "${submitted}"` : `No results for "${submitted}"`}
           </div>
         ) : (
           <div className="flex flex-col gap-2 py-2">
@@ -403,13 +356,9 @@ function PersonItem({ p }: { p: PersonRow }) {
     >
       <Avatar name={p.full_name} url={p.avatar_url} size={48} />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold text-foreground">
-          {p.full_name ?? "—"}
-        </div>
+        <div className="truncate text-sm font-semibold text-foreground">{p.full_name ?? "—"}</div>
         {p.about_me && (
-          <div className="line-clamp-1 text-xs text-muted-foreground">
-            {p.about_me}
-          </div>
+          <div className="line-clamp-1 text-xs text-muted-foreground">{p.about_me}</div>
         )}
       </div>
     </Link>
@@ -454,13 +403,9 @@ function ListingItem({ l, lang }: { l: ListingRow; lang: "km" | "en" }) {
         <ClipboardList className="h-5 w-5 text-primary" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="line-clamp-1 text-sm font-semibold text-foreground">
-          {l.title}
-        </div>
+        <div className="line-clamp-1 text-sm font-semibold text-foreground">{l.title}</div>
         {l.description && (
-          <div className="line-clamp-1 text-xs text-muted-foreground">
-            {l.description}
-          </div>
+          <div className="line-clamp-1 text-xs text-muted-foreground">{l.description}</div>
         )}
         <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
           {l.location && (
@@ -507,9 +452,7 @@ function highlight(text: string, term: string) {
   return (
     <>
       {text.slice(0, idx)}
-      <mark className="bg-yellow-200 text-foreground">
-        {text.slice(idx, idx + term.length)}
-      </mark>
+      <mark className="bg-yellow-200 text-foreground">{text.slice(idx, idx + term.length)}</mark>
       {text.slice(idx + term.length)}
     </>
   );

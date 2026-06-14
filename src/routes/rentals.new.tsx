@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
@@ -8,6 +9,8 @@ import { ArrowLeft, MapPin, Plus, X, Truck, HardHat, Wrench, Hammer } from "luci
 import { ProvinceSelect } from "@/components/ProvinceSelect";
 
 import { toast } from "sonner";
+import { AutofillHint } from "@/components/AutofillHint";
+import { smartAutofill } from "@/lib/smart-autofill.functions";
 
 export const Route = createFileRoute("/rentals/new")({
   component: () => (
@@ -19,7 +22,12 @@ export const Route = createFileRoute("/rentals/new")({
 
 type Cat = "vehicles" | "heavy" | "light" | "tools";
 
-const CATS: { id: Cat; icon: typeof Truck; titleKey: "cat_vehicles" | "cat_heavy" | "cat_light_machinery" | "cat_tools"; descKey: "cat_vehicles_desc" | "cat_heavy_desc" | "cat_light_desc" | "cat_tools_desc" }[] = [
+const CATS: {
+  id: Cat;
+  icon: typeof Truck;
+  titleKey: "cat_vehicles" | "cat_heavy" | "cat_light_machinery" | "cat_tools";
+  descKey: "cat_vehicles_desc" | "cat_heavy_desc" | "cat_light_desc" | "cat_tools_desc";
+}[] = [
   { id: "vehicles", icon: Truck, titleKey: "cat_vehicles", descKey: "cat_vehicles_desc" },
   { id: "heavy", icon: HardHat, titleKey: "cat_heavy", descKey: "cat_heavy_desc" },
   { id: "light", icon: Wrench, titleKey: "cat_light_machinery", descKey: "cat_light_desc" },
@@ -36,12 +44,59 @@ function NewRentalPage() {
   const [price, setPrice] = useState("");
   const [currency, setCurrency] = useState<"USD" | "KHR">("USD");
   const [minDays, setMinDays] = useState("1");
+  const [quantity, setQuantity] = useState("");
   const [availability, setAvailability] = useState<"now" | "from_date">("now");
   const [availableFrom, setAvailableFrom] = useState("");
   const [location, setLocation] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofilled, setAutofilled] = useState<Set<string>>(new Set());
   const fileInput = useRef<HTMLInputElement>(null);
+  const fillForm = useServerFn(smartAutofill);
+  const requestId = useRef(0);
+
+  async function runAutofill(input: { text?: string; imageDataUrl?: string }) {
+    const id = ++requestId.current;
+    setAutofilling(true);
+    try {
+      const result = await fillForm({ data: { flow: "rental", ...input } });
+      if (!result || id !== requestId.current) return;
+      const filled = new Set<string>();
+      if (!title.trim() && result.name) {
+        setTitle(result.name);
+        filled.add("title");
+      }
+      if (!description.trim() && result.description) {
+        setDescription(result.description);
+        filled.add("description");
+      }
+      if (!category && CATS.some((c) => c.id === result.category)) {
+        setCategory(result.category as Cat);
+        filled.add("category");
+      }
+      if (!quantity && result.quantity) {
+        setQuantity(result.quantity.replace(/\D/g, ""));
+        filled.add("quantity");
+      }
+      if (minDays === "1" && result.durationDays) {
+        setMinDays(result.durationDays.replace(/\D/g, "") || "1");
+        filled.add("duration");
+      }
+      setAutofilled((previous) => new Set([...previous, ...filled]));
+    } catch {
+      // Silent fallback keeps manual entry available.
+    } finally {
+      if (id === requestId.current) setAutofilling(false);
+    }
+  }
+
+  useEffect(() => {
+    const text = [title, description].filter(Boolean).join(". ").trim();
+    if (text.length < 3) return;
+    const timer = window.setTimeout(() => void runAutofill({ text }), 800);
+    return () => window.clearTimeout(timer);
+  }, [title, description]);
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -52,6 +107,13 @@ function NewRentalPage() {
       return;
     }
     try {
+      const imageDataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      void runAutofill({ imageDataUrl, text: [title, description].filter(Boolean).join(". ") });
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: upErr } = await supabase.storage
@@ -78,7 +140,10 @@ function NewRentalPage() {
         .insert({
           user_id: user.id,
           title: title.trim(),
-          description: description.trim() || null,
+          description:
+            [description.trim(), quantity ? `Quantity: ${quantity}` : ""]
+              .filter(Boolean)
+              .join("\n") || null,
           category,
           price_per_day: Number(price),
           currency,
@@ -117,7 +182,10 @@ function NewRentalPage() {
 
       <div className="flex-1 space-y-3 p-3 pb-24">
         <Card>
-          <Label>{t("photos")} <span className="ml-1 text-xs font-normal text-muted-foreground">{t("max_4")}</span></Label>
+          <Label>
+            {t("photos")}{" "}
+            <span className="ml-1 text-xs font-normal text-muted-foreground">{t("max_4")}</span>
+          </Label>
           <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPickFile} />
           <div className="grid grid-cols-4 gap-2">
             <button
@@ -149,16 +217,22 @@ function NewRentalPage() {
         <Card>
           <Label>{t("details")}</Label>
           <div>
-            <p className="mb-1 text-sm font-medium">{t("rental_name")} <span className="text-destructive">*</span></p>
+            <p className="mb-1 text-sm font-medium">
+              {t("rental_name")} <span className="text-destructive">*</span>
+            </p>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t("rental_name_ph")}
               className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-[#534AB7]"
             />
+            <AutofillHint loading={autofilling && !title} filled={autofilled.has("title")} />
           </div>
           <div>
-            <p className="mb-1 text-sm font-medium">{t("description")} <span className="text-xs font-normal text-text-hint">{t("optional")}</span></p>
+            <p className="mb-1 text-sm font-medium">
+              {t("description")}{" "}
+              <span className="text-xs font-normal text-text-hint">{t("optional")}</span>
+            </p>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -166,9 +240,15 @@ function NewRentalPage() {
               rows={3}
               className="w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-[#534AB7]"
             />
+            <AutofillHint
+              loading={autofilling && !description}
+              filled={autofilled.has("description")}
+            />
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium">{t("category_label")} <span className="text-destructive">*</span></p>
+            <p className="mb-2 text-sm font-medium">
+              {t("category_label")} <span className="text-destructive">*</span>
+            </p>
             <div className="grid grid-cols-2 gap-2">
               {CATS.map((c) => {
                 const sel = category === c.id;
@@ -189,6 +269,7 @@ function NewRentalPage() {
                 );
               })}
             </div>
+            <AutofillHint loading={autofilling && !category} filled={autofilled.has("category")} />
           </div>
         </Card>
 
@@ -196,7 +277,9 @@ function NewRentalPage() {
           <Label>{t("pricing_availability")}</Label>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="mb-1 text-sm font-medium">{t("price_per_day_label")} <span className="text-destructive">*</span></p>
+              <p className="mb-1 text-sm font-medium">
+                {t("price_per_day_label")} <span className="text-destructive">*</span>
+              </p>
               <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-[#534AB7]">
                 <select
                   value={currency}
@@ -217,7 +300,10 @@ function NewRentalPage() {
               </div>
             </div>
             <div>
-              <p className="mb-1 text-sm font-medium">{t("min_days")} <span className="text-xs font-normal text-text-hint">{t("optional")}</span></p>
+              <p className="mb-1 text-sm font-medium">
+                {t("min_days")}{" "}
+                <span className="text-xs font-normal text-text-hint">{t("optional")}</span>
+              </p>
               <input
                 value={minDays}
                 onChange={(e) => setMinDays(e.target.value.replace(/[^0-9]/g, ""))}
@@ -225,7 +311,22 @@ function NewRentalPage() {
                 placeholder="1"
                 className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-[#534AB7]"
               />
+              <AutofillHint loading={autofilling} filled={autofilled.has("duration")} />
             </div>
+          </div>
+          <div>
+            <p className="mb-1 text-sm font-medium">
+              {t("quantity")}{" "}
+              <span className="text-xs font-normal text-text-hint">{t("optional")}</span>
+            </p>
+            <input
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value.replace(/[^0-9]/g, ""))}
+              inputMode="numeric"
+              placeholder="1"
+              className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+            />
+            <AutofillHint loading={autofilling && !quantity} filled={autofilled.has("quantity")} />
           </div>
           <div>
             <p className="mb-2 text-sm font-medium">{t("available_from")}</p>
@@ -258,9 +359,14 @@ function NewRentalPage() {
             </div>
           </div>
           <div>
-            <p className="mb-1 text-sm font-medium">{t("location")} <span className="text-destructive">*</span></p>
-            <ProvinceSelect value={location} onChange={setLocation} accentClass="focus-within:border-[#534AB7]" />
-
+            <p className="mb-1 text-sm font-medium">
+              {t("location")} <span className="text-destructive">*</span>
+            </p>
+            <ProvinceSelect
+              value={location}
+              onChange={setLocation}
+              accentClass="focus-within:border-[#534AB7]"
+            />
           </div>
         </Card>
       </div>

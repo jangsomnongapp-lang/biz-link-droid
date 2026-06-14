@@ -1,18 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useI18n } from "@/lib/i18n";
 import { aiSearch } from "@/lib/ai-search.functions";
-import {
-  ArrowLeft,
-  Sparkles,
-  Store,
-  ClipboardList,
-  MapPin,
-  Loader2,
-} from "lucide-react";
+import { ArrowLeft, Search, Store, ClipboardList, MapPin } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/ai-search")({
   component: () => (
@@ -31,28 +25,34 @@ function AiSearchPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const search = useServerFn(aiSearch);
+  const requestId = useRef(0);
 
   async function run() {
     const v = q.trim();
     if (!v) return;
+    const id = ++requestId.current;
     setLoading(true);
     setResult(null);
     try {
       const r = await search({ data: { query: v } });
-      setResult(r);
-    } catch (e) {
-      setResult({
-        summary: "",
-        recommendations: [],
-        error: e instanceof Error ? e.message : "Failed",
-      });
+      if (id === requestId.current && !r.error) setResult(r);
+    } catch {
+      // Search remains usable manually when background matching is unavailable.
     } finally {
-      setLoading(false);
+      if (id === requestId.current) setLoading(false);
     }
   }
 
-  const empty =
-    result && !result.error && result.recommendations.length === 0;
+  useEffect(() => {
+    if (q.trim().length < 3) {
+      setResult(null);
+      return;
+    }
+    const timer = window.setTimeout(() => void run(), 800);
+    return () => window.clearTimeout(timer);
+  }, [q]);
+
+  const empty = result && !result.error && result.recommendations.length === 0;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -65,16 +65,16 @@ function AiSearchPage() {
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="flex items-center gap-2 font-bold">
-          <Sparkles className="h-5 w-5" />
-          {lang === "km" ? "AI ស្វែងរក" : "AI Search"}
+          <Search className="h-5 w-5" />
+          {lang === "km" ? "ស្វែងរក" : "Search"}
         </div>
       </header>
 
       <main className="flex-1 px-4 py-4">
         <p className="mb-3 text-sm text-muted-foreground">
           {lang === "km"
-            ? "ពិពណ៌នាអ្វីដែលអ្នកត្រូវការ — AI នឹងណែនាំពីទិន្នន័យក្នុងប្រព័ន្ធ។"
-            : "Describe what you need — AI will recommend matches from the database."}
+            ? "ពិពណ៌នាអ្វីដែលអ្នកត្រូវការ ហើយលទ្ធផលនឹងបង្ហាញដោយស្វ័យប្រវត្តិ។"
+            : "Describe what you need and matching results will appear automatically."}
         </p>
         <textarea
           autoFocus
@@ -94,27 +94,11 @@ function AiSearchPage() {
           }
           className="w-full rounded-xl border border-border bg-surface p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
-        <button
-          onClick={run}
-          disabled={!q.trim() || loading}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-bold text-primary-foreground disabled:opacity-50"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              {lang === "km" ? "កំពុងគិត..." : "Thinking..."}
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4" />
-              {lang === "km" ? "ស្វែងរកដោយ AI" : "Search with AI"}
-            </>
-          )}
-        </button>
-
-        {result?.error && (
-          <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-            {result.error}
+        {loading && (
+          <div className="mt-5 space-y-3">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
           </div>
         )}
 
@@ -122,10 +106,6 @@ function AiSearchPage() {
           <div className="mt-5 space-y-4">
             {result.summary && (
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
-                <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-primary">
-                  <Sparkles className="h-3 w-3" />
-                  AI
-                </div>
                 <p className="text-sm text-foreground">{result.summary}</p>
               </div>
             )}
@@ -159,11 +139,7 @@ function RecCard({ r }: { r: Rec }) {
       >
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
           {s.logo_url ? (
-            <img
-              src={s.logo_url}
-              alt={s.name}
-              className="h-full w-full object-cover"
-            />
+            <img src={s.logo_url} alt={s.name} className="h-full w-full object-cover" />
           ) : (
             <Store className="h-5 w-5 text-muted-foreground" />
           )}
@@ -195,14 +171,10 @@ function RecCard({ r }: { r: Rec }) {
         <div className="min-w-0 flex-1">
           <div className="line-clamp-1 text-sm font-semibold">{l.title}</div>
           {l.description && (
-            <div className="line-clamp-1 text-xs text-muted-foreground">
-              {l.description}
-            </div>
+            <div className="line-clamp-1 text-xs text-muted-foreground">{l.description}</div>
           )}
           {l.budget != null && (
-            <div className="mt-0.5 text-[11px] font-semibold text-primary">
-              ${l.budget}
-            </div>
+            <div className="mt-0.5 text-[11px] font-semibold text-primary">${l.budget}</div>
           )}
           <ReasonChip reason={r.reason} />
         </div>
@@ -219,13 +191,9 @@ function RecCard({ r }: { r: Rec }) {
       >
         <Avatar name={p.full_name} url={p.avatar_url} size={48} />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold">
-            {p.full_name ?? "—"}
-          </div>
+          <div className="truncate text-sm font-semibold">{p.full_name ?? "—"}</div>
           {p.about_me && (
-            <div className="line-clamp-1 text-xs text-muted-foreground">
-              {p.about_me}
-            </div>
+            <div className="line-clamp-1 text-xs text-muted-foreground">{p.about_me}</div>
           )}
           <ReasonChip reason={r.reason} />
         </div>
@@ -238,8 +206,7 @@ function RecCard({ r }: { r: Rec }) {
 function ReasonChip({ reason }: { reason: string }) {
   if (!reason) return null;
   return (
-    <div className="mt-1.5 flex items-start gap-1 rounded-md bg-primary/5 px-2 py-1 text-[11px] text-primary">
-      <Sparkles className="mt-0.5 h-3 w-3 shrink-0" />
+    <div className="mt-1.5 flex items-start rounded-md bg-primary/5 px-2 py-1 text-[11px] text-primary">
       <span className="line-clamp-2">{reason}</span>
     </div>
   );

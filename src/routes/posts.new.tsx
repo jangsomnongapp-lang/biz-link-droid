@@ -1,11 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { AutofillHint } from "@/components/AutofillHint";
+import { smartAutofill } from "@/lib/smart-autofill.functions";
 
 export const Route = createFileRoute("/posts/new")({
   component: () => (
@@ -28,10 +31,50 @@ const TYPES: Array<{
   fg: string;
   ring: string;
 }> = [
-  { id: "novedad",     title_en: "New arrival",   title_km: "ផលិតផលថ្មី",        sub_en: "New product just arrived",      sub_km: "ផលិតផលថ្មីទើបមកដល់",      icon: Sparkles,    bg: "bg-emerald-50",  fg: "text-emerald-700", ring: "border-emerald-300" },
-  { id: "stock",       title_en: "Stock",         title_km: "ស្តុក",              sub_en: "Material available now",        sub_km: "សម្ភារៈមានស្តុក",         icon: Box,         bg: "bg-sky-50",      fg: "text-sky-700",     ring: "border-sky-300" },
-  { id: "oferta",      title_en: "Offer",         title_km: "ការផ្តល់ជូន",       sub_en: "Special price — limited time",  sub_km: "តម្លៃពិសេស — ពេលកំណត់",   icon: Percent,     bg: "bg-amber-50",    fg: "text-amber-700",   ring: "border-amber-300" },
-  { id: "liquidacion", title_en: "Clearance",     title_km: "បោះតម្លៃ",          sub_en: "Minimum price — clear stock",   sub_km: "តម្លៃទាប — សម្អាតស្តុក",  icon: AlertCircle, bg: "bg-rose-50",     fg: "text-rose-700",    ring: "border-rose-300" },
+  {
+    id: "novedad",
+    title_en: "New arrival",
+    title_km: "ផលិតផលថ្មី",
+    sub_en: "New product just arrived",
+    sub_km: "ផលិតផលថ្មីទើបមកដល់",
+    icon: Sparkles,
+    bg: "bg-emerald-50",
+    fg: "text-emerald-700",
+    ring: "border-emerald-300",
+  },
+  {
+    id: "stock",
+    title_en: "Stock",
+    title_km: "ស្តុក",
+    sub_en: "Material available now",
+    sub_km: "សម្ភារៈមានស្តុក",
+    icon: Box,
+    bg: "bg-sky-50",
+    fg: "text-sky-700",
+    ring: "border-sky-300",
+  },
+  {
+    id: "oferta",
+    title_en: "Offer",
+    title_km: "ការផ្តល់ជូន",
+    sub_en: "Special price — limited time",
+    sub_km: "តម្លៃពិសេស — ពេលកំណត់",
+    icon: Percent,
+    bg: "bg-amber-50",
+    fg: "text-amber-700",
+    ring: "border-amber-300",
+  },
+  {
+    id: "liquidacion",
+    title_en: "Clearance",
+    title_km: "បោះតម្លៃ",
+    sub_en: "Minimum price — clear stock",
+    sub_km: "តម្លៃទាប — សម្អាតស្តុក",
+    icon: AlertCircle,
+    bg: "bg-rose-50",
+    fg: "text-rose-700",
+    ring: "border-rose-300",
+  },
 ];
 
 function NewProductPage() {
@@ -44,10 +87,50 @@ function NewProductPage() {
   const [price, setPrice] = useState("");
   const [discountPrice, setDiscountPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [marketPriceRange, setMarketPriceRange] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofilled, setAutofilled] = useState<Set<string>>(new Set());
   const fileInput = useRef<HTMLInputElement>(null);
+  const fillForm = useServerFn(smartAutofill);
+  const requestId = useRef(0);
 
+  async function runAutofill(input: { text?: string; imageDataUrl?: string }) {
+    const id = ++requestId.current;
+    setAutofilling(true);
+    try {
+      const result = await fillForm({ data: { flow: "supplier", ...input } });
+      if (!result || id !== requestId.current) return;
+      const filled = new Set<string>();
+      if (!title.trim() && result.name) {
+        setTitle(result.name);
+        filled.add("title");
+      }
+      if (!category.trim() && result.category) {
+        setCategory(result.category);
+        filled.add("category");
+      }
+      if (!description.trim() && result.description) {
+        setDescription(result.description);
+        filled.add("description");
+      }
+      if (result.marketPriceRange) setMarketPriceRange(result.marketPriceRange);
+      setAutofilled((previous) => new Set([...previous, ...filled]));
+    } catch {
+      // Silent fallback keeps manual entry available.
+    } finally {
+      if (id === requestId.current) setAutofilling(false);
+    }
+  }
+
+  useEffect(() => {
+    const text = [title, category, description].filter(Boolean).join(". ").trim();
+    if (text.length < 3) return;
+    const timer = window.setTimeout(() => void runAutofill({ text }), 800);
+    return () => window.clearTimeout(timer);
+  }, [title, category, description]);
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -60,6 +143,10 @@ function NewProductPage() {
       r.onload = () => resolve(String(r.result));
       r.onerror = reject;
       r.readAsDataURL(file);
+    });
+    void runAutofill({
+      imageDataUrl: dataUrl,
+      text: [title, category, description].filter(Boolean).join(". "),
     });
     setPhotos((p) => [...p, dataUrl].slice(0, 4));
   }
@@ -75,11 +162,21 @@ function NewProductPage() {
       const priceNum = price ? Number(price) : null;
       const discountNum = discountPrice ? Number(discountPrice) : null;
       if (discountNum != null && priceNum != null && discountNum >= priceNum) {
-        toast.error(lang === "km" ? "តម្លៃបញ្ចុះតម្លៃត្រូវតិចជាងតម្លៃដើម" : "Discount must be lower than price");
+        toast.error(
+          lang === "km"
+            ? "តម្លៃបញ្ចុះតម្លៃត្រូវតិចជាងតម្លៃដើម"
+            : "Discount must be lower than price",
+        );
         setSubmitting(false);
         return;
       }
-      const content = [title.trim(), description.trim()].filter(Boolean).join("\n");
+      const content = [
+        title.trim(),
+        category.trim() ? `Category: ${category.trim()}` : "",
+        description.trim(),
+      ]
+        .filter(Boolean)
+        .join("\n");
       const { data, error } = await supabase
         .from("posts")
         .insert({
@@ -101,7 +198,9 @@ function NewProductPage() {
           .from("post_photos")
           .insert(photos.map((url) => ({ post_id: data.id, photo_url: url })));
       }
-      toast.success(lang === "km" ? "បានដាក់ស្នើ — រង់ចាំការអនុម័ត" : "Submitted — pending approval");
+      toast.success(
+        lang === "km" ? "បានដាក់ស្នើ — រង់ចាំការអនុម័ត" : "Submitted — pending approval",
+      );
       nav({ to: "/suppliers" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
@@ -141,7 +240,9 @@ function NewProductPage() {
                     sel ? `${tp.ring} ${tp.bg}` : "border-border bg-background"
                   }`}
                 >
-                  <div className={`flex h-9 w-9 items-center justify-center rounded-full ${tp.bg} ${tp.fg}`}>
+                  <div
+                    className={`flex h-9 w-9 items-center justify-center rounded-full ${tp.bg} ${tp.fg}`}
+                  >
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
@@ -169,6 +270,21 @@ function NewProductPage() {
                 placeholder={lang === "km" ? "ឧ. ស៊ីម៉ងត៍ 50kg" : "e.g. Cement 50kg"}
                 className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
               />
+              <AutofillHint loading={autofilling && !title} filled={autofilled.has("title")} />
+            </div>
+
+            <div className="rounded-xl bg-surface p-3 shadow-card">
+              <Label required>{lang === "km" ? "ប្រភេទផលិតផល" : "Product category"}</Label>
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value.slice(0, 80))}
+                placeholder={lang === "km" ? "ឧ. សម្ភារៈសំណង់" : "e.g. Building materials"}
+                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+              />
+              <AutofillHint
+                loading={autofilling && !category}
+                filled={autofilled.has("category")}
+              />
             </div>
 
             <div className="space-y-3 rounded-xl bg-surface p-3 shadow-card">
@@ -183,23 +299,38 @@ function NewProductPage() {
                         type="button"
                         onClick={() => setCurrency(c)}
                         className={`flex-1 rounded-lg border-2 px-3 py-2 text-sm font-bold transition ${
-                          sel ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-muted-foreground"
+                          sel
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border bg-background text-muted-foreground"
                         }`}
                       >
                         {c === "USD" ? "$ USD" : "៛ KHR"}
                         <span className="ml-1 text-[10px] font-normal">
-                          {c === "USD" ? (lang === "km" ? "ដុល្លារ" : "Dollar") : (lang === "km" ? "រៀល" : "Riel")}
+                          {c === "USD"
+                            ? lang === "km"
+                              ? "ដុល្លារ"
+                              : "Dollar"
+                            : lang === "km"
+                              ? "រៀល"
+                              : "Riel"}
                         </span>
                       </button>
                     );
                   })}
                 </div>
+                {marketPriceRange && (
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    {lang === "km" ? "តម្លៃទីផ្សារយោង" : "Market reference"}: {marketPriceRange}
+                  </p>
+                )}
               </div>
 
               <div>
                 <Label optional>{lang === "km" ? "តម្លៃដើម" : "Price"}</Label>
                 <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-                  <span className="ml-3 text-sm font-bold text-success">{currency === "USD" ? "$" : "៛"}</span>
+                  <span className="ml-3 text-sm font-bold text-success">
+                    {currency === "USD" ? "$" : "៛"}
+                  </span>
                   <input
                     value={price}
                     onChange={(e) => setPrice(e.target.value.replace(/[^0-9.]/g, "").slice(0, 12))}
@@ -211,12 +342,18 @@ function NewProductPage() {
               </div>
 
               <div>
-                <Label optional>{lang === "km" ? "តម្លៃបញ្ចុះ (ស្ទុក)" : "Discount price (clearance)"}</Label>
+                <Label optional>
+                  {lang === "km" ? "តម្លៃបញ្ចុះ (ស្ទុក)" : "Discount price (clearance)"}
+                </Label>
                 <div className="flex h-11 items-center overflow-hidden rounded-lg border-2 border-dashed border-rose-300 bg-rose-50/50 focus-within:border-rose-500">
-                  <span className="ml-3 text-sm font-bold text-rose-600">{currency === "USD" ? "$" : "៛"}</span>
+                  <span className="ml-3 text-sm font-bold text-rose-600">
+                    {currency === "USD" ? "$" : "៛"}
+                  </span>
                   <input
                     value={discountPrice}
-                    onChange={(e) => setDiscountPrice(e.target.value.replace(/[^0-9.]/g, "").slice(0, 12))}
+                    onChange={(e) =>
+                      setDiscountPrice(e.target.value.replace(/[^0-9.]/g, "").slice(0, 12))
+                    }
                     inputMode="decimal"
                     placeholder={lang === "km" ? "ស្រេចចិត្ត" : "Optional sale price"}
                     className="h-full flex-1 bg-transparent px-2 text-sm outline-none"
@@ -230,7 +367,6 @@ function NewProductPage() {
               </div>
             </div>
 
-
             <div className="rounded-xl bg-surface p-3 shadow-card">
               <Label optional>{lang === "km" ? "ប​រិយាយ​" : "Description"}</Label>
               <textarea
@@ -239,6 +375,10 @@ function NewProductPage() {
                 rows={4}
                 placeholder={lang === "km" ? "បរិយាយផលិតផល…" : "Describe the product…"}
                 className="w-full resize-none rounded-lg border border-border bg-background p-3 text-sm outline-none focus:border-primary"
+              />
+              <AutofillHint
+                loading={autofilling && !description}
+                filled={autofilled.has("description")}
               />
             </div>
 
@@ -295,7 +435,15 @@ function NewProductPage() {
   );
 }
 
-function Label({ children, required, optional }: { children: React.ReactNode; required?: boolean; optional?: boolean }) {
+function Label({
+  children,
+  required,
+  optional,
+}: {
+  children: React.ReactNode;
+  required?: boolean;
+  optional?: boolean;
+}) {
   return (
     <div className="mb-2 text-sm font-semibold text-foreground">
       {children}
@@ -305,9 +453,10 @@ function Label({ children, required, optional }: { children: React.ReactNode; re
   );
 }
 
-export const POST_TYPE_META: Record<PostType, { en: string; km: string; bg: string; fg: string }> = {
-  novedad:     { en: "New",        km: "ថ្មី",       bg: "bg-emerald-100", fg: "text-emerald-700" },
-  stock:       { en: "Stock",      km: "ស្តុក",      bg: "bg-sky-100",     fg: "text-sky-700" },
-  oferta:      { en: "Offer",      km: "ការផ្តល់ជូន", bg: "bg-amber-100",   fg: "text-amber-700" },
-  liquidacion: { en: "Clearance",  km: "បោះតម្លៃ",   bg: "bg-rose-100",    fg: "text-rose-700" },
-};
+export const POST_TYPE_META: Record<PostType, { en: string; km: string; bg: string; fg: string }> =
+  {
+    novedad: { en: "New", km: "ថ្មី", bg: "bg-emerald-100", fg: "text-emerald-700" },
+    stock: { en: "Stock", km: "ស្តុក", bg: "bg-sky-100", fg: "text-sky-700" },
+    oferta: { en: "Offer", km: "ការផ្តល់ជូន", bg: "bg-amber-100", fg: "text-amber-700" },
+    liquidacion: { en: "Clearance", km: "បោះតម្លៃ", bg: "bg-rose-100", fg: "text-rose-700" },
+  };
