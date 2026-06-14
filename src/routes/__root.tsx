@@ -1,7 +1,7 @@
 import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { I18nProvider } from "@/lib/i18n";
+import { I18nProvider, useI18n } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { DailyTicketGate } from "@/components/DailyTicketGate";
@@ -90,13 +90,14 @@ function RootComponent() {
 }
 
 function NotFoundComponent() {
+  const { t } = useI18n();
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="text-center">
         <h1 className="text-6xl font-bold text-primary">404</h1>
-        <p className="mt-2 text-muted-foreground">Page not found</p>
+        <p className="mt-2 text-muted-foreground">{t("page_not_found")}</p>
         <a href="/" className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-primary-foreground">
-          Go home
+          {t("go_home")}
         </a>
       </div>
     </div>
