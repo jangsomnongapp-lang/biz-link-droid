@@ -10,6 +10,9 @@ import { formatPrice } from "@/lib/price";
 
 
 export const Route = createFileRoute("/suppliers/")({
+  validateSearch: (params: Record<string, unknown>): { q?: string } => ({
+    q: typeof params.q === "string" ? params.q.slice(0, 120) : undefined,
+  }),
   component: () => (
     <RequireAuth>
       <AppShell>
@@ -85,10 +88,11 @@ const POST_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg:
 };
 
 function SuppliersListPage() {
+  const { q: scannedProduct } = Route.useSearch();
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("shops");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(scannedProduct ?? "");
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [storeCards, setStoreCards] = useState<StoreCardRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,14 +115,24 @@ function SuppliersListPage() {
     void (async () => {
       setLoading(true);
 
+      let postsQuery = supabase
+        .from("posts")
+        .select(
+          "id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)",
+        )
+        .eq("status", "approved")
+        .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
+        .order("created_at", { ascending: false })
+        .limit(60);
+      if (scannedProduct) {
+        const safeTerm = scannedProduct.replace(/[,%()]/g, " ").trim();
+        if (safeTerm) {
+          postsQuery = postsQuery.or(`title.ilike.%${safeTerm}%,content.ilike.%${safeTerm}%`);
+        }
+      }
+
       const [{ data: postsData }, { data: allStores }] = await Promise.all([
-        supabase
-          .from("posts")
-          .select("id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)")
-          .eq("status", "approved")
-          .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
-          .order("created_at", { ascending: false })
-          .limit(60),
+        postsQuery,
         supabase
           .from("supplier_stores")
           .select("id, user_id, name, description, location, logo_url, created_at")
@@ -192,7 +206,7 @@ function SuppliersListPage() {
       setStoreCards(storeList);
       setLoading(false);
     })();
-  }, []);
+  }, [scannedProduct]);
 
   useEffect(() => {
     if (mode !== "rent") return;
