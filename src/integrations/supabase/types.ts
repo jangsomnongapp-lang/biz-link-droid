@@ -1433,6 +1433,7 @@ export type Database = {
           available_from: string | null
           category: string
           created_at: string
+          currency: string
           description: string | null
           id: string
           location: string
@@ -1448,6 +1449,7 @@ export type Database = {
           available_from?: string | null
           category: string
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           location: string
@@ -1463,6 +1465,7 @@ export type Database = {
           available_from?: string | null
           category?: string
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           location?: string
