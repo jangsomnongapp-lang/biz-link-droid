@@ -1,11 +1,14 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
+import { smartAutofill } from "@/lib/smart-autofill.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Camera, Plus, FileText } from "lucide-react";
+import { ArrowLeft, Camera, LoaderCircle, Plus, FileText } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/find-material")({
   component: () => (
@@ -25,7 +28,38 @@ function FindMaterialEntry() {
   const { lang } = useI18n();
   const { user } = useAuth();
   const [activeCount, setActiveCount] = useState(0);
+  const [scanning, setScanning] = useState(false);
+  const scannerInput = useRef<HTMLInputElement>(null);
+  const identifyProduct = useServerFn(smartAutofill);
   const MAX = 10;
+
+  async function scanProduct(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    const { validateImageFile } = await import("@/lib/upload-validation");
+    if (!validateImageFile(file)) return;
+    setScanning(true);
+    try {
+      const imageDataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const result = await identifyProduct({ data: { flow: "material", imageDataUrl } });
+      const product = result?.name?.trim();
+      if (!product) {
+        toast.error(lang === "km" ? "មិនអាចស្គាល់ផលិតផលនេះបានទេ" : "Could not identify this product");
+        return;
+      }
+      window.location.assign(`/suppliers?q=${encodeURIComponent(product)}`);
+    } catch {
+      toast.error(lang === "km" ? "សូមសាកល្បងរូបភាពផ្សេង" : "Please try another picture");
+    } finally {
+      setScanning(false);
+    }
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -51,26 +85,36 @@ function FindMaterialEntry() {
 
       <div className="flex flex-col gap-3 px-4 py-6">
         <Button
-          asChild
           size="lg"
           className="h-auto justify-start rounded-2xl px-4 py-4 shadow-card"
+          disabled={scanning}
+          onClick={() => scannerInput.current?.click()}
         >
-          <Link to="/find-material/new" search={{ scan: true }}>
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/20">
-              <Camera className="h-5 w-5" />
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/20">
+            {scanning ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
+          </span>
+          <span className="text-left">
+            <span className="block text-base font-bold">
+              {scanning
+                ? lang === "km"
+                  ? "កំពុងស្វែងរក..."
+                  : "Finding product..."
+                : lang === "km"
+                  ? "ស្កេន ឬ បង្ហោះរូបភាព"
+                  : "Scan or upload picture"}
             </span>
-            <span className="text-left">
-              <span className="block text-base font-bold">
-                {lang === "km" ? "ស្កេនរូបភាព" : "Scan picture"}
-              </span>
-              <span className="block text-xs font-normal text-primary-foreground/80">
-                {lang === "km"
-                  ? "ថតរូបដើម្បីស្វែងរកផលិតផល"
-                  : "Take a photo to identify the product"}
-              </span>
+            <span className="block text-xs font-normal text-primary-foreground/80">
+              {lang === "km" ? "ស្វែងរកផលិតផលពីអ្នកផ្គត់ផ្គង់" : "Find matching supplier products"}
             </span>
-          </Link>
+          </span>
         </Button>
+        <input
+          ref={scannerInput}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={scanProduct}
+        />
 
         <Link
           to="/find-material/new"
