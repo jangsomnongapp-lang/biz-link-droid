@@ -66,13 +66,26 @@ export function useAuth() {
   return c;
 }
 
-/** Normalize a Cambodian phone number: strip non-digits and leading zeros so "012345678" and "12345678" are treated the same. */
+/** Normalize a Cambodian phone number to its local digits without +855 or a trunk zero. */
 export function normalizePhone(phone: string) {
-  return phone.replace(/\D/g, "").replace(/^0+/, "");
+  return phone.replace(/\D/g, "").replace(/^855/, "").replace(/^0+/, "");
 }
 
 /** Build a synthetic email from a phone number so we can use Supabase email auth as the storage layer. */
 export function phoneToEmail(phone: string) {
   const digits = normalizePhone(phone);
   return `p${digits}@project001.local`;
+}
+
+/** Include historical account formats created before phone normalization was standardized. */
+export function phoneLoginEmails(phone: string) {
+  const rawDigits = phone.replace(/\D/g, "");
+  const localDigits = normalizePhone(phone);
+  return Array.from(
+    new Set([
+      `p${localDigits}@project001.local`,
+      `p0${localDigits}@project001.local`,
+      `p${rawDigits}@project001.local`,
+    ]),
+  );
 }
