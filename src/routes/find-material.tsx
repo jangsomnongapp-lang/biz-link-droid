@@ -50,7 +50,9 @@ function FindMaterialEntry() {
       const result = await identifyProduct({ data: { flow: "material", imageDataUrl } });
       const product = result?.name?.trim();
       if (!product) {
-        toast.error(lang === "km" ? "មិនអាចស្គាល់ផលិតផលនេះបានទេ" : "Could not identify this product");
+        toast.error(
+          lang === "km" ? "មិនអាចស្គាល់ផលិតផលនេះបានទេ" : "Could not identify this product",
+        );
         return;
       }
       window.location.assign(`/suppliers?q=${encodeURIComponent(product)}`);
@@ -91,7 +93,11 @@ function FindMaterialEntry() {
           onClick={() => scannerInput.current?.click()}
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/20">
-            {scanning ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
+            {scanning ? (
+              <LoaderCircle className="h-5 w-5 animate-spin" />
+            ) : (
+              <Camera className="h-5 w-5" />
+            )}
           </span>
           <span className="text-left">
             <span className="block text-base font-bold">

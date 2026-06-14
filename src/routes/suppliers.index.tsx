@@ -115,20 +115,24 @@ function SuppliersListPage() {
     void (async () => {
       setLoading(true);
 
-       let postsQuery = supabase
-          .from("posts")
-          .select("id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)")
-          .eq("status", "approved")
-          .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
-          .order("created_at", { ascending: false })
-           .limit(60);
-       if (scannedProduct) {
-         const safeTerm = scannedProduct.replace(/[,%()]/g, " ").trim();
-         if (safeTerm) postsQuery = postsQuery.or(`title.ilike.%${safeTerm}%,content.ilike.%${safeTerm}%`);
-       }
+      let postsQuery = supabase
+        .from("posts")
+        .select(
+          "id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)",
+        )
+        .eq("status", "approved")
+        .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
+        .order("created_at", { ascending: false })
+        .limit(60);
+      if (scannedProduct) {
+        const safeTerm = scannedProduct.replace(/[,%()]/g, " ").trim();
+        if (safeTerm) {
+          postsQuery = postsQuery.or(`title.ilike.%${safeTerm}%,content.ilike.%${safeTerm}%`);
+        }
+      }
 
-       const [{ data: postsData }, { data: allStores }] = await Promise.all([
-         postsQuery,
+      const [{ data: postsData }, { data: allStores }] = await Promise.all([
+        postsQuery,
         supabase
           .from("supplier_stores")
           .select("id, user_id, name, description, location, logo_url, created_at")
