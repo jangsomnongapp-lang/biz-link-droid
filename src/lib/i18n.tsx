@@ -46,7 +46,7 @@ const dict: Dict = {
   no_account: { km: "មិនទាន់មានគណនី?", en: "Don't have an account?" },
   // nav
   nav_home: { km: "ដើម", en: "Home" },
-  nav_listings: { km: "គម្រោង", en: "Project" },
+  nav_listings: { km: "គម្រោងខ្ញុំ", en: "My Projects" },
   nav_announce: { km: "ប្រកាស", en: "Announce" },
   nav_alerts: { km: "ជូនដំណឹង", en: "Alerts" },
   nav_profile: { km: "ប្រវត្តិរូប", en: "Profile" },
