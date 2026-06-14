@@ -2,7 +2,7 @@ import acVentilation from "@/assets/categories/ac-ventilation.jpg.asset.json";
 import bricklayer from "@/assets/categories/bricklayer.jpg.asset.json";
 import carpenter from "@/assets/categories/carpenter.jpg.asset.json";
 import electrician from "@/assets/categories/electrician.jpg.asset.json";
-import formwork from "@/assets/categories/formwork.jpg.asset.json";
+import formwork from "@/assets/categories/formwork-2.jpg.asset.json";
 import glassAluminum from "@/assets/categories/glass-aluminum-installer.jpg.asset.json";
 import landscaper from "@/assets/categories/landscaper.jpg.asset.json";
 import machineryOperator from "@/assets/categories/machinery-operator.jpg.asset.json";
