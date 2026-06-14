@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { ArrowLeft, Eye, EyeOff, Check, Hammer, Users, Building, Briefcase, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
+import { CategoryImage } from "@/components/CategoryImage";
 
 export const Route = createFileRoute("/register")({
   component: RegisterFlow,
@@ -323,20 +324,29 @@ function Step2({
               <h3 className="mb-2 text-xs font-bold tracking-wider text-primary">
                 {t(groupKey(g) as Parameters<typeof t>[0])}
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {cats.map((c) => {
                   const isSel = selected.has(c.id);
+                  const name = lang === "km" ? c.name_km : c.name_en;
                   return (
                     <button
                       key={c.id}
                       onClick={() => toggle(c.id)}
-                      className={`rounded-pill border px-4 py-2 text-sm font-medium transition ${
+                      className={`overflow-hidden rounded-xl border text-left text-sm font-medium transition ${
                         isSel
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border bg-surface text-foreground"
                       }`}
                     >
-                      {lang === "km" ? c.name_km : c.name_en}
+                      <div className="relative aspect-[16/10] bg-muted">
+                        <CategoryImage code={c.code} name={name} />
+                        {isSel && (
+                          <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
+                            <Check className="h-4 w-4" strokeWidth={3} />
+                          </span>
+                        )}
+                      </div>
+                      <span className="block px-3 py-2.5 leading-snug">{name}</span>
                     </button>
                   );
                 })}
