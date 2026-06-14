@@ -332,7 +332,7 @@ function Step2({
                     <button
                       key={c.id}
                       onClick={() => toggle(c.id)}
-                      className={`overflow-hidden rounded-xl border text-left text-sm font-medium transition ${
+                      className={`flex flex-col overflow-hidden rounded-xl border text-left text-sm font-medium transition ${
                         isSel
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border bg-surface text-foreground"
@@ -346,7 +346,7 @@ function Step2({
                           </span>
                         )}
                       </div>
-                      <span className="block px-3 py-2.5 leading-snug">{name}</span>
+                      <span className="flex min-h-[44px] items-center px-3 py-2 leading-snug line-clamp-2">{name}</span>
                     </button>
                   );
                 })}
