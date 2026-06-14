@@ -145,7 +145,9 @@ function ScanResultsPage() {
       ) : (
         <main className="space-y-3 p-4">
           <p className="text-sm text-muted-foreground">
-            {lang === "km" ? `រកឃើញ ${products.length} លទ្ធផលសម្រាប់ “${q}”` : `${products.length} results for “${q}”`}
+            {lang === "km"
+              ? `រកឃើញ ${products.length} លទ្ធផលសម្រាប់ “${q}”`
+              : `${products.length} results for “${q}”`}
           </p>
           {products.map((product) => (
             <article key={product.id} className="flex gap-3 rounded-2xl bg-surface p-3 shadow-card">
