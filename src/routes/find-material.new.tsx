@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
@@ -7,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, X, MapPin, Globe2 } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
+import { AutofillHint } from "@/components/AutofillHint";
+import { smartAutofill } from "@/lib/smart-autofill.functions";
 
 export const Route = createFileRoute("/find-material/new")({
   component: () => (
@@ -38,12 +41,45 @@ function NewMaterialPage() {
   const nav = useNavigate();
   const [activeCount, setActiveCount] = useState(0);
   const [category, setCategory] = useState<Cat | null>(null);
+  const [itemName, setItemName] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [quantity, setQuantity] = useState("");
   const [note, setNote] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofilled, setAutofilled] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<"near_me" | "anywhere">("near_me");
   const [submitting, setSubmitting] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const fillForm = useServerFn(smartAutofill);
+  const requestId = useRef(0);
+
+  async function runAutofill(input: { text?: string; imageDataUrl?: string }) {
+    const id = ++requestId.current;
+    setAutofilling(true);
+    try {
+      const result = await fillForm({ data: { flow: "material", ...input } });
+      if (!result || id !== requestId.current) return;
+      const filled = new Set<string>();
+      if (!itemName.trim() && result.name) { setItemName(result.name); filled.add("name"); }
+      if (!category && CATEGORIES.some((c) => c.id === result.category)) { setCategory(result.category as Cat); filled.add("category"); }
+      if (!note.trim() && result.description) { setNote(result.description.slice(0, 200)); filled.add("description"); }
+      if (!quantity && result.quantity) { setQuantity(result.quantity.replace(/\D/g, "")); filled.add("quantity"); }
+      setSuggestions([...result.related, ...result.alternatives].filter(Boolean).slice(0, 6));
+      setAutofilled((previous) => new Set([...previous, ...filled]));
+    } catch {
+      // Silent fallback: every field remains manually editable.
+    } finally {
+      if (id === requestId.current) setAutofilling(false);
+    }
+  }
+
+  useEffect(() => {
+    const text = [itemName, note].filter(Boolean).join(". ").trim();
+    if (text.length < 3) return;
+    const timer = window.setTimeout(() => void runAutofill({ text }), 800);
+    return () => window.clearTimeout(timer);
+  }, [itemName, note]);
 
   useEffect(() => {
     if (!user) return;
@@ -65,6 +101,13 @@ function NewMaterialPage() {
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(file)) return;
     try {
+      const imageDataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      void runAutofill({ imageDataUrl, text: [itemName, note].filter(Boolean).join(". ") });
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: upErr } = await supabase.storage
@@ -104,7 +147,7 @@ function NewMaterialPage() {
           user_id: user.id,
           category,
           quantity: Number(quantity),
-          note: note.trim() || null,
+          note: [itemName.trim(), note.trim()].filter(Boolean).join(" — ") || null,
           location_filter: locationFilter,
           lat: geo?.lat ?? null,
           lng: geo?.lng ?? null,
@@ -183,6 +226,7 @@ function NewMaterialPage() {
             );
           })}
         </div>
+        <AutofillHint loading={autofilling && !category} filled={autofilled.has("category")} />
       </section>
 
       <section className="mt-2 bg-surface p-4 shadow-card">
@@ -229,6 +273,21 @@ function NewMaterialPage() {
 
       <section className="mt-2 bg-surface p-4 shadow-card">
         <label className="mb-2 block text-sm font-semibold text-foreground">
+          {lang === "km" ? "ឈ្មោះសម្ភារៈ" : "Material name"}
+        </label>
+        {autofilling && !itemName ? <div className="h-11 animate-pulse rounded-xl bg-primary/10" /> : (
+          <input
+            value={itemName}
+            onChange={(e) => setItemName(e.target.value.slice(0, 120))}
+            placeholder={lang === "km" ? "ឧ. ស៊ីម៉ងត៍ 50kg" : "e.g. Cement 50kg"}
+            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-primary focus:outline-none"
+          />
+        )}
+        <AutofillHint loading={autofilling && !itemName} filled={autofilled.has("name")} />
+      </section>
+
+      <section className="mt-2 bg-surface p-4 shadow-card">
+        <label className="mb-2 block text-sm font-semibold text-foreground">
           {lang === "km" ? "ចំនួនត្រូវការ *" : "Quantity needed *"}
         </label>
         <input
@@ -240,6 +299,7 @@ function NewMaterialPage() {
           placeholder="30"
           className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-[#c87000] focus:outline-none"
         />
+        <AutofillHint loading={autofilling && !quantity} filled={autofilled.has("quantity")} />
       </section>
 
       <section className="mt-2 bg-surface p-4 shadow-card">
@@ -252,6 +312,16 @@ function NewMaterialPage() {
           placeholder={lang === "km" ? "ឧ. ត្រូវការដឹកជញ្ជូនទៅសៀមរាប" : "e.g. Need delivery to Siem Reap centre"}
           className="min-h-[64px] w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:border-[#c87000] focus:outline-none"
         />
+        <AutofillHint loading={autofilling && !note} filled={autofilled.has("description")} />
+        {suggestions.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {suggestions.map((suggestion) => (
+              <button key={suggestion} type="button" onClick={() => setItemName(suggestion)} className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="mt-2 bg-surface p-4 shadow-card">
