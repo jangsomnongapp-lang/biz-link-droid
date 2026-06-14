@@ -1520,6 +1520,7 @@ export type Database = {
           budget_per_day: number | null
           category: string
           created_at: string
+          currency: string
           description: string | null
           id: string
           location: string
@@ -1533,6 +1534,7 @@ export type Database = {
           budget_per_day?: number | null
           category: string
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           location: string
@@ -1546,6 +1548,7 @@ export type Database = {
           budget_per_day?: number | null
           category?: string
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           location?: string
