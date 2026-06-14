@@ -1,15 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createHash, randomBytes, randomInt, randomUUID, timingSafeEqual } from "crypto";
+import { createHash, randomBytes, randomUUID, timingSafeEqual } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const TELEGRAM_BOT_USERNAME = "Jangsomnong_bot";
 
 function normalize(phone: string) {
   return phone.replace(/\D/g, "").replace(/^0+/, "");
-}
-function syntheticEmail(digits: string) {
-  return `p${digits}@project001.local`;
 }
 function hashCode(code: string) {
   return createHash("sha256").update(code).digest("hex");
