@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarCropper } from "@/components/AvatarCropper";
+import { CategoryImage } from "@/components/CategoryImage";
 
 
 export const Route = createFileRoute("/profile/edit")({
@@ -309,11 +310,12 @@ function EditProfilePage() {
 
         <Card>
           <Label>{t("your_specialties")}</Label>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {categories
               .filter((c) => c.code !== "D4")
               .map((c) => {
                 const sel = selected.has(c.id);
+                const name = lang === "km" ? c.name_km : c.name_en;
                 return (
                   <button
                     key={c.id}
@@ -323,13 +325,16 @@ function EditProfilePage() {
                       else n.add(c.id);
                       setSelected(n);
                     }}
-                    className={`rounded-pill border px-3 py-1.5 text-xs font-medium transition ${
+                    className={`overflow-hidden rounded-xl border text-left text-xs font-medium transition ${
                       sel
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border bg-background text-foreground"
                     }`}
                   >
-                    {lang === "km" ? c.name_km : c.name_en}
+                    <div className="aspect-[16/9] bg-muted">
+                      <CategoryImage code={c.code} name={name} />
+                    </div>
+                    <span className="block px-2.5 py-2 leading-snug">{name}</span>
                   </button>
                 );
               })}
