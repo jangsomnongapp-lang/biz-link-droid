@@ -430,7 +430,7 @@ const dict: Dict = {
   category_label: { km: "ប្រភេទ", en: "Category" },
   pricing_availability: { km: "តម្លៃ និងភាពអាចជួលបាន", en: "Pricing and availability" },
   price_per_day_label: { km: "តម្លៃ / ថ្ងៃ", en: "Price / day" },
-  min_days: { km: "រយ", en: "Min. days" },
+  min_days: { km: "រយ:ពេល(ថ្ងៃ)", en: "Min. days" },
   available_from: { km: "អាចជួលបានចាប់ពី", en: "Available from" },
   now: { km: "ឥឡូវនេះ", en: "Now" },
   pick_a_date: { km: "ជ្រើសកាលបរិច្ឆេទ...", en: "Pick a date..." },
