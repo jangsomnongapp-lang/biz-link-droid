@@ -325,7 +325,7 @@ function EditProfilePage() {
                       else n.add(c.id);
                       setSelected(n);
                     }}
-                    className={`overflow-hidden rounded-xl border text-left text-xs font-medium transition ${
+                    className={`flex flex-col overflow-hidden rounded-xl border text-left text-xs font-medium transition ${
                       sel
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border bg-background text-foreground"
@@ -334,7 +334,7 @@ function EditProfilePage() {
                     <div className="aspect-[16/9] bg-muted">
                       <CategoryImage code={c.code} name={name} />
                     </div>
-                    <span className="block px-2.5 py-2 leading-snug">{name}</span>
+                    <span className="flex min-h-[40px] items-center px-2.5 py-2 leading-snug line-clamp-2">{name}</span>
                   </button>
                 );
               })}
