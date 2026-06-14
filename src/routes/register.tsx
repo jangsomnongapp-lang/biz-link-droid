@@ -332,13 +332,13 @@ function Step2({
                     <button
                       key={c.id}
                       onClick={() => toggle(c.id)}
-                      className={`flex flex-col overflow-hidden rounded-xl border text-left text-sm font-medium transition ${
+                      className={`flex h-full flex-col overflow-hidden rounded-xl border text-left text-sm font-medium transition ${
                         isSel
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border bg-surface text-foreground"
                       }`}
                     >
-                      <div className="relative aspect-[16/10] bg-muted">
+                      <div className="relative h-28 w-full shrink-0 bg-muted sm:h-32">
                         <CategoryImage code={c.code} name={name} />
                         {isSel && (
                           <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
@@ -346,7 +346,7 @@ function Step2({
                           </span>
                         )}
                       </div>
-                      <span className="flex min-h-[44px] items-center px-3 py-2 leading-snug line-clamp-2">{name}</span>
+                      <span className="flex h-12 shrink-0 items-center px-3 py-2 leading-snug line-clamp-2">{name}</span>
                     </button>
                   );
                 })}
