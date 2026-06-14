@@ -472,6 +472,14 @@ const dict: Dict = {
   max_4: { km: "អតិបរមា ៤", en: "max 4" },
   upload_failed: { km: "បង្ហោះមិនបានសម្រេច", en: "Upload failed" },
   last_updated_april_2026: { km: "បានធ្វើបច្ចុប្បន្នភាពចុងក្រោយ៖ ខែមេសា ឆ្នាំ២០២៦", en: "Last updated: April 2026" },
+  unsupported_file_type: { km: "មិនគាំទ្រប្រភេទឯកសារនេះទេ", en: "Unsupported file type" },
+  file_under_5mb: { km: "ឯកសារត្រូវមានទំហំក្រោម 5MB", en: "File must be under 5MB" },
+  voice_too_large: { km: "សារសំឡេងធំពេក (អតិបរមា 2 MB)", en: "Voice message too large (max 2 MB)" },
+  voice_too_long: { km: "សារសំឡេងវែងពេក (អតិបរមា ២ នាទី)", en: "Voice message too long (max 2 minutes)" },
+  microphone_denied: { km: "មិនអនុញ្ញាតឱ្យប្រើមីក្រូហ្វូន", en: "Microphone access denied" },
+  telegram_notifications: { km: "ការជូនដំណឹង Telegram", en: "Telegram notifications" },
+  super_user: { km: "អ្នកប្រើកម្រិតខ្ពស់", en: "Super user" },
+  switch_identity: { km: "ប្តូរអត្តសញ្ញាណ", en: "Switch identity" },
 };
 
 interface I18nCtx {
