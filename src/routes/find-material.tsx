@@ -50,7 +50,11 @@ function FindMaterialEntry() {
       </header>
 
       <div className="flex flex-col gap-3 px-4 py-6">
-        <Button asChild size="lg" className="h-auto justify-start rounded-2xl px-4 py-4 shadow-card">
+        <Button
+          asChild
+          size="lg"
+          className="h-auto justify-start rounded-2xl px-4 py-4 shadow-card"
+        >
           <Link to="/find-material/new" search={{ scan: true }}>
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/20">
               <Camera className="h-5 w-5" />
@@ -60,7 +64,9 @@ function FindMaterialEntry() {
                 {lang === "km" ? "ស្កេនរូបភាព" : "Scan picture"}
               </span>
               <span className="block text-xs font-normal text-primary-foreground/80">
-                {lang === "km" ? "ថតរូបដើម្បីស្វែងរកផលិតផល" : "Take a photo to identify the product"}
+                {lang === "km"
+                  ? "ថតរូបដើម្បីស្វែងរកផលិតផល"
+                  : "Take a photo to identify the product"}
               </span>
             </span>
           </Link>
