@@ -325,16 +325,16 @@ function EditProfilePage() {
                       else n.add(c.id);
                       setSelected(n);
                     }}
-                    className={`flex flex-col overflow-hidden rounded-xl border text-left text-xs font-medium transition ${
+                    className={`flex h-full flex-col overflow-hidden rounded-xl border text-left text-xs font-medium transition ${
                       sel
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border bg-background text-foreground"
                     }`}
                   >
-                    <div className="aspect-[16/9] bg-muted">
+                    <div className="h-28 w-full shrink-0 bg-muted sm:h-32">
                       <CategoryImage code={c.code} name={name} />
                     </div>
-                    <span className="flex min-h-[40px] items-center px-2.5 py-2 leading-snug line-clamp-2">{name}</span>
+                    <span className="flex h-12 shrink-0 items-center px-2.5 py-2 leading-snug line-clamp-2">{name}</span>
                   </button>
                 );
               })}
