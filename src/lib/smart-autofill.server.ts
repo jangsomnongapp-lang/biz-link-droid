@@ -15,6 +15,50 @@ const ResultSchema = z.object({
 
 export type SmartAutofillResult = z.infer<typeof ResultSchema>;
 
+export async function identifyConstructionProduct(imageDataUrl: string): Promise<string> {
+  const key = process.env.LOVABLE_API_KEY;
+  if (!key) throw new Error("LOVABLE_API_KEY is unavailable");
+
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Lovable-API-Key": key,
+    },
+    body: JSON.stringify({
+      model: "google/gemini-3-flash-preview",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Identify the main construction material or tool in this photo. Return only useful search keywords: first the Khmer product name, then the English name. No sentence, brand guess, quantity, or explanation. Example: ស៊ីម៉ងត៍ cement",
+            },
+            { type: "image_url", image_url: { url: imageDataUrl } },
+          ],
+        },
+      ],
+      max_tokens: 120,
+      temperature: 0.1,
+    }),
+  });
+  if (!response.ok) {
+    const detail = (await response.text()).slice(0, 500);
+    throw new Error(`Picture recognition failed (${response.status}): ${detail}`);
+  }
+  const payload = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string | Array<{ type?: string; text?: string }> } }>;
+  };
+  const content = payload.choices?.[0]?.message?.content;
+  const text =
+    typeof content === "string" ? content : content?.map((part) => part.text ?? "").join(" ");
+  return (text ?? "")
+    .replace(/[\n\r]+/g, " ")
+    .trim()
+    .slice(0, 200);
+}
+
 export async function generateSmartAutofill(input: {
   flow: "material" | "rental" | "supplier";
   text?: string;

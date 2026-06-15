@@ -5,7 +5,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
-import { smartAutofill } from "@/lib/smart-autofill.functions";
+import { recognizeProductPicture } from "@/lib/smart-autofill.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, LoaderCircle, Plus, FileText } from "lucide-react";
 
@@ -29,7 +29,7 @@ function FindMaterialEntry() {
   const [activeCount, setActiveCount] = useState(0);
   const [scanning, setScanning] = useState(false);
   const scannerInput = useRef<HTMLInputElement>(null);
-  const identifyProduct = useServerFn(smartAutofill);
+  const identifyProduct = useServerFn(recognizeProductPicture);
   const MAX = 10;
 
   async function scanProduct(event: React.ChangeEvent<HTMLInputElement>) {
@@ -40,14 +40,10 @@ function FindMaterialEntry() {
     if (!validateImageFile(file)) return;
     setScanning(true);
     try {
-      const imageDataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result));
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      const { prepareImageForRecognition } = await import("@/lib/image-resize.client");
+      const imageDataUrl = await prepareImageForRecognition(file);
       const result = await identifyProduct({ data: { flow: "material", imageDataUrl } });
-      const product = result?.name?.trim();
+      const product = result.product.trim();
       if (!product) {
         window.location.assign("/find-material/results");
         return;
