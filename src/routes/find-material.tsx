@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { prepareImageForRecognition } from "@/lib/image-resize";
 import { useI18n } from "@/lib/i18n";
 import { recognizeProductPicture } from "@/lib/smart-autofill.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +41,6 @@ function FindMaterialEntry() {
     if (!validateImageFile(file)) return;
     setScanning(true);
     try {
-      const { prepareImageForRecognition } = await import("@/lib/image-resize.client");
       const imageDataUrl = await prepareImageForRecognition(file);
       const result = await identifyProduct({ data: { flow: "material", imageDataUrl } });
       const product = result.product.trim();
