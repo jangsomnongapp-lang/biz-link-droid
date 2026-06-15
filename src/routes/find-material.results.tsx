@@ -7,8 +7,9 @@ import { formatPrice } from "@/lib/price";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/find-material/results")({
-  validateSearch: (params: Record<string, unknown>): { q?: string } => ({
+  validateSearch: (params: Record<string, unknown>): { q?: string; ids?: string } => ({
     q: typeof params.q === "string" ? params.q.slice(0, 200) : undefined,
+    ids: typeof params.ids === "string" ? params.ids.slice(0, 800) : undefined,
   }),
   component: () => (
     <RequireAuth>
@@ -31,13 +32,18 @@ interface ProductResult {
 }
 
 function ScanResultsPage() {
-  const { q = "" } = Route.useSearch();
+  const { q = "", ids = "" } = Route.useSearch();
   const { lang } = useI18n();
-  const [loading, setLoading] = useState(Boolean(q));
+  const [loading, setLoading] = useState(Boolean(q || ids));
   const [products, setProducts] = useState<ProductResult[]>([]);
 
   useEffect(() => {
-    if (!q.trim()) {
+    const matchedIds = ids
+      .split(",")
+      .map((id) => id.trim())
+      .filter((id) => /^[0-9a-f-]{36}$/i.test(id))
+      .slice(0, 8);
+    if (!q.trim() && !matchedIds.length) {
       setLoading(false);
       return;
     }
@@ -56,20 +62,23 @@ function ScanResultsPage() {
         .map((term) => term.replace(/[,%()]/g, " ").trim())
         .filter(Boolean)
         .flatMap((term) => [`title.ilike.%${term}%`, `content.ilike.%${term}%`]);
-      if (!filters.length) {
+      if (!filters.length && !matchedIds.length) {
         setLoading(false);
         return;
       }
-      const { data } = await supabase
+      let postsQuery = supabase
         .from("posts")
         .select(
           "id, title, content, price, discount_price, currency, user_id, post_photos(photo_url)",
         )
         .eq("status", "approved")
         .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
-        .or(filters.join(","))
         .order("created_at", { ascending: false })
         .limit(40);
+      postsQuery = matchedIds.length
+        ? postsQuery.in("id", matchedIds)
+        : postsQuery.or(filters.join(","));
+      const { data } = await postsQuery;
       if (cancelled) return;
       const rows = data ?? [];
       const ownerIds = Array.from(new Set(rows.map((post) => post.user_id)));
@@ -98,7 +107,7 @@ function ScanResultsPage() {
     return () => {
       cancelled = true;
     };
-  }, [q]);
+  }, [q, ids]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -145,7 +154,11 @@ function ScanResultsPage() {
       ) : (
         <main className="space-y-3 p-4">
           <p className="text-sm text-muted-foreground">
-            {lang === "km"
+            {ids
+              ? lang === "km"
+                ? `រកឃើញ ${products.length} ផលិតផលដែលមានរូបភាពស្រដៀងគ្នា`
+                : `${products.length} visually matching supplier products`
+              : lang === "km"
               ? `រកឃើញ ${products.length} លទ្ធផលសម្រាប់ “${q}”`
               : `${products.length} results for “${q}”`}
           </p>
