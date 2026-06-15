@@ -40,8 +40,8 @@ function ScanResultsPage() {
   useEffect(() => {
     const matchedIds = ids
       .split(",")
-      .map((id) => id.trim())
-      .filter((id) => /^[0-9a-f-]{36}$/i.test(id))
+      .map((id: string) => id.trim())
+      .filter((id: string) => /^[0-9a-f-]{36}$/i.test(id))
       .slice(0, 8);
     if (!q.trim() && !matchedIds.length) {
       setLoading(false);
