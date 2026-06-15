@@ -51,10 +51,12 @@ export async function identifyConstructionProduct(imageDataUrl: string): Promise
     choices?: Array<{ message?: { content?: string | Array<{ type?: string; text?: string }> } }>;
   };
   const content = payload.choices?.[0]?.message?.content;
-  const text = typeof content === "string"
-    ? content
-    : content?.map((part) => part.text ?? "").join(" ");
-  return (text ?? "").replace(/[\n\r]+/g, " ").trim().slice(0, 200);
+  const text =
+    typeof content === "string" ? content : content?.map((part) => part.text ?? "").join(" ");
+  return (text ?? "")
+    .replace(/[\n\r]+/g, " ")
+    .trim()
+    .slice(0, 200);
 }
 
 export async function generateSmartAutofill(input: {
