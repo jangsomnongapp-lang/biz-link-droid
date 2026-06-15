@@ -45,9 +45,8 @@ export const recognizeProductPicture = createServerFn({ method: "POST" })
         }))
         .filter((post) => post.photoUrl)
         .slice(0, 20);
-      const { identifyConstructionProduct, matchConstructionProductPhotos } = await import(
-        "@/lib/smart-autofill.server"
-      );
+      const { identifyConstructionProduct, matchConstructionProductPhotos } =
+        await import("@/lib/smart-autofill.server");
       const matchedPostIds = await matchConstructionProductPhotos(data.imageDataUrl, candidates);
       const product = matchedPostIds.length
         ? ""
