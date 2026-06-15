@@ -1,6 +1,8 @@
+import { createClientOnlyFn } from "@tanstack/react-start";
+
 const MAX_EDGE = 1600;
 
-export async function prepareImageForRecognition(file: File): Promise<string> {
+export const prepareImageForRecognition = createClientOnlyFn(async (file: File): Promise<string> => {
   const source = await createImageBitmap(file);
   const scale = Math.min(1, MAX_EDGE / Math.max(source.width, source.height));
   const width = Math.max(1, Math.round(source.width * scale));
@@ -16,4 +18,4 @@ export async function prepareImageForRecognition(file: File): Promise<string> {
   context.drawImage(source, 0, 0, width, height);
   source.close();
   return canvas.toDataURL("image/jpeg", 0.82);
-}
+});
