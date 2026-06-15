@@ -43,6 +43,12 @@ function FindMaterialEntry() {
     try {
       const imageDataUrl = await prepareImageForRecognition(file);
       const result = await identifyProduct({ data: { flow: "material", imageDataUrl } });
+      if (result.matchedPostIds.length) {
+        window.location.assign(
+          `/find-material/results?ids=${encodeURIComponent(result.matchedPostIds.join(","))}`,
+        );
+        return;
+      }
       const product = result.product.trim();
       if (!product) {
         window.location.assign("/find-material/results");
