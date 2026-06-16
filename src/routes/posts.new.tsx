@@ -18,7 +18,8 @@ export const Route = createFileRoute("/posts/new")({
   ),
 });
 
-type PostType = "novedad" | "stock" | "oferta" | "liquidacion";
+type PostType = "novedad" | "stock" | "oferta" | "liquidacion" | "general";
+
 
 const TYPES: Array<{
   id: PostType;
