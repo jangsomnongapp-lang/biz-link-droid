@@ -989,6 +989,7 @@ export type Database = {
       }
       posts: {
         Row: {
+          category: string | null
           content: string | null
           created_at: string
           currency: string
@@ -1005,6 +1006,7 @@ export type Database = {
           view_count: number
         }
         Insert: {
+          category?: string | null
           content?: string | null
           created_at?: string
           currency?: string
@@ -1021,6 +1023,7 @@ export type Database = {
           view_count?: number
         }
         Update: {
+          category?: string | null
           content?: string | null
           created_at?: string
           currency?: string
