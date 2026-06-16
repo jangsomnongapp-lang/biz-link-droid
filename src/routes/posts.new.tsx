@@ -483,6 +483,7 @@ function Label({
 
 export const POST_TYPE_META: Record<PostType, { en: string; km: string; bg: string; fg: string }> =
   {
+    general: { en: "Product", km: "ផលិតផល", bg: "bg-slate-100", fg: "text-slate-700" },
     novedad: { en: "New", km: "ថ្មី", bg: "bg-emerald-100", fg: "text-emerald-700" },
     stock: { en: "Stock", km: "ស្តុក", bg: "bg-sky-100", fg: "text-sky-700" },
     oferta: { en: "Offer", km: "ការផ្តល់ជូន", bg: "bg-amber-100", fg: "text-amber-700" },
