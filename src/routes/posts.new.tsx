@@ -18,9 +18,7 @@ export const Route = createFileRoute("/posts/new")({
   ),
 });
 
-type PostType = "novedad" | "stock" | "oferta" | "liquidacion";
-
-
+type PostType = "general" | "novedad" | "stock" | "oferta" | "liquidacion";
 
 const TYPES: Array<{
   id: PostType;
@@ -33,6 +31,17 @@ const TYPES: Array<{
   fg: string;
   ring: string;
 }> = [
+  {
+    id: "general",
+    title_en: "Normal product",
+    title_km: "ផលិតផលធម្មតា",
+    sub_en: "Regular product listing",
+    sub_km: "ប្រកាសផលិតផលធម្មតា",
+    icon: Package,
+    bg: "bg-slate-50",
+    fg: "text-slate-700",
+    ring: "border-slate-300",
+  },
   {
     id: "novedad",
     title_en: "New arrival",
