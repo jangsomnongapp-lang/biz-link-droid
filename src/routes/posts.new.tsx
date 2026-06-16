@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle } from "lucide-react";
+import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
