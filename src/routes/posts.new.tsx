@@ -217,6 +217,7 @@ function NewProductPage() {
         .insert({
           user_id: user.id,
           post_type: type,
+          category,
           title: title.trim(),
           price: priceNum,
           discount_price: discountNum,
