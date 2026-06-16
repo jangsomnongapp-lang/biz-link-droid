@@ -191,6 +191,10 @@ function NewProductPage() {
       toast.error(lang === "km" ? "សូមបញ្ចូលឈ្មោះផលិតផល" : "Please enter product name");
       return;
     }
+    if (!category) {
+      toast.error(lang === "km" ? "សូមជ្រើសប្រភេទផលិតផល" : "Please select a category");
+      return;
+    }
     setSubmitting(true);
     try {
       const priceNum = price ? Number(price) : null;
