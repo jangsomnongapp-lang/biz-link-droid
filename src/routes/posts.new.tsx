@@ -121,7 +121,7 @@ function NewProductPage() {
   const [price, setPrice] = useState("");
   const [discountPrice, setDiscountPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<Cat | null>(null);
   const [marketPriceRange, setMarketPriceRange] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
