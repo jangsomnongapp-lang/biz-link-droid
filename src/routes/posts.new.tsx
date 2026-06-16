@@ -88,6 +88,29 @@ const TYPES: Array<{
   },
 ];
 
+type Cat =
+  | "electrical"
+  | "cement"
+  | "steel"
+  | "zinc"
+  | "tools"
+  | "timber"
+  | "sanitary"
+  | "paint"
+  | "other";
+
+const CATEGORIES: { id: Cat; en: string; km: string; emoji: string }[] = [
+  { id: "electrical", en: "Electrical", km: "អគ្គិសនី", emoji: "⚡" },
+  { id: "cement", en: "Cement", km: "ស៊ីម៉ងត៍", emoji: "🧱" },
+  { id: "steel", en: "Steel", km: "ដែក", emoji: "🔩" },
+  { id: "zinc", en: "Zinc", km: "ស័ង្កសី", emoji: "🏠" },
+  { id: "tools", en: "Tools", km: "ឧបករណ៍", emoji: "🛠️" },
+  { id: "timber", en: "Timber", km: "ឈើ", emoji: "🪵" },
+  { id: "sanitary", en: "Sanitary", km: "បង្គន់", emoji: "🚿" },
+  { id: "paint", en: "Paint", km: "ថ្នាំលាប", emoji: "🎨" },
+  { id: "other", en: "Other", km: "ផ្សេងៗ", emoji: "📦" },
+];
+
 function NewProductPage() {
   const { lang } = useI18n();
   const { user } = useAuth();
@@ -98,7 +121,7 @@ function NewProductPage() {
   const [price, setPrice] = useState("");
   const [discountPrice, setDiscountPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<Cat | null>(null);
   const [marketPriceRange, setMarketPriceRange] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -119,8 +142,8 @@ function NewProductPage() {
         setTitle(result.name);
         filled.add("title");
       }
-      if (!category.trim() && result.category) {
-        setCategory(result.category);
+      if (!category && result.category && CATEGORIES.some((c) => c.id === result.category)) {
+        setCategory(result.category as Cat);
         filled.add("category");
       }
       if (!description.trim() && result.description) {
@@ -168,6 +191,10 @@ function NewProductPage() {
       toast.error(lang === "km" ? "សូមបញ្ចូលឈ្មោះផលិតផល" : "Please enter product name");
       return;
     }
+    if (!category) {
+      toast.error(lang === "km" ? "សូមជ្រើសប្រភេទផលិតផល" : "Please select a category");
+      return;
+    }
     setSubmitting(true);
     try {
       const priceNum = price ? Number(price) : null;
@@ -181,9 +208,10 @@ function NewProductPage() {
         setSubmitting(false);
         return;
       }
+      const catLabel = category ? CATEGORIES.find((c) => c.id === category) : null;
       const content = [
         title.trim(),
-        category.trim() ? `Category: ${category.trim()}` : "",
+        catLabel ? `Category: ${catLabel.en}` : "",
         description.trim(),
       ]
         .filter(Boolean)
@@ -193,6 +221,7 @@ function NewProductPage() {
         .insert({
           user_id: user.id,
           post_type: type,
+          category,
           title: title.trim(),
           price: priceNum,
           discount_price: discountNum,
@@ -303,12 +332,28 @@ function NewProductPage() {
 
             <div className="rounded-xl bg-surface p-3 shadow-card">
               <Label required>{lang === "km" ? "ប្រភេទផលិតផល" : "Product category"}</Label>
-              <input
-                value={category}
-                onChange={(e) => setCategory(e.target.value.slice(0, 80))}
-                placeholder={lang === "km" ? "ឧ. សម្ភារៈសំណង់" : "e.g. Building materials"}
-                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
-              />
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {CATEGORIES.map((c) => {
+                  const active = category === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setCategory(c.id)}
+                      className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 px-2 py-2 transition ${
+                        active
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background text-muted-foreground"
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{c.emoji}</span>
+                      <span className="text-[11px] font-semibold">
+                        {lang === "km" ? c.km : c.en}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
               <AutofillHint
                 loading={autofilling && !category}
                 filled={autofilled.has("category")}
