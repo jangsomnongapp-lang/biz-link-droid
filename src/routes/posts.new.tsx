@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle } from "lucide-react";
+import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
@@ -19,6 +19,8 @@ export const Route = createFileRoute("/posts/new")({
 });
 
 type PostType = "novedad" | "stock" | "oferta" | "liquidacion";
+
+
 
 const TYPES: Array<{
   id: PostType;
@@ -224,6 +226,23 @@ function NewProductPage() {
       </header>
 
       <div className="flex-1 space-y-3 p-3 pb-28">
+        <Link
+          to="/announce"
+          className="flex w-full items-center gap-3 rounded-xl border-2 border-border bg-background px-3 py-2.5 text-left transition active:scale-[0.98]"
+        >
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <MessageSquare className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-primary">
+              {lang === "km" ? "ប្រកាសធម្មតា" : "Normal post"}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {lang === "km" ? "ប្រកាសព័ត៌មាន ឬអ្វីដែលអ្នកចង់ប្រាប់" : "Share news or anything you want to tell"}
+            </p>
+          </div>
+        </Link>
+
         <div className="rounded-xl bg-surface p-3 shadow-card">
           <p className="text-sm font-semibold text-foreground">
             {lang === "km" ? "ប្រភេទប្រកាស" : "Special post"}
