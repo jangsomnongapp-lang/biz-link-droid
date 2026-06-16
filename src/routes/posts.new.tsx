@@ -254,7 +254,7 @@ function NewProductPage() {
 
         <div className="rounded-xl bg-surface p-3 shadow-card">
           <p className="text-sm font-semibold text-foreground">
-            {lang === "km" ? "ប្រភេទប្រកាស" : "Special post"}
+            {lang === "km" ? "ប្រភេទប្រកាស" : "Post type"}
           </p>
           <div className="mt-3 space-y-2">
             {TYPES.map((tp) => {
