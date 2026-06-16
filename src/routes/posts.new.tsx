@@ -142,8 +142,8 @@ function NewProductPage() {
         setTitle(result.name);
         filled.add("title");
       }
-      if (!category.trim() && result.category) {
-        setCategory(result.category);
+      if (!category && result.category && CATEGORIES.some((c) => c.id === result.category)) {
+        setCategory(result.category as Cat);
         filled.add("category");
       }
       if (!description.trim() && result.description) {
