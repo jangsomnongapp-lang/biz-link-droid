@@ -88,6 +88,29 @@ const TYPES: Array<{
   },
 ];
 
+type Cat =
+  | "electrical"
+  | "cement"
+  | "steel"
+  | "zinc"
+  | "tools"
+  | "timber"
+  | "sanitary"
+  | "paint"
+  | "other";
+
+const CATEGORIES: { id: Cat; en: string; km: string; emoji: string }[] = [
+  { id: "electrical", en: "Electrical", km: "អគ្គិសនី", emoji: "⚡" },
+  { id: "cement", en: "Cement", km: "ស៊ីម៉ងត៍", emoji: "🧱" },
+  { id: "steel", en: "Steel", km: "ដែក", emoji: "🔩" },
+  { id: "zinc", en: "Zinc", km: "ស័ង្កសី", emoji: "🏠" },
+  { id: "tools", en: "Tools", km: "ឧបករណ៍", emoji: "🛠️" },
+  { id: "timber", en: "Timber", km: "ឈើ", emoji: "🪵" },
+  { id: "sanitary", en: "Sanitary", km: "បង្គន់", emoji: "🚿" },
+  { id: "paint", en: "Paint", km: "ថ្នាំលាប", emoji: "🎨" },
+  { id: "other", en: "Other", km: "ផ្សេងៗ", emoji: "📦" },
+];
+
 function NewProductPage() {
   const { lang } = useI18n();
   const { user } = useAuth();
