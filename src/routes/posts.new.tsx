@@ -328,12 +328,28 @@ function NewProductPage() {
 
             <div className="rounded-xl bg-surface p-3 shadow-card">
               <Label required>{lang === "km" ? "ប្រភេទផលិតផល" : "Product category"}</Label>
-              <input
-                value={category}
-                onChange={(e) => setCategory(e.target.value.slice(0, 80))}
-                placeholder={lang === "km" ? "ឧ. សម្ភារៈសំណង់" : "e.g. Building materials"}
-                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
-              />
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {CATEGORIES.map((c) => {
+                  const active = category === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setCategory(c.id)}
+                      className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 px-2 py-2 transition ${
+                        active
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-background text-muted-foreground"
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{c.emoji}</span>
+                      <span className="text-[11px] font-semibold">
+                        {lang === "km" ? c.km : c.en}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
               <AutofillHint
                 loading={autofilling && !category}
                 filled={autofilled.has("category")}
