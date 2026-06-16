@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle, MessageSquare } from "lucide-react";
+import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle, MessageSquare, Package } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
@@ -18,9 +18,7 @@ export const Route = createFileRoute("/posts/new")({
   ),
 });
 
-type PostType = "novedad" | "stock" | "oferta" | "liquidacion";
-
-
+type PostType = "general" | "novedad" | "stock" | "oferta" | "liquidacion";
 
 const TYPES: Array<{
   id: PostType;
@@ -33,6 +31,17 @@ const TYPES: Array<{
   fg: string;
   ring: string;
 }> = [
+  {
+    id: "general",
+    title_en: "Normal product",
+    title_km: "ផលិតផលធម្មតា",
+    sub_en: "Regular product listing",
+    sub_km: "ប្រកាសផលិតផលធម្មតា",
+    icon: Package,
+    bg: "bg-slate-50",
+    fg: "text-slate-700",
+    ring: "border-slate-300",
+  },
   {
     id: "novedad",
     title_en: "New arrival",
@@ -245,7 +254,7 @@ function NewProductPage() {
 
         <div className="rounded-xl bg-surface p-3 shadow-card">
           <p className="text-sm font-semibold text-foreground">
-            {lang === "km" ? "ប្រភេទប្រកាស" : "Special post"}
+            {lang === "km" ? "ប្រភេទប្រកាស" : "Post type"}
           </p>
           <div className="mt-3 space-y-2">
             {TYPES.map((tp) => {
@@ -474,6 +483,7 @@ function Label({
 
 export const POST_TYPE_META: Record<PostType, { en: string; km: string; bg: string; fg: string }> =
   {
+    general: { en: "Product", km: "ផលិតផល", bg: "bg-slate-100", fg: "text-slate-700" },
     novedad: { en: "New", km: "ថ្មី", bg: "bg-emerald-100", fg: "text-emerald-700" },
     stock: { en: "Stock", km: "ស្តុក", bg: "bg-sky-100", fg: "text-sky-700" },
     oferta: { en: "Offer", km: "ការផ្តល់ជូន", bg: "bg-amber-100", fg: "text-amber-700" },
