@@ -204,9 +204,10 @@ function NewProductPage() {
         setSubmitting(false);
         return;
       }
+      const catLabel = category ? CATEGORIES.find((c) => c.id === category) : null;
       const content = [
         title.trim(),
-        category.trim() ? `Category: ${category.trim()}` : "",
+        catLabel ? `Category: ${catLabel.en}` : "",
         description.trim(),
       ]
         .filter(Boolean)
