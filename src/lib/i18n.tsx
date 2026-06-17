@@ -48,7 +48,7 @@ const dict: Dict = {
   nav_home: { km: "ដើម", en: "Home" },
   nav_listings: { km: "គម្រោងខ្ញុំ", en: "My Projects" },
   nav_announce: { km: "ប្រកាស", en: "Announce" },
-  nav_alerts: { km: "ជូនដំណឹង", en: "Alerts" },
+  nav_alerts: { km: "ដំណឹង", en: "Alerts" },
   nav_profile: { km: "ប្រវត្តិរូប", en: "Profile" },
   // home
   what_share: { km: "តើអ្នកចង់ចែករំលែកអ្វី?", en: "What do you want to share?" },
@@ -138,7 +138,7 @@ const dict: Dict = {
   yesterday: { km: "ម្សិលមិញ", en: "Yesterday" },
   send: { km: "ផ្ញើ", en: "Send" },
   // notifications
-  notifications: { km: "ការជូនដំណឹង", en: "Notifications" },
+  notifications: { km: "ការដំណឹង", en: "Notifications" },
   mark_all_read: { km: "សម្គាល់ថាបានអាន", en: "Mark all read" },
   new_section: { km: "ថ្មី", en: "New" },
   earlier: { km: "មុននេះ", en: "Earlier" },
