@@ -1,0 +1,1 @@
+CREATE POLICY "deny_non_service_role" ON public.email_send_state AS RESTRICTIVE FOR ALL TO authenticated, anon USING (false) WITH CHECK (false);
