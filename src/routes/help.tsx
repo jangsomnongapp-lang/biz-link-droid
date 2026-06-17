@@ -42,7 +42,7 @@ const FAQS: QA[] = [
     q: { en: "How do I apply for a job?", km: "តើខ្ញុំដាក់ពាក្យការងារយ៉ាងដូចម្តេច?" },
     a: {
       en: "Open a project, then tap Apply. The owner will be notified and can message you back.",
-      km: "បើកគម្រោងមួយ ហើយចុចដាក់ពាក្យ។ ម្ចាស់នឹងទទួលបានការជូនដំណឹង ហើយអាចផ្ញើសារមកអ្នក។",
+      km: "បើកគម្រោងមួយ ហើយចុចដាក់ពាក្យ។ ម្ចាស់នឹងទទួលបានការដំណឹង ហើយអាចផ្ញើសារមកអ្នក។",
     },
   },
   {

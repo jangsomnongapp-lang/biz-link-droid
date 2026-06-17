@@ -245,7 +245,7 @@ function NewProjectPage() {
 
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
               {lang === "km"
-                ? "បន្ទាប់ពីផ្ញើ កម្មករនឹងទទួលការជូនដំណឹង ហើយត្រូវបញ្ជាក់ដើម្បីចាប់ផ្តើមគម្រោង។"
+                ? "បន្ទាប់ពីផ្ញើ កម្មករនឹងទទួលការដំណឹង ហើយត្រូវបញ្ជាក់ដើម្បីចាប់ផ្តើមគម្រោង។"
                 : "After sending, the worker gets a notification and must confirm before the project starts."}
             </div>
           </div>
