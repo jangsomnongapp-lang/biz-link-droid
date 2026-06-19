@@ -142,7 +142,7 @@ const dict: Dict = {
   mark_all_read: { km: "សម្គាល់ថាបានអាន", en: "Mark all read" },
   new_section: { km: "ថ្មី", en: "New" },
   earlier: { km: "មុននេះ", en: "Earlier" },
-  no_notifications: { km: "មិនទាន់មានការជូនដំណឹង", en: "No notifications yet" },
+  no_notifications: { km: "មិនទាន់មានដំណឹង", en: "No notifications yet" },
   // new post
   new_post: { km: "ការបង្ហោះថ្មី", en: "New post" },
   share_what: { km: "តើអ្នកចង់ចែករំលែកអ្វី?", en: "What do you want to share?" },
