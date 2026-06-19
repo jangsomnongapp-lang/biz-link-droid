@@ -62,7 +62,7 @@ const dict: Dict = {
   new_listing: { km: "+ បង្ហោះគម្រោង", en: "+ Post a project" },
   listing_title: { km: "គោលបំណង", en: "Project title" },
   listing_title_ph: { km: "ឧ. ត្រូវការជាងអគ្គិសនីសម្រាប់ហាង", en: "e.g. Need electrician for shop renovation" },
-  description: { km: "ប​រិយាយ​", en: "Description" },
+  description: { km: "បរិយាយ", en: "Description" },
   optional: { km: "ស្រេច​ចិត្ត", en: "optional" },
   required: { km: "ទាមទារ", en: "required" },
   desc_ph: { km: "ពិពណ៌នាគម្រោងដែលត្រូវការ...", en: "Describe the work needed..." },
