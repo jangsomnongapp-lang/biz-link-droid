@@ -443,7 +443,7 @@ const dict: Dict = {
   for_rent_badge: { km: "សម្រាប់ជួល", en: "For rent" },
   filter_vehicles: { km: "យានជំនិះ", en: "Vehicles" },
   filter_heavy: { km: "គ្រឿងចក្រ", en: "Heavy" },
-  filter_light: { km: "ម៉ាសុីនស្រាល", en: "Light" },
+  filter_light: { km: "ម៉ាស៊ីនស្រាល", en: "Light" },
   filter_tools: { km: "ឧបករណ៍", en: "Tools" },
   rental_review_notice: {
     km: "ការជួលរបស់អ្នកនឹងត្រូវពិនិត្យមុនបង្ហាញ។",
