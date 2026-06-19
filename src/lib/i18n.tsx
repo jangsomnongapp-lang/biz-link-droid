@@ -408,7 +408,7 @@ const dict: Dict = {
   rent_search_ph: { km: "ស្វែងរកគ្រឿងម៉ាស៊ីន ឬឧបករណ៍...", en: "Search machinery or tools..." },
   cat_vehicles: { km: "យានជំនិះសម្រាប់ដឹក", en: "Vehicles" },
   cat_heavy: { km: "គ្រឿងចក្រ", en: "Heavy" },
-  cat_light: { km: "ម៉ាសុីនស្រាល", en: "Light" },
+  cat_light: { km: "ម៉ាស៊ីនស្រាល", en: "Light" },
   cat_tools: { km: "ឧបករណ៍", en: "Tools" },
   cat_light_machinery: { km: "ម៉ាស៊ីនស្រាល", en: "Light machinery" },
   cat_vehicles_desc: { km: "ឡានដឹកទំនិញ...", en: "Trucks, vans..." },
