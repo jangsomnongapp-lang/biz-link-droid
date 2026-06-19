@@ -216,9 +216,14 @@ ${lines.join("\n")}`;
 
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
   const parsed = JSON.parse(raw) as AIResult;
+  const sanitize = (s: string, max: number) =>
+    (s ?? "").replace(/[\u0000-\u001F\u007F]/g, " ").slice(0, max);
   return {
-    summary: parsed.summary ?? "",
-    recommendations: (parsed.recommendations ?? []).slice(0, 8),
+    summary: sanitize(parsed.summary ?? "", 240),
+    recommendations: (parsed.recommendations ?? []).slice(0, 8).map((r) => ({
+      ...r,
+      reason: sanitize(r.reason ?? "", 160),
+    })),
   };
 }
 
