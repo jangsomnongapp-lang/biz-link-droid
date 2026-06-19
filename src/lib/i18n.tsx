@@ -117,7 +117,7 @@ const dict: Dict = {
   // user profile (other)
   active_projects: { km: "គម្រោងកំពុងដំណើរការ", en: "Active projects" },
   // portfolio manager
-  update_profile: { km: "បន្ទាន់សម័យប្រវត្តិរូប", en: "Update profile" },
+  update_profile: { km: "ធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូប", en: "Update profile" },
   add_photos: { km: "+ បន្ថែមរូបថត", en: "+ Add photos" },
   add: { km: "បន្ថែម", en: "Add" },
   new_project: { km: "+ គម្រោងថ្មី", en: "+ New project" },
