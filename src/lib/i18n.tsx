@@ -367,7 +367,7 @@ const dict: Dict = {
   store_name_ph: { km: "ឈ្មោះហាងរបស់អ្នក...", en: "Your store name..." },
   store_location: { km: "ទីតាំង", en: "Location" },
   store_location_ph: { km: "ទីក្រុង / ស្រុក...", en: "City / district..." },
-  store_description: { km: "ប​រិយាយ​", en: "Description" },
+  store_description: { km: "បរិយាយ", en: "Description" },
   optional_max_150: { km: "ស្រេចចិត្ត — អតិបរមា ១៥០ តួអក្សរ", en: "optional — max 150 characters" },
   store_description_ph: { km: "ប្រាប់អតិថិជននូវអ្វីដែលអ្នកលក់...", en: "Tell customers what you sell..." },
   featured_products: { km: "ផលិតផលលេចធ្លោ", en: "Featured products" },
