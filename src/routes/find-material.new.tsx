@@ -72,7 +72,7 @@ function NewMaterialPage() {
         setItemName(result.name);
         filled.add("name");
       }
-      if (!category && CATEGORIES.some((c) => c.id === result.category)) {
+      if (CATEGORIES.some((c) => c.id === result.category)) {
         setCategory(result.category as Cat);
         filled.add("category");
       }
