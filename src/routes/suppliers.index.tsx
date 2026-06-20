@@ -436,7 +436,7 @@ function SuppliersListPage() {
                 const heading = p.title || p.content?.split("\n")[0] || "Product";
                 const isMine = user?.id === p.user_id;
                 return (
-                  <div key={`p-${p.id}`} className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card">
+                  <div key={`p-${p.id}`} className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card [content-visibility:auto] [contain-intrinsic-size:280px]">
                     <Link
                       to={p.store_id ? "/suppliers/$storeId" : "/suppliers"}
                       params={p.store_id ? { storeId: p.store_id } : undefined}
