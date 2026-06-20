@@ -493,11 +493,8 @@ function SuppliersListPage() {
               })}
             </div>
           </div>
-
-              );
-            })}
-          </div>
         </>
+
 
       ) : (
         <RentMode
