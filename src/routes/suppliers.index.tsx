@@ -380,7 +380,10 @@ function SuppliersListPage() {
               <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
             )}
             <div className="grid grid-cols-2 gap-3">
-              {filtered.map((item) => {
+              {filtered.map((item, idx) => {
+                const eager = idx < 4;
+                const imgLoading = eager ? "eager" : "lazy";
+                const imgFetchPriority = eager ? "high" : "low";
                 if (item.kind === "store") {
                   const s = item.store;
                   const cover = s.photos[0] ?? s.logo_url;
@@ -389,11 +392,19 @@ function SuppliersListPage() {
                       key={`s-${s.id}`}
                       to="/suppliers/$storeId"
                       params={{ storeId: s.id }}
-                      className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card active:scale-[0.99]"
+                      className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card active:scale-[0.99] [content-visibility:auto] [contain-intrinsic-size:280px]"
                     >
                       <div className="relative h-44 w-full flex-shrink-0 bg-muted">
                         {cover ? (
-                          <img src={cover} alt={s.name} className="h-full w-full object-cover" />
+                          <img
+                            src={cover}
+                            alt={s.name}
+                            className="h-full w-full object-cover"
+                            loading={imgLoading}
+                            decoding="async"
+                            fetchPriority={imgFetchPriority}
+                          />
+
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-primary/10 text-2xl font-bold text-primary">
                             {initials(s.name)}
@@ -425,14 +436,22 @@ function SuppliersListPage() {
                 const heading = p.title || p.content?.split("\n")[0] || "Product";
                 const isMine = user?.id === p.user_id;
                 return (
-                  <div key={`p-${p.id}`} className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card">
+                  <div key={`p-${p.id}`} className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card [content-visibility:auto] [contain-intrinsic-size:280px]">
                     <Link
                       to={p.store_id ? "/suppliers/$storeId" : "/suppliers"}
                       params={p.store_id ? { storeId: p.store_id } : undefined}
                       className="relative block h-44 w-full flex-shrink-0 bg-muted"
                     >
                       {p.photo_url ? (
-                        <img src={p.photo_url} alt={heading} className="h-full w-full object-cover" />
+                        <img
+                          src={p.photo_url}
+                          alt={heading}
+                          className="h-full w-full object-cover"
+                          loading={imgLoading}
+                          decoding="async"
+                          fetchPriority={imgFetchPriority}
+                        />
+
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
                           {lang === "km" ? "មិនមានរូប" : "No image"}
