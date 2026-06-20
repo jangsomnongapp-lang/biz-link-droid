@@ -167,9 +167,11 @@ export async function generateSmartAutofill(input: {
     .replace(/[<>]/g, "")
     .slice(0, 1000);
   const prompt = `Identify the construction item for a Cambodia marketplace ${input.flow} form.
-Return concise, practical field values in the user's language when text is provided.
+If an image is provided, identify the item from the photo and generate a clear product name.
+If both image and text are provided, combine them for the best identification.
+Return concise, practical field values in Khmer when the item is a common Cambodian construction material, otherwise in English.
 Category must be one of: ${categoryChoices}.
-For material: include likely quantity only when evident, plus up to 3 related items and 3 substitute alternatives.
+For material: the name should be a short, specific product name (e.g., "អគ្គិសនី 2.5mm", "ស៊ីម៉ងត៍ 50kg", "Steel Rebar 12mm"). Include likely quantity only when evident, plus up to 3 related items and 3 substitute alternatives.
 For rental: include likely quantity and rental duration in whole days only when evident.
 For supplier: include a broad category and a realistic Cambodia market price range as reference; never return a single exact price.
 Unknown values must be empty strings or empty arrays. Do not mention technology.
