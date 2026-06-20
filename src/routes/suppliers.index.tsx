@@ -321,6 +321,30 @@ function SuppliersListPage() {
             />
           </div>
 
+          {categories.length > 0 && (
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+              <button
+                onClick={() => setSelectedCat("all")}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold ${
+                  selectedCat === "all" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
+                }`}
+              >
+                {t("filter_all")}
+              </button>
+              {categories.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setSelectedCat(c.id)}
+                  className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold ${
+                    selectedCat === c.id ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
+                  }`}
+                >
+                  {lang === "km" ? c.name_km : c.name_en}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="mt-4 space-y-3">
             {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
             {!loading && filtered.length === 0 && (
