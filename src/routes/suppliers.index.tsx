@@ -425,7 +425,7 @@ function SuppliersListPage() {
                 const heading = p.title || p.content?.split("\n")[0] || "Product";
                 const isMine = user?.id === p.user_id;
                 return (
-                  <div key={`p-${p.id}`} className="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card">
+                  <div key={`p-${p.id}`} className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card">
                     <Link
                       to={p.store_id ? "/suppliers/$storeId" : "/suppliers"}
                       params={p.store_id ? { storeId: p.store_id } : undefined}
@@ -479,7 +479,7 @@ function SuppliersListPage() {
                         <button
                           onClick={() => void contactAboutProduct(p)}
                           disabled={contactingId === p.id}
-                          className="mt-1 flex h-8 w-full items-center justify-center gap-1 rounded-lg bg-primary text-[11px] font-bold text-primary-foreground active:scale-[0.98] disabled:opacity-50"
+                          className="mt-auto flex h-8 w-full items-center justify-center gap-1 rounded-lg bg-primary text-[11px] font-bold text-primary-foreground active:scale-[0.98] disabled:opacity-50"
                         >
                           <MessageCircle className="h-3 w-3" />
                           {contactingId === p.id
