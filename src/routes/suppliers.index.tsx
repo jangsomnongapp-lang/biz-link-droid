@@ -443,7 +443,15 @@ function SuppliersListPage() {
                       className="relative block h-44 w-full flex-shrink-0 bg-muted"
                     >
                       {p.photo_url ? (
-                        <img src={p.photo_url} alt={heading} className="h-full w-full object-cover" />
+                        <img
+                          src={p.photo_url}
+                          alt={heading}
+                          className="h-full w-full object-cover"
+                          loading={imgLoading}
+                          decoding="async"
+                          fetchPriority={imgFetchPriority}
+                        />
+
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
                           {lang === "km" ? "មិនមានរូប" : "No image"}
