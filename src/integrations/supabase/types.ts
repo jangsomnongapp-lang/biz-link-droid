@@ -2100,6 +2100,15 @@ export type Database = {
         Args: { _draw_period_start: string; _ticket_type: string }
         Returns: number
       }
+      get_my_profile_flags: {
+        Args: never
+        Returns: {
+          is_admin: boolean
+          is_super_user: boolean
+          master_account_id: string
+        }[]
+      }
+      get_rewards_user_id: { Args: never; Returns: string }
       get_supplier_invite_by_token: {
         Args: { _token: string }
         Returns: {
