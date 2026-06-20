@@ -391,7 +391,7 @@ function SuppliersListPage() {
                       params={{ storeId: s.id }}
                       className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card active:scale-[0.99]"
                     >
-                      <div className="relative aspect-square bg-muted">
+                      <div className="relative h-44 w-full flex-shrink-0 bg-muted">
                         {cover ? (
                           <img src={cover} alt={s.name} className="h-full w-full object-cover" />
                         ) : (
@@ -429,7 +429,7 @@ function SuppliersListPage() {
                     <Link
                       to={p.store_id ? "/suppliers/$storeId" : "/suppliers"}
                       params={p.store_id ? { storeId: p.store_id } : undefined}
-                      className="relative block aspect-square bg-muted"
+                      className="relative block h-44 w-full flex-shrink-0 bg-muted"
                     >
                       {p.photo_url ? (
                         <img src={p.photo_url} alt={heading} className="h-full w-full object-cover" />
