@@ -389,7 +389,7 @@ function SuppliersListPage() {
                       key={`s-${s.id}`}
                       to="/suppliers/$storeId"
                       params={{ storeId: s.id }}
-                      className="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card active:scale-[0.99]"
+                      className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card active:scale-[0.99]"
                     >
                       <div className="relative aspect-square bg-muted">
                         {cover ? (
