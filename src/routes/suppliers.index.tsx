@@ -97,10 +97,20 @@ function SuppliersListPage() {
   const [storeCards, setStoreCards] = useState<StoreCardRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
+  const [categories, setCategories] = useState<SupplierCategory[]>([]);
+  const [selectedCat, setSelectedCat] = useState<string>("all");
   // rent
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
   const [loadingRent, setLoadingRent] = useState(true);
+
+  useEffect(() => {
+    void supabase
+      .from("supplier_categories")
+      .select("id, code, name_en, name_km")
+      .order("name_en")
+      .then(({ data }) => setCategories((data as SupplierCategory[] | null) ?? []));
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -226,6 +236,7 @@ function SuppliersListPage() {
   const q = search.toLowerCase();
   const filteredProducts: FeedItem[] = products
     .filter((p) => {
+      if (selectedCat !== "all" && !p.store_categories.some((c) => c.id === selectedCat)) return false;
       if (q) {
         const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -235,6 +246,7 @@ function SuppliersListPage() {
     .map((p) => ({ kind: "product" as const, created_at: p.created_at, product: p }));
   const filteredStores: FeedItem[] = storeCards
     .filter((s) => {
+      if (selectedCat !== "all" && !s.categories.some((c) => c.id === selectedCat)) return false;
       if (q) {
         const hay = `${s.name} ${s.description ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -308,6 +320,30 @@ function SuppliersListPage() {
               className="h-full flex-1 bg-transparent text-sm outline-none"
             />
           </div>
+
+          {categories.length > 0 && (
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+              <button
+                onClick={() => setSelectedCat("all")}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold ${
+                  selectedCat === "all" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
+                }`}
+              >
+                {t("filter_all")}
+              </button>
+              {categories.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setSelectedCat(c.id)}
+                  className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold ${
+                    selectedCat === c.id ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
+                  }`}
+                >
+                  {lang === "km" ? c.name_km : c.name_en}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="mt-4 space-y-3">
             {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
