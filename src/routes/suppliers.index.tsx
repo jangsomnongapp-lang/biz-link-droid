@@ -97,10 +97,20 @@ function SuppliersListPage() {
   const [storeCards, setStoreCards] = useState<StoreCardRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
+  const [categories, setCategories] = useState<SupplierCategory[]>([]);
+  const [selectedCat, setSelectedCat] = useState<string>("all");
   // rent
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
   const [loadingRent, setLoadingRent] = useState(true);
+
+  useEffect(() => {
+    void supabase
+      .from("supplier_categories")
+      .select("id, code, name_en, name_km")
+      .order("name_en")
+      .then(({ data }) => setCategories((data as SupplierCategory[] | null) ?? []));
+  }, []);
 
   useEffect(() => {
     if (!user) return;
