@@ -44,11 +44,8 @@ function AdminInvitationsPage() {
   useEffect(() => {
     if (!user) return;
     void supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setIsAdmin(!!data?.is_admin));
+      .rpc("get_my_profile_flags")
+      .then(({ data }) => setIsAdmin(!!data?.[0]?.is_admin));
   }, [user]);
 
   useEffect(() => {

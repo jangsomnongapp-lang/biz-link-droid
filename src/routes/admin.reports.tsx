@@ -40,12 +40,9 @@ function AdminReportsPage() {
   useEffect(() => {
     if (!user) return;
     void supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .maybeSingle()
+      .rpc("get_my_profile_flags")
       .then(({ data }) => {
-        const ok = !!data?.is_admin;
+        const ok = !!data?.[0]?.is_admin;
         setIsAdmin(ok);
         if (!ok) {
           toast.error("Admin only");

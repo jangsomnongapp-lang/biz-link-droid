@@ -110,11 +110,12 @@ function HomePage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("full_name, avatar_url, is_admin")
+        .select("full_name, avatar_url")
         .eq("id", user!.id)
         .maybeSingle();
       setProfile(data);
-      setIsAdmin(!!data?.is_admin);
+      const { data: flags } = await supabase.rpc("get_my_profile_flags");
+      setIsAdmin(!!flags?.[0]?.is_admin);
       return data ?? null;
     },
   });

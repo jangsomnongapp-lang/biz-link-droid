@@ -85,8 +85,8 @@ function AdminDrawsPage() {
 
   async function loadAll() {
     if (!user) return;
-    const me = await supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
-    if (!me.data?.is_admin) {
+    const me = await supabase.rpc("get_my_profile_flags");
+    if (!me.data?.[0]?.is_admin) {
       setIsAdmin(false);
       setLoading(false);
       return;

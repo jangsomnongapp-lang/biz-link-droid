@@ -103,13 +103,9 @@ function RewardsPage() {
 
   async function openRewardsChat() {
     if (!user) return;
-    const { data: rewards } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("is_super_user", true)
-      .ilike("full_name", "BuildHub Rewards")
-      .maybeSingle();
-    if (!rewards) return;
+    const { data: rewardsId } = await supabase.rpc("get_rewards_user_id");
+    if (!rewardsId) return;
+    const rewards = { id: rewardsId as string };
     const a = rewards.id < user.id ? rewards.id : user.id;
     const b = rewards.id < user.id ? user.id : rewards.id;
     let { data: thread } = await supabase

@@ -26,12 +26,8 @@ function AdminTelegramPage() {
   useEffect(() => {
     if (!user) return;
     void (async () => {
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("is_admin")
-        .eq("id", user.id)
-        .maybeSingle();
-      const admin = !!prof?.is_admin;
+      const { data: prof } = await supabase.rpc("get_my_profile_flags");
+      const admin = !!prof?.[0]?.is_admin;
       setIsAdmin(admin);
       if (!admin) return;
 

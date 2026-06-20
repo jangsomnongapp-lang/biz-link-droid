@@ -136,12 +136,15 @@ function SettingsPage() {
 
   useEffect(() => {
     if (!user) return;
-    void supabase
-      .from("profiles")
-      .select("full_name, avatar_url, is_provider, is_organization, is_admin, is_super_user, master_account_id")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setProfile(data));
+    void (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url, is_provider, is_organization")
+        .eq("id", user.id)
+        .maybeSingle();
+      const { data: flags } = await supabase.rpc("get_my_profile_flags");
+      setProfile(data ? { ...data, ...(flags?.[0] ?? { is_admin: false, is_super_user: false, master_account_id: null }) } as any : null);
+    })();
     void supabase
       .from("supplier_stores")
       .select("id")
