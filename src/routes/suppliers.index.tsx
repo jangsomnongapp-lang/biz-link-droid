@@ -380,7 +380,10 @@ function SuppliersListPage() {
               <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
             )}
             <div className="grid grid-cols-2 gap-3">
-              {filtered.map((item) => {
+              {filtered.map((item, idx) => {
+                const eager = idx < 4;
+                const imgLoading = eager ? "eager" : "lazy";
+                const imgFetchPriority = eager ? "high" : "low";
                 if (item.kind === "store") {
                   const s = item.store;
                   const cover = s.photos[0] ?? s.logo_url;
