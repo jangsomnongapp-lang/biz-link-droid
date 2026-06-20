@@ -92,6 +92,7 @@ function SuppliersListPage() {
   const { q: scannedProduct } = Route.useSearch();
   const { t, lang } = useI18n();
   const { user } = useAuth();
+  const nav = useNavigate();
   const [mode, setMode] = useState<Mode>("shops");
   const [search, setSearch] = useState(scannedProduct ?? "");
   const [products, setProducts] = useState<ProductRow[]>([]);
@@ -100,10 +101,37 @@ function SuppliersListPage() {
   const [isSupplier, setIsSupplier] = useState(false);
   const [categories, setCategories] = useState<SupplierCategory[]>([]);
   const [selectedCat, setSelectedCat] = useState<string>("all");
+  const [contactingId, setContactingId] = useState<string | null>(null);
   // rent
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
   const [loadingRent, setLoadingRent] = useState(true);
+
+  async function contactAboutProduct(p: ProductRow) {
+    if (!user || !p.store_id) return;
+    if (user.id === p.user_id) return;
+    setContactingId(p.id);
+    try {
+      const { data: threadId, error } = await (supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ data: string | null; error: { message: string } | null }>)(
+        "start_product_chat",
+        { _supplier_id: p.user_id, _post_id: p.id },
+      );
+      if (error) throw error;
+      void supabase.rpc("increment_supplier_contact", { _store_id: p.store_id });
+      nav({
+        to: "/messages/$threadId",
+        params: { threadId: threadId as string },
+        search: { pin: `post:${p.id}` },
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setContactingId(null);
+    }
+  }
 
   useEffect(() => {
     void supabase
