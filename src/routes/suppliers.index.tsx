@@ -236,6 +236,7 @@ function SuppliersListPage() {
   const q = search.toLowerCase();
   const filteredProducts: FeedItem[] = products
     .filter((p) => {
+      if (selectedCat !== "all" && !p.store_categories.some((c) => c.id === selectedCat)) return false;
       if (q) {
         const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -245,6 +246,7 @@ function SuppliersListPage() {
     .map((p) => ({ kind: "product" as const, created_at: p.created_at, product: p }));
   const filteredStores: FeedItem[] = storeCards
     .filter((s) => {
+      if (selectedCat !== "all" && !s.categories.some((c) => c.id === selectedCat)) return false;
       if (q) {
         const hay = `${s.name} ${s.description ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
