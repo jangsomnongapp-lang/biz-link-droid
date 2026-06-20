@@ -374,140 +374,126 @@ function SuppliersListPage() {
             </div>
           )}
 
-          <div className="mt-4 space-y-3">
+          <div className="mt-4">
             {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
             {!loading && filtered.length === 0 && (
               <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
             )}
-            {filtered.map((item) => {
-              if (item.kind === "store") {
-                const s = item.store;
-                return (
-                  <Link
-                    key={`s-${s.id}`}
-                    to="/suppliers/$storeId"
-                    params={{ storeId: s.id }}
-                    className="block rounded-2xl bg-surface p-3 shadow-card active:scale-[0.99]"
-                  >
-                    <div className="flex items-center gap-3">
-                      {s.logo_url ? (
-                        <img src={s.logo_url} alt={s.name} className="h-12 w-12 rounded-lg object-cover" />
-                      ) : (
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
-                          {initials(s.name)}
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-bold text-foreground">{s.name}</p>
-                          <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                            {t("supplier_badge")}
-                          </span>
-                        </div>
-                        <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
-                          {s.location && (
-                            <>
-                              <MapPin className="h-3 w-3" />
-                              <span className="truncate">{s.location}</span>
-                            </>
-                          )}
-                          {s.categories.length > 0 && (
-                            <span className="truncate">
-                              {" · "}
-                              {s.categories.map((c) => (lang === "km" ? c.name_km : c.name_en)).join(" · ")}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {s.photos.length > 0 && (
-                      <div className="mt-3 grid grid-cols-3 gap-2">
-                        {s.photos.map((ph, i) => (
-                          <div key={i} className="aspect-square overflow-hidden rounded-md bg-muted">
-                            <img src={ph} alt="" className="h-full w-full object-cover" />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {s.description && (
-                      <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{s.description}</p>
-                    )}
-                  </Link>
-                );
-              }
-              const p = item.product;
-              const meta = POST_TYPE_LABELS[p.post_type as keyof typeof POST_TYPE_LABELS];
-              const heading = p.title || p.content?.split("\n")[0] || "Product";
-              return (
-                <div key={`p-${p.id}`} className="rounded-2xl bg-surface p-3 shadow-card">
-                  {p.store_id && (
+            <div className="grid grid-cols-2 gap-3">
+              {filtered.map((item) => {
+                if (item.kind === "store") {
+                  const s = item.store;
+                  const cover = s.photos[0] ?? s.logo_url;
+                  return (
                     <Link
+                      key={`s-${s.id}`}
                       to="/suppliers/$storeId"
-                      params={{ storeId: p.store_id }}
-                      className="flex items-center gap-2 pb-2"
+                      params={{ storeId: s.id }}
+                      className="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card active:scale-[0.99]"
                     >
-                      {p.store_logo ? (
-                        <img src={p.store_logo} alt={p.store_name ?? ""} className="h-8 w-8 rounded-md object-cover" />
-                      ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-[10px] font-bold text-primary">
-                          {initials(p.store_name ?? "?")}
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-bold text-foreground">{p.store_name}</p>
-                        {p.store_location && (
-                          <p className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                            <MapPin className="h-2.5 w-2.5" /> {p.store_location}
+                      <div className="relative aspect-square bg-muted">
+                        {cover ? (
+                          <img src={cover} alt={s.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-primary/10 text-2xl font-bold text-primary">
+                            {initials(s.name)}
+                          </div>
+                        )}
+                        <span className="absolute left-2 top-2 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                          {t("supplier_badge")}
+                        </span>
+                      </div>
+                      <div className="flex flex-1 flex-col gap-1 p-2.5">
+                        <p className="line-clamp-1 text-sm font-bold text-foreground">{s.name}</p>
+                        {s.location && (
+                          <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                            <MapPin className="h-3 w-3 shrink-0" />
+                            <span className="truncate">{s.location}</span>
+                          </p>
+                        )}
+                        {s.categories.length > 0 && (
+                          <p className="line-clamp-1 text-[10px] text-muted-foreground">
+                            {s.categories.map((c) => (lang === "km" ? c.name_km : c.name_en)).join(" · ")}
                           </p>
                         )}
                       </div>
-                      <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                        {t("supplier_badge")}
-                      </span>
                     </Link>
-                  )}
-
-                  <div className="flex gap-3">
-                    {p.photo_url && (
-                      <img src={p.photo_url} alt="" className="h-24 w-24 shrink-0 rounded-lg bg-muted object-cover" />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {meta && (
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${meta.bg} ${meta.fg}`}>
-                            {lang === "km" ? meta.km : meta.en}
-                          </span>
-                        )}
-                        <p className="truncate text-sm font-bold text-foreground">{heading}</p>
-                      </div>
+                  );
+                }
+                const p = item.product;
+                const meta = POST_TYPE_LABELS[p.post_type as keyof typeof POST_TYPE_LABELS];
+                const heading = p.title || p.content?.split("\n")[0] || "Product";
+                const isMine = user?.id === p.user_id;
+                return (
+                  <div key={`p-${p.id}`} className="flex flex-col overflow-hidden rounded-2xl bg-surface shadow-card">
+                    <Link
+                      to={p.store_id ? "/suppliers/$storeId" : "/suppliers"}
+                      params={p.store_id ? { storeId: p.store_id } : undefined}
+                      className="relative block aspect-square bg-muted"
+                    >
+                      {p.photo_url ? (
+                        <img src={p.photo_url} alt={heading} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                          {lang === "km" ? "មិនមានរូប" : "No image"}
+                        </div>
+                      )}
+                      {meta && (
+                        <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold ${meta.bg} ${meta.fg}`}>
+                          {lang === "km" ? meta.km : meta.en}
+                        </span>
+                      )}
+                      {p.discount_price != null && p.price != null && (
+                        <span className="absolute right-2 top-2 rounded-full bg-rose-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                          -{Math.max(1, Math.round((1 - p.discount_price / p.price) * 100))}%
+                        </span>
+                      )}
+                    </Link>
+                    <div className="flex flex-1 flex-col gap-1.5 p-2.5">
+                      <p className="line-clamp-2 min-h-[2.5rem] text-xs font-semibold leading-snug text-foreground">
+                        {heading}
+                      </p>
                       {p.price != null && (
-                        <div className="mt-1 flex items-baseline gap-1.5">
+                        <div className="flex items-baseline gap-1.5">
                           {p.discount_price != null ? (
                             <>
-                              <span className="text-base font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
-                              <span className="text-xs text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                              <span className="text-sm font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                              <span className="text-[10px] text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
                             </>
                           ) : (
-                            <span className="text-base font-bold text-success">{formatPrice(p.price, p.currency)}</span>
+                            <span className="text-sm font-bold text-success">{formatPrice(p.price, p.currency)}</span>
                           )}
                         </div>
                       )}
-                      {p.content && (
-                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{p.content}</p>
+                      {p.store_id && (
+                        <Link
+                          to="/suppliers/$storeId"
+                          params={{ storeId: p.store_id }}
+                          className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary"
+                        >
+                          <StoreIcon className="h-2.5 w-2.5 shrink-0" />
+                          <span className="truncate">{p.store_name}</span>
+                        </Link>
+                      )}
+                      {!isMine && p.store_id && (
+                        <button
+                          onClick={() => void contactAboutProduct(p)}
+                          disabled={contactingId === p.id}
+                          className="mt-1 flex h-8 w-full items-center justify-center gap-1 rounded-lg bg-primary text-[11px] font-bold text-primary-foreground active:scale-[0.98] disabled:opacity-50"
+                        >
+                          <MessageCircle className="h-3 w-3" />
+                          {contactingId === p.id
+                            ? (lang === "km" ? "កំពុង…" : "Opening…")
+                            : (lang === "km" ? "សួរអំពីផលិតផល" : "Ask about this")}
+                        </button>
                       )}
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          </div>
 
-                  {p.store_id && (
-                    <Link
-                      to="/suppliers/$storeId"
-                      params={{ storeId: p.store_id }}
-                      className="mt-2 flex h-9 w-full items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground active:scale-[0.98]"
-                    >
-                      {t("contact_supplier")}
-                    </Link>
-                  )}
-                </div>
               );
             })}
           </div>
