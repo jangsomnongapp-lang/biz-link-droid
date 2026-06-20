@@ -396,7 +396,15 @@ function SuppliersListPage() {
                     >
                       <div className="relative h-44 w-full flex-shrink-0 bg-muted">
                         {cover ? (
-                          <img src={cover} alt={s.name} className="h-full w-full object-cover" />
+                          <img
+                            src={cover}
+                            alt={s.name}
+                            className="h-full w-full object-cover"
+                            loading={imgLoading}
+                            decoding="async"
+                            fetchPriority={imgFetchPriority}
+                          />
+
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-primary/10 text-2xl font-bold text-primary">
                             {initials(s.name)}
