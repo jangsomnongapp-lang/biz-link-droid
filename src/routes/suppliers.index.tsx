@@ -933,3 +933,27 @@ function initials(name: string) {
 
 void StoreIcon;
 
+function Chip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+        active ? "bg-primary text-primary-foreground" : "bg-surface text-foreground shadow-card"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function FilterChip({ label, onClear }: { label: string; onClear: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+      {label}
+      <button onClick={onClear} className="ml-0.5 inline-flex items-center justify-center">
+        <X className="h-3 w-3" />
+      </button>
+    </span>
+  );
+}
+
