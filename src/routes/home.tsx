@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
 import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { FeedSkeleton } from "@/components/SkeletonFeed";
 
 interface SupplierStoreInfo {
   id: string;
@@ -633,7 +634,7 @@ function HomePage() {
 
       {/* Feed */}
       <div className="mt-2 space-y-2">
-        {loading && <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>}
+        {loading && <FeedSkeleton count={3} />}
         {!loading && !focused && posts.length === 0 && (
           <div className="bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
             {t("no_posts")}

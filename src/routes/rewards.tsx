@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Gift, Flame, Beer, Check, ChevronRight, ArrowLeft } from "lucide-react";
+import { RewardsSkeleton } from "@/components/SkeletonFeed";
 
 export const Route = createFileRoute("/rewards")({
   component: () => (
@@ -148,9 +149,9 @@ function RewardsPage() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="py-12 text-center text-sm text-zinc-500">{lang === "km" ? "កំពុងផ្ទុក..." : "Loading..."}</div>
-        ) : (
+    {loading ? (
+      <RewardsSkeleton />
+    ) : (
           <>
             {/* Today's active ticket label */}
             <div className="mt-5 text-[12px] text-zinc-500 font-bold uppercase tracking-wider">

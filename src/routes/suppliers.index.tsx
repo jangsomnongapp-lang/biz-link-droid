@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/price";
+import { ShopGridSkeleton, ListSkeleton } from "@/components/SkeletonFeed";
 
 
 export const Route = createFileRoute("/suppliers/")({
@@ -375,7 +376,7 @@ function SuppliersListPage() {
           )}
 
           <div className="mt-4">
-            {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
+            {loading && <div className="mt-4"><ShopGridSkeleton count={6} /></div>}
             {!loading && filtered.length === 0 && (
               <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
             )}
@@ -652,7 +653,7 @@ function RentMode({
 
       {subMode === "for_rent" ? (
         <div className="mt-4 space-y-3">
-          {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
+          {loading && <div className="mt-4"><ListSkeleton count={3} /></div>}
           {!loading && rentals.length === 0 && (
             <p className="py-10 text-center text-sm text-muted-foreground">{t("no_rentals_listed")}</p>
           )}

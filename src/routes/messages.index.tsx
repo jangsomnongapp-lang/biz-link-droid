@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Search } from "lucide-react";
 import { timeAgo } from "@/lib/format";
+import { MessageListSkeleton } from "@/components/SkeletonFeed";
 
 const REF_PREFIX = "__REF__:";
 const ATT_PREFIX = "__ATT__:";
@@ -61,9 +62,11 @@ function MessagesListPage() {
   const [profiles, setProfiles] = useState<Record<string, OtherProfile>>({});
   const [unread, setUnread] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
+    setLoading(true);
     void (async () => {
       const { data } = await supabase
         .from("message_threads")
@@ -98,6 +101,7 @@ function MessagesListPage() {
         if (count && count > 0) unreadMap[th.id] = count;
       }
       setUnread(unreadMap);
+      setLoading(false);
     })();
   }, [user]);
 
@@ -136,7 +140,9 @@ function MessagesListPage() {
       </div>
 
       <div className="flex-1 bg-surface">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <MessageListSkeleton count={5} />
+        ) : filtered.length === 0 ? (
           <div className="px-6 py-20 text-center text-sm text-muted-foreground">
             {t("no_messages_yet")}
           </div>
