@@ -45,6 +45,7 @@ import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projec
 import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
 import { Route as PostsNewRouteImport } from './routes/posts.new'
+import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
 import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
@@ -247,6 +248,11 @@ const PostsNewRoute = PostsNewRouteImport.update({
   path: '/posts/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PostsPostIdRoute = PostsPostIdRouteImport.update({
+  id: '/posts/$postId',
+  path: '/posts/$postId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesThreadIdRoute = MessagesThreadIdRouteImport.update({
   id: '/messages/$threadId',
   path: '/messages/$threadId',
@@ -390,6 +396,7 @@ export interface FileRoutesByFullPath {
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/posts/new': typeof PostsNewRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
@@ -449,6 +456,7 @@ export interface FileRoutesByTo {
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/posts/new': typeof PostsNewRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
@@ -509,6 +517,7 @@ export interface FileRoutesById {
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/posts/new': typeof PostsNewRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
@@ -570,6 +579,7 @@ export interface FileRouteTypes {
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
+    | '/posts/$postId'
     | '/posts/new'
     | '/profile/edit'
     | '/profile/portfolio'
@@ -629,6 +639,7 @@ export interface FileRouteTypes {
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
+    | '/posts/$postId'
     | '/posts/new'
     | '/profile/edit'
     | '/profile/portfolio'
@@ -688,6 +699,7 @@ export interface FileRouteTypes {
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
+    | '/posts/$postId'
     | '/posts/new'
     | '/profile/edit'
     | '/profile/portfolio'
@@ -745,6 +757,7 @@ export interface RootRouteChildren {
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
+  PostsPostIdRoute: typeof PostsPostIdRoute
   PostsNewRoute: typeof PostsNewRoute
   ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
   RentalsRentalIdRoute: typeof RentalsRentalIdRoute
@@ -1021,6 +1034,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/posts/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages/$threadId': {
       id: '/messages/$threadId'
       path: '/messages/$threadId'
@@ -1243,6 +1263,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
+  PostsPostIdRoute: PostsPostIdRoute,
   PostsNewRoute: PostsNewRoute,
   ProjectsProjectIdRoute: ProjectsProjectIdRoute,
   RentalsRentalIdRoute: RentalsRentalIdRoute,
