@@ -374,37 +374,50 @@ function SuppliersListPage() {
 
       {mode === "shops" ? (
         <>
-          <div className="mt-2 flex h-11 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
-            <SearchIcon className="h-4 w-4 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("search_suppliers_ph")}
-              className="h-full flex-1 bg-transparent text-sm outline-none"
-            />
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex h-11 flex-1 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
+              <SearchIcon className="h-4 w-4 text-muted-foreground" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("search_suppliers_ph")}
+                className="h-full flex-1 bg-transparent text-sm outline-none"
+              />
+            </div>
+            <button
+              onClick={() => { setDraft(filters); setFilterOpen(true); }}
+              aria-label={filterTitle}
+              className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-surface text-foreground shadow-card active:scale-[0.97]"
+            >
+              <SlidersHorizontal className="h-5 w-5" />
+              {activeCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {activeCount}
+                </span>
+              )}
+            </button>
           </div>
 
-          {categories.length > 0 && (
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-              <button
-                onClick={() => setSelectedCat("all")}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold ${
-                  selectedCat === "all" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-                }`}
-              >
-                {t("filter_all")}
-              </button>
-              {categories.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedCat(c.id)}
-                  className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold ${
-                    selectedCat === c.id ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-                  }`}
-                >
-                  {lang === "km" ? c.name_km : c.name_en}
-                </button>
-              ))}
+          {activeCount > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {filters.location && (
+                <FilterChip label={filters.location} onClear={() => setFilters({ ...filters, location: "" })} />
+              )}
+              {filters.categoryId && (
+                <FilterChip
+                  label={(() => {
+                    const c = categories.find((c) => c.id === filters.categoryId);
+                    return c ? (km ? c.name_km : c.name_en) : categoryLabel;
+                  })()}
+                  onClear={() => setFilters({ ...filters, categoryId: "" })}
+                />
+              )}
+              {(filters.minPrice || filters.maxPrice) && (
+                <FilterChip
+                  label={`$${filters.minPrice || "0"} - $${filters.maxPrice || "∞"}`}
+                  onClear={() => setFilters({ ...filters, minPrice: "", maxPrice: "" })}
+                />
+              )}
             </div>
           )}
 
