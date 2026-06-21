@@ -574,6 +574,105 @@ function SuppliersListPage() {
           lang={lang}
         />
       )}
+
+      {/* Filter Sheet */}
+      <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl p-0">
+          <SheetHeader className="border-b border-border px-4 py-3 text-left">
+            <SheetTitle className="text-base font-semibold">{filterTitle}</SheetTitle>
+          </SheetHeader>
+
+          <div className="space-y-5 p-4">
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{locationLabel}</h4>
+              <div className="flex flex-wrap gap-2">
+                <Chip
+                  active={!draft.location}
+                  onClick={() => setDraft({ ...draft, location: "" })}
+                  label={allLabel}
+                />
+                {CAMBODIA_PROVINCES.map((p) => (
+                  <Chip
+                    key={p.en}
+                    active={draft.location === p.en}
+                    onClick={() => setDraft({ ...draft, location: p.en })}
+                    label={km ? p.km : p.en}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{priceLabel}</h4>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  value={draft.minPrice}
+                  onChange={(e) => setDraft({ ...draft, minPrice: e.target.value.replace(/[^0-9.]/g, "") })}
+                  inputMode="decimal"
+                  placeholder={km ? "អប្បបរមា" : "Min"}
+                  className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                />
+                <input
+                  value={draft.maxPrice}
+                  onChange={(e) => setDraft({ ...draft, maxPrice: e.target.value.replace(/[^0-9.]/g, "") })}
+                  inputMode="decimal"
+                  placeholder={km ? "អតិបរមា" : "Max"}
+                  className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[
+                  { min: "", max: "100", label: "< $100" },
+                  { min: "100", max: "500", label: "$100–500" },
+                  { min: "500", max: "1000", label: "$500–1k" },
+                  { min: "1000", max: "", label: "$1k+" },
+                ].map((p) => (
+                  <Chip
+                    key={p.label}
+                    active={draft.minPrice === p.min && draft.maxPrice === p.max}
+                    onClick={() => setDraft({ ...draft, minPrice: p.min, maxPrice: p.max })}
+                    label={p.label}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{categoryLabel}</h4>
+              <div className="flex flex-wrap gap-2">
+                <Chip
+                  active={!draft.categoryId}
+                  onClick={() => setDraft({ ...draft, categoryId: "" })}
+                  label={allLabel}
+                />
+                {categories.map((c) => (
+                  <Chip
+                    key={c.id}
+                    active={draft.categoryId === c.id}
+                    onClick={() => setDraft({ ...draft, categoryId: c.id })}
+                    label={km ? c.name_km : c.name_en}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <SheetFooter className="sticky bottom-0 flex-row gap-2 border-t border-border bg-surface p-3">
+            <button
+              onClick={() => { setDraft({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); setFilters({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); setFilterOpen(false); }}
+              className="h-11 flex-1 rounded-xl border border-border bg-background text-sm font-semibold text-foreground active:scale-[0.99]"
+            >
+              {clearLabel}
+            </button>
+            <button
+              onClick={() => { setFilters(draft); setFilterOpen(false); }}
+              className="h-11 flex-[2] rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]"
+            >
+              {applyLabel}
+            </button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
