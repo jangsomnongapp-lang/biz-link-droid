@@ -140,7 +140,9 @@ function MessagesListPage() {
       </div>
 
       <div className="flex-1 bg-surface">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <MessageListSkeleton count={5} />
+        ) : filtered.length === 0 ? (
           <div className="px-6 py-20 text-center text-sm text-muted-foreground">
             {t("no_messages_yet")}
           </div>
