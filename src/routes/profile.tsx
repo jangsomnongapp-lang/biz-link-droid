@@ -15,6 +15,7 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { requestFreeHelp } from "@/lib/help-request.functions";
 import { confirmCompletion, cancelCompletion } from "@/lib/projects.functions";
 import { AvatarCropper } from "@/components/AvatarCropper";
+import { ProfileSkeleton } from "@/components/SkeletonFeed";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -307,8 +308,14 @@ function ProfilePage() {
     ]);
   }
 
+  if (!profile) {
+    return <ProfileSkeleton />;
+  }
+
   return (
     <div>
+
+
 
       {/* Blue header */}
       <div className="relative bg-primary px-5 pb-6 pt-5 text-primary-foreground">
