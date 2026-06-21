@@ -339,47 +339,51 @@ function SupplierProfilePage() {
               const heading = p.title || p.content?.split("\n")[0] || "Post";
               return (
                 <div key={p.id} className="overflow-hidden rounded-xl border border-border bg-card">
-                  {p.photo_url ? (
-                    <div className="aspect-square w-full overflow-hidden bg-muted">
-                      <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="flex aspect-square w-full items-center justify-center bg-muted text-xs text-muted-foreground">
-                      {lang === "km" ? "គ្មានរូប" : "No image"}
-                    </div>
-                  )}
-                  <div className="p-2">
-                    {meta && (
-                      <span className={`inline-block rounded-pill px-1.5 py-0.5 text-[9px] font-bold ${meta.bg} ${meta.fg}`}>
-                        {lang === "km" ? meta.km : meta.en}
-                      </span>
+                  <Link to="/posts/$postId" params={{ postId: p.id }} className="block active:opacity-80">
+                    {p.photo_url ? (
+                      <div className="aspect-square w-full overflow-hidden bg-muted">
+                        <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="flex aspect-square w-full items-center justify-center bg-muted text-xs text-muted-foreground">
+                        {lang === "km" ? "គ្មានរូប" : "No image"}
+                      </div>
                     )}
-                    <p className="mt-1 line-clamp-2 text-xs font-semibold text-foreground">{heading}</p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground">
-                      {p.price != null && (
-                        <span className="inline-flex items-baseline gap-1">
-                          {p.discount_price != null ? (
-                            <>
-                              <span className="font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
-                              <span className="text-[9px] text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
-                            </>
-                          ) : (
-                            <span className="font-bold text-success">{formatPrice(p.price, p.currency)}</span>
-                          )}
+                    <div className="p-2">
+                      {meta && (
+                        <span className={`inline-block rounded-pill px-1.5 py-0.5 text-[9px] font-bold ${meta.bg} ${meta.fg}`}>
+                          {lang === "km" ? meta.km : meta.en}
                         </span>
                       )}
-                    </p>
-                    {!isOwner && (
+                      <p className="mt-1 line-clamp-2 text-xs font-semibold text-foreground">{heading}</p>
+                      <p className="mt-0.5 text-[10px] text-muted-foreground">
+                        {p.price != null && (
+                          <span className="inline-flex items-baseline gap-1">
+                            {p.discount_price != null ? (
+                              <>
+                                <span className="font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                                <span className="text-[9px] text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                              </>
+                            ) : (
+                              <span className="font-bold text-success">{formatPrice(p.price, p.currency)}</span>
+                            )}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </Link>
+                  {!isOwner && (
+                    <div className="px-2 pb-2">
                       <button
                         onClick={() => void startConversation(p.id)}
                         disabled={contacting}
-                        className="mt-2 flex h-7 w-full items-center justify-center gap-1 rounded-md bg-primary/10 text-[10px] font-bold text-primary active:scale-[0.98] disabled:opacity-50"
+                        className="flex h-7 w-full items-center justify-center gap-1 rounded-md bg-primary/10 text-[10px] font-bold text-primary active:scale-[0.98] disabled:opacity-50"
                       >
                         <MessageCircle className="h-3 w-3" />
                         {lang === "km" ? "សួរឥឡូវ" : "Ask now"}
                       </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
