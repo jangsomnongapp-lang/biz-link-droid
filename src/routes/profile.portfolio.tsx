@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { PortfolioGridSkeleton, ListSkeleton } from "@/components/SkeletonFeed";
 
 export const Route = createFileRoute("/profile/portfolio")({
   component: () => (
@@ -33,6 +34,7 @@ function PortfolioPage() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [adding, setAdding] = useState(false);
+  const [loading, setLoading] = useState(true);
   const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -64,6 +66,7 @@ function PortfolioPage() {
       items.push({ ...l, applicant_count: count ?? 0 });
     }
     setListings(items);
+    setLoading(false);
   }
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -137,7 +140,11 @@ function PortfolioPage() {
               {adding ? t("loading") : t("add_photos")}
             </button>
           </div>
+          {loading ? (
+            <PortfolioGridSkeleton count={6} />
+          ) : (
           <div className="grid grid-cols-3 gap-2">
+
             {photos.map((p) => (
               <div key={p.id} className="relative aspect-square">
                 <img src={p.photo_url} className="h-full w-full rounded-lg object-cover" alt="" />
@@ -159,7 +166,9 @@ function PortfolioPage() {
               <span className="mt-1 text-[11px] font-medium">{t("add")}</span>
             </button>
           </div>
+          )}
         </div>
+
 
         {/* My projects */}
         <div className="rounded-xl bg-surface p-4 shadow-card">
@@ -172,7 +181,9 @@ function PortfolioPage() {
               {t("new_project")}
             </Link>
           </div>
-          {listings.length === 0 ? (
+          {loading ? (
+            <ListSkeleton count={3} />
+          ) : listings.length === 0 ? (
             <p className="text-sm text-text-hint">
               {lang === "km" ? "មិនទាន់មានការងារ" : "No projects yet"}
             </p>

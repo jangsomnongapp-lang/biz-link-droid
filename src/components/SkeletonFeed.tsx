@@ -212,3 +212,88 @@ export function RewardsSkeleton() {
     </div>
   );
 }
+
+/* ── Profile page skeleton ── */
+export function ProfileSkeleton() {
+  return (
+    <div>
+      {/* Blue header */}
+      <div className="bg-primary px-5 pb-6 pt-5">
+        <div className="mb-3 flex items-center justify-between">
+          <Skeleton className="h-4 w-24 bg-white/25" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-7 w-16 rounded-full bg-white/25" />
+            <Skeleton className="h-7 w-12 rounded-full bg-white/25" />
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Skeleton className="h-[88px] w-[88px] rounded-full border-4 border-white bg-white/30" />
+          <Skeleton className="mt-1 h-5 w-40 bg-white/25" />
+          <Skeleton className="h-3 w-20 bg-white/25" />
+          <Skeleton className="h-3 w-32 bg-white/25" />
+          <div className="mt-1 flex gap-1.5">
+            <Skeleton className="h-4 w-14 rounded-full bg-white/25" />
+            <Skeleton className="h-4 w-16 rounded-full bg-white/25" />
+            <Skeleton className="h-4 w-12 rounded-full bg-white/25" />
+          </div>
+        </div>
+      </div>
+      {/* Stats */}
+      <div className="grid grid-cols-3 bg-surface shadow-card">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex flex-col items-center gap-1.5 py-4">
+            <Skeleton className="h-5 w-8" />
+            <Skeleton className="h-2.5 w-16" />
+          </div>
+        ))}
+      </div>
+      {/* Section blocks */}
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="mt-2 space-y-2 bg-surface p-4 shadow-card">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-3/4" />
+        </div>
+      ))}
+      {/* Portfolio grid */}
+      <div className="mt-2 bg-surface p-4 shadow-card">
+        <Skeleton className="mb-3 h-4 w-32" />
+        <div className="grid grid-cols-3 gap-1.5">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-square w-full rounded-lg" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Profile edit form skeleton ── */
+export function ProfileEditSkeleton() {
+  return (
+    <div className="space-y-4 p-4">
+      <div className="flex flex-col items-center gap-3">
+        <Skeleton className="h-24 w-24 rounded-full" />
+        <Skeleton className="h-3 w-28" />
+      </div>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="space-y-1.5">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-10 w-full rounded-lg" />
+        </div>
+      ))}
+      <Skeleton className="h-11 w-full rounded-lg" />
+    </div>
+  );
+}
+
+/* ── Portfolio grid skeleton ── */
+export function PortfolioGridSkeleton({ count = 9 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-3 gap-1.5 p-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <Skeleton key={i} className="aspect-square w-full rounded-lg" />
+      ))}
+    </div>
+  );
+}

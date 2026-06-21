@@ -9,6 +9,7 @@ import { ArrowLeft, Camera, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarCropper } from "@/components/AvatarCropper";
 import { CategoryImage } from "@/components/CategoryImage";
+import { ProfileEditSkeleton } from "@/components/SkeletonFeed";
 
 
 export const Route = createFileRoute("/profile/edit")({
@@ -51,6 +52,7 @@ function EditProfilePage() {
   const [pendingAvatar, setPendingAvatar] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const portfolioInputRef = useRef<HTMLInputElement>(null);
+  const [loaded, setLoaded] = useState(false);
 
 
   async function onPickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
@@ -108,6 +110,7 @@ function EditProfilePage() {
           is_organization: data.is_organization,
           is_client: data.is_client,
         });
+        setLoaded(true);
       });
     void supabase
       .from("categories")
@@ -221,8 +224,24 @@ function EditProfilePage() {
     { key: "is_client" as const, label: t("role_client") },
   ];
 
+  if (!loaded) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
+          <Link to="/profile" className="rounded-full p-2 active:bg-white/10">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <h1 className="flex-1 text-center text-base font-semibold">{t("edit_profile")}</h1>
+          <div className="w-9" />
+        </header>
+        <ProfileEditSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
+
       <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
         <Link to="/profile" className="rounded-full p-2 active:bg-white/10">
           <ArrowLeft className="h-5 w-5" />
