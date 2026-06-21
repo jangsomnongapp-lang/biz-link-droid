@@ -653,7 +653,7 @@ function RentMode({
 
       {subMode === "for_rent" ? (
         <div className="mt-4 space-y-3">
-          {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
+          {loading && <div className="mt-4"><ListSkeleton count={3} /></div>}
           {!loading && rentals.length === 0 && (
             <p className="py-10 text-center text-sm text-muted-foreground">{t("no_rentals_listed")}</p>
           )}
