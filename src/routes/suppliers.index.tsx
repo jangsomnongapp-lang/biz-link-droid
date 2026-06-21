@@ -103,7 +103,6 @@ function SuppliersListPage() {
   const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
   const [categories, setCategories] = useState<SupplierCategory[]>([]);
-  const [selectedCat, setSelectedCat] = useState<string>("all");
   const [contactingId, setContactingId] = useState<string | null>(null);
   // rent
   const [rentals, setRentals] = useState<RentalRow[]>([]);
