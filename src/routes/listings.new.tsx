@@ -204,7 +204,15 @@ function NewListingPage() {
           <Card>
             <Label optional>{t("budget")}</Label>
             <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-              <DollarSign className="ml-2 h-4 w-4 text-success" />
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value === "KHR" ? "KHR" : "USD")}
+                aria-label="Currency"
+                className="h-full border-r border-border bg-muted px-2 text-xs font-semibold text-foreground outline-none"
+              >
+                <option value="USD">$ USD</option>
+                <option value="KHR">៛ KHR</option>
+              </select>
               <input
                 value={budget}
                 onChange={(e) => setBudget(e.target.value.replace(/[^0-9.]/g, ""))}
