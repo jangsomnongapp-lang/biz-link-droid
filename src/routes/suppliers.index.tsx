@@ -578,8 +578,16 @@ function SuppliersListPage() {
       {/* Filter Sheet */}
       <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
         <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl p-0">
-          <SheetHeader className="border-b border-border px-4 py-3 text-left">
+          <SheetHeader className="flex flex-row items-center justify-between border-b border-border px-4 py-3 text-left">
             <SheetTitle className="text-base font-semibold">{filterTitle}</SheetTitle>
+            {activeCount > 0 && (
+              <button
+                onClick={() => { setDraft({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); setFilters({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); }}
+                className="text-sm font-semibold text-primary active:opacity-70"
+              >
+                {km ? "សម្អាតទាំងអស់" : "Clear All"}
+              </button>
+            )}
           </SheetHeader>
 
           <div className="space-y-5 p-4">
