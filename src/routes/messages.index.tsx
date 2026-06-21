@@ -62,9 +62,11 @@ function MessagesListPage() {
   const [profiles, setProfiles] = useState<Record<string, OtherProfile>>({});
   const [unread, setUnread] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
+    setLoading(true);
     void (async () => {
       const { data } = await supabase
         .from("message_threads")
