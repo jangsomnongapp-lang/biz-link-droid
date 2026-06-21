@@ -109,6 +109,24 @@ function SuppliersListPage() {
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
   const [loadingRent, setLoadingRent] = useState(true);
+  // Filter state
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({ location: "", categoryId: "", minPrice: "", maxPrice: "" });
+  const [draft, setDraft] = useState({ location: "", categoryId: "", minPrice: "", maxPrice: "" });
+
+  const km = lang === "km";
+  const locationLabel = km ? "ទីតាំង" : "Location";
+  const priceLabel = km ? "តម្លៃ (USD)" : "Price (USD)";
+  const categoryLabel = km ? "ប្រភេទ" : "Category";
+  const filterTitle = km ? "តម្រង" : "Filters";
+  const applyLabel = km ? "អនុវត្ត" : "Apply";
+  const clearLabel = km ? "សម្អាត" : "Clear";
+  const allLabel = km ? "ទាំងអស់" : "All";
+
+  const activeCount =
+    (filters.location ? 1 : 0) +
+    (filters.categoryId ? 1 : 0) +
+    (filters.minPrice || filters.maxPrice ? 1 : 0);
 
   async function contactAboutProduct(p: ProductRow) {
     if (!user || !p.store_id) return;
@@ -266,40 +284,54 @@ function SuppliersListPage() {
   }, [mode]);
 
   const q = search.toLowerCase();
-  const filteredProducts: FeedItem[] = products
-    .filter((p) => {
-      if (selectedCat !== "all" && !p.store_categories.some((c) => c.id === selectedCat)) return false;
-      if (q) {
-        const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    })
-    .map((p) => ({ kind: "product" as const, created_at: p.created_at, product: p }));
-  const filteredStores: FeedItem[] = storeCards
-    .filter((s) => {
-      if (selectedCat !== "all" && !s.categories.some((c) => c.id === selectedCat)) return false;
-      if (q) {
-        const hay = `${s.name} ${s.description ?? ""}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    })
-    .map((s) => ({ kind: "store" as const, created_at: s.created_at, store: s }));
-  const filtered: FeedItem[] = [...filteredProducts, ...filteredStores].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  );
 
-  const filteredRentals = rentals.filter((r) => {
-    if (rentCat !== "all" && r.category !== rentCat) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      if (!r.title.toLowerCase().includes(q) && !(r.description ?? "").toLowerCase().includes(q)) {
-        return false;
+  const filtered = useMemo(() => {
+    const min = filters.minPrice ? Number(filters.minPrice) : null;
+    const max = filters.maxPrice ? Number(filters.maxPrice) : null;
+
+    const filteredProducts = products
+      .filter((p) => {
+        if (filters.location && p.store_location !== filters.location) return false;
+        if (filters.categoryId && !p.store_categories.some((c) => c.id === filters.categoryId)) return false;
+        if (min != null && (p.price == null || p.price < min)) return false;
+        if (max != null && (p.price == null || p.price > max)) return false;
+        if (q) {
+          const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      })
+      .map((p) => ({ kind: "product" as const, created_at: p.created_at, product: p }));
+
+    const filteredStores = storeCards
+      .filter((s) => {
+        if (filters.location && s.location !== filters.location) return false;
+        if (filters.categoryId && !s.categories.some((c) => c.id === filters.categoryId)) return false;
+        if (q) {
+          const hay = `${s.name} ${s.description ?? ""}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      })
+      .map((s) => ({ kind: "store" as const, created_at: s.created_at, store: s }));
+
+    return [...filteredProducts, ...filteredStores].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+  }, [products, storeCards, filters, q]);
+
+  const filteredRentals = useMemo(() => {
+    return rentals.filter((r) => {
+      if (rentCat !== "all" && r.category !== rentCat) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        if (!r.title.toLowerCase().includes(q) && !(r.description ?? "").toLowerCase().includes(q)) {
+          return false;
+        }
       }
-    }
-    return true;
-  });
+      return true;
+    });
+  }, [rentals, rentCat, search]);
 
   return (
     <div className="relative px-3 py-3">
