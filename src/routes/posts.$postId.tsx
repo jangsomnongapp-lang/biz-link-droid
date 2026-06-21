@@ -93,10 +93,19 @@ function PostDetailPage() {
         { _supplier_id: post.user_id, _post_id: post.id },
       );
       if (error) throw error;
+      const heading = post.title || post.content?.split("\n")[0] || (lang === "km" ? "ទំនិញ" : "Product");
+      const priceText = post.discount_price != null
+        ? formatPrice(post.discount_price, post.currency)
+        : post.price != null
+          ? formatPrice(post.price, post.currency)
+          : null;
+      const prefill = lang === "km"
+        ? `សួស្តី ខ្ញុំចង់សួរព័ត៌មានអំពី ${heading}${priceText ? ` — ${priceText}` : ""}`
+        : `Hi, I'd like to ask about ${heading}${priceText ? ` — ${priceText}` : ""}`;
       nav({
         to: "/messages/$threadId",
         params: { threadId: threadId as string },
-        search: { pin: `post:${post.id}` },
+        search: { pin: `post:${post.id}`, prefill },
       });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
