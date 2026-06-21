@@ -333,55 +333,53 @@ function SupplierProfilePage() {
       {posts.length > 0 && (
         <div className="border-b border-border bg-surface px-5 py-4">
           <p className="text-sm font-semibold text-foreground">{t("recent_posts")}</p>
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 grid grid-cols-2 gap-2">
             {posts.map((p) => {
               const meta = POST_TYPE_LABELS[p.post_type as keyof typeof POST_TYPE_LABELS];
               const heading = p.title || p.content?.split("\n")[0] || "Post";
               return (
-                <div key={p.id} className="rounded-xl border border-border p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {meta && (
-                          <span className={`rounded-pill px-2 py-0.5 text-[10px] font-bold ${meta.bg} ${meta.fg}`}>
-                            {lang === "km" ? meta.km : meta.en}
-                          </span>
-                        )}
-                        <p className="truncate text-sm font-semibold text-foreground">{heading}</p>
-                      </div>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        {p.price != null && (
-                          <span className="mr-1.5 inline-flex items-baseline gap-1">
-                            {p.discount_price != null ? (
-                              <>
-                                <span className="font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
-                                <span className="text-[10px] text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
-                              </>
-                            ) : (
-                              <span className="font-bold text-success">{formatPrice(p.price, p.currency)}</span>
-                            )}
-                          </span>
-                        )}
-                        {timeAgo(p.created_at, lang)} · {p.view_count} {lang === "km" ? "មើល" : `view${p.view_count === 1 ? "" : "s"}`}
-                      </p>
-
+                <div key={p.id} className="overflow-hidden rounded-xl border border-border bg-card">
+                  {p.photo_url ? (
+                    <div className="aspect-square w-full overflow-hidden bg-muted">
+                      <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
                     </div>
-                    {p.photo_url && (
-                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
-                        <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
-                      </div>
+                  ) : (
+                    <div className="flex aspect-square w-full items-center justify-center bg-muted text-xs text-muted-foreground">
+                      {lang === "km" ? "គ្មានរូប" : "No image"}
+                    </div>
+                  )}
+                  <div className="p-2">
+                    {meta && (
+                      <span className={`inline-block rounded-pill px-1.5 py-0.5 text-[9px] font-bold ${meta.bg} ${meta.fg}`}>
+                        {lang === "km" ? meta.km : meta.en}
+                      </span>
+                    )}
+                    <p className="mt-1 line-clamp-2 text-xs font-semibold text-foreground">{heading}</p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground">
+                      {p.price != null && (
+                        <span className="inline-flex items-baseline gap-1">
+                          {p.discount_price != null ? (
+                            <>
+                              <span className="font-bold text-rose-600">{formatPrice(p.discount_price, p.currency)}</span>
+                              <span className="text-[9px] text-muted-foreground line-through">{formatPrice(p.price, p.currency)}</span>
+                            </>
+                          ) : (
+                            <span className="font-bold text-success">{formatPrice(p.price, p.currency)}</span>
+                          )}
+                        </span>
+                      )}
+                    </p>
+                    {!isOwner && (
+                      <button
+                        onClick={() => void startConversation(p.id)}
+                        disabled={contacting}
+                        className="mt-2 flex h-7 w-full items-center justify-center gap-1 rounded-md bg-primary/10 text-[10px] font-bold text-primary active:scale-[0.98] disabled:opacity-50"
+                      >
+                        <MessageCircle className="h-3 w-3" />
+                        {lang === "km" ? "សួរឥឡូវ" : "Ask now"}
+                      </button>
                     )}
                   </div>
-                  {!isOwner && (
-                    <button
-                      onClick={() => void startConversation(p.id)}
-                      disabled={contacting}
-                      className="mt-2 flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-primary/10 text-xs font-bold text-primary active:scale-[0.98] disabled:opacity-50"
-                    >
-                      <MessageCircle className="h-3.5 w-3.5" />
-                      {lang === "km" ? "សួរអំពីផលិតផលនេះ" : "Ask about this product"}
-                    </button>
-                  )}
                 </div>
               );
             })}
