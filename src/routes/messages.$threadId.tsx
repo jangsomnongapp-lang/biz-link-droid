@@ -24,9 +24,10 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/messages/$threadId")({
-  validateSearch: (s: Record<string, unknown>): { project?: string; pin?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { project?: string; pin?: string; prefill?: string } => ({
     project: typeof s.project === "string" ? s.project : undefined,
     pin: typeof s.pin === "string" ? s.pin : undefined,
+    prefill: typeof s.prefill === "string" ? s.prefill : undefined,
   }),
   component: () => (
     <RequireAuth>
@@ -155,12 +156,12 @@ function ConversationPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const { threadId } = useParams({ from: "/messages/$threadId" });
-  const { pin } = useSearch({ from: "/messages/$threadId" });
+  const { pin, prefill } = useSearch({ from: "/messages/$threadId" });
   const navigate = useNavigate();
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [other, setOther] = useState<OtherProfile | null>(null);
-  const [text, setText] = useState("");
+  const [text, setText] = useState(prefill ?? "");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
