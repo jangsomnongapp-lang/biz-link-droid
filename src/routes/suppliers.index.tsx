@@ -376,7 +376,7 @@ function SuppliersListPage() {
           )}
 
           <div className="mt-4">
-            {loading && <p className="py-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
+            {loading && <div className="mt-4"><ShopGridSkeleton count={6} /></div>}
             {!loading && filtered.length === 0 && (
               <p className="py-10 text-center text-sm text-muted-foreground">{t("no_suppliers")}</p>
             )}
