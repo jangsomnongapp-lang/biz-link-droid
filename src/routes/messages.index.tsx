@@ -101,6 +101,7 @@ function MessagesListPage() {
         if (count && count > 0) unreadMap[th.id] = count;
       }
       setUnread(unreadMap);
+      setLoading(false);
     })();
   }, [user]);
 
