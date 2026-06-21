@@ -84,6 +84,7 @@ function NewListingPage() {
           description: description.trim() || null,
           location: location.trim() || null,
           budget: budget ? Number(budget) : null,
+          currency,
           status: "pending",
         })
         .select("id")
