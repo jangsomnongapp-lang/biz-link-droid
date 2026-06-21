@@ -160,7 +160,7 @@ function MyContentPage() {
         ))}
       </div>
       <main className="space-y-3 p-3">
-        {isLoading && <p className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</p>}
+        {isLoading && <div className="mt-3"><ContentListSkeleton count={3} /></div>}
         {!isLoading && items.length === 0 && <p className="rounded-xl bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">{lang === "km" ? "មិនទាន់មានទិន្នន័យ" : `No ${tab}s yet`}</p>}
         {items.map((item) => <ContentCard key={item.id} kind={tab} item={item} onEdit={() => setEditing({ kind: tab, item })} onMedia={() => setMediaEditing({ kind: tab, item })} onDelete={() => setDeleting({ kind: tab, item })} />)}
       </main>

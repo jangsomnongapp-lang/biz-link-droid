@@ -149,9 +149,9 @@ function RewardsPage() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="py-12 text-center text-sm text-zinc-500">{lang === "km" ? "កំពុងផ្ទុក..." : "Loading..."}</div>
-        ) : (
+    {loading ? (
+      <RewardsSkeleton />
+    ) : (
           <>
             {/* Today's active ticket label */}
             <div className="mt-5 text-[12px] text-zinc-500 font-bold uppercase tracking-wider">

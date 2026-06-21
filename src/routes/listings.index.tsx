@@ -141,7 +141,7 @@ function ListingsPage() {
         {t("new_listing")}
       </Link>
 
-      {loading && <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>}
+      {loading && <div className="mt-3"><ListingListSkeleton count={3} /></div>}
       {!loading && listings.length === 0 && (
         <div className="rounded-xl bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
           {lang === "km" ? "មិនទាន់មានការងារ" : "No projects yet"}
