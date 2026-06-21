@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, MessageCircle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, MessageCircle, SlidersHorizontal, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -9,6 +9,8 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/price";
 import { ShopGridSkeleton, ListSkeleton } from "@/components/SkeletonFeed";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { CAMBODIA_PROVINCES } from "@/components/ProvinceSelect";
 
 
 export const Route = createFileRoute("/suppliers/")({
@@ -101,12 +103,29 @@ function SuppliersListPage() {
   const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
   const [categories, setCategories] = useState<SupplierCategory[]>([]);
-  const [selectedCat, setSelectedCat] = useState<string>("all");
   const [contactingId, setContactingId] = useState<string | null>(null);
   // rent
   const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
   const [loadingRent, setLoadingRent] = useState(true);
+  // Filter state
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({ location: "", categoryId: "", minPrice: "", maxPrice: "" });
+  const [draft, setDraft] = useState({ location: "", categoryId: "", minPrice: "", maxPrice: "" });
+
+  const km = lang === "km";
+  const locationLabel = km ? "ទីតាំង" : "Location";
+  const priceLabel = km ? "តម្លៃ (USD)" : "Price (USD)";
+  const categoryLabel = km ? "ប្រភេទ" : "Category";
+  const filterTitle = km ? "តម្រង" : "Filters";
+  const applyLabel = km ? "អនុវត្ត" : "Apply";
+  const clearLabel = km ? "សម្អាត" : "Clear";
+  const allLabel = km ? "ទាំងអស់" : "All";
+
+  const activeCount =
+    (filters.location ? 1 : 0) +
+    (filters.categoryId ? 1 : 0) +
+    (filters.minPrice || filters.maxPrice ? 1 : 0);
 
   async function contactAboutProduct(p: ProductRow) {
     if (!user || !p.store_id) return;
@@ -264,40 +283,54 @@ function SuppliersListPage() {
   }, [mode]);
 
   const q = search.toLowerCase();
-  const filteredProducts: FeedItem[] = products
-    .filter((p) => {
-      if (selectedCat !== "all" && !p.store_categories.some((c) => c.id === selectedCat)) return false;
-      if (q) {
-        const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    })
-    .map((p) => ({ kind: "product" as const, created_at: p.created_at, product: p }));
-  const filteredStores: FeedItem[] = storeCards
-    .filter((s) => {
-      if (selectedCat !== "all" && !s.categories.some((c) => c.id === selectedCat)) return false;
-      if (q) {
-        const hay = `${s.name} ${s.description ?? ""}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    })
-    .map((s) => ({ kind: "store" as const, created_at: s.created_at, store: s }));
-  const filtered: FeedItem[] = [...filteredProducts, ...filteredStores].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  );
 
-  const filteredRentals = rentals.filter((r) => {
-    if (rentCat !== "all" && r.category !== rentCat) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      if (!r.title.toLowerCase().includes(q) && !(r.description ?? "").toLowerCase().includes(q)) {
-        return false;
+  const filtered = useMemo(() => {
+    const min = filters.minPrice ? Number(filters.minPrice) : null;
+    const max = filters.maxPrice ? Number(filters.maxPrice) : null;
+
+    const filteredProducts = products
+      .filter((p) => {
+        if (filters.location && p.store_location !== filters.location) return false;
+        if (filters.categoryId && !p.store_categories.some((c) => c.id === filters.categoryId)) return false;
+        if (min != null && (p.price == null || p.price < min)) return false;
+        if (max != null && (p.price == null || p.price > max)) return false;
+        if (q) {
+          const hay = `${p.title ?? ""} ${p.content ?? ""} ${p.store_name ?? ""}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      })
+      .map((p) => ({ kind: "product" as const, created_at: p.created_at, product: p }));
+
+    const filteredStores = storeCards
+      .filter((s) => {
+        if (filters.location && s.location !== filters.location) return false;
+        if (filters.categoryId && !s.categories.some((c) => c.id === filters.categoryId)) return false;
+        if (q) {
+          const hay = `${s.name} ${s.description ?? ""}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      })
+      .map((s) => ({ kind: "store" as const, created_at: s.created_at, store: s }));
+
+    return [...filteredProducts, ...filteredStores].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+  }, [products, storeCards, filters, q]);
+
+  const filteredRentals = useMemo(() => {
+    return rentals.filter((r) => {
+      if (rentCat !== "all" && r.category !== rentCat) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        if (!r.title.toLowerCase().includes(q) && !(r.description ?? "").toLowerCase().includes(q)) {
+          return false;
+        }
       }
-    }
-    return true;
-  });
+      return true;
+    });
+  }, [rentals, rentCat, search]);
 
   return (
     <div className="relative px-3 py-3">
@@ -341,37 +374,50 @@ function SuppliersListPage() {
 
       {mode === "shops" ? (
         <>
-          <div className="mt-2 flex h-11 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
-            <SearchIcon className="h-4 w-4 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("search_suppliers_ph")}
-              className="h-full flex-1 bg-transparent text-sm outline-none"
-            />
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex h-11 flex-1 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
+              <SearchIcon className="h-4 w-4 text-muted-foreground" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("search_suppliers_ph")}
+                className="h-full flex-1 bg-transparent text-sm outline-none"
+              />
+            </div>
+            <button
+              onClick={() => { setDraft(filters); setFilterOpen(true); }}
+              aria-label={filterTitle}
+              className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-surface text-foreground shadow-card active:scale-[0.97]"
+            >
+              <SlidersHorizontal className="h-5 w-5" />
+              {activeCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {activeCount}
+                </span>
+              )}
+            </button>
           </div>
 
-          {categories.length > 0 && (
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-              <button
-                onClick={() => setSelectedCat("all")}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold ${
-                  selectedCat === "all" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-                }`}
-              >
-                {t("filter_all")}
-              </button>
-              {categories.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedCat(c.id)}
-                  className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold ${
-                    selectedCat === c.id ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-                  }`}
-                >
-                  {lang === "km" ? c.name_km : c.name_en}
-                </button>
-              ))}
+          {activeCount > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {filters.location && (
+                <FilterChip label={filters.location} onClear={() => setFilters({ ...filters, location: "" })} />
+              )}
+              {filters.categoryId && (
+                <FilterChip
+                  label={(() => {
+                    const c = categories.find((c) => c.id === filters.categoryId);
+                    return c ? (km ? c.name_km : c.name_en) : categoryLabel;
+                  })()}
+                  onClear={() => setFilters({ ...filters, categoryId: "" })}
+                />
+              )}
+              {(filters.minPrice || filters.maxPrice) && (
+                <FilterChip
+                  label={`$${filters.minPrice || "0"} - $${filters.maxPrice || "∞"}`}
+                  onClear={() => setFilters({ ...filters, minPrice: "", maxPrice: "" })}
+                />
+              )}
             </div>
           )}
 
@@ -528,6 +574,105 @@ function SuppliersListPage() {
           lang={lang}
         />
       )}
+
+      {/* Filter Sheet */}
+      <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl p-0">
+          <SheetHeader className="border-b border-border px-4 py-3 text-left">
+            <SheetTitle className="text-base font-semibold">{filterTitle}</SheetTitle>
+          </SheetHeader>
+
+          <div className="space-y-5 p-4">
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{locationLabel}</h4>
+              <div className="flex flex-wrap gap-2">
+                <Chip
+                  active={!draft.location}
+                  onClick={() => setDraft({ ...draft, location: "" })}
+                  label={allLabel}
+                />
+                {CAMBODIA_PROVINCES.map((p) => (
+                  <Chip
+                    key={p.en}
+                    active={draft.location === p.en}
+                    onClick={() => setDraft({ ...draft, location: p.en })}
+                    label={km ? p.km : p.en}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{priceLabel}</h4>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  value={draft.minPrice}
+                  onChange={(e) => setDraft({ ...draft, minPrice: e.target.value.replace(/[^0-9.]/g, "") })}
+                  inputMode="decimal"
+                  placeholder={km ? "អប្បបរមា" : "Min"}
+                  className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                />
+                <input
+                  value={draft.maxPrice}
+                  onChange={(e) => setDraft({ ...draft, maxPrice: e.target.value.replace(/[^0-9.]/g, "") })}
+                  inputMode="decimal"
+                  placeholder={km ? "អតិបរមា" : "Max"}
+                  className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[
+                  { min: "", max: "100", label: "< $100" },
+                  { min: "100", max: "500", label: "$100–500" },
+                  { min: "500", max: "1000", label: "$500–1k" },
+                  { min: "1000", max: "", label: "$1k+" },
+                ].map((p) => (
+                  <Chip
+                    key={p.label}
+                    active={draft.minPrice === p.min && draft.maxPrice === p.max}
+                    onClick={() => setDraft({ ...draft, minPrice: p.min, maxPrice: p.max })}
+                    label={p.label}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{categoryLabel}</h4>
+              <div className="flex flex-wrap gap-2">
+                <Chip
+                  active={!draft.categoryId}
+                  onClick={() => setDraft({ ...draft, categoryId: "" })}
+                  label={allLabel}
+                />
+                {categories.map((c) => (
+                  <Chip
+                    key={c.id}
+                    active={draft.categoryId === c.id}
+                    onClick={() => setDraft({ ...draft, categoryId: c.id })}
+                    label={km ? c.name_km : c.name_en}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <SheetFooter className="sticky bottom-0 flex-row gap-2 border-t border-border bg-surface p-3">
+            <button
+              onClick={() => { setDraft({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); setFilters({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); setFilterOpen(false); }}
+              className="h-11 flex-1 rounded-xl border border-border bg-background text-sm font-semibold text-foreground active:scale-[0.99]"
+            >
+              {clearLabel}
+            </button>
+            <button
+              onClick={() => { setFilters(draft); setFilterOpen(false); }}
+              className="h-11 flex-[2] rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]"
+            >
+              {applyLabel}
+            </button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
@@ -787,4 +932,28 @@ function initials(name: string) {
 }
 
 void StoreIcon;
+
+function Chip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+        active ? "bg-primary text-primary-foreground" : "bg-surface text-foreground shadow-card"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function FilterChip({ label, onClear }: { label: string; onClear: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+      {label}
+      <button onClick={onClear} className="ml-0.5 inline-flex items-center justify-center">
+        <X className="h-3 w-3" />
+      </button>
+    </span>
+  );
+}
 
