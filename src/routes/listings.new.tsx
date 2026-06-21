@@ -33,6 +33,7 @@ function NewListingPage() {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [budget, setBudget] = useState("");
+  const [currency, setCurrency] = useState<"USD" | "KHR">("USD");
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [photos, setPhotos] = useState<string[]>([]);
