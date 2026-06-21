@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, MessageCircle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, MessageCircle, SlidersHorizontal, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -9,6 +9,8 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/price";
 import { ShopGridSkeleton, ListSkeleton } from "@/components/SkeletonFeed";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
+import { CAMBODIA_PROVINCES } from "@/components/ProvinceSelect";
 
 
 export const Route = createFileRoute("/suppliers/")({
