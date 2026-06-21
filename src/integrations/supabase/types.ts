@@ -415,6 +415,7 @@ export type Database = {
         Row: {
           budget: number | null
           created_at: string
+          currency: string
           description: string | null
           id: string
           location: string | null
@@ -427,6 +428,7 @@ export type Database = {
         Insert: {
           budget?: number | null
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           location?: string | null
@@ -439,6 +441,7 @@ export type Database = {
         Update: {
           budget?: number | null
           created_at?: string
+          currency?: string
           description?: string | null
           id?: string
           location?: string | null

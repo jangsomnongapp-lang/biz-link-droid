@@ -4,7 +4,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, MapPin, DollarSign, Plus, X } from "lucide-react";
+import { ArrowLeft, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { ProvinceSelect } from "@/components/ProvinceSelect";
 
@@ -33,6 +33,7 @@ function NewListingPage() {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [budget, setBudget] = useState("");
+  const [currency, setCurrency] = useState<"USD" | "KHR">("USD");
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [photos, setPhotos] = useState<string[]>([]);
@@ -83,6 +84,7 @@ function NewListingPage() {
           description: description.trim() || null,
           location: location.trim() || null,
           budget: budget ? Number(budget) : null,
+          currency,
           status: "pending",
         })
         .select("id")
@@ -202,7 +204,15 @@ function NewListingPage() {
           <Card>
             <Label optional>{t("budget")}</Label>
             <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-              <DollarSign className="ml-2 h-4 w-4 text-success" />
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value === "KHR" ? "KHR" : "USD")}
+                aria-label="Currency"
+                className="h-full border-r border-border bg-muted px-2 text-xs font-semibold text-foreground outline-none"
+              >
+                <option value="USD">$ USD</option>
+                <option value="KHR">៛ KHR</option>
+              </select>
               <input
                 value={budget}
                 onChange={(e) => setBudget(e.target.value.replace(/[^0-9.]/g, ""))}
