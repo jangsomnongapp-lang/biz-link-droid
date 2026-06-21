@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Gift, Flame, Beer, Check, ChevronRight, ArrowLeft } from "lucide-react";
+import { RewardsSkeleton } from "@/components/SkeletonFeed";
 
 export const Route = createFileRoute("/rewards")({
   component: () => (

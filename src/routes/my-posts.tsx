@@ -14,6 +14,7 @@ import { useI18n } from "@/lib/i18n";
 import { timeAgo } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ContentListSkeleton } from "@/components/SkeletonFeed";
 
 export const Route = createFileRoute("/my-posts")({
   component: () => <RequireAuth><AppShell><MyContentPage /></AppShell></RequireAuth>,

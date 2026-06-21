@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
 import { MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { ListingListSkeleton } from "@/components/SkeletonFeed";
 
 export const Route = createFileRoute("/listings/")({
   component: () => (

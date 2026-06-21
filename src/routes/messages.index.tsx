@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Search } from "lucide-react";
 import { timeAgo } from "@/lib/format";
+import { MessageListSkeleton } from "@/components/SkeletonFeed";
 
 const REF_PREFIX = "__REF__:";
 const ATT_PREFIX = "__ATT__:";
