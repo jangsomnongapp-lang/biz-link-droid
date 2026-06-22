@@ -7,6 +7,19 @@ import { lovable } from "@/integrations/lovable";
 import { ArrowLeft, Eye, EyeOff, Check, Hammer, Users, Building, Briefcase, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 import { CategoryImage } from "@/components/CategoryImage";
+import workerImg from "@/assets/roles/worker.jpg.asset.json";
+import teamLeaderImg from "@/assets/roles/team-leader.jpg.asset.json";
+import companyImg from "@/assets/roles/company.jpg.asset.json";
+import ownerImg from "@/assets/roles/owner.jpg.asset.json";
+import specialistImg from "@/assets/roles/specialist.jpg.asset.json";
+
+const roleImages: Record<string, string> = {
+  is_provider: workerImg.url,
+  is_coordinator: teamLeaderImg.url,
+  is_organization: companyImg.url,
+  is_client: ownerImg.url,
+  is_specialist: specialistImg.url,
+};
 
 export const Route = createFileRoute("/register")({
   component: RegisterFlow,
