@@ -344,16 +344,26 @@ function EditProfilePage() {
                       else n.add(c.id);
                       setSelected(n);
                     }}
-                    className={`flex h-full flex-col overflow-hidden rounded-xl border text-left text-xs font-medium transition ${
+                    className={`relative aspect-[4/5] overflow-hidden rounded-xl border transition active:scale-[0.98] ${
                       sel
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background text-foreground"
+                        ? "border-primary ring-2 ring-primary/30"
+                        : "border-border"
                     }`}
                   >
-                    <div className="h-28 w-full shrink-0 bg-muted sm:h-32">
+                    <div className="absolute inset-0">
                       <CategoryImage code={c.code} name={name} />
                     </div>
-                    <span className="flex h-12 shrink-0 items-center px-2.5 py-2 leading-snug line-clamp-2">{name}</span>
+                    <div className="absolute inset-x-0 bottom-0 flex justify-center pb-3 px-2">
+                      <span
+                        className={`inline-block rounded-full px-3 py-1.5 text-[11px] font-semibold shadow-sm backdrop-blur-sm transition ${
+                          sel
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-white/90 text-foreground"
+                        }`}
+                      >
+                        {name}
+                      </span>
+                    </div>
                   </button>
                 );
               })}
