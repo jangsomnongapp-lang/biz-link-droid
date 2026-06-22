@@ -2184,6 +2184,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      user_belongs_to_current_master: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
