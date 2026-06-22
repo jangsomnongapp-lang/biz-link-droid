@@ -344,7 +344,7 @@ function EditProfilePage() {
                       else n.add(c.id);
                       setSelected(n);
                     }}
-                    className={`relative aspect-[4/5] overflow-hidden rounded-xl border transition active:scale-[0.98] ${
+                    className={`relative aspect-[4/5] overflow-hidden rounded-2xl border transition active:scale-[0.98] ${
                       sel
                         ? "border-primary ring-2 ring-primary/30"
                         : "border-border"
@@ -353,9 +353,9 @@ function EditProfilePage() {
                     <div className="absolute inset-0">
                       <CategoryImage code={c.code} name={name} />
                     </div>
-                    <div className="absolute inset-x-0 bottom-0 flex justify-center pb-3 px-2">
+                    <div className="absolute inset-x-3 bottom-3">
                       <span
-                        className={`inline-block rounded-full px-3 py-1.5 text-[11px] font-semibold shadow-sm backdrop-blur-sm transition ${
+                        className={`block w-full rounded-full px-3 py-2 text-center text-[11px] font-semibold shadow-sm backdrop-blur-sm transition ${
                           sel
                             ? "bg-primary text-primary-foreground"
                             : "bg-white/90 text-foreground"
