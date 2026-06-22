@@ -4,9 +4,22 @@ import { useI18n } from "@/lib/i18n";
 import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import { ArrowLeft, Eye, EyeOff, Check, Hammer, Users, Building, Briefcase, GraduationCap } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
 import { CategoryImage } from "@/components/CategoryImage";
+import workerImg from "@/assets/roles/worker.jpg.asset.json";
+import teamLeaderImg from "@/assets/roles/team-leader.jpg.asset.json";
+import companyImg from "@/assets/roles/company.jpg.asset.json";
+import ownerImg from "@/assets/roles/owner.jpg.asset.json";
+import specialistImg from "@/assets/roles/specialist.jpg.asset.json";
+
+const roleImages: Record<string, string> = {
+  is_provider: workerImg.url,
+  is_coordinator: teamLeaderImg.url,
+  is_organization: companyImg.url,
+  is_client: ownerImg.url,
+  is_specialist: specialistImg.url,
+};
 
 export const Route = createFileRoute("/register")({
   component: RegisterFlow,
@@ -217,56 +230,60 @@ function RegisterFlow() {
 
 function Step1({ roles, setRoles }: { roles: Roles; setRoles: (r: Roles) => void }) {
   const { t, lang } = useI18n();
-  const items: Array<{ key: keyof Roles; titleKey: Parameters<typeof t>[0]; descKey: Parameters<typeof t>[0]; icon: typeof Hammer }> = [
-    { key: "is_provider", titleKey: "role_provider", descKey: "role_provider_desc", icon: Hammer },
-    { key: "is_coordinator", titleKey: "role_coordinator", descKey: "role_coordinator_desc", icon: Users },
-    { key: "is_organization", titleKey: "role_organization", descKey: "role_organization_desc", icon: Building },
-    { key: "is_specialist", titleKey: "role_specialist", descKey: "role_specialist_desc", icon: GraduationCap },
+  const items: Array<{ key: keyof Roles; titleKey: Parameters<typeof t>[0] }> = [
+    { key: "is_provider", titleKey: "role_provider" },
+    { key: "is_coordinator", titleKey: "role_coordinator" },
+    { key: "is_organization", titleKey: "role_organization" },
+    { key: "is_specialist", titleKey: "role_specialist" },
+    { key: "is_client", titleKey: "role_client" },
   ];
-  const ownerItem = { key: "is_client" as const, titleKey: "role_client" as const, descKey: "role_client_desc" as const, icon: Briefcase };
-
-  const renderItem = ({ key, titleKey, descKey, icon: Icon }: typeof items[0]) => {
-    const checked = roles[key];
-    return (
-      <button
-        key={key}
-        onClick={() => setRoles({ ...roles, [key]: !checked })}
-        className={`flex items-center gap-3 rounded-xl border-2 bg-surface p-4 text-left transition ${
-          checked ? "border-primary" : "border-border"
-        }`}
-      >
-        <div
-          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${
-            checked ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface"
-          }`}
-        >
-          {checked && <Check className="h-4 w-4" strokeWidth={3} />}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <Icon className="h-4 w-4 text-primary" />
-            <span className="font-semibold text-foreground">
-              {t(titleKey)} {lang === "en" ? `/ ${dictKm(titleKey)}` : ""}
-            </span>
-          </div>
-          <p className="mt-0.5 text-xs text-muted-foreground">{t(descKey)}</p>
-        </div>
-      </button>
-    );
-  };
 
   return (
     <div>
       <h1 className="text-xl font-bold text-foreground">{t("who_are_you")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t("select_all_apply")}</p>
-      <div className="mt-5 flex flex-col gap-3">
-        {items.map(renderItem)}
-        <div className="my-1 flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground">{lang === "km" ? "ឬ" : "or"}</span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-        {renderItem(ownerItem)}
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {items.map(({ key, titleKey }) => {
+          const isSel = roles[key];
+          const name = t(titleKey);
+          const src = roleImages[key];
+          return (
+            <button
+              key={key}
+              onClick={() => setRoles({ ...roles, [key]: !isSel })}
+              className={`relative aspect-[4/5] overflow-hidden rounded-2xl border transition active:scale-[0.98] ${
+                isSel ? "border-primary ring-2 ring-primary/30" : "border-border"
+              }`}
+            >
+              <div className="absolute inset-0">
+                {src && (
+                  <img
+                    src={src}
+                    alt={name}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                )}
+              </div>
+              {isSel && (
+                <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
+                  <Check className="h-4 w-4" strokeWidth={3} />
+                </span>
+              )}
+              <div className="absolute inset-x-3 bottom-3">
+                <span
+                  className={`block w-full rounded-full px-3 py-2 text-center text-[11px] font-semibold shadow-sm backdrop-blur-sm transition ${
+                    isSel
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-white/90 text-foreground"
+                  }`}
+                >
+                  {name} {lang === "en" ? `/ ${dictKm(titleKey)}` : ""}
+                </span>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
