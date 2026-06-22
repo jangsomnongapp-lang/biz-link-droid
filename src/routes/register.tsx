@@ -332,21 +332,31 @@ function Step2({
                     <button
                       key={c.id}
                       onClick={() => toggle(c.id)}
-                      className={`flex h-full flex-col overflow-hidden rounded-xl border text-left text-sm font-medium transition ${
+                      className={`relative aspect-[4/5] overflow-hidden rounded-2xl border transition active:scale-[0.98] ${
                         isSel
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-surface text-foreground"
+                          ? "border-primary ring-2 ring-primary/30"
+                          : "border-border"
                       }`}
                     >
-                      <div className="relative h-28 w-full shrink-0 bg-muted sm:h-32">
+                      <div className="absolute inset-0">
                         <CategoryImage code={c.code} name={name} />
-                        {isSel && (
-                          <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
-                            <Check className="h-4 w-4" strokeWidth={3} />
-                          </span>
-                        )}
                       </div>
-                      <span className="flex h-12 shrink-0 items-center px-3 py-2 leading-snug line-clamp-2">{name}</span>
+                      {isSel && (
+                        <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
+                          <Check className="h-4 w-4" strokeWidth={3} />
+                        </span>
+                      )}
+                      <div className="absolute inset-x-3 bottom-3">
+                        <span
+                          className={`block w-full rounded-full px-3 py-2 text-center text-[11px] font-semibold shadow-sm backdrop-blur-sm transition ${
+                            isSel
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-white/90 text-foreground"
+                          }`}
+                        >
+                          {name}
+                        </span>
+                      </div>
                     </button>
                   );
                 })}
