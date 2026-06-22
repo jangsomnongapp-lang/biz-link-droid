@@ -229,7 +229,7 @@ function RegisterFlow() {
 }
 
 function Step1({ roles, setRoles }: { roles: Roles; setRoles: (r: Roles) => void }) {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const items: Array<{ key: keyof Roles; titleKey: Parameters<typeof t>[0] }> = [
     { key: "is_provider", titleKey: "role_provider" },
     { key: "is_coordinator", titleKey: "role_coordinator" },
@@ -278,7 +278,7 @@ function Step1({ roles, setRoles }: { roles: Roles; setRoles: (r: Roles) => void
                       : "bg-white/90 text-foreground"
                   }`}
                 >
-                  {name} {lang === "en" ? `/ ${dictKm(titleKey)}` : ""}
+                  {name}
                 </span>
               </div>
             </button>
@@ -287,18 +287,6 @@ function Step1({ roles, setRoles }: { roles: Roles; setRoles: (r: Roles) => void
       </div>
     </div>
   );
-}
-
-// Helper to show Khmer alongside English label
-function dictKm(key: string) {
-  const map: Record<string, string> = {
-    role_provider: "អ្នកធ្វើការ",
-    role_coordinator: "មេក្រុម",
-    role_organization: "ក្រុមហ៊ុន",
-    role_client: "ម្ចាស់អាជីវកម្ម",
-    role_specialist: "អ្នកជំនាញ",
-  };
-  return map[key] ?? "";
 }
 
 function Step2({
