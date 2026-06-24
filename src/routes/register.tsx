@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { ArrowLeft, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { CategoryImage } from "@/components/CategoryImage";
 import workerImg from "@/assets/roles/worker.jpg.asset.json";
 import teamLeaderImg from "@/assets/roles/team-leader.jpg.asset.json";
@@ -20,6 +21,8 @@ const roleImages: Record<string, string> = {
   is_client: ownerImg.url,
   is_specialist: specialistImg.url,
 };
+
+type TKey = Parameters<ReturnType<typeof useI18n>["t"]>[0];
 
 export const Route = createFileRoute("/register")({
   component: RegisterFlow,
@@ -230,62 +233,113 @@ function RegisterFlow() {
 
 function Step1({ roles, setRoles }: { roles: Roles; setRoles: (r: Roles) => void }) {
   const { t } = useI18n();
-  const items: Array<{ key: keyof Roles; titleKey: Parameters<typeof t>[0] }> = [
-    { key: "is_provider", titleKey: "role_provider" },
-    { key: "is_coordinator", titleKey: "role_coordinator" },
-    { key: "is_organization", titleKey: "role_organization" },
-    { key: "is_specialist", titleKey: "role_specialist" },
-    { key: "is_client", titleKey: "role_client" },
-  ];
 
   return (
     <div>
       <h1 className="text-xl font-bold text-foreground">{t("who_are_you")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">{t("select_all_apply")}</p>
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {items.map(({ key, titleKey }) => {
-          const isSel = roles[key];
-          const name = t(titleKey);
-          const src = roleImages[key];
-          return (
-            <button
-              key={key}
-              onClick={() => setRoles({ ...roles, [key]: !isSel })}
-              className={`relative aspect-[4/5] overflow-hidden rounded-2xl border transition active:scale-[0.98] ${
-                isSel ? "border-primary ring-2 ring-primary/30" : "border-border"
-              }`}
-            >
-              <div className="absolute inset-0">
-                {src && (
-                  <img
-                    src={src}
-                    alt={name}
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
-                )}
-              </div>
-              {isSel && (
-                <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
-                  <Check className="h-4 w-4" strokeWidth={3} />
-                </span>
-              )}
-              <div className="absolute inset-x-3 bottom-3">
-                <span
-                  className={`block w-full rounded-full px-3 py-2 text-center text-[11px] font-semibold shadow-sm backdrop-blur-sm transition ${
-                    isSel
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-white/90 text-foreground"
-                  }`}
-                >
-                  {name}
-                </span>
-              </div>
-            </button>
-          );
-        })}
+
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <RoleCard
+          roleKey="is_provider"
+          titleKey="role_provider"
+          roles={roles}
+          setRoles={setRoles}
+        />
+        <RoleCard
+          roleKey="is_coordinator"
+          titleKey="role_coordinator"
+          roles={roles}
+          setRoles={setRoles}
+        />
+        <RoleCard
+          roleKey="is_organization"
+          titleKey="role_organization"
+          roles={roles}
+          setRoles={setRoles}
+        />
+        <RoleCard
+          roleKey="is_specialist"
+          titleKey="role_specialist"
+          roles={roles}
+          setRoles={setRoles}
+        />
+      </div>
+
+      <div className="flex items-center gap-3 py-4">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs text-muted-foreground">{t("or")}</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <RoleCard
+          roleKey="is_client"
+          titleKey="role_client"
+          roles={roles}
+          setRoles={setRoles}
+          className="col-span-2 w-[calc(50%-0.375rem)] justify-self-center sm:col-span-1 sm:col-start-2 sm:w-full"
+        />
       </div>
     </div>
+  );
+}
+
+function RoleCard({
+  roleKey,
+  titleKey,
+  roles,
+  setRoles,
+  className,
+}: {
+  roleKey: keyof Roles;
+  titleKey: TKey;
+  roles: Roles;
+  setRoles: (r: Roles) => void;
+  className?: string;
+}) {
+  const { t } = useI18n();
+  const isSel = roles[roleKey];
+  const name = t(titleKey);
+  const src = roleImages[roleKey];
+
+  return (
+    <button
+      onClick={() => setRoles({ ...roles, [roleKey]: !isSel })}
+      className={cn(
+        "relative aspect-[4/5] overflow-hidden rounded-2xl border transition active:scale-[0.98]",
+        isSel ? "border-primary ring-2 ring-primary/30" : "border-border",
+        className
+      )}
+    >
+      <div className="absolute inset-0">
+        {src && (
+          <img
+            src={src}
+            alt={name}
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+        )}
+      </div>
+      {isSel && (
+        <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
+          <Check className="h-4 w-4" strokeWidth={3} />
+        </span>
+      )}
+      <div className="absolute inset-x-3 bottom-3">
+        <span
+          className={cn(
+            "block w-full rounded-full px-3 py-2 text-center text-[11px] font-semibold shadow-sm backdrop-blur-sm transition",
+            isSel
+              ? "bg-primary text-primary-foreground"
+              : "bg-white/90 text-foreground"
+          )}
+        >
+          {name}
+        </span>
+      </div>
+    </button>
   );
 }
 
