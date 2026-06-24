@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { ArrowLeft, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { CategoryImage } from "@/components/CategoryImage";
 import workerImg from "@/assets/roles/worker.jpg.asset.json";
 import teamLeaderImg from "@/assets/roles/team-leader.jpg.asset.json";
