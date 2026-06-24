@@ -22,6 +22,8 @@ const roleImages: Record<string, string> = {
   is_specialist: specialistImg.url,
 };
 
+type TKey = Parameters<ReturnType<typeof useI18n>["t"]>[0];
+
 export const Route = createFileRoute("/register")({
   component: RegisterFlow,
 });
