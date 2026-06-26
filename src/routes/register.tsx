@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { loginWithGoogle } from "@/lib/nativeGoogleLogin";
 import { ArrowLeft, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -84,16 +84,7 @@ function RegisterFlow() {
   const needsCats = roles.is_provider || roles.is_coordinator || roles.is_organization;
 
   async function signInWithGoogle() {
-    try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/home`,
-      });
-      if (result.error) throw result.error;
-      if (result.redirected) return;
-      nav({ to: "/home" });
-    } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Google sign-in failed");
-    }
+    await loginWithGoogle(nav);
   }
 
   function goNextFromStep1() {
