@@ -16,6 +16,13 @@ export async function loginWithGoogle(navigate: NavigateFn) {
       (window as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNativePlatform?.()
     ) {
       const { SocialLogin } = await import("@capgo/capacitor-social-login");
+      const webClientId =
+        "997514086528-6g3c05853170ioct0ijo2b43oall9sem.apps.googleusercontent.com";
+      try {
+        await SocialLogin.initialize({ google: { webClientId } });
+      } catch (initErr) {
+        console.warn("SocialLogin.initialize warning", initErr);
+      }
       const loginResult = await SocialLogin.login({
         provider: "google",
         options: { scopes: ["email", "profile"] },
