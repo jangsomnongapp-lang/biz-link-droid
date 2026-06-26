@@ -8,15 +8,6 @@ interface CapacitorGlobal {
   isNativePlatform?: () => boolean;
 }
 
-interface GoogleLoginResult {
-  result?: {
-    idToken?: string;
-    id_token?: string;
-  };
-  idToken?: string;
-  id_token?: string;
-}
-
 export async function loginWithGoogle(navigate: NavigateFn) {
   try {
     // In the native Capacitor app, use the native Google Sign-In plugin to avoid WebView blocks.
@@ -25,18 +16,20 @@ export async function loginWithGoogle(navigate: NavigateFn) {
       (window as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNativePlatform?.()
     ) {
       const { SocialLogin } = await import("@capgo/capacitor-social-login");
-      const result = (await SocialLogin.login({ provider: "google" })) as GoogleLoginResult;
-      console.log("Native Google login result", result);
+      const loginResult = await SocialLogin.login({
+        provider: "google",
+        options: { scopes: ["email", "profile"] },
+      });
+      console.log("Native Google login result", loginResult);
 
-      const payload = result.result ?? result;
-      const idToken = payload.idToken ?? payload.id_token;
-      if (!idToken) {
-        throw new Error("Google sign-in did not return an ID token.");
+      const result = loginResult.result;
+      if (result.responseType !== "online" || !result.idToken) {
+        throw new Error("Google sign-in did not return an online ID token.");
       }
 
       const { error } = await supabase.auth.signInWithIdToken({
         provider: "google",
-        token: idToken,
+        token: result.idToken,
       });
       if (error) throw error;
 
