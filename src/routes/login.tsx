@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { phoneLoginEmails, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { loginWithGoogle } from "@/lib/nativeGoogleLogin";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/jangsomnong-logo.jpg";
 import { toast } from "sonner";
@@ -48,16 +48,7 @@ function LoginPage() {
   }
 
   async function signInWithGoogle() {
-    try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-      });
-      if (result.error) throw result.error;
-      if (result.redirected) return;
-      nav({ to: "/home" });
-    } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Google sign-in failed");
-    }
+    await loginWithGoogle(nav);
   }
 
   return (
