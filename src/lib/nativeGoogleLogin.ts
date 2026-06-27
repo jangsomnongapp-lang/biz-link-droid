@@ -9,7 +9,7 @@ interface CapacitorGlobal {
 }
 
 const GOOGLE_WEB_CLIENT_ID =
-  "997514086528-6g3c05853170ioct0ijo2b43oall9sem.apps.googleusercontent.com";
+  "997514086528-uaepk54496rgh00huddfdep2jbvosb0t.apps.googleusercontent.com";
 
 function getUrlSafeNonce() {
   const array = new Uint8Array(32);
