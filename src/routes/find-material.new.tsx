@@ -1,15 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, X, MapPin, Globe2 } from "lucide-react";
+import { ArrowLeft, Plus, X, MapPin, Globe2, Search } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
 import { AutofillHint } from "@/components/AutofillHint";
 import { smartAutofill } from "@/lib/smart-autofill.functions";
+import { Input } from "@/components/ui/input";
+
 
 export const Route = createFileRoute("/find-material/new")({
   component: () => (
