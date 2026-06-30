@@ -237,33 +237,6 @@ function NewMaterialPage() {
 
       <section className="mt-3 bg-surface p-4 shadow-card">
         <label className="mb-2 block text-sm font-semibold text-foreground">
-          {lang === "km" ? "ប្រភេទ *" : "Category *"}
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {CATEGORIES.map((c) => {
-            const active = category === c.id;
-            return (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => setCategory(c.id)}
-                className={`flex flex-col items-center gap-1 rounded-xl border-2 px-2 py-3 text-xs font-semibold transition-colors ${
-                  active
-                    ? "border-[#c87000] bg-[#c87000]/10 text-[#c87000]"
-                    : "border-border bg-background text-foreground"
-                }`}
-              >
-                <span className="text-xl">{c.emoji}</span>
-                {lang === "km" ? c.km : c.en}
-              </button>
-            );
-          })}
-        </div>
-        <AutofillHint loading={autofilling && !category} filled={autofilled.has("category")} />
-      </section>
-
-      <section className="mt-2 bg-surface p-4 shadow-card">
-        <label className="mb-2 block text-sm font-semibold text-foreground">
           {lang === "km"
             ? "រូបថតផលិតផល * (អប្បបរមា ១ · អតិបរមា ៣)"
             : "Product photos * (Min 1 · Max 3)"}
@@ -331,6 +304,33 @@ function NewMaterialPage() {
           />
         )}
         <AutofillHint loading={autofilling && !itemName} filled={autofilled.has("name")} />
+      </section>
+
+      <section className="mt-2 bg-surface p-4 shadow-card">
+        <label className="mb-2 block text-sm font-semibold text-foreground">
+          {lang === "km" ? "ប្រភេទ *" : "Category *"}
+        </label>
+        <div className="grid grid-cols-3 gap-2">
+          {CATEGORIES.map((c) => {
+            const active = category === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setCategory(c.id)}
+                className={`flex flex-col items-center gap-1 rounded-xl border-2 px-2 py-3 text-xs font-semibold transition-colors ${
+                  active
+                    ? "border-[#c87000] bg-[#c87000]/10 text-[#c87000]"
+                    : "border-border bg-background text-foreground"
+                }`}
+              >
+                <span className="text-xl">{c.emoji}</span>
+                {lang === "km" ? c.km : c.en}
+              </button>
+            );
+          })}
+        </div>
+        <AutofillHint loading={autofilling && !category} filled={autofilled.has("category")} />
       </section>
 
       <section className="mt-2 bg-surface p-4 shadow-card">
