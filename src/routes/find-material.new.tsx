@@ -59,9 +59,19 @@ function NewMaterialPage() {
   const [autofilled, setAutofilled] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<"near_me" | "anywhere">("near_me");
   const [submitting, setSubmitting] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
   const fillForm = useServerFn(smartAutofill);
   const requestId = useRef(0);
+
+  const filteredCategories = useMemo(() => {
+    const q = categorySearch.trim().toLowerCase();
+    if (!q) return CATEGORIES;
+    return CATEGORIES.filter(
+      (c) => c.en.toLowerCase().includes(q) || c.km.toLowerCase().includes(q),
+    );
+  }, [categorySearch]);
+
 
   async function runAutofill(input: { text?: string; imageDataUrl?: string }) {
     const id = ++requestId.current;
@@ -309,11 +319,47 @@ function NewMaterialPage() {
       </section>
 
       <section className="mt-2 bg-surface p-4 shadow-card">
-        <label className="mb-2 block text-sm font-semibold text-foreground">
-          {lang === "km" ? "ប្រភេទ *" : "Category *"}
-        </label>
+        <div className="mb-3 flex items-center justify-between">
+          <label className="text-sm font-semibold text-foreground">
+            {lang === "km" ? "ប្រភេទ *" : "Category *"}
+          </label>
+          {category && (
+            <button
+              type="button"
+              onClick={() => setCategory(null)}
+              className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground active:bg-muted/80"
+            >
+              <X className="h-3 w-3" />
+              {lang === "km" ? "សម្អាត" : "Clear"}
+            </button>
+          )}
+        </div>
+
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={categorySearch}
+            onChange={(e) => setCategorySearch(e.target.value)}
+            placeholder={lang === "km" ? "ស្វែងរកប្រភេទ..." : "Search categories..."}
+            className="rounded-xl border-border bg-background pl-9 pr-3 text-sm focus:border-[#c87000] focus-visible:ring-0"
+          />
+        </div>
+
+        {category && (
+          <div className="mb-3 flex items-center gap-2 rounded-xl border border-[#c87000] bg-[#c87000]/10 px-3 py-2">
+            <span className="text-xl">
+              {CATEGORIES.find((c) => c.id === category)?.emoji}
+            </span>
+            <span className="text-sm font-semibold text-[#c87000]">
+              {lang === "km"
+                ? CATEGORIES.find((c) => c.id === category)?.km
+                : CATEGORIES.find((c) => c.id === category)?.en}
+            </span>
+          </div>
+        )}
+
         <div className="grid grid-cols-3 gap-2">
-          {CATEGORIES.map((c) => {
+          {filteredCategories.map((c) => {
             const active = category === c.id;
             return (
               <button
@@ -332,8 +378,14 @@ function NewMaterialPage() {
             );
           })}
         </div>
+        {filteredCategories.length === 0 && (
+          <p className="mt-3 text-center text-sm text-muted-foreground">
+            {lang === "km" ? "រកមិនឃើញប្រភេទ" : "No categories found"}
+          </p>
+        )}
         <AutofillHint loading={autofilling && !category} filled={autofilled.has("category")} />
       </section>
+
 
       <section className="mt-2 bg-surface p-4 shadow-card">
         <label className="mb-2 block text-sm font-semibold text-foreground">
