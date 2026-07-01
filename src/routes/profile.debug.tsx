@@ -78,6 +78,30 @@ function PushDebugPage() {
     }
   }
 
+  function testLocalNotification() {
+    if (!("Notification" in window)) {
+      toast.error(lang === "km" ? "កម្មវិធីរុករកមិនគាំទ្រ" : "Browser does not support notifications");
+      return;
+    }
+    const show = () => {
+      new Notification(lang === "km" ? "សាកល្បងការជូនដំណឹង" : "Test Notification", {
+        body: lang === "km" ? "នេះជាការជូនដំណឹងសាកល្បងក្នុងកម្មវិធី" : "This is a local test notification from BuildHub",
+        icon: "/favicon.ico",
+      });
+      toast.success(lang === "km" ? "បានផ្ញើការជូនដំណឹង" : "Notification sent");
+    };
+    if (Notification.permission === "granted") {
+      show();
+    } else if (Notification.permission !== "denied") {
+      void Notification.requestPermission().then((p) => {
+        if (p === "granted") show();
+        else toast.error(lang === "km" ? "គ្មានការអនុញ្ញាត" : "Permission denied");
+      });
+    } else {
+      toast.error(lang === "km" ? "ការជូនដំណឹងត្រូវបានបិទ" : "Notifications are blocked");
+    }
+  }
+
   function copyToClipboard(text: string) {
     void navigator.clipboard.writeText(text);
     toast.success(lang === "km" ? "បានចម្លង" : "Copied");
