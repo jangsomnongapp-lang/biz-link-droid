@@ -78,6 +78,30 @@ function PushDebugPage() {
     }
   }
 
+  function testLocalNotification() {
+    if (!("Notification" in window)) {
+      toast.error(lang === "km" ? "កម្មវិធីរុករកមិនគាំទ្រ" : "Browser does not support notifications");
+      return;
+    }
+    const show = () => {
+      new Notification(lang === "km" ? "សាកល្បងការជូនដំណឹង" : "Test Notification", {
+        body: lang === "km" ? "នេះជាការជូនដំណឹងសាកល្បងក្នុងកម្មវិធី" : "This is a local test notification from BuildHub",
+        icon: "/favicon.ico",
+      });
+      toast.success(lang === "km" ? "បានផ្ញើការជូនដំណឹង" : "Notification sent");
+    };
+    if (Notification.permission === "granted") {
+      show();
+    } else if (Notification.permission !== "denied") {
+      void Notification.requestPermission().then((p) => {
+        if (p === "granted") show();
+        else toast.error(lang === "km" ? "គ្មានការអនុញ្ញាត" : "Permission denied");
+      });
+    } else {
+      toast.error(lang === "km" ? "ការជូនដំណឹងត្រូវបានបិទ" : "Notifications are blocked");
+    }
+  }
+
   function copyToClipboard(text: string) {
     void navigator.clipboard.writeText(text);
     toast.success(lang === "km" ? "បានចម្លង" : "Copied");
@@ -117,6 +141,28 @@ function PushDebugPage() {
               <span className="font-medium truncate max-w-[180px]">{user?.id ?? "—"}</span>
             </div>
           </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-card">
+          <div className="mb-3 flex items-center gap-2">
+            <Bell className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">
+              {lang === "km" ? "សាកល្បងការជូនដំណឹង" : "Send test notification"}
+            </h2>
+          </div>
+          <p className="mb-3 text-xs text-muted-foreground">
+            {lang === "km"
+              ? "ផ្ញើការជូនដំណឹងសាកល្បងទៅឧបករណ៍នេះ ដើម្បីផ្ទៀងផ្ទាត់ការអនុញ្ញាត។"
+              : "Send a local test notification to this device to verify permission."}
+          </p>
+          <button
+            type="button"
+            onClick={testLocalNotification}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground active:scale-95"
+          >
+            <Bell className="h-3.5 w-3.5" />
+            {lang === "km" ? "ផ្ញើសាកល្បង" : "Send test"}
+          </button>
         </div>
 
         <div className="rounded-xl border border-border bg-surface p-4 shadow-card">
