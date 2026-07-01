@@ -65,6 +65,7 @@ import { Route as RentalsRequestNewRouteImport } from './routes/rentals.request.
 import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
 import { Route as ApiPublicTelegramPasswordResetRouteImport } from './routes/api/public/telegram-password-reset'
 import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
+import { Route as ApiPublicFcmSendRouteImport } from './routes/api/public/fcm-send'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -350,6 +351,11 @@ const ApiPublicTelegramNotifyRoute = ApiPublicTelegramNotifyRouteImport.update({
   path: '/api/public/telegram-notify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFcmSendRoute = ApiPublicFcmSendRouteImport.update({
+  id: '/api/public/fcm-send',
+  path: '/api/public/fcm-send',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -418,6 +424,7 @@ export interface FileRoutesByFullPath {
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
+  '/api/public/fcm-send': typeof ApiPublicFcmSendRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
@@ -479,6 +486,7 @@ export interface FileRoutesByTo {
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
+  '/api/public/fcm-send': typeof ApiPublicFcmSendRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
@@ -541,6 +549,7 @@ export interface FileRoutesById {
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
+  '/api/public/fcm-send': typeof ApiPublicFcmSendRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
@@ -604,6 +613,7 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
+    | '/api/public/fcm-send'
     | '/api/public/telegram-notify'
     | '/api/public/telegram-password-reset'
     | '/projects/new/$workerId'
@@ -665,6 +675,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/messages'
     | '/suppliers'
+    | '/api/public/fcm-send'
     | '/api/public/telegram-notify'
     | '/api/public/telegram-password-reset'
     | '/projects/new/$workerId'
@@ -726,6 +737,7 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
+    | '/api/public/fcm-send'
     | '/api/public/telegram-notify'
     | '/api/public/telegram-password-reset'
     | '/projects/new/$workerId'
@@ -782,6 +794,7 @@ export interface RootRouteChildren {
   ListingsIndexRoute: typeof ListingsIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   SuppliersIndexRoute: typeof SuppliersIndexRoute
+  ApiPublicFcmSendRoute: typeof ApiPublicFcmSendRoute
   ApiPublicTelegramNotifyRoute: typeof ApiPublicTelegramNotifyRoute
   ApiPublicTelegramPasswordResetRoute: typeof ApiPublicTelegramPasswordResetRoute
   ProjectsNewWorkerIdRoute: typeof ProjectsNewWorkerIdRoute
@@ -1186,6 +1199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTelegramNotifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/fcm-send': {
+      id: '/api/public/fcm-send'
+      path: '/api/public/fcm-send'
+      fullPath: '/api/public/fcm-send'
+      preLoaderRoute: typeof ApiPublicFcmSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -1297,6 +1317,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsIndexRoute: ListingsIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   SuppliersIndexRoute: SuppliersIndexRoute,
+  ApiPublicFcmSendRoute: ApiPublicFcmSendRoute,
   ApiPublicTelegramNotifyRoute: ApiPublicTelegramNotifyRoute,
   ApiPublicTelegramPasswordResetRoute: ApiPublicTelegramPasswordResetRoute,
   ProjectsNewWorkerIdRoute: ProjectsNewWorkerIdRoute,
@@ -1309,13 +1330,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
