@@ -68,51 +68,41 @@ export async function getPushToken(userId: string | null): Promise<PushTokenResu
     throw new Error("Push notification permission not granted");
   }
 
-  return new Promise((resolve, reject) => {
-    let settled = false;
+    return new Promise((resolve, reject) => {
+      let settled = false;
 
-    const onRegistration = async (token: { value: string }) => {
-      if (settled) return;
-      settled = true;
-      try {
-        await PushNotifications.removeListener("registration", onRegistration);
-      } catch (e) {
-        // ignore
-      }
-      if (!userId) {
+      const onRegistration = async (token: { value: string }) => {
+        if (settled) return;
+        settled = true;
+        if (!userId) {
+          resolve({ token: token.value, platform: Capacitor.getPlatform() });
+          return;
+        }
+        try {
+          await supabase.from("device_tokens").upsert(
+            {
+              user_id: userId,
+              token: token.value,
+              platform: Capacitor.getPlatform(),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id,token" },
+          );
+        } catch (e) {
+          console.error("Failed to save device token", e);
+        }
         resolve({ token: token.value, platform: Capacitor.getPlatform() });
-        return;
-      }
-      try {
-        await supabase.from("device_tokens").upsert(
-          {
-            user_id: userId,
-            token: token.value,
-            platform: Capacitor.getPlatform(),
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id,token" },
-        );
-      } catch (e) {
-        console.error("Failed to save device token", e);
-      }
-      resolve({ token: token.value, platform: Capacitor.getPlatform() });
-    };
+      };
 
-    const onError = (err: { error: string }) => {
-      if (settled) return;
-      settled = true;
-      try {
-        void PushNotifications.removeListener("registrationError", onError);
-      } catch (e) {
-        // ignore
-      }
-      reject(new Error(err.error || "Push registration failed"));
-    };
+      const onError = (err: { error: string }) => {
+        if (settled) return;
+        settled = true;
+        reject(new Error(err.error || "Push registration failed"));
+      };
 
-    PushNotifications.addListener("registration", onRegistration).catch(reject);
-    PushNotifications.addListener("registrationError", onError).catch(reject);
-    PushNotifications.register().catch(reject);
-  });
+      PushNotifications.addListener("registration", onRegistration).catch(reject);
+      PushNotifications.addListener("registrationError", onError).catch(reject);
+      PushNotifications.register().catch(reject);
+    });
 }
 
