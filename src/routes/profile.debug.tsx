@@ -78,16 +78,56 @@ function PushDebugPage() {
     }
   }
 
-  function testLocalNotification() {
+  async function testLocalNotification() {
+    const title = lang === "km" ? "សាកល្បងការជូនដំណឹង" : "Test Notification";
+    const body = lang === "km" ? "នេះជាការជូនដំណឹងសាកល្បងក្នុងកម្មវិធី" : "This is a local test notification from BuildHub";
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const { LocalNotifications } = await import("@capacitor/local-notifications");
+        const permission = await LocalNotifications.requestPermissions();
+
+        if (permission.display !== "granted") {
+          toast.error(lang === "km" ? "គ្មានការអនុញ្ញាត" : "Permission denied");
+          return;
+        }
+
+        if (Capacitor.getPlatform() === "android") {
+          await LocalNotifications.createChannel({
+            id: "debug",
+            name: "Debug notifications",
+            description: "BuildHub notification test",
+            importance: 5,
+            visibility: 1,
+            lights: true,
+            vibration: true,
+          });
+        }
+
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              id: Date.now() % 2147483647,
+              title,
+              body,
+              channelId: "debug",
+              schedule: { at: new Date(Date.now() + 1000) },
+            },
+          ],
+        });
+        toast.success(lang === "km" ? "បានផ្ញើការជូនដំណឹង" : "Notification sent");
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to send test notification");
+      }
+      return;
+    }
+
     if (!("Notification" in window)) {
       toast.error(lang === "km" ? "កម្មវិធីរុករកមិនគាំទ្រ" : "Browser does not support notifications");
       return;
     }
     const show = () => {
-      new Notification(lang === "km" ? "សាកល្បងការជូនដំណឹង" : "Test Notification", {
-        body: lang === "km" ? "នេះជាការជូនដំណឹងសាកល្បងក្នុងកម្មវិធី" : "This is a local test notification from BuildHub",
-        icon: "/favicon.ico",
-      });
+      new Notification(title, { body, icon: "/favicon.ico" });
       toast.success(lang === "km" ? "បានផ្ញើការជូនដំណឹង" : "Notification sent");
     };
     if (Notification.permission === "granted") {
@@ -157,7 +197,7 @@ function PushDebugPage() {
           </p>
           <button
             type="button"
-            onClick={testLocalNotification}
+            onClick={() => void testLocalNotification()}
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground active:scale-95"
           >
             <Bell className="h-3.5 w-3.5" />
