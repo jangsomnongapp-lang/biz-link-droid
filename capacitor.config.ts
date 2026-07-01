@@ -1,16 +1,16 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'com.buildhub.app',
-  appName: 'BuildHub',
-  webDir: 'dist',
+  appId: "com.buildhub.app",
+  appName: "BuildHub",
+  webDir: "dist",
   plugins: {
     SocialLogin: {
       google: {
-        webClientId: '997514086528-uaepk54496rgh00huddfdep2jbvosb0t.apps.googleusercontent.com'
-      }
-    }
-  }
+        webClientId: "997514086528-6g3c05853170ioct0ijo2b43oall9sem.apps.googleusercontent.com",
+      },
+    },
+  },
 };
 
 export default config;
