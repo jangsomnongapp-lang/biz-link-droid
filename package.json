@@ -13,6 +13,9 @@
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.50",
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
     "@capacitor/local-notifications": "^8.2.0",
     "@capacitor/push-notifications": "^8.1.1",
     "@capgo/capacitor-social-login": "^8.3.30",

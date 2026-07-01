@@ -5,6 +5,10 @@ const config: CapacitorConfig = {
   appName: "BuildHub",
   webDir: "dist",
   plugins: {
+    LocalNotifications: {
+      smallIcon: "ic_stat_icon_config_sample",
+      iconColor: "#2563EB",
+    },
     SocialLogin: {
       google: {
         webClientId: "997514086528-6g3c05853170ioct0ijo2b43oall9sem.apps.googleusercontent.com",

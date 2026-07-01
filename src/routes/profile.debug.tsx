@@ -84,6 +84,15 @@ function PushDebugPage() {
 
     if (Capacitor.isNativePlatform()) {
       try {
+        if (!Capacitor.isPluginAvailable("LocalNotifications")) {
+          toast.error(
+            lang === "km"
+              ? "ត្រូវ sync និង rebuild Android app មុន"
+              : "Local notifications plugin is not in this Android build. Run cap sync and rebuild.",
+          );
+          return;
+        }
+
         const { LocalNotifications } = await import("@capacitor/local-notifications");
         const permission = await LocalNotifications.requestPermissions();
 
@@ -117,6 +126,15 @@ function PushDebugPage() {
         });
         toast.success(lang === "km" ? "បានផ្ញើការជូនដំណឹង" : "Notification sent");
       } catch (e) {
+        const message = e instanceof Error ? e.message : "Failed to send test notification";
+        if (message.toLowerCase().includes("not implemented")) {
+          toast.error(
+            lang === "km"
+              ? "ត្រូវ sync និង rebuild Android app មុន"
+              : "Local notifications plugin is missing from this APK. Run cap sync and rebuild.",
+          );
+          return;
+        }
         toast.error(e instanceof Error ? e.message : "Failed to send test notification");
       }
       return;
