@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Bell, Heart, MessageCircle, MessageSquareText } from "lucide-react";
 import { toast } from "sonner";
+import { Capacitor } from "@capacitor/core";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +29,8 @@ export function LiveActivityAlerts() {
 
   useEffect(() => {
     if (!user) return;
+    // On native, the OS push notification handles this — skip the in-app toast to avoid duplicates.
+    if (Capacitor.isNativePlatform()) return;
     const userId = user.id;
 
     async function getProfile(userId: string | null) {
