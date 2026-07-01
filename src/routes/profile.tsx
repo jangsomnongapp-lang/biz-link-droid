@@ -335,6 +335,12 @@ function ProfilePage() {
             >
               {t("edit")}
             </Link>
+            <Link
+              to="/profile/debug"
+              className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur active:bg-white/25"
+            >
+              {lang === "km" ? "Debug" : "Debug"}
+            </Link>
           </div>
         </div>
         <div className="flex flex-col items-center gap-2">
