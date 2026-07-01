@@ -29,7 +29,8 @@ export function LiveActivityAlerts() {
 
   useEffect(() => {
     if (!user) return;
-    const userId = user.id;
+    // On native, the OS push notification handles this — skip the in-app toast to avoid duplicates.
+    if (Capacitor.isNativePlatform()) return;
 
     async function getProfile(userId: string | null) {
       if (!userId) return null;
