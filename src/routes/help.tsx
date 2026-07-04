@@ -126,7 +126,7 @@ function HelpPage() {
         <span className="w-9" />
       </header>
 
-      <div className="mx-auto max-w-2xl px-4 py-5">
+      <main className="mx-auto max-w-2xl px-4 py-5">
         <h2 className="mb-2 text-base font-bold text-foreground">
           {lang === "km" ? "សំណួរញឹកញាប់" : "Frequently asked questions"}
         </h2>
