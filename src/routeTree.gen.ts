@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as RewardsRouteImport } from './routes/rewards'
@@ -73,6 +74,11 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -395,6 +401,7 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/draws': typeof AdminDrawsRoute
   '/admin/invitations': typeof AdminInvitationsRoute
@@ -457,6 +464,7 @@ export interface FileRoutesByTo {
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/draws': typeof AdminDrawsRoute
   '/admin/invitations': typeof AdminInvitationsRoute
@@ -520,6 +528,7 @@ export interface FileRoutesById {
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/draws': typeof AdminDrawsRoute
   '/admin/invitations': typeof AdminInvitationsRoute
@@ -584,6 +593,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/search'
     | '/settings'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin/draws'
     | '/admin/invitations'
@@ -646,6 +656,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/search'
     | '/settings'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin/draws'
     | '/admin/invitations'
@@ -708,6 +719,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/search'
     | '/settings'
+    | '/sitemap.xml'
     | '/terms'
     | '/admin/draws'
     | '/admin/invitations'
@@ -771,6 +783,7 @@ export interface RootRouteChildren {
   RewardsRoute: typeof RewardsRoute
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   AdminDrawsRoute: typeof AdminDrawsRoute
   AdminInvitationsRoute: typeof AdminInvitationsRoute
@@ -812,6 +825,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -1294,6 +1314,7 @@ const rootRouteChildren: RootRouteChildren = {
   RewardsRoute: RewardsRoute,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   AdminDrawsRoute: AdminDrawsRoute,
   AdminInvitationsRoute: AdminInvitationsRoute,
@@ -1330,13 +1351,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

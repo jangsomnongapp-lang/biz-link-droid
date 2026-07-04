@@ -6,8 +6,20 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "Privacy Policy — BuildHub" },
-      { name: "description", content: "How BuildHub collects, uses, and protects your personal data." },
+      {
+        name: "description",
+        content:
+          "How BuildHub collects, uses, stores, and protects your personal data — including account info, posted content, and device usage.",
+      },
+      { property: "og:title", content: "Privacy Policy — BuildHub" },
+      {
+        property: "og:description",
+        content: "How BuildHub collects, uses, and protects your personal data.",
+      },
+      { property: "og:url", content: "https://buildhubkh.com/privacy" },
+      { property: "og:type", content: "article" },
     ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/privacy" }],
   }),
   component: PrivacyPage,
 });

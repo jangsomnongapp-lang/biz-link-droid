@@ -6,8 +6,20 @@ export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms & Conditions — BuildHub" },
-      { name: "description", content: "Read the BuildHub terms and conditions for using the platform." },
+      {
+        name: "description",
+        content:
+          "The terms and conditions governing your use of the BuildHub construction marketplace — accounts, content, conduct, and liability.",
+      },
+      { property: "og:title", content: "Terms & Conditions — BuildHub" },
+      {
+        property: "og:description",
+        content: "The terms and conditions governing your use of the BuildHub platform.",
+      },
+      { property: "og:url", content: "https://buildhubkh.com/terms" },
+      { property: "og:type", content: "article" },
     ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/terms" }],
   }),
   component: TermsPage,
 });
