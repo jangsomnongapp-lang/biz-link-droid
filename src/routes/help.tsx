@@ -12,7 +12,34 @@ export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
       { title: "Help & FAQ — BuildHub" },
-      { name: "description", content: "Frequently asked questions and help for using BuildHub." },
+      {
+        name: "description",
+        content:
+          "Answers to common BuildHub questions: creating an account, posting projects, applying to jobs, messaging, reporting, and managing your profile.",
+      },
+      { property: "og:title", content: "Help & FAQ — BuildHub" },
+      {
+        property: "og:description",
+        content:
+          "Answers to common BuildHub questions about accounts, posting jobs, applying, and messaging.",
+      },
+      { property: "og:url", content: "https://buildhubkh.com/help" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/help" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQS.map((item) => ({
+            "@type": "Question",
+            name: item.q.en,
+            acceptedAnswer: { "@type": "Answer", text: item.a.en },
+          })),
+        }),
+      },
     ],
   }),
   component: HelpPage,
@@ -99,7 +126,7 @@ function HelpPage() {
         <span className="w-9" />
       </header>
 
-      <div className="mx-auto max-w-2xl px-4 py-5">
+      <main className="mx-auto max-w-2xl px-4 py-5">
         <h2 className="mb-2 text-base font-bold text-foreground">
           {lang === "km" ? "សំណួរញឹកញាប់" : "Frequently asked questions"}
         </h2>
@@ -130,7 +157,7 @@ function HelpPage() {
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

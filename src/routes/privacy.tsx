@@ -6,8 +6,20 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "Privacy Policy — BuildHub" },
-      { name: "description", content: "How BuildHub collects, uses, and protects your personal data." },
+      {
+        name: "description",
+        content:
+          "How BuildHub collects, uses, stores, and protects your personal data — including account info, posted content, and device usage.",
+      },
+      { property: "og:title", content: "Privacy Policy — BuildHub" },
+      {
+        property: "og:description",
+        content: "How BuildHub collects, uses, and protects your personal data.",
+      },
+      { property: "og:url", content: "https://buildhubkh.com/privacy" },
+      { property: "og:type", content: "article" },
     ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/privacy" }],
   }),
   component: PrivacyPage,
 });
@@ -29,7 +41,7 @@ function PrivacyPage() {
         <span className="w-9" />
       </header>
 
-      <article className="mx-auto max-w-2xl space-y-5 px-4 py-5 text-sm leading-relaxed text-foreground">
+      <main className="mx-auto max-w-2xl space-y-5 px-4 py-5 text-sm leading-relaxed text-foreground">
         <p className="text-xs text-muted-foreground">{t("last_updated_april_2026")}</p>
 
         {lang === "km" ? <>
@@ -87,7 +99,7 @@ function PrivacyPage() {
           Privacy questions? Reach us through Settings → Report a problem.
         </Section>
         </>}
-      </article>
+      </main>
     </div>
   );
 }
