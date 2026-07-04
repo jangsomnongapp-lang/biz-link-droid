@@ -1,0 +1,14 @@
+# BuildHub
+
+> Mobile marketplace connecting construction workers, teams, suppliers, and clients across Cambodia.
+
+BuildHub helps homeowners, contractors, and companies post construction projects,
+find skilled workers and teams, and discover material suppliers. The app is bilingual
+(Khmer and English) and optimized for mobile.
+
+## Pages
+
+- [Home](/): Welcome page — register or sign in to start finding work or workers.
+- [Help & FAQ](/help): Answers to common questions about accounts, posting jobs, applying, and messaging.
+- [Privacy Policy](/privacy): How BuildHub collects, uses, and protects personal data.
+- [Terms & Conditions](/terms): Terms governing use of the BuildHub platform.

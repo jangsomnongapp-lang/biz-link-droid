@@ -37,7 +37,7 @@ export default function Welcome() {
 
       <div className="flex flex-col items-center gap-5 text-center">
         <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white shadow-card">
-          <img src={logo} alt="BuildHub" className="h-full w-full object-cover border" />
+          <img src={logo} alt="BuildHub Construction Marketplace Logo" className="h-full w-full object-cover border" />
         </div>
         <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-sm mx-[0px] my-[20px] mb-[0px]">{t("app_name")}</h1>
         <p className="text-base text-white/85">{t("tagline")}</p>
