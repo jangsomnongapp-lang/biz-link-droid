@@ -2,8 +2,10 @@ import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 
 let initialized = false;
+let activeUserId: string | null = null;
 
 export async function initPushNotifications(userId: string | null) {
+  activeUserId = userId;
   if (initialized) return;
   if (!Capacitor.isNativePlatform()) return;
 
@@ -13,16 +15,13 @@ export async function initPushNotifications(userId: string | null) {
     const result = await PushNotifications.requestPermissions();
     if (result.receive !== "granted") return;
 
-    await PushNotifications.register();
-    initialized = true;
-
     await PushNotifications.addListener("registration", async (token) => {
       console.log("FCM Token:", token.value);
-      if (!userId) return;
+      if (!activeUserId) return;
       try {
         await supabase.from("device_tokens").upsert(
           {
-            user_id: userId,
+            user_id: activeUserId,
             token: token.value,
             platform: Capacitor.getPlatform(),
             updated_at: new Date().toISOString(),
@@ -45,6 +44,9 @@ export async function initPushNotifications(userId: string | null) {
     await PushNotifications.addListener("pushNotificationActionPerformed", (notification) => {
       console.log("Push action:", notification);
     });
+
+    initialized = true;
+    await PushNotifications.register();
   } catch (e) {
     console.error("initPushNotifications failed", e);
   }
@@ -70,10 +72,18 @@ export async function getPushToken(userId: string | null): Promise<PushTokenResu
 
   return new Promise((resolve, reject) => {
     let settled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const handles: Array<{ remove: () => Promise<void> }> = [];
+
+    const cleanup = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      void Promise.all(handles.map((handle) => handle.remove().catch(() => undefined)));
+    };
 
     const onRegistration = async (token: { value: string }) => {
       if (settled) return;
       settled = true;
+      cleanup();
       if (!userId) {
         resolve({ token: token.value, platform: Capacitor.getPlatform() });
         return;
@@ -97,12 +107,31 @@ export async function getPushToken(userId: string | null): Promise<PushTokenResu
     const onError = (err: { error: string }) => {
       if (settled) return;
       settled = true;
+      cleanup();
       reject(new Error(err.error || "Push registration failed"));
     };
 
-    PushNotifications.addListener("registration", onRegistration).catch(reject);
-    PushNotifications.addListener("registrationError", onError).catch(reject);
-    PushNotifications.register().catch(reject);
+    timeoutId = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error("Push registration timed out. Check Firebase config in the Android build."));
+    }, 20_000);
+
+    Promise.all([
+      PushNotifications.addListener("registration", onRegistration),
+      PushNotifications.addListener("registrationError", onError),
+    ])
+      .then((listenerHandles) => {
+        handles.push(...listenerHandles);
+        return PushNotifications.register();
+      })
+      .catch((err) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        reject(err);
+      });
   });
 }
 
