@@ -80,7 +80,7 @@ export async function loginWithGoogle(navigate: NavigateFn) {
         const { rawNonce, nonceDigest } = await getNoncePair();
         const loginResult = await SocialLogin.login({
           provider: "google",
-          options: { scopes: ["email", "profile"], nonce: nonceDigest },
+          options: { nonce: nonceDigest },
         });
 
         const result = loginResult.result;
