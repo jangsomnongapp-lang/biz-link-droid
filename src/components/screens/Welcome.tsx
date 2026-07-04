@@ -14,7 +14,7 @@ export default function Welcome() {
   }, [user, loading, nav]);
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-between bg-primary px-6 pb-10 pt-6 text-primary-foreground">
+    <main className="relative flex min-h-screen flex-col items-center justify-between bg-primary px-6 pb-10 pt-6 text-primary-foreground">
       {/* Language switch */}
       <div className="flex w-full justify-end">
         <div className="flex overflow-hidden rounded-pill bg-white/95 text-xs font-semibold text-foreground shadow-card">
@@ -57,6 +57,6 @@ export default function Welcome() {
           {t("have_account")}
         </Link>
       </div>
-    </div>
+    </main>
   );
 }
