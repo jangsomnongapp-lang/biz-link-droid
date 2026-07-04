@@ -1,12 +1,11 @@
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 
-let initialized = false;
+let listenersAttached = false;
 let activeUserId: string | null = null;
 
 export async function initPushNotifications(userId: string | null) {
   activeUserId = userId;
-  if (initialized) return;
   if (!Capacitor.isNativePlatform()) return;
 
   try {
@@ -15,37 +14,40 @@ export async function initPushNotifications(userId: string | null) {
     const result = await PushNotifications.requestPermissions();
     if (result.receive !== "granted") return;
 
-    await PushNotifications.addListener("registration", async (token) => {
-      console.log("FCM Token:", token.value);
-      if (!activeUserId) return;
-      try {
-        await supabase.from("device_tokens").upsert(
-          {
-            user_id: activeUserId,
-            token: token.value,
-            platform: Capacitor.getPlatform(),
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id,token" },
-        );
-      } catch (e) {
-        console.error("Failed to save device token", e);
-      }
-    });
+    if (!listenersAttached) {
+      await PushNotifications.addListener("registration", async (token) => {
+        console.log("FCM Token:", token.value);
+        if (!activeUserId) return;
+        try {
+          await supabase.from("device_tokens").upsert(
+            {
+              user_id: activeUserId,
+              token: token.value,
+              platform: Capacitor.getPlatform(),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id,token" },
+          );
+        } catch (e) {
+          console.error("Failed to save device token", e);
+        }
+      });
 
-    await PushNotifications.addListener("registrationError", (err) => {
-      console.error("Push registration error:", err);
-    });
+      await PushNotifications.addListener("registrationError", (err) => {
+        console.error("Push registration error:", err);
+      });
 
-    await PushNotifications.addListener("pushNotificationReceived", (notification) => {
-      console.log("Push received:", notification);
-    });
+      await PushNotifications.addListener("pushNotificationReceived", (notification) => {
+        console.log("Push received:", notification);
+      });
 
-    await PushNotifications.addListener("pushNotificationActionPerformed", (notification) => {
-      console.log("Push action:", notification);
-    });
+      await PushNotifications.addListener("pushNotificationActionPerformed", (notification) => {
+        console.log("Push action:", notification);
+      });
 
-    initialized = true;
+      listenersAttached = true;
+    }
+
     await PushNotifications.register();
   } catch (e) {
     console.error("initPushNotifications failed", e);
