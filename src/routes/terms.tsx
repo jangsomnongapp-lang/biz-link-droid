@@ -41,7 +41,7 @@ function TermsPage() {
         <span className="w-9" />
       </header>
 
-      <article className="mx-auto max-w-2xl space-y-5 px-4 py-5 text-sm leading-relaxed text-foreground">
+      <main className="mx-auto max-w-2xl space-y-5 px-4 py-5 text-sm leading-relaxed text-foreground">
         <p className="text-xs text-muted-foreground">{t("last_updated_april_2026")}</p>
 
         {lang === "km" ? <>
@@ -110,7 +110,7 @@ function TermsPage() {
           Questions about these terms? Reach us through Settings → Report a problem.
         </Section>
         </>}
-      </article>
+      </main>
     </div>
   );
 }
