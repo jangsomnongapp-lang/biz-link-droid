@@ -135,38 +135,6 @@ function MessagesListPage() {
     };
   }, [user]);
 
-      const ths = (data ?? []) as Thread[];
-      setThreads(ths);
-
-      const otherIds = Array.from(
-        new Set(ths.map((t) => (t.participant_a === user.id ? t.participant_b : t.participant_a))),
-      );
-      if (otherIds.length) {
-        const { data: profs } = await supabase
-          .from("profiles")
-          .select("id, full_name, avatar_url")
-          .in("id", otherIds);
-        const map: Record<string, OtherProfile> = {};
-        for (const p of profs ?? []) map[p.id] = p;
-        setProfiles(map);
-      }
-
-      // Count unread per thread
-      const unreadMap: Record<string, number> = {};
-      for (const th of ths) {
-        const { count } = await supabase
-          .from("messages")
-          .select("id", { count: "exact", head: true })
-          .eq("thread_id", th.id)
-          .neq("sender_id", user.id)
-          .is("read_at", null);
-        if (count && count > 0) unreadMap[th.id] = count;
-      }
-      setUnread(unreadMap);
-      setLoading(false);
-    })();
-  }, [user]);
-
   const filtered = useMemo(() => {
     if (!search.trim()) return threads;
     const q = search.toLowerCase();
