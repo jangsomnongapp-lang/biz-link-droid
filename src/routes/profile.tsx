@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
+import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
@@ -383,6 +384,10 @@ function ProfilePage() {
             </p>
           )}
           <p className="text-xs text-white/80">{roleLabels.join(" · ") || " "}</p>
+          {profile?.id && (
+            <div className="mt-1"><AvailabilityBadge userId={profile.id} size="md" /></div>
+          )}
+
           {cats.length > 0 && (
             <div className="mt-1 flex flex-wrap justify-center gap-1.5">
               {cats.slice(0, 5).map((c, i) => (
