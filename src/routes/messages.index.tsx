@@ -66,13 +66,75 @@ function MessagesListPage() {
 
   useEffect(() => {
     if (!user) return;
-    setLoading(true);
-    void (async () => {
+    let cancelled = false;
+
+    async function load(showSpinner: boolean) {
+      if (showSpinner) setLoading(true);
       const { data } = await supabase
         .from("message_threads")
         .select("*")
-        .or(`participant_a.eq.${user.id},participant_b.eq.${user.id}`)
+        .or(`participant_a.eq.${user!.id},participant_b.eq.${user!.id}`)
         .order("last_message_at", { ascending: false });
+      if (cancelled) return;
+      const ths = (data ?? []) as Thread[];
+      setThreads(ths);
+
+      const otherIds = Array.from(
+        new Set(ths.map((t) => (t.participant_a === user!.id ? t.participant_b : t.participant_a))),
+      );
+      if (otherIds.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, full_name, avatar_url")
+          .in("id", otherIds);
+        if (cancelled) return;
+        const map: Record<string, OtherProfile> = {};
+        for (const p of profs ?? []) map[p.id] = p;
+        setProfiles((prev) => ({ ...prev, ...map }));
+      }
+
+      const unreadMap: Record<string, number> = {};
+      for (const th of ths) {
+        const { count } = await supabase
+          .from("messages")
+          .select("id", { count: "exact", head: true })
+          .eq("thread_id", th.id)
+          .neq("sender_id", user!.id)
+          .is("read_at", null);
+        if (cancelled) return;
+        if (count && count > 0) unreadMap[th.id] = count;
+      }
+      setUnread(unreadMap);
+      if (showSpinner) setLoading(false);
+    }
+
+    void load(true);
+
+    const channel = supabase
+      .channel(`inbox:${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "message_threads", filter: `participant_a=eq.${user.id}` },
+        () => void load(false),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "message_threads", filter: `participant_b=eq.${user.id}` },
+        () => void load(false),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages" },
+        () => void load(false),
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      void supabase.removeChannel(channel);
+    };
+  }, [user]);
+
       const ths = (data ?? []) as Thread[];
       setThreads(ths);
 
