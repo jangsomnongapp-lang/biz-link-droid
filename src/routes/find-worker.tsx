@@ -196,6 +196,8 @@ function FindWorkerPage() {
                 <div className="truncate text-[11px] font-medium text-primary">
                   {roleLabel(w) || t("role_provider")}
                 </div>
+                <div className="mt-1"><AvailabilityBadge userId={w.id} /></div>
+
                 {cats.length > 0 && (
                   <div className="mt-1 flex flex-wrap gap-1">
                     {cats.slice(0, 3).map((c) => (
