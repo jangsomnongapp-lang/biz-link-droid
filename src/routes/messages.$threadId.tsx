@@ -364,14 +364,14 @@ function ConversationPage() {
       .select("*")
       .single();
     if (error || !data) {
+      let attempts = 1;
       setMessages((m) =>
-        m.map((x) =>
-          x.id === tempId
-            ? { ...x, pending: false, failed: true, attempts: (x.attempts ?? 0) + 1 }
-            : x,
-        ),
+        m.map((x) => {
+          if (x.id !== tempId) return x;
+          attempts = (x.attempts ?? 0) + 1;
+          return { ...x, pending: false, failed: true, attempts };
+        }),
       );
-      const attempts = (messages.find((x) => x.id === tempId)?.attempts ?? 0) + 1;
       const delay = AUTO_RETRY_DELAYS[attempts - 1];
       if (delay && navigator.onLine !== false) {
         setTimeout(() => {
