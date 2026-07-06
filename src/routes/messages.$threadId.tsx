@@ -591,11 +591,11 @@ function ConversationPage() {
               {dateSeparator}
               <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm ${
+                  className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm transition-opacity ${
                     mine
                       ? "rounded-br-sm bg-primary text-primary-foreground"
                       : "rounded-bl-sm bg-surface text-foreground shadow-card"
-                  }`}
+                  } ${m.pending ? "opacity-60" : ""}`}
                 >
                   {att ? (
                     <AttachmentView att={att} mine={mine} />
@@ -608,7 +608,7 @@ function ConversationPage() {
                     }`}
                   >
                     {time}
-                    {mine && (m.read_at ? " ✓✓" : " ✓")}
+                    {mine && (m.pending ? " 🕘" : m.read_at ? " ✓✓" : " ✓")}
                   </div>
                 </div>
               </div>
