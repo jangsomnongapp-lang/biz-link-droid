@@ -21,13 +21,9 @@ export function useTodayAvailability(userId?: string | null) {
     if (!userId) return;
     let cancelled = false;
     void supabase
-      .from("daily_availability")
-      .select("status")
-      .eq("user_id", userId)
-      .eq("date", todayISO())
-      .maybeSingle()
+      .rpc("get_today_availability", { _uid: userId })
       .then(({ data }) => {
-        const s = (data?.status ?? null) as Status | null;
+        const s = (typeof data === "string" ? data : null) as Status | null;
         cache.set(userId, s);
         if (!cancelled) setStatus(s);
       });
