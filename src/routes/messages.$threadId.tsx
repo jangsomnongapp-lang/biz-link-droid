@@ -21,6 +21,8 @@ import {
   Play,
   Pause,
   X,
+  RotateCw,
+  AlertCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/messages/$threadId")({
