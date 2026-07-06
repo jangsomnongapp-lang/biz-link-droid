@@ -45,6 +45,8 @@ interface Message {
   created_at: string;
   read_at: string | null;
   pending?: boolean;
+  failed?: boolean;
+  attempts?: number;
 }
 interface OtherProfile {
   id: string;
