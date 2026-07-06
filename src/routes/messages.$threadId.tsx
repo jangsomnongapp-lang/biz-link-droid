@@ -353,6 +353,62 @@ function ConversationPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages]);
 
+  // Auto-retry schedule (ms) per attempt count. After exhausting, wait for manual retry.
+  const AUTO_RETRY_DELAYS = [1500, 4000, 10000];
+
+  async function attemptInsert(tempId: string, content: string): Promise<boolean> {
+    if (!user) return false;
+    const { data, error } = await supabase
+      .from("messages")
+      .insert({ thread_id: threadId, sender_id: user.id, content })
+      .select("*")
+      .single();
+    if (error || !data) {
+      setMessages((m) =>
+        m.map((x) =>
+          x.id === tempId
+            ? { ...x, pending: false, failed: true, attempts: (x.attempts ?? 0) + 1 }
+            : x,
+        ),
+      );
+      const attempts = (messages.find((x) => x.id === tempId)?.attempts ?? 0) + 1;
+      const delay = AUTO_RETRY_DELAYS[attempts - 1];
+      if (delay && navigator.onLine !== false) {
+        setTimeout(() => {
+          void retrySend(tempId);
+        }, delay);
+      } else {
+        toast.error(error?.message ?? "Failed to send. Tap retry.");
+      }
+      return false;
+    }
+    const real = data as Message;
+    setMessages((m) => {
+      const withoutTemp = m.filter((x) => x.id !== tempId);
+      if (withoutTemp.some((x) => x.id === real.id)) return withoutTemp;
+      return [...withoutTemp, real];
+    });
+    return true;
+  }
+
+  async function retrySend(tempId: string) {
+    const msg = messages.find((x) => x.id === tempId);
+    if (!msg) {
+      // Fall back to latest state (setMessages closure may be stale)
+      setMessages((prev) => {
+        const target = prev.find((x) => x.id === tempId);
+        if (!target) return prev;
+        void attemptInsert(tempId, target.content);
+        return prev.map((x) => (x.id === tempId ? { ...x, pending: true, failed: false } : x));
+      });
+      return;
+    }
+    setMessages((m) =>
+      m.map((x) => (x.id === tempId ? { ...x, pending: true, failed: false } : x)),
+    );
+    await attemptInsert(tempId, msg.content);
+  }
+
   async function sendContent(content: string) {
     if (!user || !content) return false;
     const tempId = `temp-${
@@ -367,25 +423,10 @@ function ConversationPage() {
       created_at: new Date().toISOString(),
       read_at: null,
       pending: true,
+      attempts: 0,
     };
     setMessages((m) => [...m, optimistic]);
-    const { data, error } = await supabase
-      .from("messages")
-      .insert({ thread_id: threadId, sender_id: user.id, content })
-      .select("*")
-      .single();
-    if (error || !data) {
-      setMessages((m) => m.filter((x) => x.id !== tempId));
-      toast.error(error?.message ?? "Failed to send");
-      return false;
-    }
-    const real = data as Message;
-    setMessages((m) => {
-      const withoutTemp = m.filter((x) => x.id !== tempId);
-      if (withoutTemp.some((x) => x.id === real.id)) return withoutTemp;
-      return [...withoutTemp, real];
-    });
-    return true;
+    return attemptInsert(tempId, content);
   }
 
   async function sendText() {
@@ -393,10 +434,26 @@ function ConversationPage() {
     setSending(true);
     const content = text.trim();
     setText("");
-    const ok = await sendContent(content);
-    if (!ok) setText(content);
+    await sendContent(content);
     setSending(false);
   }
+
+  // Auto-retry all failed messages when the browser regains connectivity
+  useEffect(() => {
+    function onOnline() {
+      setMessages((prev) => {
+        const failed = prev.filter((m) => m.failed);
+        if (failed.length === 0) return prev;
+        for (const f of failed) {
+          void attemptInsert(f.id, f.content);
+        }
+        return prev.map((m) => (m.failed ? { ...m, pending: true, failed: false } : m));
+      });
+    }
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, threadId]);
 
   function fileToDataUrl(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
