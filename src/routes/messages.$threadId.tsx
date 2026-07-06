@@ -42,6 +42,7 @@ interface Message {
   content: string;
   created_at: string;
   read_at: string | null;
+  pending?: boolean;
 }
 interface OtherProfile {
   id: string;
@@ -349,14 +350,37 @@ function ConversationPage() {
   }, [messages]);
 
   async function sendContent(content: string) {
-    if (!user || !content) return;
-    const { error } = await supabase
+    if (!user || !content) return false;
+    const tempId = `temp-${
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    }`;
+    const optimistic: Message = {
+      id: tempId,
+      sender_id: user.id,
+      content,
+      created_at: new Date().toISOString(),
+      read_at: null,
+      pending: true,
+    };
+    setMessages((m) => [...m, optimistic]);
+    const { data, error } = await supabase
       .from("messages")
-      .insert({ thread_id: threadId, sender_id: user.id, content });
-    if (error) {
-      toast.error(error.message);
+      .insert({ thread_id: threadId, sender_id: user.id, content })
+      .select("*")
+      .single();
+    if (error || !data) {
+      setMessages((m) => m.filter((x) => x.id !== tempId));
+      toast.error(error?.message ?? "Failed to send");
       return false;
     }
+    const real = data as Message;
+    setMessages((m) => {
+      const withoutTemp = m.filter((x) => x.id !== tempId);
+      if (withoutTemp.some((x) => x.id === real.id)) return withoutTemp;
+      return [...withoutTemp, real];
+    });
     return true;
   }
 
@@ -567,11 +591,11 @@ function ConversationPage() {
               {dateSeparator}
               <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm ${
+                  className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm transition-opacity ${
                     mine
                       ? "rounded-br-sm bg-primary text-primary-foreground"
                       : "rounded-bl-sm bg-surface text-foreground shadow-card"
-                  }`}
+                  } ${m.pending ? "opacity-60" : ""}`}
                 >
                   {att ? (
                     <AttachmentView att={att} mine={mine} />
@@ -584,7 +608,7 @@ function ConversationPage() {
                     }`}
                   >
                     {time}
-                    {mine && (m.read_at ? " ✓✓" : " ✓")}
+                    {mine && (m.pending ? " 🕘" : m.read_at ? " ✓✓" : " ✓")}
                   </div>
                 </div>
               </div>
