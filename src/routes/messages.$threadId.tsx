@@ -21,6 +21,8 @@ import {
   Play,
   Pause,
   X,
+  RotateCw,
+  AlertCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/messages/$threadId")({
@@ -43,6 +45,8 @@ interface Message {
   created_at: string;
   read_at: string | null;
   pending?: boolean;
+  failed?: boolean;
+  attempts?: number;
 }
 interface OtherProfile {
   id: string;
@@ -349,6 +353,62 @@ function ConversationPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages]);
 
+  // Auto-retry schedule (ms) per attempt count. After exhausting, wait for manual retry.
+  const AUTO_RETRY_DELAYS = [1500, 4000, 10000];
+
+  async function attemptInsert(tempId: string, content: string): Promise<boolean> {
+    if (!user) return false;
+    const { data, error } = await supabase
+      .from("messages")
+      .insert({ thread_id: threadId, sender_id: user.id, content })
+      .select("*")
+      .single();
+    if (error || !data) {
+      let attempts = 1;
+      setMessages((m) =>
+        m.map((x) => {
+          if (x.id !== tempId) return x;
+          attempts = (x.attempts ?? 0) + 1;
+          return { ...x, pending: false, failed: true, attempts };
+        }),
+      );
+      const delay = AUTO_RETRY_DELAYS[attempts - 1];
+      if (delay && navigator.onLine !== false) {
+        setTimeout(() => {
+          void retrySend(tempId);
+        }, delay);
+      } else {
+        toast.error(error?.message ?? "Failed to send. Tap retry.");
+      }
+      return false;
+    }
+    const real = data as Message;
+    setMessages((m) => {
+      const withoutTemp = m.filter((x) => x.id !== tempId);
+      if (withoutTemp.some((x) => x.id === real.id)) return withoutTemp;
+      return [...withoutTemp, real];
+    });
+    return true;
+  }
+
+  async function retrySend(tempId: string) {
+    const msg = messages.find((x) => x.id === tempId);
+    if (!msg) {
+      // Fall back to latest state (setMessages closure may be stale)
+      setMessages((prev) => {
+        const target = prev.find((x) => x.id === tempId);
+        if (!target) return prev;
+        void attemptInsert(tempId, target.content);
+        return prev.map((x) => (x.id === tempId ? { ...x, pending: true, failed: false } : x));
+      });
+      return;
+    }
+    setMessages((m) =>
+      m.map((x) => (x.id === tempId ? { ...x, pending: true, failed: false } : x)),
+    );
+    await attemptInsert(tempId, msg.content);
+  }
+
   async function sendContent(content: string) {
     if (!user || !content) return false;
     const tempId = `temp-${
@@ -363,25 +423,10 @@ function ConversationPage() {
       created_at: new Date().toISOString(),
       read_at: null,
       pending: true,
+      attempts: 0,
     };
     setMessages((m) => [...m, optimistic]);
-    const { data, error } = await supabase
-      .from("messages")
-      .insert({ thread_id: threadId, sender_id: user.id, content })
-      .select("*")
-      .single();
-    if (error || !data) {
-      setMessages((m) => m.filter((x) => x.id !== tempId));
-      toast.error(error?.message ?? "Failed to send");
-      return false;
-    }
-    const real = data as Message;
-    setMessages((m) => {
-      const withoutTemp = m.filter((x) => x.id !== tempId);
-      if (withoutTemp.some((x) => x.id === real.id)) return withoutTemp;
-      return [...withoutTemp, real];
-    });
-    return true;
+    return attemptInsert(tempId, content);
   }
 
   async function sendText() {
@@ -389,10 +434,26 @@ function ConversationPage() {
     setSending(true);
     const content = text.trim();
     setText("");
-    const ok = await sendContent(content);
-    if (!ok) setText(content);
+    await sendContent(content);
     setSending(false);
   }
+
+  // Auto-retry all failed messages when the browser regains connectivity
+  useEffect(() => {
+    function onOnline() {
+      setMessages((prev) => {
+        const failed = prev.filter((m) => m.failed);
+        if (failed.length === 0) return prev;
+        for (const f of failed) {
+          void attemptInsert(f.id, f.content);
+        }
+        return prev.map((m) => (m.failed ? { ...m, pending: true, failed: false } : m));
+      });
+    }
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, threadId]);
 
   function fileToDataUrl(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -590,26 +651,40 @@ function ConversationPage() {
             <Fragment key={m.id}>
               {dateSeparator}
               <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm transition-opacity ${
-                    mine
-                      ? "rounded-br-sm bg-primary text-primary-foreground"
-                      : "rounded-bl-sm bg-surface text-foreground shadow-card"
-                  } ${m.pending ? "opacity-60" : ""}`}
-                >
-                  {att ? (
-                    <AttachmentView att={att} mine={mine} />
-                  ) : (
-                    <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                  )}
+                <div className="flex max-w-[78%] flex-col items-end gap-1">
                   <div
-                    className={`mt-0.5 text-right text-[10px] ${
-                      mine ? "text-white/75" : "text-muted-foreground"
-                    }`}
+                    className={`rounded-2xl px-3 py-2 text-sm transition-opacity ${
+                      mine
+                        ? "rounded-br-sm bg-primary text-primary-foreground"
+                        : "rounded-bl-sm bg-surface text-foreground shadow-card"
+                    } ${m.pending ? "opacity-60" : ""} ${m.failed ? "ring-1 ring-destructive/60" : ""}`}
                   >
-                    {time}
-                    {mine && (m.pending ? " 🕘" : m.read_at ? " ✓✓" : " ✓")}
+                    {att ? (
+                      <AttachmentView att={att} mine={mine} />
+                    ) : (
+                      <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                    )}
+                    <div
+                      className={`mt-0.5 text-right text-[10px] ${
+                        mine ? "text-white/75" : "text-muted-foreground"
+                      }`}
+                    >
+                      {time}
+                      {mine && (m.pending ? " 🕘" : m.failed ? "" : m.read_at ? " ✓✓" : " ✓")}
+                    </div>
                   </div>
+                  {mine && m.failed && (
+                    <button
+                      onClick={() => void retrySend(m.id)}
+                      className="flex items-center gap-1 rounded-pill bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive active:scale-95"
+                    >
+                      <AlertCircle className="h-3 w-3" />
+                      Failed
+                      <span className="mx-1 opacity-40">·</span>
+                      <RotateCw className="h-3 w-3" />
+                      Retry
+                    </button>
+                  )}
                 </div>
               </div>
             </Fragment>
