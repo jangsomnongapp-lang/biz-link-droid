@@ -5,9 +5,6 @@ import { Check, Clock, Briefcase } from "lucide-react";
 
 type Status = "available" | "busy" | "available_soon";
 
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
 
 // In-memory cache keyed by user id → today's status (null = checked, none set)
 const cache = new Map<string, Status | null>();
