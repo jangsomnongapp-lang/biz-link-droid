@@ -651,26 +651,40 @@ function ConversationPage() {
             <Fragment key={m.id}>
               {dateSeparator}
               <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm transition-opacity ${
-                    mine
-                      ? "rounded-br-sm bg-primary text-primary-foreground"
-                      : "rounded-bl-sm bg-surface text-foreground shadow-card"
-                  } ${m.pending ? "opacity-60" : ""}`}
-                >
-                  {att ? (
-                    <AttachmentView att={att} mine={mine} />
-                  ) : (
-                    <p className="whitespace-pre-wrap break-words">{m.content}</p>
-                  )}
+                <div className="flex max-w-[78%] flex-col items-end gap-1">
                   <div
-                    className={`mt-0.5 text-right text-[10px] ${
-                      mine ? "text-white/75" : "text-muted-foreground"
-                    }`}
+                    className={`rounded-2xl px-3 py-2 text-sm transition-opacity ${
+                      mine
+                        ? "rounded-br-sm bg-primary text-primary-foreground"
+                        : "rounded-bl-sm bg-surface text-foreground shadow-card"
+                    } ${m.pending ? "opacity-60" : ""} ${m.failed ? "ring-1 ring-destructive/60" : ""}`}
                   >
-                    {time}
-                    {mine && (m.pending ? " 🕘" : m.read_at ? " ✓✓" : " ✓")}
+                    {att ? (
+                      <AttachmentView att={att} mine={mine} />
+                    ) : (
+                      <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                    )}
+                    <div
+                      className={`mt-0.5 text-right text-[10px] ${
+                        mine ? "text-white/75" : "text-muted-foreground"
+                      }`}
+                    >
+                      {time}
+                      {mine && (m.pending ? " 🕘" : m.failed ? "" : m.read_at ? " ✓✓" : " ✓")}
+                    </div>
                   </div>
+                  {mine && m.failed && (
+                    <button
+                      onClick={() => void retrySend(m.id)}
+                      className="flex items-center gap-1 rounded-pill bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive active:scale-95"
+                    >
+                      <AlertCircle className="h-3 w-3" />
+                      Failed
+                      <span className="mx-1 opacity-40">·</span>
+                      <RotateCw className="h-3 w-3" />
+                      Retry
+                    </button>
+                  )}
                 </div>
               </div>
             </Fragment>
