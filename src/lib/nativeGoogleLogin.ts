@@ -108,14 +108,29 @@ export async function loginWithGoogle(navigate: NavigateFn) {
     }
 
     // Web / Lovable preview fallback: use the Lovable OAuth broker.
+    console.log("[google-login] starting web flow, origin=", window.location.origin);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
+    console.log("[google-login] result", { redirected: result.redirected, hasError: !!result.error });
     if (result.error) throw result.error;
     if (result.redirected) return;
+    // Confirm a session actually exists before navigating / showing errors.
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      console.warn("[google-login] no session after OAuth returned");
+      toast.error("Sign-in did not complete. Please try again.");
+      return;
+    }
     await navigate({ to: "/home" });
   } catch (err) {
-    console.error(err);
+    console.error("[google-login] error", err);
+    // If a session was set despite the thrown error, treat it as success.
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (sessionData.session) {
+      await navigate({ to: "/home" });
+      return;
+    }
     toast.error(err instanceof Error ? err.message : "Google sign-in failed");
   }
 }
