@@ -124,10 +124,63 @@ function MessagesListPage() {
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "messages" },
-        () => void load(false),
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          const msg = payload.new as {
+            thread_id: string;
+            sender_id: string;
+            content: string | null;
+            created_at: string;
+          };
+          let known = false;
+          setThreads((prev) => {
+            const idx = prev.findIndex((t) => t.id === msg.thread_id);
+            if (idx === -1) return prev;
+            known = true;
+            const updated: Thread = {
+              ...prev[idx],
+              last_message: msg.content,
+              last_message_at: msg.created_at,
+            };
+            const next = prev.slice();
+            next.splice(idx, 1);
+            return [updated, ...next];
+          });
+          if (!known) {
+            // New thread we don't have yet — fall back to full load
+            void load(false);
+            return;
+          }
+          if (msg.sender_id !== user!.id) {
+            setUnread((prev) => ({
+              ...prev,
+              [msg.thread_id]: (prev[msg.thread_id] ?? 0) + 1,
+            }));
+          }
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "messages" },
+        (payload) => {
+          const msg = payload.new as { thread_id: string; sender_id: string; read_at: string | null };
+          const old = payload.old as { read_at: string | null };
+          // Read receipt for messages TO the current user clears unread
+          if (msg.sender_id !== user!.id && !old.read_at && msg.read_at) {
+            setUnread((prev) => {
+              const cur = prev[msg.thread_id] ?? 0;
+              if (cur <= 0) return prev;
+              const next = { ...prev };
+              const dec = cur - 1;
+              if (dec <= 0) delete next[msg.thread_id];
+              else next[msg.thread_id] = dec;
+              return next;
+            });
+          }
+        },
       )
       .subscribe();
+
 
     return () => {
       cancelled = true;
