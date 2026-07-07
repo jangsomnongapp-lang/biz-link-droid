@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "authenticated postgres_changes only" ON realtime.messages;
