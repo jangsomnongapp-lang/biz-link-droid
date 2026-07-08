@@ -33,7 +33,18 @@ interface ServiceAccount {
 function loadServiceAccount(): ServiceAccount {
   const raw = process.env.FCM_SERVICE_ACCOUNT_JSON;
   if (!raw) throw new Error("FCM_SERVICE_ACCOUNT_JSON is not set");
-  return JSON.parse(raw) as ServiceAccount;
+  const trimmed = raw.trim();
+  const parsed = JSON.parse(trimmed) as Partial<ServiceAccount>;
+  if (
+    !parsed.client_email ||
+    !parsed.private_key ||
+    !parsed.project_id ||
+    !parsed.token_uri ||
+    !parsed.private_key.includes("BEGIN PRIVATE KEY")
+  ) {
+    throw new Error("FCM_SERVICE_ACCOUNT_JSON must be the full Firebase service-account JSON");
+  }
+  return parsed as ServiceAccount;
 }
 
 async function mintAccessToken(): Promise<{ token: string; projectId: string }> {
@@ -99,10 +110,17 @@ export async function sendFcmToTokens(
           data: payload.data ?? {},
           android: {
             priority: "high" as const,
-            notification: { sound: "default", channel_id: "buildhub_default" },
+            notification: {
+              sound: "default",
+              channel_id: "buildhub_high_v2",
+              notification_priority: "PRIORITY_HIGH" as const,
+              default_sound: true,
+              default_vibrate_timings: true,
+            },
           },
           apns: {
-            payload: { aps: { sound: "default", "content-available": 1 } },
+            headers: { "apns-priority": "10" },
+            payload: { aps: { sound: "default", "content-available": 1, "interruption-level": "time-sensitive" } },
           },
         },
       };

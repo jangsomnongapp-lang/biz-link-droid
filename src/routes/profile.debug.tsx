@@ -103,9 +103,9 @@ function PushDebugPage() {
 
         if (Capacitor.getPlatform() === "android") {
           await LocalNotifications.createChannel({
-            id: "debug",
-            name: "Debug notifications",
-            description: "BuildHub notification test",
+            id: "buildhub_high_v2",
+            name: "BuildHub alerts",
+            description: "Messages, project updates, and BuildHub alerts",
             importance: 5,
             visibility: 1,
             lights: true,
@@ -119,7 +119,9 @@ function PushDebugPage() {
               id: Date.now() % 2147483647,
               title,
               body,
-              channelId: "debug",
+              channelId: "buildhub_high_v2",
+              autoCancel: true,
+              ongoing: false,
               schedule: { at: new Date(Date.now() + 1000) },
             },
           ],
