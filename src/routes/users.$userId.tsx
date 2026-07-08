@@ -108,11 +108,7 @@ function UserProfilePage() {
       .eq("user_id", userId)
       .then(({ data }) => setPortfolio(data ?? []));
     void (async () => {
-      const { data: rs } = await supabase
-        .from("project_ratings")
-        .select("id, stars, comment, created_at, rater_id")
-        .eq("rated_id", userId)
-        .order("created_at", { ascending: false });
+      const { data: rs } = await supabase.rpc("get_user_reviews", { _rated_id: userId });
       if (!rs) return;
       const raterIds = Array.from(new Set(rs.map((r) => r.rater_id)));
       const { data: raters } = raterIds.length
