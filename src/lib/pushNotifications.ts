@@ -4,6 +4,23 @@ import { supabase } from "@/integrations/supabase/client";
 let listenersAttached = false;
 let activeUserId: string | null = null;
 
+const BUILDHUB_PUSH_CHANNEL_ID = "buildhub_high_v2";
+
+async function ensureBuildHubPushChannel(PushNotifications: typeof import("@capacitor/push-notifications").PushNotifications) {
+  if (Capacitor.getPlatform() !== "android") return;
+
+  await PushNotifications.createChannel({
+    id: BUILDHUB_PUSH_CHANNEL_ID,
+    name: "BuildHub alerts",
+    description: "Messages, project updates, and BuildHub alerts",
+    importance: 5,
+    visibility: 1,
+    lights: true,
+    lightColor: "#2563EB",
+    vibration: true,
+  });
+}
+
 export async function initPushNotifications(userId: string | null) {
   activeUserId = userId;
   if (!Capacitor.isNativePlatform()) return;
@@ -13,6 +30,8 @@ export async function initPushNotifications(userId: string | null) {
 
     const result = await PushNotifications.requestPermissions();
     if (result.receive !== "granted") return;
+
+    await ensureBuildHubPushChannel(PushNotifications);
 
     if (!listenersAttached) {
       await PushNotifications.addListener("registration", async (token) => {
@@ -71,6 +90,8 @@ export async function getPushToken(userId: string | null): Promise<PushTokenResu
   if (result.receive !== "granted") {
     throw new Error("Push notification permission not granted");
   }
+
+  await ensureBuildHubPushChannel(PushNotifications);
 
   return new Promise((resolve, reject) => {
     let settled = false;

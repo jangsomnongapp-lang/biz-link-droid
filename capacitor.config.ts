@@ -5,6 +5,9 @@ const config: CapacitorConfig = {
   appName: "BuildHub",
   webDir: "dist",
   plugins: {
+    PushNotifications: {
+      presentationOptions: ["sound", "alert", "banner", "list"],
+    },
     LocalNotifications: {
       smallIcon: "ic_stat_icon_config_sample",
       iconColor: "#2563EB",
