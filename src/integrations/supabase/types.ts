@@ -2155,6 +2155,16 @@ export type Database = {
       get_supplier_store_phone: { Args: { _store_id: string }; Returns: string }
       get_today_availability: { Args: { _uid: string }; Returns: string }
       get_user_phone: { Args: { _uid: string }; Returns: string }
+      get_user_reviews: {
+        Args: { _rated_id: string }
+        Returns: {
+          comment: string
+          created_at: string
+          id: string
+          rater_id: string
+          stars: number
+        }[]
+      }
       increment_post_view: { Args: { _post_id: string }; Returns: undefined }
       increment_supplier_contact: {
         Args: { _store_id: string }
