@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "user_categories readable by auth" ON public.user_categories;
+CREATE POLICY "users read own categories" ON public.user_categories FOR SELECT TO authenticated USING (auth.uid() = user_id);
