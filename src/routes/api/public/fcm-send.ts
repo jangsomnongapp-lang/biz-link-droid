@@ -15,8 +15,8 @@ export const Route = createFileRoute("/api/public/fcm-send")({
       POST: async ({ request }) => {
         try {
           const auth = request.headers.get("authorization") ?? "";
-          const expected = `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""}`;
-          if (!process.env.SUPABASE_SERVICE_ROLE_KEY || auth !== expected) {
+          const secret = process.env.FCM_PUSH_WEBHOOK_SECRET ?? "";
+          if (!secret || auth !== `Bearer ${secret}`) {
             return new Response("Unauthorized", { status: 401 });
           }
 
