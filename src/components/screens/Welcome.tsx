@@ -2,8 +2,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
-import { isNativeApp } from "@/lib/platform";
 import logo from "@/assets/jangsomnong-logo.jpg";
+
 
 
 export default function Welcome() {
