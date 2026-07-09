@@ -154,6 +154,7 @@ function SearchPage() {
       setPeople((pe.data ?? []) as PersonRow[]);
       setSuppliers((su.data ?? []) as SupplierRow[]);
       setListings((li.data ?? []) as ListingRow[]);
+      setBlog((bl.data ?? []) as BlogRow[]);
 
       const postRows = (po.data ?? []) as PostRow[];
       if (postRows.length > 0) {
@@ -180,9 +181,11 @@ function SearchPage() {
     { id: "suppliers", en: "Suppliers", km: "ហាង", icon: Store },
     { id: "projects", en: "Projects", km: "ការងារ", icon: ClipboardList },
     { id: "posts", en: "Posts", km: "ប្រកាស", icon: FileText },
+    { id: "blog", en: "Blog", km: "ប្លុក", icon: BookOpen },
   ];
 
-  const totalCount = people.length + suppliers.length + listings.length + posts.length;
+  const totalCount =
+    people.length + suppliers.length + listings.length + posts.length + blog.length;
 
   const showEmpty = useMemo(() => {
     if (!submitted || loading) return false;
@@ -191,8 +194,10 @@ function SearchPage() {
     if (tab === "suppliers") return suppliers.length === 0;
     if (tab === "projects") return listings.length === 0;
     if (tab === "posts") return posts.length === 0;
+    if (tab === "blog") return blog.length === 0;
     return false;
-  }, [submitted, loading, tab, totalCount, people, suppliers, listings, posts]);
+  }, [submitted, loading, tab, totalCount, people, suppliers, listings, posts, blog]);
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
