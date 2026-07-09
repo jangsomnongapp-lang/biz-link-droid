@@ -9,7 +9,7 @@ import remarkGfm from "remark-gfm";
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
-    return await getBlogPostBySlug({ slug: params.slug });
+    return await getBlogPostBySlug({ data: { slug: params.slug } });
   },
   head: ({ loaderData }) => {
     const title =
