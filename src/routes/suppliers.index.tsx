@@ -854,7 +854,7 @@ function RentMode({
                     <img
                       key={i}
                       src={p.photo_url}
-                      alt=""
+                      alt={`${r.title} — photo ${i + 1}`}
                       className="h-20 w-20 shrink-0 rounded-md bg-muted object-cover"
                     />
                   ))}
