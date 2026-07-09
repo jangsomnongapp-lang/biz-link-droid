@@ -1,0 +1,197 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://onnnmkybphlmjwlwqbqv.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "buildhub-mcp",
+      "version": "0.1.0",
+      "title": "BuildHub"
+    },
+    "tools": [
+      {
+        "name": "search_listings",
+        "title": "Search construction listings",
+        "description": "Search active BuildHub construction project listings. Optionally filter by keyword (matches title/description/location) and limit results.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Keyword to match in title, description, or location.",
+              "type": "string"
+            },
+            "location": {
+              "description": "Filter listings by location substring.",
+              "type": "string"
+            },
+            "limit": {
+              "default": 20,
+              "description": "Maximum results to return (1-50).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_listing",
+        "title": "Get listing details",
+        "description": "Fetch full details for a single BuildHub construction listing by id.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "listing_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "Listing UUID."
+            }
+          },
+          "required": [
+            "listing_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_listings",
+        "title": "List my listings",
+        "description": "List construction project listings owned by the signed-in user, including pending and closed ones.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Filter by listing status.",
+              "type": "string",
+              "enum": [
+                "pending",
+                "active",
+                "rejected",
+                "closed",
+                "finished"
+              ]
+            },
+            "limit": {
+              "default": 50,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_listing",
+        "title": "Create construction listing",
+        "description": "Create a new BuildHub construction project listing for the signed-in user. New listings start in 'pending' status and are reviewed before going live.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 3,
+              "description": "Short project title."
+            },
+            "description": {
+              "description": "Full project description.",
+              "type": "string"
+            },
+            "budget": {
+              "description": "Estimated budget amount.",
+              "type": "number",
+              "minimum": 0
+            },
+            "currency": {
+              "default": "USD",
+              "type": "string",
+              "enum": [
+                "USD",
+                "KHR"
+              ]
+            },
+            "location": {
+              "description": "Project location (city, district, etc.).",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_suppliers",
+        "title": "Search suppliers",
+        "description": "Search BuildHub construction material and equipment supplier stores.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Keyword to match in store name, description, or location.",
+              "type": "string"
+            },
+            "limit": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_profile",
+        "title": "Get my profile",
+        "description": "Fetch the signed-in user's BuildHub profile (name, phone, roles, verification status).",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
