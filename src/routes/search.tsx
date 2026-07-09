@@ -27,7 +27,7 @@ export const Route = createFileRoute("/search")({
   ),
 });
 
-type Tab = "all" | "people" | "suppliers" | "projects" | "posts";
+type Tab = "all" | "people" | "suppliers" | "projects" | "posts" | "blog";
 
 interface PersonRow {
   id: string;
@@ -56,6 +56,15 @@ interface PostRow {
   created_at: string;
   author?: PersonRow | null;
 }
+interface BlogRow {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  cover_image_url: string | null;
+  published_at: string | null;
+}
+
 
 function SearchPage() {
   const { lang } = useI18n();
