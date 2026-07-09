@@ -8,6 +8,17 @@ import { ArrowLeft, Search, MapPin, ChevronRight } from "lucide-react";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 
 export const Route = createFileRoute("/find-worker")({
+  head: () => ({
+    meta: [
+      { title: "Find Skilled Construction Workers in Cambodia — BuildHub" },
+      { name: "description", content: "Search for construction workers, team leaders, and specialists across Cambodia. Filter by trade, role, and location." },
+      { property: "og:title", content: "Find Skilled Construction Workers in Cambodia — BuildHub" },
+      { property: "og:description", content: "Search construction workers, teams, and specialists across Cambodia by trade, role, and location." },
+      { property: "og:url", content: "https://buildhubkh.com/find-worker" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/find-worker" }],
+  }),
   component: () => (
     <RequireAuth>
       <FindWorkerPage />
