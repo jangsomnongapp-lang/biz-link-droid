@@ -64,16 +64,11 @@ export default function Welcome() {
         >
           {t("have_account")}
         </Link>
-        {!isNativeApp() && (
-          <Link
-            to="/blog"
-            className="mt-2 text-center text-sm font-medium text-white/80 underline underline-offset-4 active:text-white"
-          >
-            {t("blog_link")}
-          </Link>
-        )}
-
       </div>
+    </main>
+  );
+}
+
     </main>
   );
 }
