@@ -51,6 +51,7 @@ import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
 import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
+import { Route as GuidesArchitectsRouteImport } from './routes/guides.architects'
 import { Route as FindMaterialResultsRouteImport } from './routes/find-material.results'
 import { Route as FindMaterialNewRouteImport } from './routes/find-material.new'
 import { Route as FindMaterialMineRouteImport } from './routes/find-material.mine'
@@ -281,6 +282,11 @@ const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
   path: '/listings/$listingId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesArchitectsRoute = GuidesArchitectsRouteImport.update({
+  id: '/guides/architects',
+  path: '/guides/architects',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FindMaterialResultsRoute = FindMaterialResultsRouteImport.update({
   id: '/results',
   path: '/results',
@@ -412,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
   '/find-material/results': typeof FindMaterialResultsRoute
+  '/guides/architects': typeof GuidesArchitectsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -475,6 +482,7 @@ export interface FileRoutesByTo {
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
   '/find-material/results': typeof FindMaterialResultsRoute
+  '/guides/architects': typeof GuidesArchitectsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -539,6 +547,7 @@ export interface FileRoutesById {
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
   '/find-material/results': typeof FindMaterialResultsRoute
+  '/guides/architects': typeof GuidesArchitectsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
@@ -604,6 +613,7 @@ export interface FileRouteTypes {
     | '/find-material/mine'
     | '/find-material/new'
     | '/find-material/results'
+    | '/guides/architects'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -667,6 +677,7 @@ export interface FileRouteTypes {
     | '/find-material/mine'
     | '/find-material/new'
     | '/find-material/results'
+    | '/guides/architects'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -730,6 +741,7 @@ export interface FileRouteTypes {
     | '/find-material/mine'
     | '/find-material/new'
     | '/find-material/results'
+    | '/guides/architects'
     | '/listings/$listingId'
     | '/listings/new'
     | '/messages/$threadId'
@@ -791,6 +803,7 @@ export interface RootRouteChildren {
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSuppliersRoute: typeof AdminSuppliersRoute
   AdminTelegramRoute: typeof AdminTelegramRoute
+  GuidesArchitectsRoute: typeof GuidesArchitectsRoute
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
@@ -1114,6 +1127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsListingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/architects': {
+      id: '/guides/architects'
+      path: '/guides/architects'
+      fullPath: '/guides/architects'
+      preLoaderRoute: typeof GuidesArchitectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/find-material/results': {
       id: '/find-material/results'
       path: '/results'
@@ -1322,6 +1342,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminReportsRoute: AdminReportsRoute,
   AdminSuppliersRoute: AdminSuppliersRoute,
   AdminTelegramRoute: AdminTelegramRoute,
+  GuidesArchitectsRoute: GuidesArchitectsRoute,
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
