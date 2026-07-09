@@ -1,6 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+interface BlogCategory {
+  slug: string;
+  name_en: string;
+  name_km: string;
+}
+
 interface BlogPost {
   id: string;
   slug: string;
@@ -12,7 +18,25 @@ interface BlogPost {
   author_name: string | null;
   meta_title: string | null;
   meta_description: string | null;
-  blog_categories: { slug: string; name_en: string; name_km: string } | null;
+  blog_categories: BlogCategory | null;
+}
+
+interface PostListItem {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  cover_image_url: string | null;
+  published_at: string | null;
+  author_name: string | null;
+  blog_categories: BlogCategory | null;
+}
+
+interface BlogCategoryRow {
+  id: string;
+  slug: string;
+  name_en: string;
+  name_km: string;
 }
 
 export const getBlogPostBySlug = createServerFn({ method: "GET" })
@@ -45,7 +69,7 @@ export const listBlogPosts = createServerFn({ method: "GET" })
       q = q.eq("blog_categories.slug", data.categorySlug);
     }
     const { data: posts } = await q;
-    return (posts as any[] | null) ?? [];
+    return (posts as PostListItem[] | null) ?? [];
   });
 
 export const listBlogCategories = createServerFn({ method: "GET" }).handler(async () => {
@@ -54,5 +78,6 @@ export const listBlogCategories = createServerFn({ method: "GET" }).handler(asyn
     .from("blog_categories")
     .select("id, slug, name_en, name_km")
     .order("sort_order");
-  return (categories as any[] | null) ?? [];
+  return (categories as BlogCategoryRow[] | null) ?? [];
 });
+
