@@ -12,6 +12,29 @@ import { formatPrice } from "@/lib/price";
 
 
 export const Route = createFileRoute("/suppliers/$storeId")({
+  head: ({ params }) => ({
+    meta: [
+      { title: "Construction Supplier Store — BuildHub" },
+      { name: "description", content: "View this supplier's store, products, and location on BuildHub — Cambodia's construction marketplace." },
+      { property: "og:title", content: "Construction Supplier Store — BuildHub" },
+      { property: "og:description", content: "Supplier store, products, and location on BuildHub." },
+      { property: "og:url", content: `https://buildhubkh.com/suppliers/${params.storeId}` },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: `https://buildhubkh.com/suppliers/${params.storeId}` }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          url: `https://buildhubkh.com/suppliers/${params.storeId}`,
+          description: "Construction material and equipment supplier on BuildHub — Cambodia's construction marketplace.",
+          areaServed: "KH",
+        }),
+      },
+    ],
+  }),
   component: SupplierRoute,
 });
 
