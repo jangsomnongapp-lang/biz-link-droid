@@ -56,7 +56,7 @@ function LoginPage() {
         loginError = error;
       }
       if (loginError) throw loginError;
-      nav({ to: "/home" });
+      goNext();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error");
     } finally {
@@ -65,7 +65,7 @@ function LoginPage() {
   }
 
   async function signInWithGoogle() {
-    await loginWithGoogle(nav);
+    await loginWithGoogle(target ? () => { window.location.href = target; } : nav);
   }
 
   return (
