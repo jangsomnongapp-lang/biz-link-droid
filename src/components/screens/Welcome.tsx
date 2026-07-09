@@ -56,6 +56,12 @@ export default function Welcome() {
         >
           {t("have_account")}
         </Link>
+        <Link
+          to="/blog"
+          className="mt-2 text-center text-sm font-medium text-white/80 underline underline-offset-4 active:text-white"
+        >
+          {lang === "km" ? "អានគន្លឹះសាងសង់" : "Read construction tips & guides"}
+        </Link>
       </div>
     </main>
   );
