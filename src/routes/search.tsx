@@ -78,6 +78,8 @@ function SearchPage() {
   const [suppliers, setSuppliers] = useState<SupplierRow[]>([]);
   const [listings, setListings] = useState<ListingRow[]>([]);
   const [posts, setPosts] = useState<PostRow[]>([]);
+  const [blog, setBlog] = useState<BlogRow[]>([]);
+
 
   useEffect(() => {
     try {
