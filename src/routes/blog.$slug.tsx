@@ -1,6 +1,6 @@
 import { Link, createFileRoute, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { getBlogPostBySlug } from "@/lib/blog.functions";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Calendar } from "lucide-react";
@@ -9,25 +9,61 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export const Route = createFileRoute("/blog/$slug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: "Article — BuildHub Blog" },
-      {
-        name: "description",
-        content: "Read the latest construction guide on BuildHub.",
-      },
-      { property: "og:title", content: "Article — BuildHub Blog" },
-      {
-        property: "og:description",
-        content: "Read the latest construction guide on BuildHub.",
-      },
-      { property: "og:url", content: `https://buildhubkh.com/blog/${params.slug}` },
-      { property: "og:type", content: "article" },
-    ],
-    links: [
-      { rel: "canonical", href: `https://buildhubkh.com/blog/${params.slug}` },
-    ],
-  }),
+  loader: async ({ context, params }) => {
+    const post = await context.queryClient.ensureQueryData({
+      queryKey: ["blog:post", params.slug],
+      queryFn: async () => getBlogPostBySlug({ slug: params.slug }),
+      staleTime: 60_000,
+    });
+    return post;
+  },
+  head: ({ loaderData }) => {
+    const title =
+      loaderData?.meta_title ?? loaderData?.title ?? "Article — BuildHub Blog";
+    const description =
+      loaderData?.meta_description ??
+      loaderData?.excerpt ??
+      "Read the latest construction guide on BuildHub.";
+    const url = `https://buildhubkh.com/blog/${loaderData?.slug ?? ""}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "article" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: loaderData
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Article",
+                headline: loaderData.title,
+                description: loaderData.excerpt ?? description,
+                url,
+                inLanguage: "en",
+                about: loaderData.blog_categories?.name_en ?? "Construction",
+                author: {
+                  "@type": "Organization",
+                  name: loaderData.author_name ?? "BuildHub",
+                },
+                publisher: {
+                  "@type": "Organization",
+                  name: "BuildHub",
+                  url: "https://buildhubkh.com/",
+                },
+                datePublished: loaderData.published_at ?? undefined,
+                mainEntityOfPage: url,
+              }),
+            },
+          ]
+        : undefined,
+    };
+  },
   component: BlogPostPage,
 });
 
@@ -44,6 +80,7 @@ interface PostDetail {
   meta_description: string | null;
   blog_categories: { slug: string; name_en: string; name_km: string } | null;
 }
+
 
 function BlogPostPage() {
   const { slug } = useParams({ from: "/blog/$slug" });
