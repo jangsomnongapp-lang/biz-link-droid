@@ -18,6 +18,17 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/com
 import { CAMBODIA_PROVINCES } from "@/components/ProvinceSelect";
 
 export const Route = createFileRoute("/listings/")({
+  head: () => ({
+    meta: [
+      { title: "Construction Projects & Jobs in Cambodia — BuildHub" },
+      { name: "description", content: "Browse active construction project listings across Cambodia. Filter by location, category, and budget to find work that fits." },
+      { property: "og:title", content: "Construction Projects & Jobs in Cambodia — BuildHub" },
+      { property: "og:description", content: "Browse active construction project listings across Cambodia. Filter by location, category, and budget." },
+      { property: "og:url", content: "https://buildhubkh.com/listings" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/listings" }],
+  }),
   component: () => (
     <RequireAuth>
       <AppShell>
