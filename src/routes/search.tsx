@@ -353,7 +353,32 @@ function SearchPage() {
   );
 }
 
+function BlogItem({ b }: { b: BlogRow }) {
+  return (
+    <Link
+      to="/blog/$slug"
+      params={{ slug: b.slug }}
+      className="flex items-start gap-3 px-4 py-3 active:bg-muted"
+    >
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary/10">
+        {b.cover_image_url ? (
+          <img src={b.cover_image_url} alt={b.title} className="h-full w-full object-cover" />
+        ) : (
+          <BookOpen className="h-5 w-5 text-primary" />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="line-clamp-1 text-sm font-semibold text-foreground">{b.title}</div>
+        {b.excerpt && (
+          <div className="line-clamp-2 text-xs text-muted-foreground">{b.excerpt}</div>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 function Section({
+
   title,
   count,
   children,
