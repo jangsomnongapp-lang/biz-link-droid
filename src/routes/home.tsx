@@ -621,7 +621,7 @@ function HomePage() {
               <div className="rounded-full border-2 border-surface">
                 <img
                   src={s.cover}
-                  alt=""
+                  alt={`Story from ${s.full_name ?? "user"}`}
                   className="h-[60px] w-[60px] rounded-full object-cover"
                 />
               </div>
