@@ -22,6 +22,7 @@ import { Route as OnlineOrdersRouteImport } from './routes/online-orders'
 import { Route as MyPostsRouteImport } from './routes/my-posts'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as InvitationsRouteImport } from './routes/invitations'
 import { Route as HomeRouteImport } from './routes/home'
@@ -144,6 +145,11 @@ const McpRoute = McpRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JoinRoute = JoinRouteImport.update({
@@ -456,6 +462,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/my-posts': typeof MyPostsRoute
@@ -528,6 +535,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/my-posts': typeof MyPostsRoute
@@ -602,6 +610,7 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/my-posts': typeof MyPostsRoute
@@ -677,6 +686,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/invitations'
     | '/join'
+    | '/llms.txt'
     | '/login'
     | '/mcp'
     | '/my-posts'
@@ -749,6 +759,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/invitations'
     | '/join'
+    | '/llms.txt'
     | '/login'
     | '/mcp'
     | '/my-posts'
@@ -822,6 +833,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/invitations'
     | '/join'
+    | '/llms.txt'
     | '/login'
     | '/mcp'
     | '/my-posts'
@@ -896,6 +908,7 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   InvitationsRoute: typeof InvitationsRoute
   JoinRoute: typeof JoinRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
   MyPostsRoute: typeof MyPostsRoute
@@ -1038,6 +1051,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/join': {
@@ -1517,6 +1537,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   InvitationsRoute: InvitationsRoute,
   JoinRoute: JoinRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
   MyPostsRoute: MyPostsRoute,
