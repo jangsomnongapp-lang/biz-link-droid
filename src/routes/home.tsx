@@ -635,6 +635,7 @@ function HomePage() {
       </>)}
 
       {/* Feed */}
+      <h2 className="sr-only">Community Feed</h2>
       <div className="mt-2 space-y-2">
         {loading && <FeedSkeleton count={3} />}
         {!loading && !focused && posts.length === 0 && (
