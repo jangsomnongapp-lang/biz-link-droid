@@ -209,6 +209,7 @@ function ListingsPage() {
 
   return (
     <div className="px-3 pt-3">
+      <h1 className="sr-only">Construction Project Marketplace in Cambodia</h1>
       <div className="mb-3 flex items-center gap-2">
         <Link
           to="/listings/new"
