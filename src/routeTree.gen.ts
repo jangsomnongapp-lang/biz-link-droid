@@ -30,6 +30,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FindWorkerRouteImport } from './routes/find-worker'
 import { Route as FindMaterialRouteImport } from './routes/find-material'
 import { Route as ConnectRouteImport } from './routes/connect'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AnnounceRouteImport } from './routes/announce'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AiSearchRouteImport } from './routes/ai-search'
@@ -181,6 +182,11 @@ const FindMaterialRoute = FindMaterialRouteImport.update({
 const ConnectRoute = ConnectRouteImport.update({
   id: '/connect',
   path: '/connect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnnounceRoute = AnnounceRouteImport.update({
@@ -429,6 +435,7 @@ export interface FileRoutesByFullPath {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/blog': typeof BlogRoute
   '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
@@ -499,6 +506,7 @@ export interface FileRoutesByTo {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/blog': typeof BlogRoute
   '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
@@ -570,6 +578,7 @@ export interface FileRoutesById {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/blog': typeof BlogRoute
   '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
@@ -642,6 +651,7 @@ export interface FileRouteTypes {
     | '/ai-search'
     | '/alerts'
     | '/announce'
+    | '/blog'
     | '/connect'
     | '/find-material'
     | '/find-worker'
@@ -712,6 +722,7 @@ export interface FileRouteTypes {
     | '/ai-search'
     | '/alerts'
     | '/announce'
+    | '/blog'
     | '/connect'
     | '/find-material'
     | '/find-worker'
@@ -782,6 +793,7 @@ export interface FileRouteTypes {
     | '/ai-search'
     | '/alerts'
     | '/announce'
+    | '/blog'
     | '/connect'
     | '/find-material'
     | '/find-worker'
@@ -853,6 +865,7 @@ export interface RootRouteChildren {
   AiSearchRoute: typeof AiSearchRoute
   AlertsRoute: typeof AlertsRoute
   AnnounceRoute: typeof AnnounceRoute
+  BlogRoute: typeof BlogRoute
   ConnectRoute: typeof ConnectRoute
   FindMaterialRoute: typeof FindMaterialRouteWithChildren
   FindWorkerRoute: typeof FindWorkerRoute
@@ -1059,6 +1072,13 @@ declare module '@tanstack/react-router' {
       path: '/connect'
       fullPath: '/connect'
       preLoaderRoute: typeof ConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/announce': {
@@ -1440,6 +1460,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiSearchRoute: AiSearchRoute,
   AlertsRoute: AlertsRoute,
   AnnounceRoute: AnnounceRoute,
+  BlogRoute: BlogRoute,
   ConnectRoute: ConnectRoute,
   FindMaterialRoute: FindMaterialRouteWithChildren,
   FindWorkerRoute: FindWorkerRoute,
