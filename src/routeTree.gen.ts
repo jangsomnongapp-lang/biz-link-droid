@@ -29,6 +29,7 @@ import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FindWorkerRouteImport } from './routes/find-worker'
 import { Route as FindMaterialRouteImport } from './routes/find-material'
+import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as AnnounceRouteImport } from './routes/announce'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AiSearchRouteImport } from './routes/ai-search'
@@ -175,6 +176,11 @@ const FindWorkerRoute = FindWorkerRouteImport.update({
 const FindMaterialRoute = FindMaterialRouteImport.update({
   id: '/find-material',
   path: '/find-material',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectRoute = ConnectRouteImport.update({
+  id: '/connect',
+  path: '/connect',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnnounceRoute = AnnounceRouteImport.update({
@@ -423,6 +429,7 @@ export interface FileRoutesByFullPath {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -492,6 +499,7 @@ export interface FileRoutesByTo {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -562,6 +570,7 @@ export interface FileRoutesById {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -633,6 +642,7 @@ export interface FileRouteTypes {
     | '/ai-search'
     | '/alerts'
     | '/announce'
+    | '/connect'
     | '/find-material'
     | '/find-worker'
     | '/forgot-password'
@@ -702,6 +712,7 @@ export interface FileRouteTypes {
     | '/ai-search'
     | '/alerts'
     | '/announce'
+    | '/connect'
     | '/find-material'
     | '/find-worker'
     | '/forgot-password'
@@ -771,6 +782,7 @@ export interface FileRouteTypes {
     | '/ai-search'
     | '/alerts'
     | '/announce'
+    | '/connect'
     | '/find-material'
     | '/find-worker'
     | '/forgot-password'
@@ -841,6 +853,7 @@ export interface RootRouteChildren {
   AiSearchRoute: typeof AiSearchRoute
   AlertsRoute: typeof AlertsRoute
   AnnounceRoute: typeof AnnounceRoute
+  ConnectRoute: typeof ConnectRoute
   FindMaterialRoute: typeof FindMaterialRouteWithChildren
   FindWorkerRoute: typeof FindWorkerRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -1039,6 +1052,13 @@ declare module '@tanstack/react-router' {
       path: '/find-material'
       fullPath: '/find-material'
       preLoaderRoute: typeof FindMaterialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connect': {
+      id: '/connect'
+      path: '/connect'
+      fullPath: '/connect'
+      preLoaderRoute: typeof ConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/announce': {
@@ -1420,6 +1440,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiSearchRoute: AiSearchRoute,
   AlertsRoute: AlertsRoute,
   AnnounceRoute: AnnounceRoute,
+  ConnectRoute: ConnectRoute,
   FindMaterialRoute: FindMaterialRouteWithChildren,
   FindWorkerRoute: FindWorkerRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
