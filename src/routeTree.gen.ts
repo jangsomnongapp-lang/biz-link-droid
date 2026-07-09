@@ -30,6 +30,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FindWorkerRouteImport } from './routes/find-worker'
 import { Route as FindMaterialRouteImport } from './routes/find-material'
 import { Route as ConnectRouteImport } from './routes/connect'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AnnounceRouteImport } from './routes/announce'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AiSearchRouteImport } from './routes/ai-search'
@@ -37,6 +38,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SuppliersIndexRouteImport } from './routes/suppliers.index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
 import { Route as SuppliersStoreIdRouteImport } from './routes/suppliers.$storeId'
 import { Route as SuperuserPanelRouteImport } from './routes/superuser.panel'
@@ -57,6 +59,7 @@ import { Route as GuidesArchitectsRouteImport } from './routes/guides.architects
 import { Route as FindMaterialResultsRouteImport } from './routes/find-material.results'
 import { Route as FindMaterialNewRouteImport } from './routes/find-material.new'
 import { Route as FindMaterialMineRouteImport } from './routes/find-material.mine'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminTelegramRouteImport } from './routes/admin.telegram'
 import { Route as AdminSuppliersRouteImport } from './routes/admin.suppliers'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
@@ -183,6 +186,11 @@ const ConnectRoute = ConnectRouteImport.update({
   path: '/connect',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnnounceRoute = AnnounceRouteImport.update({
   id: '/announce',
   path: '/announce',
@@ -217,6 +225,11 @@ const ListingsIndexRoute = ListingsIndexRouteImport.update({
   id: '/listings/',
   path: '/listings/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
 } as any)
 const UsersUserIdRoute = UsersUserIdRouteImport.update({
   id: '/users/$userId',
@@ -317,6 +330,11 @@ const FindMaterialMineRoute = FindMaterialMineRouteImport.update({
   id: '/mine',
   path: '/mine',
   getParentRoute: () => FindMaterialRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const AdminTelegramRoute = AdminTelegramRouteImport.update({
   id: '/admin/telegram',
@@ -429,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/blog': typeof BlogRouteWithChildren
   '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
@@ -458,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
   '/admin/telegram': typeof AdminTelegramRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
   '/find-material/results': typeof FindMaterialResultsRoute
@@ -478,6 +498,7 @@ export interface FileRoutesByFullPath {
   '/superuser/panel': typeof SuperuserPanelRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
+  '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
@@ -528,6 +549,7 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
   '/admin/telegram': typeof AdminTelegramRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
   '/find-material/results': typeof FindMaterialResultsRoute
@@ -548,6 +570,7 @@ export interface FileRoutesByTo {
   '/superuser/panel': typeof SuperuserPanelRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
+  '/blog': typeof BlogIndexRoute
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
@@ -570,6 +593,7 @@ export interface FileRoutesById {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
+  '/blog': typeof BlogRouteWithChildren
   '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
@@ -599,6 +623,7 @@ export interface FileRoutesById {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
   '/admin/telegram': typeof AdminTelegramRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
   '/find-material/results': typeof FindMaterialResultsRoute
@@ -619,6 +644,7 @@ export interface FileRoutesById {
   '/superuser/panel': typeof SuperuserPanelRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
+  '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
@@ -642,6 +668,7 @@ export interface FileRouteTypes {
     | '/ai-search'
     | '/alerts'
     | '/announce'
+    | '/blog'
     | '/connect'
     | '/find-material'
     | '/find-worker'
@@ -671,6 +698,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/suppliers'
     | '/admin/telegram'
+    | '/blog/$slug'
     | '/find-material/mine'
     | '/find-material/new'
     | '/find-material/results'
@@ -691,6 +719,7 @@ export interface FileRouteTypes {
     | '/superuser/panel'
     | '/suppliers/$storeId'
     | '/users/$userId'
+    | '/blog/'
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
@@ -741,6 +770,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/suppliers'
     | '/admin/telegram'
+    | '/blog/$slug'
     | '/find-material/mine'
     | '/find-material/new'
     | '/find-material/results'
@@ -761,6 +791,7 @@ export interface FileRouteTypes {
     | '/superuser/panel'
     | '/suppliers/$storeId'
     | '/users/$userId'
+    | '/blog'
     | '/listings'
     | '/messages'
     | '/suppliers'
@@ -782,6 +813,7 @@ export interface FileRouteTypes {
     | '/ai-search'
     | '/alerts'
     | '/announce'
+    | '/blog'
     | '/connect'
     | '/find-material'
     | '/find-worker'
@@ -811,6 +843,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/suppliers'
     | '/admin/telegram'
+    | '/blog/$slug'
     | '/find-material/mine'
     | '/find-material/new'
     | '/find-material/results'
@@ -831,6 +864,7 @@ export interface FileRouteTypes {
     | '/superuser/panel'
     | '/suppliers/$storeId'
     | '/users/$userId'
+    | '/blog/'
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
@@ -853,6 +887,7 @@ export interface RootRouteChildren {
   AiSearchRoute: typeof AiSearchRoute
   AlertsRoute: typeof AlertsRoute
   AnnounceRoute: typeof AnnounceRoute
+  BlogRoute: typeof BlogRouteWithChildren
   ConnectRoute: typeof ConnectRoute
   FindMaterialRoute: typeof FindMaterialRouteWithChildren
   FindWorkerRoute: typeof FindWorkerRoute
@@ -1061,6 +1096,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/announce': {
       id: '/announce'
       path: '/announce'
@@ -1109,6 +1151,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/listings/'
       preLoaderRoute: typeof ListingsIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/users/$userId': {
       id: '/users/$userId'
@@ -1249,6 +1298,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/find-material/mine'
       preLoaderRoute: typeof FindMaterialMineRouteImport
       parentRoute: typeof FindMaterialRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/admin/telegram': {
       id: '/admin/telegram'
@@ -1393,6 +1449,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 interface FindMaterialRouteChildren {
   FindMaterialMineRoute: typeof FindMaterialMineRoute
   FindMaterialNewRoute: typeof FindMaterialNewRoute
@@ -1440,6 +1508,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiSearchRoute: AiSearchRoute,
   AlertsRoute: AlertsRoute,
   AnnounceRoute: AnnounceRoute,
+  BlogRoute: BlogRouteWithChildren,
   ConnectRoute: ConnectRoute,
   FindMaterialRoute: FindMaterialRouteWithChildren,
   FindWorkerRoute: FindWorkerRoute,

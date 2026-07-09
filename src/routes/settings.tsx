@@ -41,6 +41,7 @@ import {
   Gift,
   Ticket,
   Bot,
+  BookOpen,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
@@ -83,14 +84,25 @@ function SettingsPage() {
   const deleteAccountFn = useServerFn(deleteMyAccount);
 
   async function handleChangePassword() {
-    if (newPw.length < 6) { toast.error(t("password_min")); return; }
-    if (newPw !== confirmPw) { toast.error(t("password_mismatch")); return; }
+    if (newPw.length < 6) {
+      toast.error(t("password_min"));
+      return;
+    }
+    if (newPw !== confirmPw) {
+      toast.error(t("password_mismatch"));
+      return;
+    }
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password: newPw });
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success(t("password_changed"));
-    setPwOpen(false); setNewPw(""); setConfirmPw("");
+    setPwOpen(false);
+    setNewPw("");
+    setConfirmPw("");
   }
 
   async function handleChangePhone() {
@@ -98,7 +110,8 @@ function SettingsPage() {
     try {
       await changePhoneFn({ data: { phone: newPhone } });
       toast.success(t("phone_changed"));
-      setPhoneOpen(false); setNewPhone("");
+      setPhoneOpen(false);
+      setNewPhone("");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e));
     } finally {
@@ -127,7 +140,11 @@ function SettingsPage() {
     } catch (e) {
       let msg = e instanceof Error ? e.message : String(e);
       if (e instanceof Response) {
-        try { msg = (await e.text()) || `Error ${e.status}`; } catch { msg = `Error ${e.status}`; }
+        try {
+          msg = (await e.text()) || `Error ${e.status}`;
+        } catch {
+          msg = `Error ${e.status}`;
+        }
       }
       toast.error(msg);
     } finally {
@@ -144,7 +161,14 @@ function SettingsPage() {
         .eq("id", user.id)
         .maybeSingle();
       const { data: flags } = await supabase.rpc("get_my_profile_flags");
-      setProfile(data ? { ...data, ...(flags?.[0] ?? { is_admin: false, is_super_user: false, master_account_id: null }) } as any : null);
+      setProfile(
+        data
+          ? ({
+              ...data,
+              ...(flags?.[0] ?? { is_admin: false, is_super_user: false, master_account_id: null }),
+            } as any)
+          : null,
+      );
     })();
     void supabase
       .from("supplier_stores")
@@ -201,8 +225,20 @@ function SettingsPage() {
 
       {/* Discover */}
       <Group title={t("find_worker")}>
-        <Row to="/find-worker" icon={HardHat} iconBg="bg-indigo-100" iconColor="text-indigo-600" label={t("find_worker")} />
-        <Row to="/invitations" icon={Users} iconBg="bg-violet-100" iconColor="text-violet-600" label={t("my_invitations")} />
+        <Row
+          to="/find-worker"
+          icon={HardHat}
+          iconBg="bg-indigo-100"
+          iconColor="text-indigo-600"
+          label={t("find_worker")}
+        />
+        <Row
+          to="/invitations"
+          icon={Users}
+          iconBg="bg-violet-100"
+          iconColor="text-violet-600"
+          label={t("my_invitations")}
+        />
       </Group>
 
       {/* My Account */}
@@ -210,14 +246,18 @@ function SettingsPage() {
         {mySupplierStoreId ? (
           <>
             <RowButton
-              onClick={() => navigate({ to: "/suppliers/$storeId", params: { storeId: mySupplierStoreId } })}
+              onClick={() =>
+                navigate({ to: "/suppliers/$storeId", params: { storeId: mySupplierStoreId } })
+              }
               icon={Store}
               iconBg="bg-emerald-100"
               iconColor="text-emerald-600"
               label={t("supplier_profile")}
             />
             <RowButton
-              onClick={() => navigate({ to: "/suppliers/$storeId/edit", params: { storeId: mySupplierStoreId } })}
+              onClick={() =>
+                navigate({ to: "/suppliers/$storeId/edit", params: { storeId: mySupplierStoreId } })
+              }
               icon={Pencil}
               iconBg="bg-amber-100"
               iconColor="text-amber-600"
@@ -226,14 +266,50 @@ function SettingsPage() {
           </>
         ) : (
           <>
-            <Row to="/profile/edit" icon={Pencil} iconBg="bg-amber-100" iconColor="text-amber-600" label={t("edit_profile")} />
-            <Row to="/profile/portfolio" icon={ImageIcon} iconBg="bg-emerald-100" iconColor="text-emerald-600" label={t("update_profile")} />
+            <Row
+              to="/profile/edit"
+              icon={Pencil}
+              iconBg="bg-amber-100"
+              iconColor="text-amber-600"
+              label={t("edit_profile")}
+            />
+            <Row
+              to="/profile/portfolio"
+              icon={ImageIcon}
+              iconBg="bg-emerald-100"
+              iconColor="text-emerald-600"
+              label={t("update_profile")}
+            />
           </>
         )}
-        <Row to="/my-posts" icon={FileText} iconBg="bg-sky-100" iconColor="text-sky-600" label={t("view_my_content")} />
-        <Row to="/rewards" icon={Gift} iconBg="bg-orange-100" iconColor="text-orange-600" label={lang === "km" ? "BuildHub Rewards" : "BuildHub Rewards"} />
-        <RowButton onClick={() => setPwOpen(true)} icon={Lock} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("change_password")} />
-        <RowButton onClick={() => setPhoneOpen(true)} icon={Smartphone} iconBg="bg-slate-200" iconColor="text-slate-700" label={t("change_phone")} />
+        <Row
+          to="/my-posts"
+          icon={FileText}
+          iconBg="bg-sky-100"
+          iconColor="text-sky-600"
+          label={t("view_my_content")}
+        />
+        <Row
+          to="/rewards"
+          icon={Gift}
+          iconBg="bg-orange-100"
+          iconColor="text-orange-600"
+          label={lang === "km" ? "BuildHub Rewards" : "BuildHub Rewards"}
+        />
+        <RowButton
+          onClick={() => setPwOpen(true)}
+          icon={Lock}
+          iconBg="bg-slate-100"
+          iconColor="text-slate-600"
+          label={t("change_password")}
+        />
+        <RowButton
+          onClick={() => setPhoneOpen(true)}
+          icon={Smartphone}
+          iconBg="bg-slate-200"
+          iconColor="text-slate-700"
+          label={t("change_phone")}
+        />
       </Group>
 
       {/* Preferences */}
@@ -249,7 +325,9 @@ function SettingsPage() {
           <IconBox icon={Globe} bg="bg-sky-100" color="text-sky-600" />
           <div className="flex-1">
             <div className="text-sm font-semibold text-foreground">{t("language")}</div>
-            <div className="text-xs text-muted-foreground">{lang === "km" ? "ភាសាខ្មែរ" : "English"}</div>
+            <div className="text-xs text-muted-foreground">
+              {lang === "km" ? "ភាសាខ្មែរ" : "English"}
+            </div>
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -334,11 +412,48 @@ function SettingsPage() {
 
       {/* Support */}
       <Group title={t("support")}>
-        <Row to="/help" icon={HelpCircle} iconBg="bg-sky-100" iconColor="text-sky-600" label={t("help_faq")} />
-        <Row to="/connect" icon={Bot} iconBg="bg-violet-100" iconColor="text-violet-600" label="Connect to AI assistant" />
-        <Row to="/report" icon={Flag} iconBg="bg-rose-100" iconColor="text-rose-600" label={t("report_problem")} />
-        <Row to="/terms" icon={FileText} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("terms")} />
-        <Row to="/privacy" icon={ShieldAlert} iconBg="bg-amber-100" iconColor="text-amber-600" label={t("privacy")} />
+        <Row
+          to="/blog"
+          icon={BookOpen}
+          iconBg="bg-emerald-100"
+          iconColor="text-emerald-600"
+          label="BuildHub Blog"
+        />
+        <Row
+          to="/help"
+          icon={HelpCircle}
+          iconBg="bg-sky-100"
+          iconColor="text-sky-600"
+          label={t("help_faq")}
+        />
+        <Row
+          to="/connect"
+          icon={Bot}
+          iconBg="bg-violet-100"
+          iconColor="text-violet-600"
+          label="Connect to AI assistant"
+        />
+        <Row
+          to="/report"
+          icon={Flag}
+          iconBg="bg-rose-100"
+          iconColor="text-rose-600"
+          label={t("report_problem")}
+        />
+        <Row
+          to="/terms"
+          icon={FileText}
+          iconBg="bg-slate-100"
+          iconColor="text-slate-600"
+          label={t("terms")}
+        />
+        <Row
+          to="/privacy"
+          icon={ShieldAlert}
+          iconBg="bg-amber-100"
+          iconColor="text-amber-600"
+          label={t("privacy")}
+        />
       </Group>
 
       {/* Footer actions */}
@@ -362,7 +477,11 @@ function SettingsPage() {
               >
                 {t("logout")}
               </Button>
-              <Button variant="outline" onClick={() => setLogoutOpen(false)} className="h-12 rounded-xl">
+              <Button
+                variant="outline"
+                onClick={() => setLogoutOpen(false)}
+                className="h-12 rounded-xl"
+              >
                 {t("cancel")}
               </Button>
             </DrawerFooter>
@@ -402,7 +521,12 @@ function SettingsPage() {
             <Button onClick={handleChangePassword} disabled={busy} className="h-12 rounded-xl">
               {t("save")}
             </Button>
-            <Button variant="outline" onClick={() => setPwOpen(false)} disabled={busy} className="h-12 rounded-xl">
+            <Button
+              variant="outline"
+              onClick={() => setPwOpen(false)}
+              disabled={busy}
+              className="h-12 rounded-xl"
+            >
               {t("cancel")}
             </Button>
           </DrawerFooter>
@@ -424,10 +548,19 @@ function SettingsPage() {
             />
           </div>
           <DrawerFooter>
-            <Button onClick={handleChangePhone} disabled={busy || newPhone.trim().length < 6} className="h-12 rounded-xl">
+            <Button
+              onClick={handleChangePhone}
+              disabled={busy || newPhone.trim().length < 6}
+              className="h-12 rounded-xl"
+            >
               {t("save")}
             </Button>
-            <Button variant="outline" onClick={() => setPhoneOpen(false)} disabled={busy} className="h-12 rounded-xl">
+            <Button
+              variant="outline"
+              onClick={() => setPhoneOpen(false)}
+              disabled={busy}
+              className="h-12 rounded-xl"
+            >
               {t("cancel")}
             </Button>
           </DrawerFooter>
@@ -456,7 +589,12 @@ function SettingsPage() {
             >
               {t("delete_account")}
             </Button>
-            <Button variant="outline" onClick={() => setDeleteOpen(false)} disabled={busy} className="h-12 rounded-xl">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteOpen(false)}
+              disabled={busy}
+              className="h-12 rounded-xl"
+            >
               {t("cancel")}
             </Button>
           </DrawerFooter>
@@ -467,16 +605,27 @@ function SettingsPage() {
       <Drawer open={langOpen} onOpenChange={setLangOpen}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>{pendingLang === "km" ? "ប្ដូរទៅភាសាខ្មែរ?" : "Switch to English?"}</DrawerTitle>
+            <DrawerTitle>
+              {pendingLang === "km" ? "ប្ដូរទៅភាសាខ្មែរ?" : "Switch to English?"}
+            </DrawerTitle>
             <DrawerDescription>
-              {pendingLang === "km" ? "អ្នកនឹងប្ដូរភាសាទៅខ្មែរ" : "The app language will change to English."}
+              {pendingLang === "km"
+                ? "អ្នកនឹងប្ដូរភាសាទៅខ្មែរ"
+                : "The app language will change to English."}
             </DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
             <Button onClick={handleConfirmLang} className="h-12 rounded-xl">
               {t("confirm")}
             </Button>
-            <Button variant="outline" onClick={() => { setLangOpen(false); setPendingLang(null); }} className="h-12 rounded-xl">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setLangOpen(false);
+                setPendingLang(null);
+              }}
+              className="h-12 rounded-xl"
+            >
               {t("cancel")}
             </Button>
           </DrawerFooter>
@@ -527,9 +676,18 @@ function Row({ to, icon: Icon, iconBg, iconColor, label }: RowProps) {
   );
 }
 
-function RowButton({ onClick, icon: Icon, iconBg, iconColor, label }: RowProps & { onClick: () => void }) {
+function RowButton({
+  onClick,
+  icon: Icon,
+  iconBg,
+  iconColor,
+  label,
+}: RowProps & { onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-muted">
+    <button
+      onClick={onClick}
+      className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-muted"
+    >
       <IconBox icon={Icon} bg={iconBg} color={iconColor} />
       <div className="flex-1 text-sm font-semibold text-foreground">{label}</div>
       <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -537,15 +695,7 @@ function RowButton({ onClick, icon: Icon, iconBg, iconColor, label }: RowProps &
   );
 }
 
-function IconBox({
-  icon: Icon,
-  bg,
-  color,
-}: {
-  icon: typeof Pencil;
-  bg: string;
-  color: string;
-}) {
+function IconBox({ icon: Icon, bg, color }: { icon: typeof Pencil; bg: string; color: string }) {
   return (
     <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${bg}`}>
       <Icon className={`h-4 w-4 ${color}`} />

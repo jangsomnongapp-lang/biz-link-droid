@@ -37,9 +37,15 @@ export default function Welcome() {
 
       <div className="flex flex-col items-center gap-5 text-center">
         <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white shadow-card">
-          <img src={logo} alt="BuildHub Construction Marketplace Logo" className="h-full w-full object-cover border" />
+          <img
+            src={logo}
+            alt="BuildHub Construction Marketplace Logo"
+            className="h-full w-full object-cover border"
+          />
         </div>
-        <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-sm mx-[0px] my-[20px] mb-[0px]">{t("app_name")} <span className="sr-only">— Construction Marketplace in Cambodia</span></h1>
+        <h1 className="text-5xl font-extrabold tracking-tight drop-shadow-sm mx-[0px] my-[20px] mb-[0px]">
+          {t("app_name")} <span className="sr-only">— Construction Marketplace in Cambodia</span>
+        </h1>
         <p className="text-base text-white/85">{t("tagline")}</p>
       </div>
 
@@ -55,6 +61,12 @@ export default function Welcome() {
           className="flex h-14 items-center justify-center rounded-2xl border-2 border-white/70 text-base font-semibold text-white active:scale-[0.98] transition"
         >
           {t("have_account")}
+        </Link>
+        <Link
+          to="/blog"
+          className="mt-2 text-center text-sm font-medium text-white/80 underline underline-offset-4 active:text-white"
+        >
+          {t("blog_link")}
         </Link>
       </div>
     </main>
