@@ -32,6 +32,19 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
         ];
 
+        const { data: categories } = await supabaseAdmin
+          .from("blog_categories")
+          .select("slug");
+
+        for (const cat of categories ?? []) {
+          if (!cat.slug) continue;
+          entries.push({
+            path: `/blog/category/${cat.slug}`,
+            changefreq: "weekly",
+            priority: "0.7",
+          });
+        }
+
         const { data: posts } = await supabaseAdmin
           .from("blog_posts")
           .select("slug, updated_at")
