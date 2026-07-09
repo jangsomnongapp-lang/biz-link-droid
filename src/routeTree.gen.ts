@@ -59,6 +59,7 @@ import { Route as GuidesArchitectsRouteImport } from './routes/guides.architects
 import { Route as FindMaterialResultsRouteImport } from './routes/find-material.results'
 import { Route as FindMaterialNewRouteImport } from './routes/find-material.new'
 import { Route as FindMaterialMineRouteImport } from './routes/find-material.mine'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminTelegramRouteImport } from './routes/admin.telegram'
 import { Route as AdminSuppliersRouteImport } from './routes/admin.suppliers'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
@@ -330,6 +331,11 @@ const FindMaterialMineRoute = FindMaterialMineRouteImport.update({
   path: '/mine',
   getParentRoute: () => FindMaterialRoute,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 const AdminTelegramRoute = AdminTelegramRouteImport.update({
   id: '/admin/telegram',
   path: '/admin/telegram',
@@ -471,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
   '/admin/telegram': typeof AdminTelegramRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
   '/find-material/results': typeof FindMaterialResultsRoute
@@ -542,6 +549,7 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
   '/admin/telegram': typeof AdminTelegramRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
   '/find-material/results': typeof FindMaterialResultsRoute
@@ -615,6 +623,7 @@ export interface FileRoutesById {
   '/admin/reports': typeof AdminReportsRoute
   '/admin/suppliers': typeof AdminSuppliersRoute
   '/admin/telegram': typeof AdminTelegramRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/find-material/mine': typeof FindMaterialMineRoute
   '/find-material/new': typeof FindMaterialNewRoute
   '/find-material/results': typeof FindMaterialResultsRoute
@@ -689,6 +698,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/suppliers'
     | '/admin/telegram'
+    | '/blog/$slug'
     | '/find-material/mine'
     | '/find-material/new'
     | '/find-material/results'
@@ -760,6 +770,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/suppliers'
     | '/admin/telegram'
+    | '/blog/$slug'
     | '/find-material/mine'
     | '/find-material/new'
     | '/find-material/results'
@@ -832,6 +843,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/suppliers'
     | '/admin/telegram'
+    | '/blog/$slug'
     | '/find-material/mine'
     | '/find-material/new'
     | '/find-material/results'
@@ -1287,6 +1299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FindMaterialMineRouteImport
       parentRoute: typeof FindMaterialRoute
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/admin/telegram': {
       id: '/admin/telegram'
       path: '/admin/telegram'
@@ -1431,10 +1450,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
 }
 
 const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
 }
 
