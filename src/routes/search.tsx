@@ -116,7 +116,7 @@ function SearchPage() {
     setLoading(true);
     const needle = `%${submitted}%`;
     (async () => {
-      const [pe, su, li, po] = await Promise.all([
+      const [pe, su, li, po, bl] = await Promise.all([
         supabase
           .from("profiles")
           .select("id, full_name, avatar_url, about_me")
@@ -141,7 +141,15 @@ function SearchPage() {
           .ilike("content", needle)
           .order("created_at", { ascending: false })
           .limit(20),
+        supabase
+          .from("blog_posts")
+          .select("id, slug, title, excerpt, cover_image_url, published_at")
+          .eq("status", "published")
+          .or(`title.ilike.${needle},excerpt.ilike.${needle},content.ilike.${needle}`)
+          .order("published_at", { ascending: false })
+          .limit(20),
       ]);
+
       if (cancelled) return;
       setPeople((pe.data ?? []) as PersonRow[]);
       setSuppliers((su.data ?? []) as SupplierRow[]);
