@@ -595,6 +595,7 @@ function HomePage() {
       </div>
 
       {/* Stories row */}
+      <h2 className="sr-only">Stories</h2>
       <div className="no-scrollbar mt-2 flex gap-3 overflow-x-auto bg-surface px-3 py-3 shadow-card">
         <Link
           to="/story/new"
