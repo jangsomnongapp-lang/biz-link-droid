@@ -15,7 +15,9 @@ import {
   Users,
   LayoutGrid,
   MapPin,
+  BookOpen,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/search")({
   component: () => (
@@ -25,7 +27,7 @@ export const Route = createFileRoute("/search")({
   ),
 });
 
-type Tab = "all" | "people" | "suppliers" | "projects" | "posts";
+type Tab = "all" | "people" | "suppliers" | "projects" | "posts" | "blog";
 
 interface PersonRow {
   id: string;
@@ -54,6 +56,15 @@ interface PostRow {
   created_at: string;
   author?: PersonRow | null;
 }
+interface BlogRow {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  cover_image_url: string | null;
+  published_at: string | null;
+}
+
 
 function SearchPage() {
   const { lang } = useI18n();
@@ -67,6 +78,8 @@ function SearchPage() {
   const [suppliers, setSuppliers] = useState<SupplierRow[]>([]);
   const [listings, setListings] = useState<ListingRow[]>([]);
   const [posts, setPosts] = useState<PostRow[]>([]);
+  const [blog, setBlog] = useState<BlogRow[]>([]);
+
 
   useEffect(() => {
     try {
@@ -103,7 +116,7 @@ function SearchPage() {
     setLoading(true);
     const needle = `%${submitted}%`;
     (async () => {
-      const [pe, su, li, po] = await Promise.all([
+      const [pe, su, li, po, bl] = await Promise.all([
         supabase
           .from("profiles")
           .select("id, full_name, avatar_url, about_me")
@@ -128,11 +141,20 @@ function SearchPage() {
           .ilike("content", needle)
           .order("created_at", { ascending: false })
           .limit(20),
+        supabase
+          .from("blog_posts")
+          .select("id, slug, title, excerpt, cover_image_url, published_at")
+          .eq("status", "published")
+          .or(`title.ilike.${needle},excerpt.ilike.${needle},content.ilike.${needle}`)
+          .order("published_at", { ascending: false })
+          .limit(20),
       ]);
+
       if (cancelled) return;
       setPeople((pe.data ?? []) as PersonRow[]);
       setSuppliers((su.data ?? []) as SupplierRow[]);
       setListings((li.data ?? []) as ListingRow[]);
+      setBlog((bl.data ?? []) as BlogRow[]);
 
       const postRows = (po.data ?? []) as PostRow[];
       if (postRows.length > 0) {
@@ -159,9 +181,11 @@ function SearchPage() {
     { id: "suppliers", en: "Suppliers", km: "ហាង", icon: Store },
     { id: "projects", en: "Projects", km: "ការងារ", icon: ClipboardList },
     { id: "posts", en: "Posts", km: "ប្រកាស", icon: FileText },
+    { id: "blog", en: "Blog", km: "ប្លុក", icon: BookOpen },
   ];
 
-  const totalCount = people.length + suppliers.length + listings.length + posts.length;
+  const totalCount =
+    people.length + suppliers.length + listings.length + posts.length + blog.length;
 
   const showEmpty = useMemo(() => {
     if (!submitted || loading) return false;
@@ -170,8 +194,10 @@ function SearchPage() {
     if (tab === "suppliers") return suppliers.length === 0;
     if (tab === "projects") return listings.length === 0;
     if (tab === "posts") return posts.length === 0;
+    if (tab === "blog") return blog.length === 0;
     return false;
-  }, [submitted, loading, tab, totalCount, people, suppliers, listings, posts]);
+  }, [submitted, loading, tab, totalCount, people, suppliers, listings, posts, blog]);
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -305,6 +331,21 @@ function SearchPage() {
                 ))}
               </Section>
             )}
+
+            {(tab === "all" || tab === "blog") && blog.length > 0 && (
+              <Section
+                title={lang === "km" ? "ប្លុក" : "Blog"}
+                count={blog.length}
+                showAll={tab === "all" && blog.length > 3}
+                onShowAll={() => setTab("blog")}
+                lang={lang}
+              >
+                {(tab === "all" ? blog.slice(0, 3) : blog).map((b) => (
+                  <BlogItem key={b.id} b={b} />
+                ))}
+              </Section>
+            )}
+
           </div>
         )}
       </main>
@@ -312,7 +353,32 @@ function SearchPage() {
   );
 }
 
+function BlogItem({ b }: { b: BlogRow }) {
+  return (
+    <Link
+      to="/blog/$slug"
+      params={{ slug: b.slug }}
+      className="flex items-start gap-3 px-4 py-3 active:bg-muted"
+    >
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary/10">
+        {b.cover_image_url ? (
+          <img src={b.cover_image_url} alt={b.title} className="h-full w-full object-cover" />
+        ) : (
+          <BookOpen className="h-5 w-5 text-primary" />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="line-clamp-1 text-sm font-semibold text-foreground">{b.title}</div>
+        {b.excerpt && (
+          <div className="line-clamp-2 text-xs text-muted-foreground">{b.excerpt}</div>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 function Section({
+
   title,
   count,
   children,
