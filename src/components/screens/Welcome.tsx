@@ -60,7 +60,7 @@ export default function Welcome() {
           to="/blog"
           className="mt-2 text-center text-sm font-medium text-white/80 underline underline-offset-4 active:text-white"
         >
-          {lang === "km" ? "អានគន្លឹះសាងសង់" : "Read construction tips & guides"}
+          {t("blog_link")}
         </Link>
       </div>
     </main>
