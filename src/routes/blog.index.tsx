@@ -52,7 +52,7 @@ function BlogIndexPage() {
       let q = supabase
         .from("blog_posts")
         .select(
-          "id, slug, title, excerpt, cover_image_url, published_at, author_name, blog_categories(slug, name_en, name_km)"
+          "id, slug, title, excerpt, cover_image_url, published_at, author_name, blog_categories(slug, name_en, name_km)",
         )
         .eq("status", "published")
         .order("published_at", { ascending: false });
@@ -67,9 +67,7 @@ function BlogIndexPage() {
   return (
     <div className="px-4 py-5">
       <div className="mb-5">
-        <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
-          BuildHub Blog
-        </h1>
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground">BuildHub Blog</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Construction tips, materials guides, cost updates, and safety advice for Cambodia.
         </p>
@@ -111,12 +109,7 @@ function BlogIndexPage() {
 
       <div className="space-y-4">
         {posts.map((post) => (
-          <Link
-            key={post.id}
-            to="/blog/$slug"
-            params={{ slug: post.slug }}
-            className="block"
-          >
+          <Link key={post.id} to="/blog/$slug" params={{ slug: post.slug }} className="block">
             <Card className="overflow-hidden transition-shadow hover:shadow-md">
               {post.cover_image_url && (
                 <div className="aspect-[16/9] w-full overflow-hidden">
@@ -137,16 +130,14 @@ function BlogIndexPage() {
                   )}
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3" />
-                    {post.published_at ? format(new Date(post.published_at), "d MMM yyyy") : "Draft"}
+                    {post.published_at
+                      ? format(new Date(post.published_at), "d MMM yyyy")
+                      : "Draft"}
                   </span>
                 </div>
-                <h2 className="text-lg font-bold leading-tight text-foreground">
-                  {post.title}
-                </h2>
+                <h2 className="text-lg font-bold leading-tight text-foreground">{post.title}</h2>
                 {post.excerpt && (
-                  <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                    {post.excerpt}
-                  </p>
+                  <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{post.excerpt}</p>
                 )}
               </CardContent>
             </Card>

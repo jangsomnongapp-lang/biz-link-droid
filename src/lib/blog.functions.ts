@@ -16,15 +16,13 @@ interface BlogPost {
 }
 
 export const getBlogPostBySlug = createServerFn({ method: "GET" })
-  .inputValidator((data) =>
-    z.object({ slug: z.string().min(1) }).parse(data)
-  )
+  .inputValidator((data) => z.object({ slug: z.string().min(1) }).parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: post } = await supabaseAdmin
       .from("blog_posts")
       .select(
-        "id, slug, title, excerpt, content, cover_image_url, published_at, author_name, meta_title, meta_description, blog_categories(slug, name_en, name_km)"
+        "id, slug, title, excerpt, content, cover_image_url, published_at, author_name, meta_title, meta_description, blog_categories(slug, name_en, name_km)",
       )
       .eq("slug", data.slug)
       .eq("status", "published")
@@ -33,15 +31,13 @@ export const getBlogPostBySlug = createServerFn({ method: "GET" })
   });
 
 export const listBlogPosts = createServerFn({ method: "GET" })
-  .inputValidator((data) =>
-    z.object({ categorySlug: z.string().optional() }).parse(data)
-  )
+  .inputValidator((data) => z.object({ categorySlug: z.string().optional() }).parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin
       .from("blog_posts")
       .select(
-        "id, slug, title, excerpt, cover_image_url, published_at, author_name, blog_categories(slug, name_en, name_km)"
+        "id, slug, title, excerpt, cover_image_url, published_at, author_name, blog_categories(slug, name_en, name_km)",
       )
       .eq("status", "published")
       .order("published_at", { ascending: false });
@@ -52,13 +48,11 @@ export const listBlogPosts = createServerFn({ method: "GET" })
     return (posts as any[] | null) ?? [];
   });
 
-export const listBlogCategories = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: categories } = await supabaseAdmin
-      .from("blog_categories")
-      .select("id, slug, name_en, name_km")
-      .order("sort_order");
-    return (categories as any[] | null) ?? [];
-  }
-);
+export const listBlogCategories = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: categories } = await supabaseAdmin
+    .from("blog_categories")
+    .select("id, slug, name_en, name_km")
+    .order("sort_order");
+  return (categories as any[] | null) ?? [];
+});

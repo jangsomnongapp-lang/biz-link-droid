@@ -31,11 +31,7 @@ function BlogLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-30 flex h-14 items-center bg-primary px-3 text-primary-foreground">
-        <Link
-          to="/"
-          className="rounded-full p-2 active:bg-white/10"
-          aria-label="Back to home"
-        >
+        <Link to="/" className="rounded-full p-2 active:bg-white/10" aria-label="Back to home">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="flex-1 text-center text-base font-semibold">BuildHub Blog</h1>
