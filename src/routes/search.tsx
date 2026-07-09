@@ -15,7 +15,9 @@ import {
   Users,
   LayoutGrid,
   MapPin,
+  BookOpen,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/search")({
   component: () => (
