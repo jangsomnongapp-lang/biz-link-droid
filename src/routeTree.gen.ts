@@ -20,6 +20,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OnlineOrdersRouteImport } from './routes/online-orders'
 import { Route as MyPostsRouteImport } from './routes/my-posts'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as InvitationsRouteImport } from './routes/invitations'
@@ -61,6 +62,8 @@ import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminPostsRouteImport } from './routes/admin.posts'
 import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
 import { Route as AdminDrawsRouteImport } from './routes/admin.draws'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as SuppliersStoreIdEditRouteImport } from './routes/suppliers.$storeId.edit'
 import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
 import { Route as RentalsRequestNewRouteImport } from './routes/rentals.request.new'
@@ -68,6 +71,8 @@ import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$
 import { Route as ApiPublicTelegramPasswordResetRouteImport } from './routes/api/public/telegram-password-reset'
 import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
 import { Route as ApiPublicFcmSendRouteImport } from './routes/api/public/fcm-send'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -125,6 +130,11 @@ const OnlineOrdersRoute = OnlineOrdersRouteImport.update({
 const MyPostsRoute = MyPostsRouteImport.update({
   id: '/my-posts',
   path: '/my-posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -332,6 +342,18 @@ const AdminDrawsRoute = AdminDrawsRouteImport.update({
   path: '/admin/draws',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SuppliersStoreIdEditRoute = SuppliersStoreIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -368,6 +390,17 @@ const ApiPublicFcmSendRoute = ApiPublicFcmSendRouteImport.update({
   path: '/api/public/fcm-send',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -398,6 +431,7 @@ export interface FileRoutesByFullPath {
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/my-posts': typeof MyPostsRoute
   '/online-orders': typeof OnlineOrdersRoute
   '/privacy': typeof PrivacyRoute
@@ -409,6 +443,8 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/draws': typeof AdminDrawsRoute
   '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
@@ -438,6 +474,8 @@ export interface FileRoutesByFullPath {
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/fcm-send': typeof ApiPublicFcmSendRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
@@ -462,6 +500,7 @@ export interface FileRoutesByTo {
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/my-posts': typeof MyPostsRoute
   '/online-orders': typeof OnlineOrdersRoute
   '/privacy': typeof PrivacyRoute
@@ -473,6 +512,8 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/draws': typeof AdminDrawsRoute
   '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
@@ -502,6 +543,8 @@ export interface FileRoutesByTo {
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/fcm-send': typeof ApiPublicFcmSendRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
@@ -527,6 +570,7 @@ export interface FileRoutesById {
   '/invitations': typeof InvitationsRoute
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/my-posts': typeof MyPostsRoute
   '/online-orders': typeof OnlineOrdersRoute
   '/privacy': typeof PrivacyRoute
@@ -538,6 +582,8 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/draws': typeof AdminDrawsRoute
   '/admin/invitations': typeof AdminInvitationsRoute
   '/admin/posts': typeof AdminPostsRoute
@@ -567,6 +613,8 @@ export interface FileRoutesById {
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/api/public/fcm-send': typeof ApiPublicFcmSendRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
@@ -593,6 +641,7 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/join'
     | '/login'
+    | '/mcp'
     | '/my-posts'
     | '/online-orders'
     | '/privacy'
@@ -604,6 +653,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/draws'
     | '/admin/invitations'
     | '/admin/posts'
@@ -633,6 +684,8 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/api/public/fcm-send'
     | '/api/public/telegram-notify'
     | '/api/public/telegram-password-reset'
@@ -657,6 +710,7 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/join'
     | '/login'
+    | '/mcp'
     | '/my-posts'
     | '/online-orders'
     | '/privacy'
@@ -668,6 +722,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/draws'
     | '/admin/invitations'
     | '/admin/posts'
@@ -697,6 +753,8 @@ export interface FileRouteTypes {
     | '/listings'
     | '/messages'
     | '/suppliers'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/api/public/fcm-send'
     | '/api/public/telegram-notify'
     | '/api/public/telegram-password-reset'
@@ -721,6 +779,7 @@ export interface FileRouteTypes {
     | '/invitations'
     | '/join'
     | '/login'
+    | '/mcp'
     | '/my-posts'
     | '/online-orders'
     | '/privacy'
@@ -732,6 +791,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/terms'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/draws'
     | '/admin/invitations'
     | '/admin/posts'
@@ -761,6 +822,8 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/api/public/fcm-send'
     | '/api/public/telegram-notify'
     | '/api/public/telegram-password-reset'
@@ -786,6 +849,7 @@ export interface RootRouteChildren {
   InvitationsRoute: typeof InvitationsRoute
   JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
+  McpRoute: typeof McpRoute
   MyPostsRoute: typeof MyPostsRoute
   OnlineOrdersRoute: typeof OnlineOrdersRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -797,6 +861,8 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminDrawsRoute: typeof AdminDrawsRoute
   AdminInvitationsRoute: typeof AdminInvitationsRoute
   AdminPostsRoute: typeof AdminPostsRoute
@@ -820,6 +886,8 @@ export interface RootRouteChildren {
   ListingsIndexRoute: typeof ListingsIndexRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   SuppliersIndexRoute: typeof SuppliersIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicFcmSendRoute: typeof ApiPublicFcmSendRoute
   ApiPublicTelegramNotifyRoute: typeof ApiPublicTelegramNotifyRoute
   ApiPublicTelegramPasswordResetRoute: typeof ApiPublicTelegramPasswordResetRoute
@@ -908,6 +976,13 @@ declare module '@tanstack/react-router' {
       path: '/my-posts'
       fullPath: '/my-posts'
       preLoaderRoute: typeof MyPostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1197,6 +1272,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDrawsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/suppliers/$storeId/edit': {
       id: '/suppliers/$storeId/edit'
       path: '/edit'
@@ -1244,6 +1333,20 @@ declare module '@tanstack/react-router' {
       path: '/api/public/fcm-send'
       fullPath: '/api/public/fcm-send'
       preLoaderRoute: typeof ApiPublicFcmSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/queue/process': {
@@ -1325,6 +1428,7 @@ const rootRouteChildren: RootRouteChildren = {
   InvitationsRoute: InvitationsRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
+  McpRoute: McpRoute,
   MyPostsRoute: MyPostsRoute,
   OnlineOrdersRoute: OnlineOrdersRoute,
   PrivacyRoute: PrivacyRoute,
@@ -1336,6 +1440,9 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminDrawsRoute: AdminDrawsRoute,
   AdminInvitationsRoute: AdminInvitationsRoute,
   AdminPostsRoute: AdminPostsRoute,
@@ -1359,6 +1466,8 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsIndexRoute: ListingsIndexRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   SuppliersIndexRoute: SuppliersIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicFcmSendRoute: ApiPublicFcmSendRoute,
   ApiPublicTelegramNotifyRoute: ApiPublicTelegramNotifyRoute,
   ApiPublicTelegramPasswordResetRoute: ApiPublicTelegramPasswordResetRoute,
