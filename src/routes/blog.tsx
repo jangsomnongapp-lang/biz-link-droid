@@ -8,7 +8,7 @@ export const Route = createFileRoute("/blog")({
       {
         name: "description",
         content:
-          "Practical construction guides, materials advice, cost updates, and safety tips for building in Cambodia.",
+          "Practical construction guides, materials advice, cost updates, and safety tips for building in Cambodia. Written for owners, contractors, and suppliers.",
       },
       {
         property: "og:title",
@@ -21,8 +21,45 @@ export const Route = createFileRoute("/blog")({
       },
       { property: "og:url", content: "https://buildhubkh.com/blog" },
       { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "BuildHub Blog — Construction Tips & Market News for Cambodia" },
+      {
+        name: "twitter:description",
+        content:
+          "Practical construction guides, materials advice, cost updates, and safety tips for building in Cambodia.",
+      },
     ],
     links: [{ rel: "canonical", href: "https://buildhubkh.com/blog" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          name: "BuildHub Blog",
+          description:
+            "Practical construction guides, materials advice, cost updates, and safety tips for building in Cambodia.",
+          url: "https://buildhubkh.com/blog",
+          inLanguage: ["en", "km"],
+          publisher: {
+            "@type": "Organization",
+            name: "BuildHub",
+            url: "https://buildhubkh.com",
+          },
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://buildhubkh.com/" },
+            { "@type": "ListItem", position: 2, name: "Blog", item: "https://buildhubkh.com/blog" },
+          ],
+        }),
+      },
+    ],
   }),
   component: BlogLayout,
 });
