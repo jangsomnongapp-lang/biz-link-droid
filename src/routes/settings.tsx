@@ -41,6 +41,7 @@ import {
   Gift,
   Ticket,
   Bot,
+  BookOpen,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
