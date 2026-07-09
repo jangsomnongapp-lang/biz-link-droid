@@ -881,7 +881,7 @@ function HomePage() {
                       <img
                         key={i}
                         src={url}
-                        alt=""
+                        alt={`${supplier.name} — photo ${i + 1}`}
                         className="aspect-square w-full rounded-lg bg-muted object-cover"
                       />
                     ))}
@@ -889,7 +889,7 @@ function HomePage() {
                 )
               ) : (
                 p.post_photos[0] && (
-                  <img src={p.post_photos[0].photo_url} loading="lazy" decoding="async" className="mt-3 w-full rounded-lg object-cover" alt="" />
+                  <img src={p.post_photos[0].photo_url} loading="lazy" decoding="async" className="mt-3 w-full rounded-lg object-cover" alt={p.content ? p.content.slice(0, 100) : `Post by ${p.profiles?.full_name ?? "user"}`} />
                 )
               )}
               {p.video_url && <VideoEmbed url={p.video_url} />}
