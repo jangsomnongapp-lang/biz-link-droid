@@ -2,9 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
-import { isNativeApp } from "@/lib/platform";
 import logo from "@/assets/jangsomnong-logo.jpg";
-
 
 export default function Welcome() {
   const { t, lang, setLang } = useI18n();
@@ -64,15 +62,6 @@ export default function Welcome() {
         >
           {t("have_account")}
         </Link>
-        {!isNativeApp() && (
-          <Link
-            to="/blog"
-            className="mt-2 text-center text-sm font-medium text-white/80 underline underline-offset-4 active:text-white"
-          >
-            {t("blog_link")}
-          </Link>
-        )}
-
       </div>
     </main>
   );
