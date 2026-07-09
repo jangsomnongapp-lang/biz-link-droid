@@ -40,6 +40,7 @@ import {
   UserCog,
   Gift,
   Ticket,
+  Bot,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
