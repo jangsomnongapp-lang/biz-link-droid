@@ -541,7 +541,7 @@ function HomePage() {
 
   return (
     <div>
-      <h1 className="sr-only">BuildHub Construction Feed</h1>
+      <h1 className="px-3 pt-3 text-lg font-bold text-foreground">BuildHub — Cambodia's Construction Marketplace</h1>
       {focused && (
         <div className="sticky top-[7.25rem] z-10 flex items-center gap-2 border-b border-border bg-surface px-3 py-2 shadow-card">
           <button
@@ -595,6 +595,7 @@ function HomePage() {
       </div>
 
       {/* Stories row */}
+      <h2 className="sr-only">Stories</h2>
       <div className="no-scrollbar mt-2 flex gap-3 overflow-x-auto bg-surface px-3 py-3 shadow-card">
         <Link
           to="/story/new"
@@ -620,7 +621,7 @@ function HomePage() {
               <div className="rounded-full border-2 border-surface">
                 <img
                   src={s.cover}
-                  alt=""
+                  alt={`Story from ${s.full_name ?? "user"}`}
                   className="h-[60px] w-[60px] rounded-full object-cover"
                 />
               </div>
@@ -634,6 +635,7 @@ function HomePage() {
       </>)}
 
       {/* Feed */}
+      <h2 className="sr-only">Community Feed</h2>
       <div className="mt-2 space-y-2">
         {loading && <FeedSkeleton count={3} />}
         {!loading && !focused && posts.length === 0 && (
@@ -705,7 +707,7 @@ function HomePage() {
                     {r.rental_photos.length > 0 && (
                       <div className={`mt-3 grid gap-2 ${r.rental_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
                         {r.rental_photos.slice(0, 2).map((p, i) => (
-                          <img key={i} src={p.photo_url} alt="" loading="lazy" decoding="async" className="aspect-square w-full rounded-lg bg-muted object-cover" />
+                          <img key={i} src={p.photo_url} alt={`${r.title} — photo ${i + 1}`} loading="lazy" decoding="async" className="aspect-square w-full rounded-lg bg-muted object-cover" />
                         ))}
                       </div>
                     )}
@@ -879,7 +881,7 @@ function HomePage() {
                       <img
                         key={i}
                         src={url}
-                        alt=""
+                        alt={`${supplier.name} — photo ${i + 1}`}
                         className="aspect-square w-full rounded-lg bg-muted object-cover"
                       />
                     ))}
@@ -887,7 +889,7 @@ function HomePage() {
                 )
               ) : (
                 p.post_photos[0] && (
-                  <img src={p.post_photos[0].photo_url} loading="lazy" decoding="async" className="mt-3 w-full rounded-lg object-cover" alt="" />
+                  <img src={p.post_photos[0].photo_url} loading="lazy" decoding="async" className="mt-3 w-full rounded-lg object-cover" alt={p.content ? p.content.slice(0, 100) : `Post by ${p.profiles?.full_name ?? "user"}`} />
                 )
               )}
               {p.video_url && <VideoEmbed url={p.video_url} />}
