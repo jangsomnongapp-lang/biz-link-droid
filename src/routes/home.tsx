@@ -707,7 +707,7 @@ function HomePage() {
                     {r.rental_photos.length > 0 && (
                       <div className={`mt-3 grid gap-2 ${r.rental_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
                         {r.rental_photos.slice(0, 2).map((p, i) => (
-                          <img key={i} src={p.photo_url} alt="" loading="lazy" decoding="async" className="aspect-square w-full rounded-lg bg-muted object-cover" />
+                          <img key={i} src={p.photo_url} alt={`${r.title} — photo ${i + 1}`} loading="lazy" decoding="async" className="aspect-square w-full rounded-lg bg-muted object-cover" />
                         ))}
                       </div>
                     )}
