@@ -17,7 +17,9 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n, type Lang } from "@/lib/i18n";
+import { isNativeApp } from "@/lib/platform";
 import { supabase } from "@/integrations/supabase/client";
+
 import {
   ArrowLeft,
   ChevronRight,
@@ -412,13 +414,16 @@ function SettingsPage() {
 
       {/* Support */}
       <Group title={t("support")}>
-        <Row
-          to="/blog"
-          icon={BookOpen}
-          iconBg="bg-emerald-100"
-          iconColor="text-emerald-600"
-          label="BuildHub Blog"
-        />
+        {!isNativeApp() && (
+          <Row
+            to="/blog"
+            icon={BookOpen}
+            iconBg="bg-emerald-100"
+            iconColor="text-emerald-600"
+            label="BuildHub Blog"
+          />
+        )}
+
         <Row
           to="/help"
           icon={HelpCircle}
