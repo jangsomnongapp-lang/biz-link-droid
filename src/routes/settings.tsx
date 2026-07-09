@@ -334,6 +334,7 @@ function SettingsPage() {
       {/* Support */}
       <Group title={t("support")}>
         <Row to="/help" icon={HelpCircle} iconBg="bg-sky-100" iconColor="text-sky-600" label={t("help_faq")} />
+        <Row to="/connect" icon={Bot} iconBg="bg-violet-100" iconColor="text-violet-600" label="Connect to AI assistant" />
         <Row to="/report" icon={Flag} iconBg="bg-rose-100" iconColor="text-rose-600" label={t("report_problem")} />
         <Row to="/terms" icon={FileText} iconBg="bg-slate-100" iconColor="text-slate-600" label={t("terms")} />
         <Row to="/privacy" icon={ShieldAlert} iconBg="bg-amber-100" iconColor="text-amber-600" label={t("privacy")} />
