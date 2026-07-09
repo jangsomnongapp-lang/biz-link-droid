@@ -38,6 +38,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SuppliersIndexRouteImport } from './routes/suppliers.index'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
 import { Route as SuppliersStoreIdRouteImport } from './routes/suppliers.$storeId'
 import { Route as SuperuserPanelRouteImport } from './routes/superuser.panel'
@@ -223,6 +224,11 @@ const ListingsIndexRoute = ListingsIndexRouteImport.update({
   id: '/listings/',
   path: '/listings/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
 } as any)
 const UsersUserIdRoute = UsersUserIdRouteImport.update({
   id: '/users/$userId',
@@ -435,7 +441,7 @@ export interface FileRoutesByFullPath {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
@@ -485,6 +491,7 @@ export interface FileRoutesByFullPath {
   '/superuser/panel': typeof SuperuserPanelRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
+  '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
@@ -506,7 +513,6 @@ export interface FileRoutesByTo {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
-  '/blog': typeof BlogRoute
   '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
@@ -556,6 +562,7 @@ export interface FileRoutesByTo {
   '/superuser/panel': typeof SuperuserPanelRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
+  '/blog': typeof BlogIndexRoute
   '/listings': typeof ListingsIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/suppliers': typeof SuppliersIndexRoute
@@ -578,7 +585,7 @@ export interface FileRoutesById {
   '/ai-search': typeof AiSearchRoute
   '/alerts': typeof AlertsRoute
   '/announce': typeof AnnounceRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/connect': typeof ConnectRoute
   '/find-material': typeof FindMaterialRouteWithChildren
   '/find-worker': typeof FindWorkerRoute
@@ -628,6 +635,7 @@ export interface FileRoutesById {
   '/superuser/panel': typeof SuperuserPanelRoute
   '/suppliers/$storeId': typeof SuppliersStoreIdRouteWithChildren
   '/users/$userId': typeof UsersUserIdRoute
+  '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/suppliers/': typeof SuppliersIndexRoute
@@ -701,6 +709,7 @@ export interface FileRouteTypes {
     | '/superuser/panel'
     | '/suppliers/$storeId'
     | '/users/$userId'
+    | '/blog/'
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
@@ -722,7 +731,6 @@ export interface FileRouteTypes {
     | '/ai-search'
     | '/alerts'
     | '/announce'
-    | '/blog'
     | '/connect'
     | '/find-material'
     | '/find-worker'
@@ -772,6 +780,7 @@ export interface FileRouteTypes {
     | '/superuser/panel'
     | '/suppliers/$storeId'
     | '/users/$userId'
+    | '/blog'
     | '/listings'
     | '/messages'
     | '/suppliers'
@@ -843,6 +852,7 @@ export interface FileRouteTypes {
     | '/superuser/panel'
     | '/suppliers/$storeId'
     | '/users/$userId'
+    | '/blog/'
     | '/listings/'
     | '/messages/'
     | '/suppliers/'
@@ -865,7 +875,7 @@ export interface RootRouteChildren {
   AiSearchRoute: typeof AiSearchRoute
   AlertsRoute: typeof AlertsRoute
   AnnounceRoute: typeof AnnounceRoute
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   ConnectRoute: typeof ConnectRoute
   FindMaterialRoute: typeof FindMaterialRouteWithChildren
   FindWorkerRoute: typeof FindWorkerRoute
@@ -1129,6 +1139,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/listings/'
       preLoaderRoute: typeof ListingsIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/users/$userId': {
       id: '/users/$userId'
@@ -1413,6 +1430,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BlogRouteChildren {
+  BlogIndexRoute: typeof BlogIndexRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogIndexRoute: BlogIndexRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 interface FindMaterialRouteChildren {
   FindMaterialMineRoute: typeof FindMaterialMineRoute
   FindMaterialNewRoute: typeof FindMaterialNewRoute
@@ -1460,7 +1487,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiSearchRoute: AiSearchRoute,
   AlertsRoute: AlertsRoute,
   AnnounceRoute: AnnounceRoute,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   ConnectRoute: ConnectRoute,
   FindMaterialRoute: FindMaterialRouteWithChildren,
   FindWorkerRoute: FindWorkerRoute,
