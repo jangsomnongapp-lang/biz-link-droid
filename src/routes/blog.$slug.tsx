@@ -12,8 +12,7 @@ export const Route = createFileRoute("/blog/$slug")({
     return await getBlogPostBySlug({ data: { slug: params.slug } });
   },
   head: ({ loaderData }) => {
-    const title =
-      loaderData?.meta_title ?? loaderData?.title ?? "Article — BuildHub Blog";
+    const title = loaderData?.meta_title ?? loaderData?.title ?? "Article — BuildHub Blog";
     const description =
       loaderData?.meta_description ??
       loaderData?.excerpt ??
@@ -148,9 +147,7 @@ function BlogPostPage() {
       )}
 
       {post.excerpt && (
-        <p className="mb-6 text-base leading-relaxed text-muted-foreground">
-          {post.excerpt}
-        </p>
+        <p className="mb-6 text-base leading-relaxed text-muted-foreground">{post.excerpt}</p>
       )}
 
       <div className="prose prose-neutral max-w-none dark:prose-invert prose-headings:font-bold prose-a:text-primary">
@@ -180,4 +177,3 @@ function BlogPostPage() {
     </article>
   );
 }
-
