@@ -335,6 +335,7 @@ function SettingsPage() {
 
       {/* Support */}
       <Group title={t("support")}>
+        <Row to="/blog" icon={BookOpen} iconBg="bg-emerald-100" iconColor="text-emerald-600" label="BuildHub Blog" />
         <Row to="/help" icon={HelpCircle} iconBg="bg-sky-100" iconColor="text-sky-600" label={t("help_faq")} />
         <Row to="/connect" icon={Bot} iconBg="bg-violet-100" iconColor="text-violet-600" label="Connect to AI assistant" />
         <Row to="/report" icon={Flag} iconBg="bg-rose-100" iconColor="text-rose-600" label={t("report_problem")} />
