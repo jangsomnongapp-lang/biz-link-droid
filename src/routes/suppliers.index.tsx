@@ -14,6 +14,17 @@ import { CAMBODIA_PROVINCES } from "@/components/ProvinceSelect";
 
 
 export const Route = createFileRoute("/suppliers/")({
+  head: () => ({
+    meta: [
+      { title: "Construction Material & Equipment Suppliers in Cambodia — BuildHub" },
+      { name: "description", content: "Discover verified suppliers of construction materials, tools, and equipment across Cambodia. Browse stores, products, and rental gear." },
+      { property: "og:title", content: "Construction Material & Equipment Suppliers in Cambodia — BuildHub" },
+      { property: "og:description", content: "Verified construction material, tool, and equipment suppliers across Cambodia." },
+      { property: "og:url", content: "https://buildhubkh.com/suppliers" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/suppliers" }],
+  }),
   validateSearch: (params: Record<string, unknown>): { q?: string } => ({
     q: typeof params.q === "string" ? params.q.slice(0, 120) : undefined,
   }),
