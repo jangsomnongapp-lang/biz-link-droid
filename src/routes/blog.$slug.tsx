@@ -1,5 +1,4 @@
-import { Link, createFileRoute, useParams } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { getBlogPostBySlug } from "@/lib/blog.functions";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,13 +8,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export const Route = createFileRoute("/blog/$slug")({
-  loader: async ({ context, params }) => {
-    const post = await context.queryClient.ensureQueryData({
-      queryKey: ["blog:post", params.slug],
-      queryFn: async () => getBlogPostBySlug({ slug: params.slug }),
-      staleTime: 60_000,
-    });
-    return post;
+  loader: async ({ params }) => {
+    return await getBlogPostBySlug({ slug: params.slug });
   },
   head: ({ loaderData }) => {
     const title =
@@ -64,6 +58,16 @@ export const Route = createFileRoute("/blog/$slug")({
         : undefined,
     };
   },
+  pendingComponent: () => (
+    <div className="px-4 py-5">
+      <Skeleton className="mb-4 h-8 w-3/4" />
+      <Skeleton className="mb-2 h-4 w-1/2" />
+      <Skeleton className="mb-4 h-48 w-full rounded-xl" />
+      <Skeleton className="mb-2 h-4 w-full" />
+      <Skeleton className="mb-2 h-4 w-full" />
+      <Skeleton className="h-4 w-2/3" />
+    </div>
+  ),
   component: BlogPostPage,
 });
 
@@ -81,37 +85,8 @@ interface PostDetail {
   blog_categories: { slug: string; name_en: string; name_km: string } | null;
 }
 
-
 function BlogPostPage() {
-  const { slug } = useParams({ from: "/blog/$slug" });
-  const { data: post, isLoading } = useQuery<PostDetail | null>({
-    queryKey: ["blog:post", slug],
-    staleTime: 60_000,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("blog_posts")
-        .select(
-          "id, slug, title, excerpt, content, cover_image_url, published_at, author_name, meta_title, meta_description, blog_categories(slug, name_en, name_km)"
-        )
-        .eq("slug", slug)
-        .eq("status", "published")
-        .maybeSingle();
-      return (data as PostDetail | null) ?? null;
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <div className="px-4 py-5">
-        <Skeleton className="mb-4 h-8 w-3/4" />
-        <Skeleton className="mb-2 h-4 w-1/2" />
-        <Skeleton className="mb-4 h-48 w-full rounded-xl" />
-        <Skeleton className="mb-2 h-4 w-full" />
-        <Skeleton className="mb-2 h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-      </div>
-    );
-  }
+  const post = Route.useLoaderData() as PostDetail | null;
 
   if (!post) {
     return (
@@ -205,3 +180,4 @@ function BlogPostPage() {
     </article>
   );
 }
+
