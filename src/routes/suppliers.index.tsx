@@ -334,6 +334,7 @@ function SuppliersListPage() {
 
   return (
     <div className="relative px-3 py-3">
+      <h1 className="sr-only">Construction Materials and Equipment Suppliers in Cambodia</h1>
       {mode === "shops" && isSupplier && (
         <Link
           to="/posts/new"
