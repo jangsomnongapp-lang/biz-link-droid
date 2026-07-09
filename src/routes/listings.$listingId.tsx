@@ -14,6 +14,31 @@ import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } 
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/listings/$listingId")({
+  head: ({ params }) => ({
+    meta: [
+      { title: "Construction Project — BuildHub" },
+      { name: "description", content: "View construction project details, budget, and location on BuildHub — Cambodia's construction marketplace." },
+      { property: "og:title", content: "Construction Project — BuildHub" },
+      { property: "og:description", content: "Construction project details, budget, and location on BuildHub." },
+      { property: "og:url", content: `https://buildhubkh.com/listings/${params.listingId}` },
+      { property: "og:type", content: "product" },
+    ],
+    links: [{ rel: "canonical", href: `https://buildhubkh.com/listings/${params.listingId}` }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: "Construction project listing",
+          description: "Construction project posted on BuildHub — Cambodia's construction marketplace.",
+          url: `https://buildhubkh.com/listings/${params.listingId}`,
+          category: "Construction",
+          offers: { "@type": "Offer", availability: "https://schema.org/InStock", priceCurrency: "USD" },
+        }),
+      },
+    ],
+  }),
   component: () => (
     <RequireAuth>
       <ListingDetailPage />

@@ -8,7 +8,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "BuildHub is Cambodia's mobile marketplace for construction. Post projects, find skilled workers and teams, and discover material suppliers — in Khmer and English.",
+          "Cambodia's mobile marketplace for construction. Post projects, find skilled workers and teams, and discover material suppliers.",
       },
       { property: "og:title", content: "BuildHub — Find Construction Work and Workers in Cambodia" },
       {

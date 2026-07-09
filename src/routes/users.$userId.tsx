@@ -12,6 +12,29 @@ import { ArrowLeft, BadgeCheck, Briefcase, Sparkles, MapPin, Star } from "lucide
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/users/$userId")({
+  head: ({ params }) => ({
+    meta: [
+      { title: "Construction Professional Profile — BuildHub" },
+      { name: "description", content: "View a construction professional's profile on BuildHub — Cambodia's construction marketplace." },
+      { property: "og:title", content: "Construction Professional Profile — BuildHub" },
+      { property: "og:description", content: "Construction professional's profile, skills, and portfolio on BuildHub." },
+      { property: "og:url", content: `https://buildhubkh.com/users/${params.userId}` },
+      { property: "og:type", content: "profile" },
+    ],
+    links: [{ rel: "canonical", href: `https://buildhubkh.com/users/${params.userId}` }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          url: `https://buildhubkh.com/users/${params.userId}`,
+          jobTitle: "Construction professional",
+          description: "Construction professional on BuildHub — Cambodia's construction marketplace.",
+        }),
+      },
+    ],
+  }),
   component: () => (
     <RequireAuth>
       <UserProfilePage />
