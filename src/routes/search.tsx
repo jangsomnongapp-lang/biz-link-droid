@@ -331,6 +331,21 @@ function SearchPage() {
                 ))}
               </Section>
             )}
+
+            {(tab === "all" || tab === "blog") && blog.length > 0 && (
+              <Section
+                title={lang === "km" ? "ប្លុក" : "Blog"}
+                count={blog.length}
+                showAll={tab === "all" && blog.length > 3}
+                onShowAll={() => setTab("blog")}
+                lang={lang}
+              >
+                {(tab === "all" ? blog.slice(0, 3) : blog).map((b) => (
+                  <BlogItem key={b.id} b={b} />
+                ))}
+              </Section>
+            )}
+
           </div>
         )}
       </main>
