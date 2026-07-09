@@ -4,8 +4,6 @@ import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import logo from "@/assets/jangsomnong-logo.jpg";
 
-
-
 export default function Welcome() {
   const { t, lang, setLang } = useI18n();
   const { user, loading } = useAuth();
@@ -65,10 +63,6 @@ export default function Welcome() {
           {t("have_account")}
         </Link>
       </div>
-    </main>
-  );
-}
-
     </main>
   );
 }
