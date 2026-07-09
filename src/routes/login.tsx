@@ -9,21 +9,38 @@ import logo from "@/assets/jangsomnong-logo.jpg";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+  }),
   component: LoginPage,
 });
+
+// Only accept same-origin relative paths to prevent open-redirect abuse.
+function safeNext(next: string | undefined): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
 
 function LoginPage() {
   const { t } = useI18n();
   const { user, loading } = useAuth();
   const nav = useNavigate();
+  const { next } = Route.useSearch();
+  const target = safeNext(next);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const goNext = () => {
+    if (target) window.location.href = target;
+    else nav({ to: "/home" });
+  };
+
   useEffect(() => {
-    if (!loading && user) nav({ to: "/home" });
-  }, [user, loading, nav]);
+    if (!loading && user) goNext();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
