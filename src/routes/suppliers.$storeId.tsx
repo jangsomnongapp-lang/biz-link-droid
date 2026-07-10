@@ -9,32 +9,62 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/price";
+import { getSupplierSeo } from "@/lib/seo-fetchers.functions";
 
 
 export const Route = createFileRoute("/suppliers/$storeId")({
-  head: ({ params }) => ({
-    meta: [
-      { title: "Construction Supplier Store — BuildHub" },
-      { name: "description", content: "View this supplier's store, products, and location on BuildHub — Cambodia's construction marketplace." },
-      { property: "og:title", content: "Construction Supplier Store — BuildHub" },
-      { property: "og:description", content: "Supplier store, products, and location on BuildHub." },
-      { property: "og:url", content: `https://buildhubkh.com/suppliers/${params.storeId}` },
-      { property: "og:type", content: "website" },
-    ],
-    links: [{ rel: "canonical", href: `https://buildhubkh.com/suppliers/${params.storeId}` }],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "LocalBusiness",
-          url: `https://buildhubkh.com/suppliers/${params.storeId}`,
-          description: "Construction material and equipment supplier on BuildHub — Cambodia's construction marketplace.",
-          areaServed: "KH",
-        }),
-      },
-    ],
-  }),
+  loader: async ({ params }) => {
+    try {
+      const seo = await getSupplierSeo({ data: { id: params.storeId } });
+      return { seo };
+    } catch {
+      return { seo: null };
+    }
+  },
+  head: ({ params, loaderData }) => {
+    const seo = loaderData?.seo ?? null;
+    const name = seo?.name?.trim();
+    const title = name
+      ? `${name.slice(0, 45)} — Construction Supplier`
+      : "Construction Supplier Store — BuildHub";
+    const rawDesc = seo?.description?.trim();
+    const locSuffix = seo?.location ? ` in ${seo.location}` : " in Cambodia";
+    let description = rawDesc && rawDesc.length > 20
+      ? rawDesc.slice(0, 155)
+      : name
+        ? `${name} — construction material and equipment supplier${locSuffix}. Browse products and request quotes on BuildHub.`
+        : "View this supplier's store, products, and location on BuildHub — Cambodia's construction marketplace.";
+    if (description.length < 60) description = `${description} Verified on BuildHub Cambodia.`;
+    const url = `https://buildhubkh.com/suppliers/${params.storeId}`;
+    const image = seo?.logo ?? null;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "website" },
+        ...(image ? [{ property: "og:image", content: image } as const, { name: "twitter:image", content: image } as const] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            name: name || "Construction supplier",
+            url,
+            description: rawDesc || description,
+            ...(image ? { image } : {}),
+            ...(seo?.location ? { address: { "@type": "PostalAddress", addressLocality: seo.location, addressCountry: "KH" } } : {}),
+            areaServed: "KH",
+          }),
+        },
+      ],
+    };
+  },
   component: SupplierRoute,
 });
 
