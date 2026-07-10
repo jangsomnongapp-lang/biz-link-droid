@@ -47,7 +47,7 @@ const dict: Dict = {
   blog_link: { km: "អានគន្លឹះសាងសង់", en: "Read construction tips & guides" },
   // nav
   nav_home: { km: "ដើម", en: "Home" },
-  nav_listings: { km: "គម្រោងខ្ញុំ", en: "My Projects" },
+  nav_listings: { km: "គម្រោង", en: "Projects" },
   nav_announce: { km: "ប្រកាស", en: "Announce" },
   nav_alerts: { km: "ដំណឹង", en: "Alerts" },
   nav_profile: { km: "ប្រវត្តិរូប", en: "Profile" },
