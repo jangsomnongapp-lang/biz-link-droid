@@ -342,6 +342,17 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   }
 
 
+  // Message notifications → open the chat with the sender
+  if (n.kind === "message" && n.related_user_id) {
+    return (
+      <button onClick={() => void openChatWith(n.related_user_id!)} className={`${cls} w-full text-left active:opacity-60`}>
+        {avatar}
+        {body}
+        {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+      </button>
+    );
+  }
+
   return (
     <div className={cls}>
       {n.related_user_id ? (
@@ -352,7 +363,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
         avatar
       )}
       {n.related_post_id ? (
-        <Link to="/home" search={{ post: n.related_post_id }} className="min-w-0 flex-1 active:opacity-60">
+        <Link to="/posts/$postId" params={{ postId: n.related_post_id }} className="min-w-0 flex-1 active:opacity-60">
           {body}
         </Link>
       ) : n.related_listing_id ? (
