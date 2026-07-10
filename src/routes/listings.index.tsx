@@ -279,6 +279,7 @@ function ListingsPage() {
         </div>
       )}
 
+      <h2 className="sr-only">{km ? "គម្រោងសកម្ម" : "Active Projects"}</h2>
       <div className="space-y-3">
         {filtered.map((l) => {
           const applied = appliedIds.has(l.id);

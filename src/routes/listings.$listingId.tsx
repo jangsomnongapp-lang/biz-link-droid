@@ -12,33 +12,74 @@ import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
 import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { getListingSeo } from "@/lib/seo-fetchers.functions";
 
 export const Route = createFileRoute("/listings/$listingId")({
-  head: ({ params }) => ({
-    meta: [
-      { title: "Construction Project — BuildHub" },
-      { name: "description", content: "View construction project details, budget, and location on BuildHub — Cambodia's construction marketplace." },
-      { property: "og:title", content: "Construction Project — BuildHub" },
-      { property: "og:description", content: "Construction project details, budget, and location on BuildHub." },
-      { property: "og:url", content: `https://buildhubkh.com/listings/${params.listingId}` },
-      { property: "og:type", content: "product" },
-    ],
-    links: [{ rel: "canonical", href: `https://buildhubkh.com/listings/${params.listingId}` }],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: "Construction project listing",
-          description: "Construction project posted on BuildHub — Cambodia's construction marketplace.",
-          url: `https://buildhubkh.com/listings/${params.listingId}`,
-          category: "Construction",
-          offers: { "@type": "Offer", availability: "https://schema.org/InStock", priceCurrency: "USD" },
-        }),
-      },
-    ],
-  }),
+  loader: async ({ params }) => {
+    try {
+      const seo = await getListingSeo({ data: { id: params.listingId } });
+      return { seo };
+    } catch {
+      return { seo: null };
+    }
+  },
+  head: ({ params, loaderData }) => {
+    const seo = loaderData?.seo ?? null;
+    const rawTitle = seo?.title?.trim();
+    const title = rawTitle
+      ? `${rawTitle.slice(0, 50)} — BuildHub`
+      : "Construction Project — BuildHub";
+    const rawDesc = seo?.description?.trim();
+    const locBudget = [seo?.location, seo?.budget ? `$${seo.budget}` : null]
+      .filter(Boolean)
+      .join(" · ");
+    let description =
+      rawDesc && rawDesc.length > 20
+        ? rawDesc.slice(0, 155)
+        : rawTitle
+          ? `${rawTitle}${locBudget ? ` — ${locBudget}` : ""}. Construction project on BuildHub Cambodia.`
+          : "View construction project details, budget, and location on BuildHub — Cambodia's construction marketplace.";
+    if (description.length < 60) {
+      description = `${description} Post projects and hire skilled workers on BuildHub.`;
+    }
+    const url = `https://buildhubkh.com/listings/${params.listingId}`;
+    const image = seo?.photo ?? null;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "product" },
+        ...(image ? [{ property: "og:image", content: image } as const, { name: "twitter:image", content: image } as const] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: rawTitle || "Construction project listing",
+            description: rawDesc || description,
+            url,
+            category: "Construction",
+            ...(image ? { image } : {}),
+            offers: {
+              "@type": "Offer",
+              availability:
+                seo?.status === "finished"
+                  ? "https://schema.org/SoldOut"
+                  : "https://schema.org/InStock",
+              priceCurrency: "USD",
+              ...(seo?.budget ? { price: seo.budget } : {}),
+            },
+          }),
+        },
+      ],
+    };
+  },
   component: () => (
     <RequireAuth>
       <ListingDetailPage />

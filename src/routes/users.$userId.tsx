@@ -10,31 +10,59 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, BadgeCheck, Briefcase, Sparkles, MapPin, Star } from "lucide-react";
 import { toast } from "sonner";
+import { getUserSeo } from "@/lib/seo-fetchers.functions";
 
 export const Route = createFileRoute("/users/$userId")({
-  head: ({ params }) => ({
-    meta: [
-      { title: "Construction Professional Profile — BuildHub" },
-      { name: "description", content: "View a construction professional's profile on BuildHub — Cambodia's construction marketplace." },
-      { property: "og:title", content: "Construction Professional Profile — BuildHub" },
-      { property: "og:description", content: "Construction professional's profile, skills, and portfolio on BuildHub." },
-      { property: "og:url", content: `https://buildhubkh.com/users/${params.userId}` },
-      { property: "og:type", content: "profile" },
-    ],
-    links: [{ rel: "canonical", href: `https://buildhubkh.com/users/${params.userId}` }],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Person",
-          url: `https://buildhubkh.com/users/${params.userId}`,
-          jobTitle: "Construction professional",
-          description: "Construction professional on BuildHub — Cambodia's construction marketplace.",
-        }),
-      },
-    ],
-  }),
+  loader: async ({ params }) => {
+    try {
+      const seo = await getUserSeo({ data: { id: params.userId } });
+      return { seo };
+    } catch {
+      return { seo: null };
+    }
+  },
+  head: ({ params, loaderData }) => {
+    const seo = loaderData?.seo ?? null;
+    const name = seo?.name?.trim();
+    const title = name
+      ? `${name.slice(0, 45)} — Construction Professional`
+      : "Construction Professional Profile — BuildHub";
+    const rawAbout = seo?.about?.trim();
+    let description = rawAbout && rawAbout.length > 20
+      ? rawAbout.slice(0, 155)
+      : name
+        ? `${name} — construction professional on BuildHub Cambodia. View skills, portfolio, and contact directly for your project.`
+        : "View a construction professional's profile on BuildHub — Cambodia's construction marketplace.";
+    if (description.length < 60) description = `${description} Browse verified workers on BuildHub Cambodia.`;
+    const url = `https://buildhubkh.com/users/${params.userId}`;
+    const image = seo?.avatar ?? null;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "profile" },
+        ...(image ? [{ property: "og:image", content: image } as const, { name: "twitter:image", content: image } as const] : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            name: name || "Construction professional",
+            url,
+            jobTitle: "Construction professional",
+            description: rawAbout || description,
+            ...(image ? { image } : {}),
+          }),
+        },
+      ],
+    };
+  },
   component: () => (
     <RequireAuth>
       <UserProfilePage />

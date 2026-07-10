@@ -107,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/settings" className="rounded-full p-2 active:bg-white/10" aria-label="Menu">
             <Menu className="h-6 w-6" />
           </Link>
-          <h2 className="text-lg font-bold">{t("app_name")}</h2>
+          <span className="text-lg font-bold">{t("app_name")}</span>
         </div>
         <div className="flex items-center gap-1">
           <Link to="/search" className="rounded-full p-2 active:bg-white/10" aria-label="Search">
