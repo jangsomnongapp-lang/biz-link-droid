@@ -541,7 +541,7 @@ function HomePage() {
 
   return (
     <div>
-      <h1 className="px-3 pt-3 text-lg font-bold text-foreground">BuildHub — Cambodia's Construction Marketplace</h1>
+      
       {focused && (
         <div className="sticky top-[7.25rem] z-10 flex items-center gap-2 border-b border-border bg-surface px-3 py-2 shadow-card">
           <button
