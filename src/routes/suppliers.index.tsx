@@ -433,6 +433,7 @@ function SuppliersListPage() {
             </div>
           )}
 
+          <h2 className="sr-only">{km ? "ហាងនិងផលិតផល" : "Stores and Products"}</h2>
           <div className="mt-4">
             {loading && <div className="mt-4"><ShopGridSkeleton count={6} /></div>}
             {!loading && filtered.length === 0 && (
