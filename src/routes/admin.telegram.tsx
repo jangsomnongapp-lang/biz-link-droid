@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Send, Bot } from "lucide-react";
+import { ArrowLeft, Bot } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAdmin } from "@/components/RequireAdmin";
 import { useAuth } from "@/lib/auth";
@@ -86,33 +86,6 @@ function AdminTelegramPage() {
     toast.success("Saved");
   }
 
-  async function sendTest() {
-    if (!webhookUrl || !secret) {
-      toast.error("Enter the secret to send a test (it is hidden after save).");
-      return;
-    }
-    try {
-      const res = await fetch(webhookUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-webhook-secret": secret,
-        },
-        body: JSON.stringify({
-          kind: "post",
-          chat_id: chatId,
-          data: { user_name: "Test bot", status: "test", content: "Hello from admin panel ✅" },
-        }),
-      });
-      if (!res.ok) {
-        toast.error(`Failed: ${await res.text()}`);
-        return;
-      }
-      toast.success("Test sent");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
-    }
-  }
 
   if (isAdmin === false) {
     return (
