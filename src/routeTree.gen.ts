@@ -50,7 +50,6 @@ import { Route as RentalsRentalIdRouteImport } from './routes/rentals.$rentalId'
 import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
 import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
 import { Route as ProfileEditRouteImport } from './routes/profile.edit'
-import { Route as ProfileDebugRouteImport } from './routes/profile.debug'
 import { Route as PostsNewRouteImport } from './routes/posts.new'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
@@ -287,11 +286,6 @@ const ProfileEditRoute = ProfileEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => ProfileRoute,
 } as any)
-const ProfileDebugRoute = ProfileDebugRouteImport.update({
-  id: '/debug',
-  path: '/debug',
-  getParentRoute: () => ProfileRoute,
-} as any)
 const PostsNewRoute = PostsNewRouteImport.update({
   id: '/posts/new',
   path: '/posts/new',
@@ -494,7 +488,6 @@ export interface FileRoutesByFullPath {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/posts/new': typeof PostsNewRoute
-  '/profile/debug': typeof ProfileDebugRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
@@ -567,7 +560,6 @@ export interface FileRoutesByTo {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/posts/new': typeof PostsNewRoute
-  '/profile/debug': typeof ProfileDebugRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
@@ -642,7 +634,6 @@ export interface FileRoutesById {
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
   '/posts/new': typeof PostsNewRoute
-  '/profile/debug': typeof ProfileDebugRoute
   '/profile/edit': typeof ProfileEditRoute
   '/profile/portfolio': typeof ProfilePortfolioRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
@@ -718,7 +709,6 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/posts/$postId'
     | '/posts/new'
-    | '/profile/debug'
     | '/profile/edit'
     | '/profile/portfolio'
     | '/projects/$projectId'
@@ -791,7 +781,6 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/posts/$postId'
     | '/posts/new'
-    | '/profile/debug'
     | '/profile/edit'
     | '/profile/portfolio'
     | '/projects/$projectId'
@@ -865,7 +854,6 @@ export interface FileRouteTypes {
     | '/messages/$threadId'
     | '/posts/$postId'
     | '/posts/new'
-    | '/profile/debug'
     | '/profile/edit'
     | '/profile/portfolio'
     | '/projects/$projectId'
@@ -1249,13 +1237,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileEditRouteImport
       parentRoute: typeof ProfileRoute
     }
-    '/profile/debug': {
-      id: '/profile/debug'
-      path: '/debug'
-      fullPath: '/profile/debug'
-      preLoaderRoute: typeof ProfileDebugRouteImport
-      parentRoute: typeof ProfileRoute
-    }
     '/posts/new': {
       id: '/posts/new'
       path: '/posts/new'
@@ -1498,13 +1479,11 @@ const FindMaterialRouteWithChildren = FindMaterialRoute._addFileChildren(
 )
 
 interface ProfileRouteChildren {
-  ProfileDebugRoute: typeof ProfileDebugRoute
   ProfileEditRoute: typeof ProfileEditRoute
   ProfilePortfolioRoute: typeof ProfilePortfolioRoute
 }
 
 const ProfileRouteChildren: ProfileRouteChildren = {
-  ProfileDebugRoute: ProfileDebugRoute,
   ProfileEditRoute: ProfileEditRoute,
   ProfilePortfolioRoute: ProfilePortfolioRoute,
 }
