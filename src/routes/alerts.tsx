@@ -259,6 +259,17 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
     if (user.id === otherId) return;
     setOpening(true);
     try {
+      // Ensure the other user still exists — profile row may have been deleted.
+      const { data: otherProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", otherId)
+        .maybeSingle();
+      if (!otherProfile) {
+        toast.error(lang === "km" ? "អ្នកប្រើប្រាស់នេះលែងមានទៀតហើយ" : "This user is no longer available");
+        nav({ to: "/messages" });
+        return;
+      }
       const [a, b] = [user.id, otherId].sort();
       const { data: existing } = await supabase
         .from("message_threads")
@@ -279,10 +290,60 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
       nav({ to: "/messages/$threadId", params: { threadId } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
+      nav({ to: "/messages" });
     } finally {
       setOpening(false);
     }
   }
+
+  async function openPost(postId: string) {
+    if (opening) return;
+    setOpening(true);
+    try {
+      const { data } = await supabase.from("posts").select("id").eq("id", postId).maybeSingle();
+      if (!data) {
+        toast.error(lang === "km" ? "ការបង្ហោះនេះលែងមានទៀតហើយ" : "This post is no longer available");
+        nav({ to: "/home" });
+        return;
+      }
+      nav({ to: "/posts/$postId", params: { postId } });
+    } finally {
+      setOpening(false);
+    }
+  }
+
+  async function openListing(listingId: string) {
+    if (opening) return;
+    setOpening(true);
+    try {
+      const { data } = await supabase.from("listings").select("id").eq("id", listingId).maybeSingle();
+      if (!data) {
+        toast.error(lang === "km" ? "ការផ្សាយនេះលែងមានទៀតហើយ" : "This listing is no longer available");
+        nav({ to: "/listings" });
+        return;
+      }
+      nav({ to: "/listings/$listingId", params: { listingId } });
+    } finally {
+      setOpening(false);
+    }
+  }
+
+  async function openProject(projectId: string) {
+    if (opening) return;
+    setOpening(true);
+    try {
+      const { data } = await supabase.from("projects").select("id").eq("id", projectId).maybeSingle();
+      if (!data) {
+        toast.error(lang === "km" ? "គម្រោងនេះលែងមានទៀតហើយ" : "This project is no longer available");
+        nav({ to: "/home" });
+        return;
+      }
+      nav({ to: "/projects/$projectId", params: { projectId } });
+    } finally {
+      setOpening(false);
+    }
+  }
+
 
   // help_request (admin notification): clicking opens chat with the requester
   if (n.kind === "help_request" && n.related_user_id) {
