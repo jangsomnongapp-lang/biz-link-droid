@@ -259,6 +259,17 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
     if (user.id === otherId) return;
     setOpening(true);
     try {
+      // Ensure the other user still exists — profile row may have been deleted.
+      const { data: otherProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", otherId)
+        .maybeSingle();
+      if (!otherProfile) {
+        toast.error(lang === "km" ? "អ្នកប្រើប្រាស់នេះលែងមានទៀតហើយ" : "This user is no longer available");
+        nav({ to: "/messages" });
+        return;
+      }
       const [a, b] = [user.id, otherId].sort();
       const { data: existing } = await supabase
         .from("message_threads")
@@ -279,10 +290,60 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
       nav({ to: "/messages/$threadId", params: { threadId } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
+      nav({ to: "/messages" });
     } finally {
       setOpening(false);
     }
   }
+
+  async function openPost(postId: string) {
+    if (opening) return;
+    setOpening(true);
+    try {
+      const { data } = await supabase.from("posts").select("id").eq("id", postId).maybeSingle();
+      if (!data) {
+        toast.error(lang === "km" ? "ការបង្ហោះនេះលែងមានទៀតហើយ" : "This post is no longer available");
+        nav({ to: "/home" });
+        return;
+      }
+      nav({ to: "/posts/$postId", params: { postId } });
+    } finally {
+      setOpening(false);
+    }
+  }
+
+  async function openListing(listingId: string) {
+    if (opening) return;
+    setOpening(true);
+    try {
+      const { data } = await supabase.from("listings").select("id").eq("id", listingId).maybeSingle();
+      if (!data) {
+        toast.error(lang === "km" ? "ការផ្សាយនេះលែងមានទៀតហើយ" : "This listing is no longer available");
+        nav({ to: "/listings" });
+        return;
+      }
+      nav({ to: "/listings/$listingId", params: { listingId } });
+    } finally {
+      setOpening(false);
+    }
+  }
+
+  async function openProject(projectId: string) {
+    if (opening) return;
+    setOpening(true);
+    try {
+      const { data } = await supabase.from("projects").select("id").eq("id", projectId).maybeSingle();
+      if (!data) {
+        toast.error(lang === "km" ? "គម្រោងនេះលែងមានទៀតហើយ" : "This project is no longer available");
+        nav({ to: "/home" });
+        return;
+      }
+      nav({ to: "/projects/$projectId", params: { projectId } });
+    } finally {
+      setOpening(false);
+    }
+  }
+
 
   // help_request (admin notification): clicking opens chat with the requester
   if (n.kind === "help_request" && n.related_user_id) {
@@ -326,20 +387,20 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
     );
   }
 
-  // Project-related notifications → open the project page
+  // Project-related notifications → open the project page (with existence check)
   if (n.kind.startsWith("project_") && n.related_project_id) {
     return (
-      <Link
-        to="/projects/$projectId"
-        params={{ projectId: n.related_project_id }}
-        className={`${cls} active:opacity-60`}
+      <button
+        onClick={() => void openProject(n.related_project_id!)}
+        className={`${cls} w-full text-left active:opacity-60`}
       >
         {avatar}
         {body}
         {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
-      </Link>
+      </button>
     );
   }
+
 
 
   // Message notifications → open the chat with the sender
@@ -363,13 +424,19 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
         avatar
       )}
       {n.related_post_id ? (
-        <Link to="/posts/$postId" params={{ postId: n.related_post_id }} className="min-w-0 flex-1 active:opacity-60">
+        <button
+          onClick={() => void openPost(n.related_post_id!)}
+          className="min-w-0 flex-1 text-left active:opacity-60"
+        >
           {body}
-        </Link>
+        </button>
       ) : n.related_listing_id ? (
-        <Link to="/listings/$listingId" params={{ listingId: n.related_listing_id }} className="min-w-0 flex-1 active:opacity-60">
+        <button
+          onClick={() => void openListing(n.related_listing_id!)}
+          className="min-w-0 flex-1 text-left active:opacity-60"
+        >
           {body}
-        </Link>
+        </button>
       ) : n.related_user_id ? (
         <Link to="/users/$userId" params={{ userId: n.related_user_id }} className="min-w-0 flex-1 active:opacity-60">
           {body}
@@ -377,6 +444,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
       ) : (
         body
       )}
+
       {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
     </div>
   );
