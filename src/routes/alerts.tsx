@@ -424,13 +424,19 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
         avatar
       )}
       {n.related_post_id ? (
-        <Link to="/posts/$postId" params={{ postId: n.related_post_id }} className="min-w-0 flex-1 active:opacity-60">
+        <button
+          onClick={() => void openPost(n.related_post_id!)}
+          className="min-w-0 flex-1 text-left active:opacity-60"
+        >
           {body}
-        </Link>
+        </button>
       ) : n.related_listing_id ? (
-        <Link to="/listings/$listingId" params={{ listingId: n.related_listing_id }} className="min-w-0 flex-1 active:opacity-60">
+        <button
+          onClick={() => void openListing(n.related_listing_id!)}
+          className="min-w-0 flex-1 text-left active:opacity-60"
+        >
           {body}
-        </Link>
+        </button>
       ) : n.related_user_id ? (
         <Link to="/users/$userId" params={{ userId: n.related_user_id }} className="min-w-0 flex-1 active:opacity-60">
           {body}
@@ -438,6 +444,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
       ) : (
         body
       )}
+
       {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
     </div>
   );
