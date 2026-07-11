@@ -387,20 +387,20 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
     );
   }
 
-  // Project-related notifications → open the project page
+  // Project-related notifications → open the project page (with existence check)
   if (n.kind.startsWith("project_") && n.related_project_id) {
     return (
-      <Link
-        to="/projects/$projectId"
-        params={{ projectId: n.related_project_id }}
-        className={`${cls} active:opacity-60`}
+      <button
+        onClick={() => void openProject(n.related_project_id!)}
+        className={`${cls} w-full text-left active:opacity-60`}
       >
         {avatar}
         {body}
         {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
-      </Link>
+      </button>
     );
   }
+
 
 
   // Message notifications → open the chat with the sender
