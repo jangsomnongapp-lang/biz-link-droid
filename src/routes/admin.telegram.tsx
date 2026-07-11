@@ -203,12 +203,6 @@ function AdminTelegramPage() {
             >
               {saving ? "Saving…" : "Save"}
             </button>
-            <button
-              onClick={sendTest}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-border px-4 py-3 text-sm font-semibold active:bg-muted"
-            >
-              <Send className="h-4 w-4" /> Test
-            </button>
           </div>
         </div>
 
