@@ -9,6 +9,7 @@ export const getListingSeo = createServerFn({ method: "GET" })
       .from("listings")
       .select("id, title, description, location, budget, status, listing_photos(photo_url)")
       .eq("id", data.id)
+      .eq("status", "active")
       .maybeSingle();
     if (!row) return null;
     return {
@@ -30,6 +31,7 @@ export const getSupplierSeo = createServerFn({ method: "GET" })
       .from("supplier_stores")
       .select("id, name, description, location, logo_url")
       .eq("id", data.id)
+      .eq("status", "approved")
       .maybeSingle();
     if (!row) return null;
     return {
