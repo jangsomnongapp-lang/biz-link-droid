@@ -164,36 +164,35 @@
   to   { opacity: 1; }
 }
 
-@utility ios-page {
+.ios-page {
   animation: ios-page-in 380ms var(--ease-ios-out) both;
   will-change: transform, opacity;
 }
 
-@utility ios-sheet {
+.ios-sheet {
   animation: ios-sheet-up 420ms var(--ease-ios-standard) both;
   will-change: transform;
 }
 
-@utility ios-modal {
+.ios-modal {
   animation: ios-modal-in 380ms var(--ease-ios-spring) both;
   will-change: transform, opacity;
 }
 
-@utility ios-backdrop {
+.ios-backdrop {
   animation: ios-backdrop-in 220ms var(--ease-ios-out) both;
 }
 
-@utility ios-list-item {
+.ios-list-item {
   animation: ios-list-in 420ms var(--ease-ios-out) both;
 }
 
-@utility ios-fade {
+.ios-fade {
   animation: ios-fade-in 260ms var(--ease-ios-out) both;
 }
 
-/* Native-feeling tap: quick press-in, springy release.
-   Apply on buttons, links, cards for a haptic-like affordance. */
-@utility tap {
+/* Native-feeling tap: quick press-in, springy release. */
+.tap {
   transition: transform 180ms var(--ease-ios-spring), opacity 180ms var(--ease-ios-out);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -204,7 +203,7 @@
 }
 
 /* Softer tap for large surfaces (cards, list rows) */
-@utility tap-soft {
+.tap-soft {
   transition: transform 200ms var(--ease-ios-spring), background-color 160ms var(--ease-ios-out);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -215,11 +214,11 @@
 }
 
 /* Staggered list entrance — apply to a container of children */
-@utility stagger-in {
-}
 .stagger-in > * {
   animation: ios-list-in 460ms var(--ease-ios-out) both;
 }
+
+
 .stagger-in > *:nth-child(1)  { animation-delay: 20ms; }
 .stagger-in > *:nth-child(2)  { animation-delay: 60ms; }
 .stagger-in > *:nth-child(3)  { animation-delay: 100ms; }
