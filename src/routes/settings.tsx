@@ -431,13 +431,15 @@ function SettingsPage() {
           iconColor="text-sky-600"
           label={t("help_faq")}
         />
-        <Row
-          to="/connect"
-          icon={Bot}
-          iconBg="bg-violet-100"
-          iconColor="text-violet-600"
-          label="Connect to AI assistant"
-        />
+        {profile?.is_super_user && (
+          <Row
+            to="/connect"
+            icon={Bot}
+            iconBg="bg-violet-100"
+            iconColor="text-violet-600"
+            label="Connect to AI assistant"
+          />
+        )}
         <Row
           to="/report"
           icon={Flag}
