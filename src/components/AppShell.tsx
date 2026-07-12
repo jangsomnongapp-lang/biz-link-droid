@@ -104,16 +104,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-primary px-3 text-primary-foreground">
         <div className="flex items-center gap-2">
-          <Link to="/settings" className="rounded-full p-2 active:bg-white/10" aria-label="Menu">
+          <Link to="/settings" className="tap rounded-full p-2 active:bg-white/10" aria-label="Menu">
             <Menu className="h-6 w-6" />
           </Link>
           <span className="text-lg font-bold">{t("app_name")}</span>
         </div>
         <div className="flex items-center gap-1">
-          <Link to="/search" className="rounded-full p-2 active:bg-white/10" aria-label="Search">
+          <Link to="/search" className="tap rounded-full p-2 active:bg-white/10" aria-label="Search">
             <Search className="h-5 w-5" />
           </Link>
-          <Link to="/messages" className="relative rounded-full p-2 active:bg-white/10" aria-label="Messages">
+          <Link to="/messages" className="tap relative rounded-full p-2 active:bg-white/10" aria-label="Messages">
             <MessageCircle className="h-5 w-5" />
             <UnreadBadge count={unreadMessages} />
           </Link>
@@ -133,15 +133,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             <>
               <span className="relative">
                 <Icon
-                  className={`h-5 w-5 ${active ? "text-primary" : "text-muted-foreground"}`}
+                  className={`h-5 w-5 transition-transform duration-300 ${active ? "scale-110 text-primary" : "text-muted-foreground"}`}
                   strokeWidth={active ? 2.5 : 2}
                 />
                 <UnreadBadge count={tab.badge} />
               </span>
-              <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
+              <span className={`text-[10px] font-medium transition-colors duration-200 ${active ? "text-primary" : "text-muted-foreground"}`}>
                 {tab.label}
               </span>
-              {active && <span className="absolute bottom-0 h-0.5 w-10 rounded-full bg-primary" />}
+              {active && <span className="ios-fade absolute bottom-0 h-0.5 w-10 rounded-full bg-primary" />}
             </>
           );
           return isSupplierProfileTab ? (
@@ -149,7 +149,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               key={tab.to}
               to="/suppliers/$storeId"
               params={{ storeId: mySupplierStoreId! }}
-              className="relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
+              className="tap relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
             >
               {content}
             </Link>
@@ -157,7 +157,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link
               key={tab.to}
               to={tab.to}
-              className="relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
+              className="tap relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
             >
               {content}
             </Link>
@@ -166,8 +166,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       </nav>
 
       <main className="flex-1 pb-4">
-        <PullToRefresh onRefresh={handleRefresh}>{children}</PullToRefresh>
+        <PullToRefresh onRefresh={handleRefresh}>
+          <div key={path} className="ios-page">
+            {children}
+          </div>
+        </PullToRefresh>
       </main>
     </div>
   );
 }
+
