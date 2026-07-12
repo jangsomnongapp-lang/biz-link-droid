@@ -214,6 +214,10 @@
 }
 
 /* Staggered list entrance — apply to a container of children */
+.stagger-in > * {
+  animation: ios-list-in 460ms var(--ease-ios-out) both;
+}
+
 
 .stagger-in > *:nth-child(1)  { animation-delay: 20ms; }
 .stagger-in > *:nth-child(2)  { animation-delay: 60ms; }
