@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
 
 export const getListingSeo = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ id: z.string() }).parse(d))
@@ -9,6 +11,7 @@ export const getListingSeo = createServerFn({ method: "GET" })
       .from("listings")
       .select("id, title, description, location, budget, status, listing_photos(photo_url)")
       .eq("id", data.id)
+      .eq("status", "active")
       .maybeSingle();
     if (!row) return null;
     return {
@@ -30,6 +33,7 @@ export const getSupplierSeo = createServerFn({ method: "GET" })
       .from("supplier_stores")
       .select("id, name, description, location, logo_url")
       .eq("id", data.id)
+      .eq("status", "approved")
       .maybeSingle();
     if (!row) return null;
     return {
@@ -42,10 +46,10 @@ export const getSupplierSeo = createServerFn({ method: "GET" })
   });
 
 export const getUserSeo = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string() }).parse(d))
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin
+  .handler(async ({ data, context }) => {
+    const { data: row } = await context.supabase
       .from("profiles")
       .select("id, full_name, about_me, avatar_url")
       .eq("id", data.id)
