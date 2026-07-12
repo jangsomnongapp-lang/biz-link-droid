@@ -267,7 +267,7 @@ function BlogIndexPage() {
                           </p>
                         )}
                         <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">
-                          Read more
+                          Read full article
                           <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                         </span>
                       </CardContent>
