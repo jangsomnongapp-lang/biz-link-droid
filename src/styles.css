@@ -165,8 +165,10 @@
 }
 
 .ios-page {
-  animation: ios-page-in 380ms var(--ease-ios-out) both;
-  will-change: transform, opacity;
+  /* fill-mode: backwards so no transform/will-change lingers after the
+     animation — otherwise it becomes a containing block for position:fixed
+     descendants (e.g. CommentsSheet) and traps them inside the page. */
+  animation: ios-page-in 380ms var(--ease-ios-out) backwards;
 }
 
 .ios-sheet {
