@@ -134,8 +134,11 @@
 }
 
 @keyframes ios-page-in {
-  from { opacity: 0; transform: translate3d(20px, 0, 0); }
-  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  /* Opacity-only: never applies transform to the page wrapper, so it can
+     never become a containing block for position:fixed descendants
+     (e.g. CommentsSheet, modals, bottom sheets). */
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes ios-sheet-up {
@@ -165,10 +168,10 @@
 }
 
 .ios-page {
-  /* fill-mode: backwards so no transform/will-change lingers after the
-     animation — otherwise it becomes a containing block for position:fixed
-     descendants (e.g. CommentsSheet) and traps them inside the page. */
-  animation: ios-page-in 380ms var(--ease-ios-out) backwards;
+  /* Opacity-only animation + no will-change. The page wrapper must never
+     hold a transform, filter, perspective, or will-change value that would
+     create a containing block for position:fixed descendants. */
+  animation: ios-page-in 320ms var(--ease-ios-out) both;
 }
 
 .ios-sheet {
