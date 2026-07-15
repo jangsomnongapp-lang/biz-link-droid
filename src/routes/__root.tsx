@@ -1,6 +1,7 @@
 import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { installFixedOverlayAudit } from "@/lib/dev-fixed-overlay-audit";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
@@ -76,6 +77,9 @@ function RootComponent() {
         },
       }),
   );
+  useEffect(() => {
+    installFixedOverlayAudit();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
