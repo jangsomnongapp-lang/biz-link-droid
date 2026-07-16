@@ -297,3 +297,17 @@ export function PortfolioGridSkeleton({ count = 9 }: { count?: number }) {
     </div>
   );
 }
+
+/* ── Stories row skeleton (home) ── */
+export function StoriesRowSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="no-scrollbar mt-2 flex gap-3 overflow-x-auto bg-surface px-3 py-3 shadow-card">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="flex w-16 shrink-0 flex-col items-center gap-1.5">
+          <Skeleton className="h-16 w-16 rounded-full" />
+          <Skeleton className="h-2.5 w-12" />
+        </div>
+      ))}
+    </div>
+  );
+}
