@@ -2307,6 +2307,7 @@ export type Database = {
         Args: { _req_id: string; _uid: string }
         Returns: boolean
       }
+      unread_message_count: { Args: { _user_id: string }; Returns: number }
       update_my_role_flags: {
         Args: {
           _is_client: boolean

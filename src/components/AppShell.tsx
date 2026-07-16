@@ -61,19 +61,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     enabled: !!user,
     staleTime: 15_000,
     queryFn: async () => {
-      const { data: threads } = await supabase
-        .from("message_threads")
-        .select("id, participant_a, participant_b")
-        .or(`participant_a.eq.${user!.id},participant_b.eq.${user!.id}`);
-      if (!threads?.length) return 0;
-      const ids = threads.map((t) => t.id);
-      const { count } = await supabase
-        .from("messages")
-        .select("id", { count: "exact", head: true })
-        .in("thread_id", ids)
-        .neq("sender_id", user!.id)
-        .is("read_at", null);
-      return count ?? 0;
+      const { data } = await supabase.rpc("unread_message_count", { _user_id: user!.id });
+      return (data as number | null) ?? 0;
     },
   });
 
