@@ -611,6 +611,13 @@ function HomePage() {
           </div>
           <span className="line-clamp-1 text-[11px] font-medium text-foreground">{t("create_story")}</span>
         </Link>
+        {storiesLoading && stories.length === 0 &&
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={`sk-${i}`} className="flex w-16 shrink-0 flex-col items-center gap-1.5">
+              <div className="h-16 w-16 animate-pulse rounded-full bg-muted" />
+              <div className="h-2.5 w-12 animate-pulse rounded bg-muted" />
+            </div>
+          ))}
         {stories.map((s) => (
           <Link
             key={s.user_id}
