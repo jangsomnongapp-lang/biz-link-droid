@@ -121,7 +121,7 @@ function HomePage() {
     },
   });
 
-  useQuery({
+  const { isLoading: storiesLoading } = useQuery({
     queryKey: ["home:stories"],
     enabled: !!user,
     staleTime: 60_000,
