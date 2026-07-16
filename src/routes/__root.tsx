@@ -71,7 +71,7 @@ function RootComponent() {
         defaultOptions: {
           queries: {
             staleTime: 5 * 60_000, // 5 min stale-while-revalidate
-            gcTime: 30 * 60_000,
+            gcTime: 24 * 60 * 60_000, // 24h — required for persist to keep data
             refetchOnWindowFocus: false, // realtime channels handle freshness
             refetchOnReconnect: true,
             retry: 1,
@@ -83,7 +83,18 @@ function RootComponent() {
     installFixedOverlayAudit();
   }, []);
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: queryPersister,
+        maxAge: 24 * 60 * 60_000,
+        buster: "v1",
+        dehydrateOptions: {
+          shouldDehydrateQuery: (query) =>
+            query.state.status === "success" && shouldPersistQuery(query.queryKey),
+        },
+      }}
+    >
       <I18nProvider>
         <AuthProvider>
           <div className="mx-auto min-h-screen max-w-[480px] bg-background">
@@ -94,7 +105,7 @@ function RootComponent() {
           <Toaster position="top-center" />
         </AuthProvider>
       </I18nProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }
 
