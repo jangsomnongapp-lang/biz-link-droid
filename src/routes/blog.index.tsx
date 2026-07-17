@@ -10,6 +10,17 @@ import { useMemo, useState } from "react";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/blog/")({
+  head: () => ({
+    meta: [
+      { title: "BuildHub Blog — Construction insights for Cambodia" },
+      { name: "description", content: "Guides, tips, and industry news for workers, contractors, and material suppliers in Cambodia's construction sector." },
+      { property: "og:title", content: "BuildHub Blog — Construction insights for Cambodia" },
+      { property: "og:description", content: "Guides, tips, and industry news for workers, contractors, and material suppliers in Cambodia's construction sector." },
+      { property: "og:url", content: "https://buildhubkh.com/blog" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/blog" }],
+  }),
   component: BlogIndexPage,
 });
 

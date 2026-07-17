@@ -11,6 +11,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, LoaderCircle, Plus, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/find-material")({
+  head: () => ({
+    meta: [
+      { title: "Find construction materials — BuildHub" },
+      { name: "description", content: "Search suppliers and get quotes for cement, steel, tiles, and other construction materials in Cambodia." },
+      { property: "og:title", content: "Find construction materials — BuildHub" },
+      { property: "og:description", content: "Search suppliers and get quotes for cement, steel, tiles, and other construction materials in Cambodia." },
+      { property: "og:url", content: "https://buildhubkh.com/find-material" },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/find-material" }],
+  }),
   component: () => (
     <RequireAuth>
       <FindMaterialRoute />

@@ -9,6 +9,17 @@ import { Button } from "@/components/ui/button";
 import logo from "@/assets/jangsomnong-logo.jpg";
 
 export const Route = createFileRoute("/forgot-password")({
+  head: () => ({
+    meta: [
+      { title: "Reset password — BuildHub" },
+      { name: "description", content: "Reset your BuildHub password via Telegram verification." },
+      { property: "og:title", content: "Reset password — BuildHub" },
+      { property: "og:description", content: "Reset your BuildHub password via Telegram verification." },
+      { property: "og:url", content: "https://buildhubkh.com/forgot-password" },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/forgot-password" }],
+  }),
   component: ForgotPasswordPage,
 });
 

@@ -9,6 +9,17 @@ import { ArrowLeft, Search, Store, ClipboardList, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/ai-search")({
+  head: () => ({
+    meta: [
+      { title: "AI search — BuildHub" },
+      { name: "description", content: "Describe what you need and let BuildHub's AI match you with the right workers and suppliers." },
+      { property: "og:title", content: "AI search — BuildHub" },
+      { property: "og:description", content: "Describe what you need and let BuildHub's AI match you with the right workers and suppliers." },
+      { property: "og:url", content: "https://buildhubkh.com/ai-search" },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/ai-search" }],
+  }),
   component: () => (
     <RequireAuth>
       <AiSearchPage />
