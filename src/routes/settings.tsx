@@ -46,6 +46,7 @@ import {
   Ticket,
   Bot,
   BookOpen,
+  Trash2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
