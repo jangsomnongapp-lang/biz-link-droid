@@ -366,6 +366,13 @@ function SettingsPage() {
             />
           </button>
         </div>
+        <RowButton
+          onClick={handleClearOfflineCache}
+          icon={Trash2}
+          iconBg="bg-rose-100"
+          iconColor="text-rose-600"
+          label={lang === "km" ? "លុបឃ្លាំងសម្ងាត់ក្រៅបណ្តាញ" : "Clear offline cache"}
+        />
       </Group>
 
       {/* Admin */}
