@@ -87,6 +87,19 @@ function SettingsPage() {
   const [busy, setBusy] = useState(false);
   const changePhoneFn = useServerFn(changeMyPhone);
   const deleteAccountFn = useServerFn(deleteMyAccount);
+  const queryClient = useQueryClient();
+
+  async function handleClearOfflineCache() {
+    try {
+      queryClient.removeQueries({ queryKey: ["home:feed"] });
+      queryClient.removeQueries({ queryKey: ["home:stories"] });
+      queryClient.removeQueries({ queryKey: ["home:profile"] });
+      await del("buildhub-query-cache-v1");
+      toast.success(lang === "km" ? "បានលុបឃ្លាំងសម្ងាត់" : "Offline cache cleared");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  }
 
   async function handleChangePassword() {
     if (newPw.length < 6) {
