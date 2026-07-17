@@ -25,6 +25,17 @@ const roleImages: Record<string, string> = {
 type TKey = Parameters<ReturnType<typeof useI18n>["t"]>[0];
 
 export const Route = createFileRoute("/register")({
+  head: () => ({
+    meta: [
+      { title: "Sign up — BuildHub" },
+      { name: "description", content: "Create a free BuildHub account to hire workers, offer services, or sell materials to Cambodia's construction industry." },
+      { property: "og:title", content: "Sign up — BuildHub" },
+      { property: "og:description", content: "Create a free BuildHub account to hire workers, offer services, or sell materials to Cambodia's construction industry." },
+      { property: "og:url", content: "https://buildhubkh.com/register" },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/register" }],
+  }),
   component: RegisterFlow,
 });
 
