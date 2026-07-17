@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { del } from "idb-keyval";
 import { toast } from "sonner";
 import { changeMyPhone, deleteMyAccount } from "@/lib/account.functions";
 import { Input } from "@/components/ui/input";
@@ -44,6 +46,7 @@ import {
   Ticket,
   Bot,
   BookOpen,
+  Trash2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({
@@ -84,6 +87,19 @@ function SettingsPage() {
   const [busy, setBusy] = useState(false);
   const changePhoneFn = useServerFn(changeMyPhone);
   const deleteAccountFn = useServerFn(deleteMyAccount);
+  const queryClient = useQueryClient();
+
+  async function handleClearOfflineCache() {
+    try {
+      queryClient.removeQueries({ queryKey: ["home:feed"] });
+      queryClient.removeQueries({ queryKey: ["home:stories"] });
+      queryClient.removeQueries({ queryKey: ["home:profile"] });
+      await del("buildhub-query-cache-v1");
+      toast.success(lang === "km" ? "បានលុបឃ្លាំងសម្ងាត់" : "Offline cache cleared");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    }
+  }
 
   async function handleChangePassword() {
     if (newPw.length < 6) {
@@ -350,6 +366,13 @@ function SettingsPage() {
             />
           </button>
         </div>
+        <RowButton
+          onClick={handleClearOfflineCache}
+          icon={Trash2}
+          iconBg="bg-rose-100"
+          iconColor="text-rose-600"
+          label={lang === "km" ? "លុបឃ្លាំងសម្ងាត់ក្រៅបណ្តាញ" : "Clear offline cache"}
+        />
       </Group>
 
       {/* Admin */}
