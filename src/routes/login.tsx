@@ -12,6 +12,17 @@ export const Route = createFileRoute("/login")({
   validateSearch: (s: Record<string, unknown>) => ({
     next: typeof s.next === "string" ? s.next : undefined,
   }),
+  head: () => ({
+    meta: [
+      { title: "Log in — BuildHub" },
+      { name: "description", content: "Log in to BuildHub to connect with construction workers, suppliers, and clients across Cambodia." },
+      { property: "og:title", content: "Log in — BuildHub" },
+      { property: "og:description", content: "Log in to BuildHub to connect with construction workers, suppliers, and clients across Cambodia." },
+      { property: "og:url", content: "https://buildhubkh.com/login" },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/login" }],
+  }),
   component: LoginPage,
 });
 
