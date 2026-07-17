@@ -30,6 +30,17 @@ export const Route = createFileRoute("/home")({
   validateSearch: (s: Record<string, unknown>): { post?: string } => ({
     post: typeof s.post === "string" ? s.post : undefined,
   }),
+  head: () => ({
+    meta: [
+      { title: "Home feed — BuildHub" },
+      { name: "description", content: "Your BuildHub feed: latest jobs, stories, and updates from Cambodia's construction community." },
+      { property: "og:title", content: "Home feed — BuildHub" },
+      { property: "og:description", content: "Your BuildHub feed: latest jobs, stories, and updates from Cambodia's construction community." },
+      { property: "og:url", content: "https://buildhubkh.com/home" },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://buildhubkh.com/home" }],
+  }),
   component: () => (
     <RequireAuth>
       <AppShell>
