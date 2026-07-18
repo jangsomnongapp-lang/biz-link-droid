@@ -56,6 +56,24 @@ function validateGoogleToken(idToken: string, nonceDigest: string) {
   }
 }
 
+function isInvalidRefreshTokenError(error: unknown) {
+  const text = error instanceof Error ? error.message : String(error ?? "");
+  return text.includes("Invalid Refresh Token") || text.includes("refresh_token_not_found");
+}
+
+async function clearBrokenLocalSessionIfNeeded() {
+  try {
+    const { error } = await supabase.auth.getSession();
+    if (error && isInvalidRefreshTokenError(error)) {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+    }
+  } catch (error) {
+    if (isInvalidRefreshTokenError(error)) {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+    }
+  }
+}
+
 export async function loginWithGoogle(navigate: NavigateFn) {
   try {
     // In the native Capacitor app, use the native Google Sign-In plugin to avoid WebView blocks.
@@ -108,6 +126,7 @@ export async function loginWithGoogle(navigate: NavigateFn) {
     }
 
     // Web / Lovable preview fallback: use the Lovable OAuth broker.
+    await clearBrokenLocalSessionIfNeeded();
     console.log("[google-login] starting web flow, origin=", window.location.origin);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
