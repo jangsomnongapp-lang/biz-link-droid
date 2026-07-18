@@ -12,6 +12,11 @@ interface AuthCtx {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
+function isInvalidRefreshTokenError(error: unknown) {
+  const text = error instanceof Error ? error.message : String(error ?? "");
+  return text.includes("Invalid Refresh Token") || text.includes("refresh_token_not_found");
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,8 +26,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Restore session from storage FIRST, then subscribe to changes.
     supabase.auth
       .getSession()
-      .then(({ data }) => {
+      .then(async ({ data, error }) => {
         if (!mounted) return;
+        if (error && isInvalidRefreshTokenError(error)) {
+          await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+          setSession(null);
+          return;
+        }
         setSession(data.session);
       })
       .catch(() => {
