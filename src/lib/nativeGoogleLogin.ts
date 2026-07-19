@@ -125,8 +125,9 @@ export async function loginWithGoogle(navigate: NavigateFn) {
       return;
     }
 
-    // Web / Lovable preview fallback: use the Lovable OAuth broker.
-    await clearBrokenLocalSessionIfNeeded();
+    // Web / Lovable preview fallback: call the OAuth broker immediately from the
+    // click handler. Awaiting other auth calls first can make browsers treat the
+    // Google window as non-user-initiated and render it in a blocked frame.
     console.log("[google-login] starting web flow, origin=", window.location.origin);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
