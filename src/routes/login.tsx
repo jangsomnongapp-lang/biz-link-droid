@@ -59,16 +59,24 @@ function LoginPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      let loginError: Error | null = null;
-      for (const email of phoneLoginEmails(phone)) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (!error) {
-          loginError = null;
-          break;
+      if (mode === "email") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (error) throw error;
+      } else {
+        let loginError: Error | null = null;
+        for (const em of phoneLoginEmails(phone)) {
+          const { error } = await supabase.auth.signInWithPassword({ email: em, password });
+          if (!error) {
+            loginError = null;
+            break;
+          }
+          loginError = error;
         }
-        loginError = error;
+        if (loginError) throw loginError;
       }
-      if (loginError) throw loginError;
       goNext();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error");
