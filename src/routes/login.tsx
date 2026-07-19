@@ -38,7 +38,9 @@ function LoginPage() {
   const nav = useNavigate();
   const { next } = Route.useSearch();
   const target = safeNext(next);
+  const [mode, setMode] = useState<"phone" | "email">("phone");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
