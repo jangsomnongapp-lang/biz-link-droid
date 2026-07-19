@@ -38,7 +38,9 @@ function LoginPage() {
   const nav = useNavigate();
   const { next } = Route.useSearch();
   const target = safeNext(next);
+  const [mode, setMode] = useState<"phone" | "email">("phone");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -57,16 +59,24 @@ function LoginPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      let loginError: Error | null = null;
-      for (const email of phoneLoginEmails(phone)) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (!error) {
-          loginError = null;
-          break;
+      if (mode === "email") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (error) throw error;
+      } else {
+        let loginError: Error | null = null;
+        for (const em of phoneLoginEmails(phone)) {
+          const { error } = await supabase.auth.signInWithPassword({ email: em, password });
+          if (!error) {
+            loginError = null;
+            break;
+          }
+          loginError = error;
         }
-        loginError = error;
+        if (loginError) throw loginError;
       }
-      if (loginError) throw loginError;
       goNext();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error");
@@ -94,19 +104,52 @@ function LoginPage() {
       </div>
 
       <form onSubmit={submit} className="mt-10 space-y-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-white/85">{t("phone")}</label>
-          <div className="flex h-12 items-center overflow-hidden rounded-xl bg-white text-foreground">
-            <span className="border-r border-border px-3 text-sm font-medium text-muted-foreground">+855</span>
-            <input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              inputMode="tel"
-              placeholder={t("phone_ph")}
-              className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
-            />
-          </div>
+        <div className="flex rounded-xl bg-white/10 p-1 text-xs font-semibold">
+          <button
+            type="button"
+            onClick={() => setMode("phone")}
+            className={`flex-1 rounded-lg py-2 transition ${mode === "phone" ? "bg-white text-primary" : "text-white/80"}`}
+          >
+            {t("phone")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("email")}
+            className={`flex-1 rounded-lg py-2 transition ${mode === "email" ? "bg-white text-primary" : "text-white/80"}`}
+          >
+            Email
+          </button>
         </div>
+        {mode === "phone" ? (
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-white/85">{t("phone")}</label>
+            <div className="flex h-12 items-center overflow-hidden rounded-xl bg-white text-foreground">
+              <span className="border-r border-border px-3 text-sm font-medium text-muted-foreground">+855</span>
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                inputMode="tel"
+                placeholder={t("phone_ph")}
+                className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
+              />
+            </div>
+          </div>
+        ) : (
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-white/85">Email</label>
+            <div className="flex h-12 items-center overflow-hidden rounded-xl bg-white text-foreground">
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                placeholder="you@example.com"
+                className="h-full flex-1 bg-transparent px-3 text-sm outline-none"
+              />
+            </div>
+          </div>
+        )}
         <div>
           <label className="mb-1.5 block text-xs font-medium text-white/85">{t("password")}</label>
           <div className="flex h-12 items-center overflow-hidden rounded-xl bg-white text-foreground">
