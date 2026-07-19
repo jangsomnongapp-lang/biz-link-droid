@@ -2,7 +2,6 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
-import { SplashScreen } from "@/components/SplashScreen";
 import logo from "@/assets/jangsomnong-logo.jpg";
 
 export default function Welcome() {
@@ -13,8 +12,6 @@ export default function Welcome() {
   useEffect(() => {
     if (!loading && user) nav({ to: "/home" });
   }, [user, loading, nav]);
-
-  if (loading) return <SplashScreen />;
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-between bg-primary px-6 pb-10 pt-6 text-primary-foreground">
