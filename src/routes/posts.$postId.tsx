@@ -1,107 +1,130 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ArrowLeft, MessageCircle, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { RequireAuth } from "@/components/RequireAuth";
 import { ShareButton } from "@/components/ShareButton";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/price";
+import { getPublicPost, type PublicPostDetail } from "@/lib/posts.functions";
+import { useState } from "react";
 
 export const Route = createFileRoute("/posts/$postId")({
-  component: () => (
-    <RequireAuth>
-      <PostDetailPage />
-    </RequireAuth>
-  ),
+  loader: async ({ params }) => await getPublicPost({ data: { id: params.postId } }),
+  head: ({ loaderData, params }) => {
+    const post = loaderData as PublicPostDetail | null;
+    const url = `https://buildhubkh.com/posts/${params.postId}`;
+    if (!post) {
+      return {
+        meta: [
+          { title: "Product — BuildHub" },
+          { name: "description", content: "Product details on BuildHub." },
+          { property: "og:url", content: url },
+          { property: "og:type", content: "product" },
+        ],
+        links: [{ rel: "canonical", href: url }],
+      };
+    }
+    const heading =
+      post.title || post.content?.split("\n")[0] || "Product";
+    const desc =
+      (post.content ?? "").slice(0, 160) ||
+      `${heading} on BuildHub — Cambodia's construction marketplace.`;
+    const image = post.post_photos[0]?.photo_url;
+    const title = `${heading} — BuildHub`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "product" },
+        ...(image
+          ? [
+              { property: "og:image", content: image },
+              { name: "twitter:image", content: image },
+              { name: "twitter:card", content: "summary_large_image" },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: heading,
+            description: desc,
+            image: image ? [image] : undefined,
+            url,
+            offers:
+              post.price != null
+                ? {
+                    "@type": "Offer",
+                    price: post.discount_price ?? post.price,
+                    priceCurrency: post.currency || "USD",
+                    availability: "https://schema.org/InStock",
+                    url,
+                  }
+                : undefined,
+          }),
+        },
+      ],
+    };
+  },
+  component: PostDetailPage,
 });
-
-interface PostDetail {
-  id: string;
-  user_id: string;
-  content: string | null;
-  title: string | null;
-  price: number | null;
-  discount_price: number | null;
-  currency: string;
-  post_type: string;
-  created_at: string;
-  view_count: number;
-  post_photos: Array<{ photo_url: string }>;
-  profiles: { full_name: string | null; avatar_url: string | null } | null;
-}
-
-interface StoreInfo {
-  id: string;
-  name: string;
-  logo_url: string | null;
-}
 
 function PostDetailPage() {
   const { postId } = Route.useParams();
+  const initial = Route.useLoaderData() as PublicPostDetail | null;
   const { lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
-  const [post, setPost] = useState<PostDetail | null>(null);
-  const [store, setStore] = useState<StoreInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  const post = initial;
+  const store = initial?.store ?? null;
   const [contacting, setContacting] = useState(false);
 
   useEffect(() => {
-    void (async () => {
-      const { data } = await supabase
+    if (post && user && user.id !== post.user_id) {
+      void supabase
         .from("posts")
-        .select(
-          "id, user_id, content, title, price, discount_price, currency, post_type, created_at, view_count, post_photos(photo_url), profiles(full_name, avatar_url)"
-        )
-        .eq("id", postId)
-        .eq("status", "approved")
-        .maybeSingle();
-      const p = data as unknown as PostDetail | null;
-      setPost(p);
-      setLoading(false);
-
-      if (p) {
-        const { data: s } = await supabase
-          .from("supplier_stores")
-          .select("id, name, logo_url")
-          .eq("user_id", p.user_id)
-          .maybeSingle();
-        setStore(s);
-
-        if (user && user.id !== p.user_id) {
-          void supabase
-            .from("posts")
-            .update({ view_count: (p.view_count ?? 0) + 1 })
-            .eq("id", p.id);
-        }
-      }
-    })();
-  }, [postId, user]);
+        .update({ view_count: (post.view_count ?? 0) + 1 })
+        .eq("id", post.id);
+    }
+  }, [post, user]);
 
   async function startConversation() {
-    if (!user || !post) return;
+    if (!post) return;
+    if (!user) {
+      nav({ to: "/login" });
+      return;
+    }
     if (user.id === post.user_id) return;
     setContacting(true);
     try {
-      const { data: threadId, error } = await (supabase.rpc as unknown as (
-        fn: string,
-        args: Record<string, unknown>,
-      ) => Promise<{ data: string | null; error: { message: string } | null }>)(
-        "start_product_chat",
-        { _supplier_id: post.user_id, _post_id: post.id },
-      );
+      const { data: threadId, error } = await (
+        supabase.rpc as unknown as (
+          fn: string,
+          args: Record<string, unknown>,
+        ) => Promise<{ data: string | null; error: { message: string } | null }>
+      )("start_product_chat", { _supplier_id: post.user_id, _post_id: post.id });
       if (error) throw error;
-      const heading = post.title || post.content?.split("\n")[0] || (lang === "km" ? "ទំនិញ" : "Product");
-      const priceText = post.discount_price != null
-        ? formatPrice(post.discount_price, post.currency)
-        : post.price != null
-          ? formatPrice(post.price, post.currency)
-          : null;
-      const prefill = lang === "km"
-        ? `សួស្តី ខ្ញុំចង់សួរព័ត៌មានអំពី ${heading}${priceText ? ` — ${priceText}` : ""}`
-        : `Hi, I'd like to ask about ${heading}${priceText ? ` — ${priceText}` : ""}`;
+      const heading =
+        post.title || post.content?.split("\n")[0] || (lang === "km" ? "ទំនិញ" : "Product");
+      const priceText =
+        post.discount_price != null
+          ? formatPrice(post.discount_price, post.currency)
+          : post.price != null
+            ? formatPrice(post.price, post.currency)
+            : null;
+      const prefill =
+        lang === "km"
+          ? `សួស្តី ខ្ញុំចង់សួរព័ត៌មានអំពី ${heading}${priceText ? ` — ${priceText}` : ""}`
+          : `Hi, I'd like to ask about ${heading}${priceText ? ` — ${priceText}` : ""}`;
       nav({
         to: "/messages/$threadId",
         params: { threadId: threadId as string },
@@ -112,14 +135,6 @@ function PostDetailPage() {
     } finally {
       setContacting(false);
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
-        {lang === "km" ? "កំពុងផ្ទុក..." : "Loading..."}
-      </div>
-    );
   }
 
   if (!post) {
@@ -158,7 +173,7 @@ function PostDetailPage() {
             <div className="no-scrollbar flex gap-0 overflow-x-auto snap-x snap-mandatory">
               {post.post_photos.map((p, i) => (
                 <div key={i} className="aspect-square w-full shrink-0 snap-start bg-muted">
-                  <img src={p.photo_url} alt="" className="h-full w-full object-cover" />
+                  <img src={p.photo_url} alt={heading} className="h-full w-full object-cover" />
                 </div>
               ))}
             </div>
@@ -200,7 +215,7 @@ function PostDetailPage() {
             className="flex items-center gap-3 bg-surface p-4 shadow-card active:opacity-70"
           >
             {store.logo_url ? (
-              <img src={store.logo_url} alt="" className="h-12 w-12 rounded-xl object-cover" />
+              <img src={store.logo_url} alt={store.name} className="h-12 w-12 rounded-xl object-cover" />
             ) : (
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-sm font-bold text-foreground">
                 {store.name[0]?.toUpperCase()}
@@ -215,10 +230,26 @@ function PostDetailPage() {
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </Link>
         )}
+
+        {!user && (
+          <div className="mx-4 mt-4 rounded-xl border border-border bg-surface p-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              {lang === "km"
+                ? "ចូលដើម្បីជជែក បញ្ចេញមតិ ឬចូលចិត្ត"
+                : "Sign in to chat, comment or like"}
+            </p>
+            <Link
+              to="/login"
+              className="mt-3 inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground"
+            >
+              {lang === "km" ? "ចូល" : "Sign in"}
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Contact button */}
-      {!isOwner && (
+      {!isOwner && user && (
         <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[480px] border-t border-border bg-surface px-5 py-3">
           <button
             onClick={() => void startConversation()}
