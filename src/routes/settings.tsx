@@ -16,6 +16,7 @@ import {
   DrawerFooter,
 } from "@/components/ui/drawer";
 import { RequireAuth } from "@/components/RequireAuth";
+import { BackendDebugPanel } from "@/components/BackendDebugPanel";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n, type Lang } from "@/lib/i18n";
