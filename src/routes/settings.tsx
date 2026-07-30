@@ -375,6 +375,10 @@ function SettingsPage() {
         />
       </Group>
 
+      {(import.meta.env.DEV || profile?.is_super_user) && <BackendDebugPanel />}
+
+
+
       {/* Admin */}
       {profile?.is_admin && (
         <Group title={t("admin")}>
