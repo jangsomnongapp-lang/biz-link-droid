@@ -94,11 +94,21 @@ function EditProfilePage() {
     if (!user) return;
     void supabase
       .from("profiles")
-      .select("*")
+      .select(
+        "id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client",
+      )
       .eq("id", user.id)
       .maybeSingle()
-      .then(async ({ data }) => {
-        if (!data) return;
+      .then(async ({ data, error }) => {
+        if (error) {
+          toast.error(error.message);
+          setLoaded(true);
+          return;
+        }
+        if (!data) {
+          setLoaded(true);
+          return;
+        }
         setFullName(data.full_name ?? "");
         const { data: phoneVal } = await supabase.rpc("get_user_phone", { _uid: user.id });
         setPhone(((phoneVal as string | null) ?? "").replace("+855", ""));
