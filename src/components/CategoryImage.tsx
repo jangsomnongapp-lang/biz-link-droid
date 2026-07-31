@@ -32,6 +32,8 @@ const categoryImages: Record<string, string> = {
   D2: landscaper.url,
   D3: glassAluminum.url,
   D5: signage.url,
+  E1: fullProject,
+  E2: design2d3d,
 };
 
 export function CategoryImage({ code, name }: { code: string; name: string }) {
