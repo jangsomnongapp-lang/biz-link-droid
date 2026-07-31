@@ -184,6 +184,7 @@ function RegisterFlow() {
             categories={categories}
             selected={selectedCats}
             setSelected={setSelectedCats}
+            showServices={roles.is_coordinator || roles.is_organization}
           />
         )}
         {step === 3 && (
