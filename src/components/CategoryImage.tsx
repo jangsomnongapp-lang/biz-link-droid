@@ -1,6 +1,8 @@
 import acVentilation from "@/assets/categories/ac-ventilation.jpg.asset.json";
 import bricklayer from "@/assets/categories/bricklayer.jpg.asset.json";
 import carpenter from "@/assets/categories/carpenter.jpg.asset.json";
+import design2d3d from "@/assets/categories/design-2d-3d.jpg";
+import fullProject from "@/assets/categories/full-project.jpg";
 import electrician from "@/assets/categories/electrician.jpg.asset.json";
 import formwork from "@/assets/categories/formwork-2.jpg.asset.json";
 import glassAluminum from "@/assets/categories/glass-aluminum-installer.jpg.asset.json";
@@ -30,6 +32,8 @@ const categoryImages: Record<string, string> = {
   D2: landscaper.url,
   D3: glassAluminum.url,
   D5: signage.url,
+  E1: fullProject,
+  E2: design2d3d,
 };
 
 export function CategoryImage({ code, name }: { code: string; name: string }) {

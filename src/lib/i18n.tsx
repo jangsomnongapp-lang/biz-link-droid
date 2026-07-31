@@ -115,6 +115,7 @@ const dict: Dict = {
   group_installations: { km: "ការដំឡើង", en: "INSTALLATIONS" },
   group_finishing: { km: "ការបញ្ចប់", en: "FINISHING" },
   group_other: { km: "ផ្សេងៗ", en: "OTHER" },
+  group_services: { km: "សេវាកម្ម", en: "SERVICES" },
   // user profile (other)
   active_projects: { km: "គម្រោងកំពុងដំណើរការ", en: "Active projects" },
   // portfolio manager
