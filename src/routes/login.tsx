@@ -87,8 +87,9 @@ function LoginPage() {
   }
 
   async function signInWithGoogle() {
-    await loginWithGoogle(target ? () => { window.location.href = target; } : nav);
+    await loginWithGoogle(target ? () => nav({ to: target }) : nav);
   }
+
 
   return (
 
