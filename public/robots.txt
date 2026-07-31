@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
 
+Disallow: /admin/
+Disallow: /superuser/
+
 Sitemap: https://buildhubkh.com/sitemap.xml
+Sitemap: https://biz-link-droid.lovable.app/sitemap.xml
