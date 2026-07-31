@@ -46,7 +46,7 @@ function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const goNext = () => {
-    if (target) window.location.href = target;
+    if (target) nav({ to: target });
     else nav({ to: "/home" });
   };
 
@@ -54,6 +54,7 @@ function LoginPage() {
     if (!loading && user) goNext();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
+
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
