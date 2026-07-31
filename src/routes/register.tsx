@@ -350,13 +350,19 @@ function Step2({
   categories,
   selected,
   setSelected,
+  showServices,
 }: {
   categories: CategoryRow[];
   selected: Set<string>;
   setSelected: (s: Set<string>) => void;
+  showServices?: boolean;
 }) {
   const { t, lang } = useI18n();
-  const groups = ["Structure", "Installations", "Finishing", "Other"] as const;
+  const groups = (
+    showServices
+      ? ["Services", "Structure", "Installations", "Finishing", "Other"]
+      : ["Structure", "Installations", "Finishing", "Other"]
+  ) as readonly string[];
   const groupKey = (g: string) =>
     g === "Structure"
       ? "group_structure"
@@ -364,7 +370,9 @@ function Step2({
         ? "group_installations"
         : g === "Finishing"
           ? "group_finishing"
-          : "group_other";
+          : g === "Services"
+            ? "group_services"
+            : "group_other";
 
   function toggle(id: string) {
     const next = new Set(selected);
@@ -380,6 +388,7 @@ function Step2({
       <div className="mt-5 space-y-5">
         {groups.map((g) => {
           const cats = categories.filter((c) => c.group_en === g && c.code !== "D4");
+          if (cats.length === 0) return null;
           if (cats.length === 0) return null;
           return (
             <div key={g}>
