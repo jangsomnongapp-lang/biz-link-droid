@@ -46,7 +46,7 @@ function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const goNext = () => {
-    if (target) window.location.href = target;
+    if (target) nav({ to: target });
     else nav({ to: "/home" });
   };
 
@@ -54,6 +54,7 @@ function LoginPage() {
     if (!loading && user) goNext();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
+
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -73,21 +74,35 @@ function LoginPage() {
             loginError = null;
             break;
           }
+          // A confirmation-pending account means the phone/password matched —
+          // stop trying other variants and surface a clear message.
+          if (/not confirmed/i.test(error.message)) {
+            loginError = error;
+            break;
+          }
           loginError = error;
         }
         if (loginError) throw loginError;
       }
       goNext();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
+      const raw = err instanceof Error ? err.message : "Error";
+      const msg = /not confirmed/i.test(raw)
+        ? "Your account is not activated yet. Please contact support."
+        : /invalid login credentials/i.test(raw)
+          ? "Wrong phone number or password."
+          : raw;
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   }
 
+
   async function signInWithGoogle() {
-    await loginWithGoogle(target ? () => { window.location.href = target; } : nav);
+    await loginWithGoogle(target ? () => nav({ to: target }) : nav);
   }
+
 
   return (
 
