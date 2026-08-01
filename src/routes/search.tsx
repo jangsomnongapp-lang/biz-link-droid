@@ -108,7 +108,12 @@ function SearchPage() {
     setQ(v);
     setSubmitted(v);
     saveRecent(v);
+    void supabase
+      .from("catalog_search_events")
+      .insert({ term: v.slice(0, 120) })
+      .then(() => undefined);
   }
+
 
   useEffect(() => {
     if (!submitted) return;
