@@ -115,8 +115,8 @@ function SupplierJoinPage() {
       toast.error(lang === "km" ? "សូមបំពេញឈ្មោះហាង" : "Please enter store name");
       return;
     }
-    if (!isLoggedIn && (!phone.trim() || password.length < 6)) {
-      toast.error(lang === "km" ? "សូមបំពេញគ្រប់ប្រអប់" : "Please fill all fields (password 6+ chars)");
+    if (!isLoggedIn && (!phone.trim() || password.length < 1)) {
+      toast.error(lang === "km" ? "សូមបំពេញគ្រប់ប្រអប់" : "Please fill all fields");
       return;
     }
     setSubmitting(true);
