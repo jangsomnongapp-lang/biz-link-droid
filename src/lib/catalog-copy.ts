@@ -122,7 +122,6 @@ const COPY = {
   publish_catalog: { en: "Publish catalogue", km: "បង្ហោះកាតាឡុក" },
   category_one: { en: "category", km: "ប្រភេទ" },
   my_catalogue: { en: "My catalogue", km: "កាតាឡុករបស់ខ្ញុំ" },
-  add_product: { en: "Add product", km: "បន្ថែមផលិតផល" },
   manage_catalog: { en: "Manage catalogue", km: "គ្រប់គ្រងកាតាឡុក" },
   manage_catalog_desc: {
     en: "See views, requests, market prices and update stock.",
@@ -155,10 +154,8 @@ const COPY = {
   no_market: { en: "no market data", km: "គ្មានទិន្នន័យ" },
   edit: { en: "Edit", km: "កែ" },
   offer: { en: "Offer", km: "បញ្ចុះតម្លៃ" },
-  remove: { en: "Remove", km: "លុប" },
   remove_confirm: { en: "Remove this product from your catalogue?", km: "លុបផលិតផលនេះពីកាតាឡុក?" },
   removed: { en: "Removed", km: "បានលុប" },
-  saved: { en: "Saved", km: "បានរក្សាទុក" },
   internal_panel_note: {
     en: "Internal management panel — visible only to you",
     km: "ផ្ទាំងគ្រប់គ្រងផ្ទៃក្នុង — មានតែអ្នកឃើញ",
