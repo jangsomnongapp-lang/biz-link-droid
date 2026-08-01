@@ -166,6 +166,50 @@ export type Database = {
           },
         ]
       }
+      catalog_products: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name_en: string
+          name_km: string
+          sort_order: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en: string
+          name_km: string
+          sort_order?: number
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_km?: string
+          sort_order?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           code: string
@@ -1866,6 +1910,82 @@ export type Database = {
             columns: ["master_user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      supplier_catalog_items: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          currency: string
+          id: string
+          in_stock: boolean
+          name_en: string
+          name_km: string | null
+          note: string | null
+          photo_url: string | null
+          price: number | null
+          product_id: string | null
+          source: string
+          store_id: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          in_stock?: boolean
+          name_en: string
+          name_km?: string | null
+          note?: string | null
+          photo_url?: string | null
+          price?: number | null
+          product_id?: string | null
+          source?: string
+          store_id: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          in_stock?: boolean
+          name_en?: string
+          name_km?: string | null
+          note?: string | null
+          photo_url?: string | null
+          price?: number | null
+          product_id?: string | null
+          source?: string
+          store_id?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_catalog_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_catalog_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_catalog_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_stores"
             referencedColumns: ["id"]
           },
         ]

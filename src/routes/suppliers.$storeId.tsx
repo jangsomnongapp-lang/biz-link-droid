@@ -330,6 +330,19 @@ function SupplierProfilePage() {
       {isOwner && (
         <div className="border-b border-border bg-surface px-5 py-3 space-y-2">
           <Link
+            to="/suppliers/$storeId/catalog"
+            params={{ storeId }}
+            className="flex items-center justify-between rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground active:scale-[0.98]"
+          >
+            <span className="flex items-center gap-2">
+              🧾 {lang === "km" ? "កាតាឡុកផលិតផល" : "Catalogue"}
+            </span>
+            <span className="text-xs font-semibold opacity-90">
+              {lang === "km" ? "បន្ថែមផលិតផល" : "Add products"}
+            </span>
+          </Link>
+          <Link
+
             to="/online-orders"
             className="flex items-center justify-between rounded-xl bg-[#c87000] px-4 py-3 text-sm font-bold text-white active:scale-[0.98]"
           >

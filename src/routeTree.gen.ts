@@ -69,6 +69,7 @@ import { Route as AdminDrawsRouteImport } from './routes/admin.draws'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as SuppliersStoreIdEditRouteImport } from './routes/suppliers.$storeId.edit'
+import { Route as SuppliersStoreIdCatalogRouteImport } from './routes/suppliers.$storeId.catalog'
 import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
 import { Route as RentalsRequestNewRouteImport } from './routes/rentals.request.new'
 import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
@@ -77,6 +78,10 @@ import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public
 import { Route as ApiPublicFcmSendRouteImport } from './routes/api/public/fcm-send'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as SuppliersStoreIdCatalogIndexRouteImport } from './routes/suppliers.$storeId.catalog.index'
+import { Route as SuppliersStoreIdCatalogPhotoRouteImport } from './routes/suppliers.$storeId.catalog.photo'
+import { Route as SuppliersStoreIdCatalogListRouteImport } from './routes/suppliers.$storeId.catalog.list'
+import { Route as SuppliersStoreIdCatalogImportRouteImport } from './routes/suppliers.$storeId.catalog.import'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -383,6 +388,11 @@ const SuppliersStoreIdEditRoute = SuppliersStoreIdEditRouteImport.update({
   path: '/edit',
   getParentRoute: () => SuppliersStoreIdRoute,
 } as any)
+const SuppliersStoreIdCatalogRoute = SuppliersStoreIdCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
+  getParentRoute: () => SuppliersStoreIdRoute,
+} as any)
 const SupplierJoinTokenRoute = SupplierJoinTokenRouteImport.update({
   id: '/supplier/join/$token',
   path: '/supplier/join/$token',
@@ -425,6 +435,30 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuppliersStoreIdCatalogIndexRoute =
+  SuppliersStoreIdCatalogIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
+const SuppliersStoreIdCatalogPhotoRoute =
+  SuppliersStoreIdCatalogPhotoRouteImport.update({
+    id: '/photo',
+    path: '/photo',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
+const SuppliersStoreIdCatalogListRoute =
+  SuppliersStoreIdCatalogListRouteImport.update({
+    id: '/list',
+    path: '/list',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
+const SuppliersStoreIdCatalogImportRoute =
+  SuppliersStoreIdCatalogImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -510,10 +544,15 @@ export interface FileRoutesByFullPath {
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
   '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
+  '/suppliers/$storeId/catalog': typeof SuppliersStoreIdCatalogRouteWithChildren
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/suppliers/$storeId/catalog/import': typeof SuppliersStoreIdCatalogImportRoute
+  '/suppliers/$storeId/catalog/list': typeof SuppliersStoreIdCatalogListRoute
+  '/suppliers/$storeId/catalog/photo': typeof SuppliersStoreIdCatalogPhotoRoute
+  '/suppliers/$storeId/catalog/': typeof SuppliersStoreIdCatalogIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -586,6 +625,10 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/suppliers/$storeId/catalog/import': typeof SuppliersStoreIdCatalogImportRoute
+  '/suppliers/$storeId/catalog/list': typeof SuppliersStoreIdCatalogListRoute
+  '/suppliers/$storeId/catalog/photo': typeof SuppliersStoreIdCatalogPhotoRoute
+  '/suppliers/$storeId/catalog': typeof SuppliersStoreIdCatalogIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -656,10 +699,15 @@ export interface FileRoutesById {
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
   '/rentals/request/new': typeof RentalsRequestNewRoute
   '/supplier/join/$token': typeof SupplierJoinTokenRoute
+  '/suppliers/$storeId/catalog': typeof SuppliersStoreIdCatalogRouteWithChildren
   '/suppliers/$storeId/edit': typeof SuppliersStoreIdEditRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/suppliers/$storeId/catalog/import': typeof SuppliersStoreIdCatalogImportRoute
+  '/suppliers/$storeId/catalog/list': typeof SuppliersStoreIdCatalogListRoute
+  '/suppliers/$storeId/catalog/photo': typeof SuppliersStoreIdCatalogPhotoRoute
+  '/suppliers/$storeId/catalog/': typeof SuppliersStoreIdCatalogIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -731,10 +779,15 @@ export interface FileRouteTypes {
     | '/projects/new/$workerId'
     | '/rentals/request/new'
     | '/supplier/join/$token'
+    | '/suppliers/$storeId/catalog'
     | '/suppliers/$storeId/edit'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/suppliers/$storeId/catalog/import'
+    | '/suppliers/$storeId/catalog/list'
+    | '/suppliers/$storeId/catalog/photo'
+    | '/suppliers/$storeId/catalog/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -807,6 +860,10 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/suppliers/$storeId/catalog/import'
+    | '/suppliers/$storeId/catalog/list'
+    | '/suppliers/$storeId/catalog/photo'
+    | '/suppliers/$storeId/catalog'
   id:
     | '__root__'
     | '/'
@@ -876,10 +933,15 @@ export interface FileRouteTypes {
     | '/projects/new/$workerId'
     | '/rentals/request/new'
     | '/supplier/join/$token'
+    | '/suppliers/$storeId/catalog'
     | '/suppliers/$storeId/edit'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/suppliers/$storeId/catalog/import'
+    | '/suppliers/$storeId/catalog/list'
+    | '/suppliers/$storeId/catalog/photo'
+    | '/suppliers/$storeId/catalog/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1370,6 +1432,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuppliersStoreIdEditRouteImport
       parentRoute: typeof SuppliersStoreIdRoute
     }
+    '/suppliers/$storeId/catalog': {
+      id: '/suppliers/$storeId/catalog'
+      path: '/catalog'
+      fullPath: '/suppliers/$storeId/catalog'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogRouteImport
+      parentRoute: typeof SuppliersStoreIdRoute
+    }
     '/supplier/join/$token': {
       id: '/supplier/join/$token'
       path: '/supplier/join/$token'
@@ -1425,6 +1494,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/.lovable/oauth/consent'
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/suppliers/$storeId/catalog/': {
+      id: '/suppliers/$storeId/catalog/'
+      path: '/'
+      fullPath: '/suppliers/$storeId/catalog/'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogIndexRouteImport
+      parentRoute: typeof SuppliersStoreIdCatalogRoute
+    }
+    '/suppliers/$storeId/catalog/photo': {
+      id: '/suppliers/$storeId/catalog/photo'
+      path: '/photo'
+      fullPath: '/suppliers/$storeId/catalog/photo'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogPhotoRouteImport
+      parentRoute: typeof SuppliersStoreIdCatalogRoute
+    }
+    '/suppliers/$storeId/catalog/list': {
+      id: '/suppliers/$storeId/catalog/list'
+      path: '/list'
+      fullPath: '/suppliers/$storeId/catalog/list'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogListRouteImport
+      parentRoute: typeof SuppliersStoreIdCatalogRoute
+    }
+    '/suppliers/$storeId/catalog/import': {
+      id: '/suppliers/$storeId/catalog/import'
+      path: '/import'
+      fullPath: '/suppliers/$storeId/catalog/import'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogImportRouteImport
+      parentRoute: typeof SuppliersStoreIdCatalogRoute
     }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
@@ -1491,11 +1588,33 @@ const ProfileRouteChildren: ProfileRouteChildren = {
 const ProfileRouteWithChildren =
   ProfileRoute._addFileChildren(ProfileRouteChildren)
 
+interface SuppliersStoreIdCatalogRouteChildren {
+  SuppliersStoreIdCatalogImportRoute: typeof SuppliersStoreIdCatalogImportRoute
+  SuppliersStoreIdCatalogListRoute: typeof SuppliersStoreIdCatalogListRoute
+  SuppliersStoreIdCatalogPhotoRoute: typeof SuppliersStoreIdCatalogPhotoRoute
+  SuppliersStoreIdCatalogIndexRoute: typeof SuppliersStoreIdCatalogIndexRoute
+}
+
+const SuppliersStoreIdCatalogRouteChildren: SuppliersStoreIdCatalogRouteChildren =
+  {
+    SuppliersStoreIdCatalogImportRoute: SuppliersStoreIdCatalogImportRoute,
+    SuppliersStoreIdCatalogListRoute: SuppliersStoreIdCatalogListRoute,
+    SuppliersStoreIdCatalogPhotoRoute: SuppliersStoreIdCatalogPhotoRoute,
+    SuppliersStoreIdCatalogIndexRoute: SuppliersStoreIdCatalogIndexRoute,
+  }
+
+const SuppliersStoreIdCatalogRouteWithChildren =
+  SuppliersStoreIdCatalogRoute._addFileChildren(
+    SuppliersStoreIdCatalogRouteChildren,
+  )
+
 interface SuppliersStoreIdRouteChildren {
+  SuppliersStoreIdCatalogRoute: typeof SuppliersStoreIdCatalogRouteWithChildren
   SuppliersStoreIdEditRoute: typeof SuppliersStoreIdEditRoute
 }
 
 const SuppliersStoreIdRouteChildren: SuppliersStoreIdRouteChildren = {
+  SuppliersStoreIdCatalogRoute: SuppliersStoreIdCatalogRouteWithChildren,
   SuppliersStoreIdEditRoute: SuppliersStoreIdEditRoute,
 }
 
