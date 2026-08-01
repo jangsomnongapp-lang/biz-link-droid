@@ -342,6 +342,19 @@ function SupplierProfilePage() {
             </span>
           </Link>
           <Link
+            to="/suppliers/$storeId/catalog/manage"
+            params={{ storeId }}
+            className="flex items-center justify-between rounded-xl bg-[#0f1420] px-4 py-3 text-sm font-bold text-white active:scale-[0.98]"
+          >
+            <span className="flex items-center gap-2">
+              📊 {lang === "km" ? "កាតាឡុករបស់ខ្ញុំ" : "My catalogue"}
+            </span>
+            <span className="text-xs font-semibold opacity-80">
+              {lang === "km" ? "ស្ថិតិ និងស្តុក" : "Stats & stock"}
+            </span>
+          </Link>
+
+          <Link
 
             to="/online-orders"
             className="flex items-center justify-between rounded-xl bg-[#c87000] px-4 py-3 text-sm font-bold text-white active:scale-[0.98]"
