@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import { normalizePassword } from "@/lib/password";
 import { phoneLoginEmails, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { loginWithGoogle } from "@/lib/nativeGoogleLogin";

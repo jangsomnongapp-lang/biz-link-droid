@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import { normalizePassword } from "@/lib/password";
 import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, Eye, EyeOff, Plus, X } from "lucide-react";

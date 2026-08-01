@@ -20,6 +20,7 @@ import { BackendDebugPanel } from "@/components/BackendDebugPanel";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n, type Lang } from "@/lib/i18n";
+import { normalizePassword } from "@/lib/password";
 import { isNativeApp } from "@/lib/platform";
 import { supabase } from "@/integrations/supabase/client";
 
