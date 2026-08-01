@@ -106,7 +106,7 @@ function ImportCatalogPage() {
           unit: row.unit,
           price: row.price,
           currency: row.currency,
-          in_stock: true,
+          stock_status: "in_stock",
           source: "import",
         })),
       );

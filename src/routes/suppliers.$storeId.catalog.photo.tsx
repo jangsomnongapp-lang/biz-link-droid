@@ -109,7 +109,7 @@ function CatalogPhotoPage() {
         unit: unit.trim() || "unit",
         price: price ? Number(price) : null,
         currency,
-        in_stock: inStock,
+        stock_status: inStock ? "in_stock" : "out",
         note: description.trim() || null,
         photo_url: photoUrl,
         source: "photo",
