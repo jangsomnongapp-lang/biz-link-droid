@@ -134,7 +134,7 @@ function SupplierJoinPage() {
         phoneFmt = `+855${phone.replace(/\D/g, "")}`;
         const { data, error } = await supabase.auth.signUp({
           email,
-          password,
+          password: normalizePassword(password),
           options: {
             emailRedirectTo: `${window.location.origin}/home`,
             data: {
