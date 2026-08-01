@@ -162,7 +162,7 @@ function ForgotPasswordPage() {
           </div>
           <Button
             type="submit"
-            disabled={busy || code.length !== 6 || newPwd.length < 6}
+            disabled={busy || code.length !== 6 || newPwd.length < 1}
             className="h-14 w-full rounded-2xl bg-background text-base font-semibold text-primary active:scale-[0.98]"
           >
             {busy ? t("loading") : km ? "រក្សាទុកពាក្យសម្ងាត់ថ្មី" : "Update password"}
