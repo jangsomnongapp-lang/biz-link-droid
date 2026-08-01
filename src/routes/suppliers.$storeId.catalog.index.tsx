@@ -156,7 +156,16 @@ function CatalogMethodsPage() {
           ) : (
             <p className="mt-2 text-xs text-muted-foreground">{c("empty_catalog")}</p>
           )}
+          <Link
+            to="/suppliers/$storeId/catalog/manage"
+            params={{ storeId }}
+            className="mt-3 flex items-center justify-between rounded-lg bg-primary/10 px-3 py-2 text-[12px] font-bold text-primary active:scale-[0.99]"
+          >
+            {c("manage_catalog")}
+            <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
+
       </div>
     </div>
   );
