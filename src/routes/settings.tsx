@@ -104,7 +104,7 @@ function SettingsPage() {
   }
 
   async function handleChangePassword() {
-    if (newPw.length < 6) {
+    if (newPw.length < 1) {
       toast.error(t("password_min"));
       return;
     }
@@ -113,7 +113,7 @@ function SettingsPage() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.auth.updateUser({ password: newPw });
+    const { error } = await supabase.auth.updateUser({ password: normalizePassword(newPw) });
     setBusy(false);
     if (error) {
       toast.error(error.message);
