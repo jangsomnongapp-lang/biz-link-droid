@@ -91,7 +91,38 @@ const COPY = {
     en: "No suggested products for this category yet — add them by photo or import.",
     km: "មិនមានផលិតផលស្នើសម្រាប់ប្រភេទនេះទេ — បន្ថែមតាមរូបថត ឬនាំចូល។",
   },
+  step3_header: { en: "Set prices & stock", km: "កំណត់តម្លៃ និងស្តុក" },
+  almost_done: { en: "Almost done", km: "ជិតរួចរាល់" },
+  step3_section: { en: "STEP 3 — PRICES & AVAILABILITY", km: "ជំហាន ៣ — តម្លៃ និងស្តុក" },
+  set_your_prices: { en: "Set your prices", km: "កំណត់តម្លៃរបស់អ្នក" },
+  set_your_prices_sub: {
+    en: "Add a photo, set your price and stock. Photo is optional — AI fills details automatically.",
+    km: "បន្ថែមរូបថត កំណត់តម្លៃ និងស្តុក។ រូបថតមិនចាំបាច់ — AI បំពេញព័ត៌មានស្វ័យប្រវត្តិ។",
+  },
+  your_price: { en: "Your price", km: "តម្លៃរបស់អ្នក" },
+  availability: { en: "Availability", km: "ស្តុក" },
+  low_stock: { en: "Low", km: "តិច" },
+  out_label: { en: "Out", km: "អស់" },
+  market_range: { en: "Market range", km: "ចន្លោះតម្លៃទីផ្សារ" },
+  product_photo: { en: "Product photo", km: "រូបថតផលិតផល" },
+  photo_hint: {
+    en: "Upload a photo — AI will fill name and description.",
+    km: "បញ្ចូលរូបថត — AI នឹងបំពេញឈ្មោះ និងការពិពណ៌នា។",
+  },
+  photo_hint_done: {
+    en: "AI auto-fills name and description from your photo.",
+    km: "AI បំពេញឈ្មោះ និងការពិពណ៌នាពីរូបថតរបស់អ្នក។",
+  },
+  photo_added: { en: "Photo added", km: "បានបន្ថែមរូបថត" },
+  add_photo: { en: "Add photo", km: "បន្ថែមរូបថត" },
+  added: { en: "Added", km: "បានបន្ថែម" },
+  autofilled_tap_edit: { en: "Auto-filled · tap to edit", km: "បំពេញស្វ័យប្រវត្តិ · ចុចដើម្បីកែ" },
+  optional: { en: "Optional", km: "មិនចាំបាច់" },
+  catalog_ready: { en: "Catalogue ready", km: "កាតាឡុករួចរាល់" },
+  publish_catalog: { en: "Publish catalogue", km: "បង្ហោះកាតាឡុក" },
+  category_one: { en: "category", km: "ប្រភេទ" },
 } as const;
+
 
 export type CopyKey = keyof typeof COPY;
 
