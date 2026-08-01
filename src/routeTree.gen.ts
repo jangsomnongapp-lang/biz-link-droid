@@ -80,6 +80,7 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as SuppliersStoreIdCatalogIndexRouteImport } from './routes/suppliers.$storeId.catalog.index'
 import { Route as SuppliersStoreIdCatalogListRouteImport } from './routes/suppliers.$storeId.catalog.list'
+import { Route as SuppliersStoreIdCatalogImportRouteImport } from './routes/suppliers.$storeId.catalog.import'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -445,6 +446,12 @@ const SuppliersStoreIdCatalogListRoute =
     path: '/list',
     getParentRoute: () => SuppliersStoreIdCatalogRoute,
   } as any)
+const SuppliersStoreIdCatalogImportRoute =
+  SuppliersStoreIdCatalogImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -535,6 +542,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/suppliers/$storeId/catalog/import': typeof SuppliersStoreIdCatalogImportRoute
   '/suppliers/$storeId/catalog/list': typeof SuppliersStoreIdCatalogListRoute
   '/suppliers/$storeId/catalog/': typeof SuppliersStoreIdCatalogIndexRoute
 }
@@ -609,6 +617,7 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/suppliers/$storeId/catalog/import': typeof SuppliersStoreIdCatalogImportRoute
   '/suppliers/$storeId/catalog/list': typeof SuppliersStoreIdCatalogListRoute
   '/suppliers/$storeId/catalog': typeof SuppliersStoreIdCatalogIndexRoute
 }
@@ -686,6 +695,7 @@ export interface FileRoutesById {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/suppliers/$storeId/catalog/import': typeof SuppliersStoreIdCatalogImportRoute
   '/suppliers/$storeId/catalog/list': typeof SuppliersStoreIdCatalogListRoute
   '/suppliers/$storeId/catalog/': typeof SuppliersStoreIdCatalogIndexRoute
 }
@@ -764,6 +774,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/suppliers/$storeId/catalog/import'
     | '/suppliers/$storeId/catalog/list'
     | '/suppliers/$storeId/catalog/'
   fileRoutesByTo: FileRoutesByTo
@@ -838,6 +849,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/suppliers/$storeId/catalog/import'
     | '/suppliers/$storeId/catalog/list'
     | '/suppliers/$storeId/catalog'
   id:
@@ -914,6 +926,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/suppliers/$storeId/catalog/import'
     | '/suppliers/$storeId/catalog/list'
     | '/suppliers/$storeId/catalog/'
   fileRoutesById: FileRoutesById
@@ -1483,6 +1496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuppliersStoreIdCatalogListRouteImport
       parentRoute: typeof SuppliersStoreIdCatalogRoute
     }
+    '/suppliers/$storeId/catalog/import': {
+      id: '/suppliers/$storeId/catalog/import'
+      path: '/import'
+      fullPath: '/suppliers/$storeId/catalog/import'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogImportRouteImport
+      parentRoute: typeof SuppliersStoreIdCatalogRoute
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -1549,12 +1569,14 @@ const ProfileRouteWithChildren =
   ProfileRoute._addFileChildren(ProfileRouteChildren)
 
 interface SuppliersStoreIdCatalogRouteChildren {
+  SuppliersStoreIdCatalogImportRoute: typeof SuppliersStoreIdCatalogImportRoute
   SuppliersStoreIdCatalogListRoute: typeof SuppliersStoreIdCatalogListRoute
   SuppliersStoreIdCatalogIndexRoute: typeof SuppliersStoreIdCatalogIndexRoute
 }
 
 const SuppliersStoreIdCatalogRouteChildren: SuppliersStoreIdCatalogRouteChildren =
   {
+    SuppliersStoreIdCatalogImportRoute: SuppliersStoreIdCatalogImportRoute,
     SuppliersStoreIdCatalogListRoute: SuppliersStoreIdCatalogListRoute,
     SuppliersStoreIdCatalogIndexRoute: SuppliersStoreIdCatalogIndexRoute,
   }
