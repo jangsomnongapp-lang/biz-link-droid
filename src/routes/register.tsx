@@ -117,7 +117,7 @@ function RegisterFlow() {
       const email = phoneToEmail(phone);
       const { data, error } = await supabase.auth.signUp({
         email,
-        password,
+        password: normalizePassword(password),
         options: {
           emailRedirectTo: `${window.location.origin}/home`,
           data: {
