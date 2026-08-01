@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { normalizePassword } from "@/lib/password";
 
 const TELEGRAM_BOT_USERNAME = "Jangsomnong_bot";
 
@@ -74,7 +75,7 @@ export const verifyResetCodeAndSetPassword = createServerFn({ method: "POST" })
       .object({
         resetId: z.string().uuid(),
         code: z.string().regex(/^\d{6}$/),
-        newPassword: z.string().min(6).max(72),
+        newPassword: z.string().min(1).max(72),
       })
       .parse(input),
   )
@@ -106,7 +107,7 @@ export const verifyResetCodeAndSetPassword = createServerFn({ method: "POST" })
     }
 
     const { error: updErr } = await supabaseAdmin.auth.admin.updateUserById(row.user_id, {
-      password: data.newPassword,
+      password: normalizePassword(data.newPassword),
       email_confirm: true,
     });
     if (updErr) throw new Error(updErr.message);
