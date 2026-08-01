@@ -166,6 +166,48 @@ export type Database = {
           },
         ]
       }
+      catalog_item_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          item_id: string
+          store_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          item_id: string
+          store_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          item_id?: string
+          store_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_item_events_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_item_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       catalog_products: {
         Row: {
           category_id: string
@@ -218,6 +260,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      catalog_search_events: {
+        Row: {
+          created_at: string
+          id: string
+          province: string | null
+          term: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          province?: string | null
+          term: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          province?: string | null
+          term?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       categories: {
         Row: {
@@ -2333,6 +2399,14 @@ export type Database = {
     }
     Functions: {
       auto_run_due_draws: { Args: never; Returns: Json }
+      catalog_market_searches: {
+        Args: { _limit?: number; _province?: string }
+        Returns: {
+          search_count: number
+          term: string
+        }[]
+      }
+      catalog_panel_stats: { Args: { _store_id: string }; Returns: Json }
       consume_supplier_invite: { Args: { _token: string }; Returns: string }
       current_master_user_id: { Args: never; Returns: string }
       current_month_start: { Args: never; Returns: string }
