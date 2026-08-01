@@ -172,6 +172,9 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          market_currency: string
+          market_price_max: number | null
+          market_price_min: number | null
           name_en: string
           name_km: string
           sort_order: number
@@ -183,6 +186,9 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          market_currency?: string
+          market_price_max?: number | null
+          market_price_min?: number | null
           name_en: string
           name_km: string
           sort_order?: number
@@ -194,6 +200,9 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          market_currency?: string
+          market_price_max?: number | null
+          market_price_min?: number | null
           name_en?: string
           name_km?: string
           sort_order?: number
@@ -1928,6 +1937,7 @@ export type Database = {
           price: number | null
           product_id: string | null
           source: string
+          stock_status: string
           store_id: string
           unit: string
           updated_at: string
@@ -1945,6 +1955,7 @@ export type Database = {
           price?: number | null
           product_id?: string | null
           source?: string
+          stock_status?: string
           store_id: string
           unit?: string
           updated_at?: string
@@ -1962,6 +1973,7 @@ export type Database = {
           price?: number | null
           product_id?: string | null
           source?: string
+          stock_status?: string
           store_id?: string
           unit?: string
           updated_at?: string
