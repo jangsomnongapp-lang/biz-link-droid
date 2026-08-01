@@ -20,6 +20,7 @@ import { BackendDebugPanel } from "@/components/BackendDebugPanel";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n, type Lang } from "@/lib/i18n";
+import { normalizePassword } from "@/lib/password";
 import { isNativeApp } from "@/lib/platform";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -103,7 +104,7 @@ function SettingsPage() {
   }
 
   async function handleChangePassword() {
-    if (newPw.length < 6) {
+    if (newPw.length < 1) {
       toast.error(t("password_min"));
       return;
     }
@@ -112,7 +113,7 @@ function SettingsPage() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.auth.updateUser({ password: newPw });
+    const { error } = await supabase.auth.updateUser({ password: normalizePassword(newPw) });
     setBusy(false);
     if (error) {
       toast.error(error.message);

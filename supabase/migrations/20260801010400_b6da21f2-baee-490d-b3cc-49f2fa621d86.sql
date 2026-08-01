@@ -1,0 +1,1 @@
+delete from auth.users where email in ('pwtest9@project001.local','pwtest1@project001.local');

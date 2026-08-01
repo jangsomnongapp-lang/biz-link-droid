@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import { normalizePassword } from "@/lib/password";
 import { phoneLoginEmails, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { loginWithGoogle } from "@/lib/nativeGoogleLogin";
@@ -59,17 +60,18 @@ function LoginPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+    const pw = normalizePassword(password);
     try {
       if (mode === "email") {
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
-          password,
+          password: pw,
         });
         if (error) throw error;
       } else {
         let loginError: Error | null = null;
         for (const em of phoneLoginEmails(phone)) {
-          const { error } = await supabase.auth.signInWithPassword({ email: em, password });
+          const { error } = await supabase.auth.signInWithPassword({ email: em, password: pw });
           if (!error) {
             loginError = null;
             break;

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import { normalizePassword } from "@/lib/password";
 import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { loginWithGoogle } from "@/lib/nativeGoogleLogin";
@@ -116,7 +117,7 @@ function RegisterFlow() {
       const email = phoneToEmail(phone);
       const { data, error } = await supabase.auth.signUp({
         email,
-        password,
+        password: normalizePassword(password),
         options: {
           emailRedirectTo: `${window.location.origin}/home`,
           data: {

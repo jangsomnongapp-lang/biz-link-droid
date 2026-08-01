@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import { normalizePassword } from "@/lib/password";
 import { phoneToEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, Eye, EyeOff, Plus, X } from "lucide-react";
@@ -114,8 +115,8 @@ function SupplierJoinPage() {
       toast.error(lang === "km" ? "សូមបំពេញឈ្មោះហាង" : "Please enter store name");
       return;
     }
-    if (!isLoggedIn && (!phone.trim() || password.length < 6)) {
-      toast.error(lang === "km" ? "សូមបំពេញគ្រប់ប្រអប់" : "Please fill all fields (password 6+ chars)");
+    if (!isLoggedIn && (!phone.trim() || password.length < 1)) {
+      toast.error(lang === "km" ? "សូមបំពេញគ្រប់ប្រអប់" : "Please fill all fields");
       return;
     }
     setSubmitting(true);
@@ -133,7 +134,7 @@ function SupplierJoinPage() {
         phoneFmt = `+855${phone.replace(/\D/g, "")}`;
         const { data, error } = await supabase.auth.signUp({
           email,
-          password,
+          password: normalizePassword(password),
           options: {
             emailRedirectTo: `${window.location.origin}/home`,
             data: {
