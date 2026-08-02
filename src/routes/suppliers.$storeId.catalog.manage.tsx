@@ -446,6 +446,16 @@ function CatalogManagePage() {
           </p>
         )}
 
+        <div className="pt-1 text-center">
+          <Link
+            to="/suppliers/$storeId/catalog/stats"
+            params={{ storeId }}
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary"
+          >
+            <BarChart3 className="h-3.5 w-3.5" /> {c("view_stats")}
+          </Link>
+        </div>
+
         <p className="pt-1 text-center text-[10px] text-white/35">{c("internal_panel_note")}</p>
       </div>
     </div>
