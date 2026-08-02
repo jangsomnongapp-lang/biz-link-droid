@@ -124,7 +124,7 @@ function CatalogManagePage() {
         supabase
           .from("supplier_catalog_items")
           .select(
-            "id,name_en,name_km,unit,price,currency,stock_status,in_stock,photo_url,category_id,catalog_products(market_price_min,market_price_max),supplier_categories(id,name_en,name_km)",
+            "id,name_en,name_km,unit,price,currency,stock_status,in_stock,photo_url,category_id,offer_active,offer_price,catalog_products(market_price_min,market_price_max),supplier_categories(id,name_en,name_km)",
           )
           .eq("store_id", storeId)
           .order("created_at", { ascending: false }),
@@ -148,6 +148,8 @@ function CatalogManagePage() {
         in_stock: boolean | null;
         photo_url: string | null;
         category_id: string | null;
+        offer_active: boolean | null;
+        offer_price: number | null;
         catalog_products: { market_price_min: number | null; market_price_max: number | null } | null;
         supplier_categories: { id: string; name_en: string; name_km: string | null } | null;
       }>;
@@ -171,6 +173,8 @@ function CatalogManagePage() {
             views: metrics?.views ?? 0,
             chats: metrics?.chats ?? 0,
             requests_week: metrics?.requests_week ?? 0,
+            offer_active: row.offer_active ?? false,
+            offer_price: row.offer_price,
           };
         }),
       );
