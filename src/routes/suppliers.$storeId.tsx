@@ -1,15 +1,18 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, MoreHorizontal, MapPin, MessageCircle, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, MapPin, MessageCircle, Pencil, Phone, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { ShareButton } from "@/components/ShareButton";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { StoreCatalog } from "@/components/StoreCatalog";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/price";
+import { catalogCopy } from "@/lib/catalog-copy";
 import { getSupplierSeo } from "@/lib/seo-fetchers.functions";
+
 
 
 export const Route = createFileRoute("/suppliers/$storeId")({
@@ -94,7 +97,12 @@ interface StoreDetail {
   logo_url: string | null;
   view_count: number;
   contact_count: number;
+  phone: string | null;
+  fast_response: boolean | null;
+  delivery_available: boolean | null;
+  min_order: number | null;
 }
+
 
 interface RecentPost {
   id: string;
@@ -139,13 +147,15 @@ function SupplierProfilePage() {
     void (async () => {
       const { data: s } = await supabase
         .from("supplier_stores")
-        .select("id, user_id, name, location, description, logo_url, view_count, contact_count")
+        .select(
+          "id, user_id, name, location, description, logo_url, view_count, contact_count, phone, fast_response, delivery_available, min_order",
+        )
         .eq("id", storeId)
         .maybeSingle();
       setStore(s ?? null);
       if (!s) return;
 
-      const [{ data: scs }, { data: ph }, { count }, { data: pp }] = await Promise.all([
+      const [{ data: scs }, { data: ph }, { count }, { data: pp }, { count: catCount }] = await Promise.all([
         supabase
           .from("supplier_store_categories")
           .select("supplier_categories(id, name_en, name_km)")
@@ -167,7 +177,13 @@ function SupplierProfilePage() {
           .eq("status", "approved")
           .order("created_at", { ascending: false })
           .limit(10),
+        supabase
+          .from("supplier_catalog_items")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", storeId),
       ]);
+      setCatalogCount(catCount ?? 0);
+
 
       setCats(
         ((scs ?? []) as Array<{ supplier_categories: SupplierCategory }>)
@@ -305,6 +321,26 @@ function SupplierProfilePage() {
             <span className="rounded-full bg-amber-500 px-3 py-1 text-[11px] font-bold">
               {t("supplier_badge")} ✓
             </span>
+            {store.fast_response && (
+              <span className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-medium">
+                ⚡ {cc("fast_response")}
+              </span>
+            )}
+            {store.delivery_available && (
+              <span className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-medium">
+                🚚 {cc("delivery_available")}
+              </span>
+            )}
+            {catalogCount > 0 && (
+              <span className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-medium">
+                {catalogCount} {cc("products_count")}
+              </span>
+            )}
+            {store.min_order != null && (
+              <span className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-medium">
+                {cc("min_order").replace("{v}", formatPrice(store.min_order, "USD"))}
+              </span>
+            )}
             {cats.map((c) => (
               <span key={c.id} className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-medium">
                 {lang === "km" ? c.name_km : c.name_en}
@@ -316,6 +352,46 @@ function SupplierProfilePage() {
               📍 {store.location}
             </p>
           )}
+
+          {/* Chat / Call / Location */}
+          <div className="mt-4 grid w-full grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => (isOwner ? undefined : void startConversation())}
+              disabled={isOwner || contacting}
+              className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-white text-[12px] font-bold text-primary active:scale-[0.98] disabled:opacity-50"
+            >
+              <MessageCircle className="h-4 w-4" />
+              {cc("chat")}
+            </button>
+            <a
+              href={store.phone ? `tel:${store.phone}` : undefined}
+              aria-disabled={!store.phone}
+              className={`flex h-10 items-center justify-center gap-1.5 rounded-xl border border-white/30 bg-white/10 text-[12px] font-bold ${
+                store.phone ? "active:scale-[0.98]" : "pointer-events-none opacity-50"
+              }`}
+            >
+              <Phone className="h-4 w-4" />
+              {cc("call")}
+            </a>
+            <a
+              href={
+                store.location
+                  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.location)}`
+                  : undefined
+              }
+              target="_blank"
+              rel="noreferrer"
+              aria-disabled={!store.location}
+              className={`flex h-10 items-center justify-center gap-1.5 rounded-xl border border-white/30 bg-white/10 text-[12px] font-bold ${
+                store.location ? "active:scale-[0.98]" : "pointer-events-none opacity-50"
+              }`}
+            >
+              <MapPin className="h-4 w-4" />
+              {cc("location")}
+            </a>
+          </div>
+
         </div>
       </div>
 
@@ -386,6 +462,25 @@ function SupplierProfilePage() {
           <p className="mt-1.5 text-sm text-muted-foreground">{store.description}</p>
         </div>
       )}
+
+      {/* Public catalogue */}
+      <StoreCatalog
+        storeId={storeId}
+        isOwner={isOwner}
+        onAsk={(item) => {
+          if (user) {
+            void supabase.from("catalog_item_events").insert({
+              item_id: item.id,
+              store_id: storeId,
+              user_id: user.id,
+              event_type: "chat",
+            });
+          }
+          void startConversation();
+        }}
+      />
+
+
 
       {/* Featured products */}
       {photos.length > 0 && (
