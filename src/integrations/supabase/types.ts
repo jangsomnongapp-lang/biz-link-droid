@@ -2461,6 +2461,10 @@ export type Database = {
         }[]
       }
       catalog_panel_stats: { Args: { _store_id: string }; Returns: Json }
+      catalog_stats: {
+        Args: { _days?: number; _store_id: string }
+        Returns: Json
+      }
       consume_supplier_invite: { Args: { _token: string }; Returns: string }
       current_master_user_id: { Args: never; Returns: string }
       current_month_start: { Args: never; Returns: string }
