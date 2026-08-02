@@ -241,7 +241,11 @@ function SupplierJoinPage() {
   if (step === 0) {
     return (
       <div className="flex min-h-screen flex-col bg-primary text-primary-foreground">
-        <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+        <div className="flex justify-end px-5 pt-5">
+          <LangToggle dark />
+        </div>
+        <div className="flex flex-1 flex-col items-center justify-center px-6 pb-12 text-center">
+
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-card">
             <span className="text-3xl">📍</span>
           </div>
