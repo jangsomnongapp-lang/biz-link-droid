@@ -160,7 +160,29 @@ const COPY = {
     en: "Internal management panel — visible only to you",
     km: "ផ្ទាំងគ្រប់គ្រងផ្ទៃក្នុង — មានតែអ្នកឃើញ",
   },
+  search_in_store: { en: "Search products in this store…", km: "ស្វែងរកផលិតផលក្នុងហាងនេះ…" },
+  filter_label: { en: "Filter", km: "ត្រង" },
+  sort_available_first: { en: "Available first", km: "មានស្តុកមុន" },
+  sort_price_low: { en: "Price: low to high", km: "តម្លៃ៖ ទាបទៅខ្ពស់" },
+  sort_price_high: { en: "Price: high to low", km: "តម្លៃ៖ ខ្ពស់ទៅទាប" },
+  ask: { en: "Ask", km: "សួរ" },
+  ask_price: { en: "Ask for price", km: "សួរតម្លៃ" },
+  notify_me: { en: "Notify me", km: "ជូនដំណឹង" },
+  notify_on: { en: "Will notify", km: "នឹងជូនដំណឹង" },
+  notify_saved: {
+    en: "We'll notify you when it's back in stock",
+    km: "យើងនឹងជូនដំណឹងពេលមានស្តុកវិញ",
+  },
+  no_results: { en: "No products match your search", km: "រកមិនឃើញផលិតផល" },
+  store_catalog: { en: "Products", km: "ផលិតផល" },
+  fast_response: { en: "Fast response", km: "ឆ្លើយតបលឿន" },
+  delivery_available: { en: "Delivery available", km: "មានដឹកជញ្ជូន" },
+  min_order: { en: "Min. {v}", km: "អប្បបរមា {v}" },
+  call: { en: "Call", km: "ហៅ" },
+  location: { en: "Location", km: "ទីតាំង" },
+  chat: { en: "Chat", km: "ឆាត" },
 } as const;
+
 
 
 
