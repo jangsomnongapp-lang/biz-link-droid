@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal, MessageCircle, Bell, BellRing, Tag } from "lucide-react";
+import { Search, SlidersHorizontal, MessageCircle, Bell, BellRing, Tag, Flag, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/price";
+import { timeAgo } from "@/lib/format";
 import { catalogCopy } from "@/lib/catalog-copy";
 
 type StockStatus = "in_stock" | "low" | "out";
@@ -18,6 +19,7 @@ interface Item {
   price: number | null;
   currency: string;
   stock_status: StockStatus;
+  stock_updated_at: string | null;
   photo_url: string | null;
   offer_active: boolean;
   offer_price: number | null;
@@ -36,7 +38,7 @@ export function StoreCatalog({
   isOwner: boolean;
   onAsk: (item: { id: string; name: string }) => void;
 }) {
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const { user } = useAuth();
   const c = (key: Parameters<typeof catalogCopy>[1]) => catalogCopy(lang, key);
 
@@ -47,6 +49,9 @@ export function StoreCatalog({
   const [sort, setSort] = useState<SortMode>("default");
   const [showSort, setShowSort] = useState(false);
   const [subscribed, setSubscribed] = useState<Set<string>>(new Set());
+  const [reportItem, setReportItem] = useState<Item | null>(null);
+
+
 
   useEffect(() => {
     let cancelled = false;
@@ -54,7 +59,7 @@ export function StoreCatalog({
       const { data } = await supabase
         .from("supplier_catalog_items")
         .select(
-          "id,name_en,name_km,note,unit,price,currency,stock_status,in_stock,photo_url,offer_active,offer_price,category_id,supplier_categories(id,name_en,name_km)",
+          "id,name_en,name_km,note,unit,price,currency,stock_status,stock_updated_at,in_stock,photo_url,offer_active,offer_price,category_id,supplier_categories(id,name_en,name_km)",
         )
         .eq("store_id", storeId)
         .order("created_at", { ascending: false });
@@ -68,6 +73,7 @@ export function StoreCatalog({
         price: number | null;
         currency: string | null;
         stock_status: string | null;
+        stock_updated_at: string | null;
         in_stock: boolean | null;
         photo_url: string | null;
         offer_active: boolean | null;
@@ -84,6 +90,7 @@ export function StoreCatalog({
         price: r.price,
         currency: r.currency ?? "USD",
         stock_status: (r.stock_status as StockStatus | null) ?? (r.in_stock ? "in_stock" : "out"),
+        stock_updated_at: r.stock_updated_at,
         photo_url: r.photo_url,
         offer_active: r.offer_active ?? false,
         offer_price: r.offer_price,
@@ -342,6 +349,25 @@ export function StoreCatalog({
                     )
                   )}
                 </div>
+                <div className="mt-1.5 flex items-center gap-2">
+                  {item.stock_updated_at && (
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {c("stock_updated").replace("{v}", timeAgo(item.stock_updated_at, t))}
+                    </span>
+                  )}
+                  {!isOwner && (
+                    <button
+                      type="button"
+                      onClick={() => setReportItem(item)}
+                      className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground underline-offset-2 active:underline"
+                      aria-label={c("report_title")}
+                    >
+                      <Flag className="h-3 w-3" />
+                      {c("report_issue")}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -349,6 +375,130 @@ export function StoreCatalog({
         {!visible.length && (
           <p className="py-6 text-center text-xs text-muted-foreground">{c("no_results")}</p>
         )}
+      </div>
+
+      {reportItem && (
+        <ReportDialog
+          item={reportItem}
+          storeId={storeId}
+          name={label(reportItem)}
+          c={c}
+          canReport={!!user}
+          onClose={() => setReportItem(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function ReportDialog({
+  item,
+  storeId,
+  name,
+  c,
+  canReport,
+  onClose,
+}: {
+  item: { id: string };
+  storeId: string;
+  name: string;
+  c: (key: Parameters<typeof catalogCopy>[1]) => string;
+  canReport: boolean;
+  onClose: () => void;
+}) {
+  const { user } = useAuth();
+  const [reason, setReason] = useState("unavailable");
+  const [note, setNote] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const reasons: Array<[string, string]> = [
+    ["unavailable", c("report_reason_unavailable")],
+    ["price", c("report_reason_price")],
+    ["closed", c("report_reason_closed")],
+    ["other", c("report_reason_other")],
+  ];
+
+  async function submit() {
+    if (!user) {
+      toast.error(c("report_login"));
+      return;
+    }
+    setSending(true);
+    const { error } = await supabase.from("catalog_stock_reports").insert({
+      item_id: item.id,
+      store_id: storeId,
+      user_id: user.id,
+      reason,
+      note: note.trim() || null,
+    });
+    setSending(false);
+    if (error) {
+      toast.error(error.code === "23505" ? c("report_already") : error.message);
+      return;
+    }
+    toast.success(c("report_sent"));
+    onClose();
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={c("report_title")}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-t-2xl bg-card p-4 sm:rounded-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="text-sm font-bold text-foreground">{c("report_title")}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{name}</p>
+        <p className="mt-1 text-[11px] text-muted-foreground">{c("report_hint")}</p>
+
+        <div className="mt-3 space-y-1.5">
+          {reasons.map(([key, text]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setReason(key)}
+              className={`w-full rounded-xl border px-3 py-2 text-left text-[12px] font-semibold ${
+                reason === key
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
+
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value.slice(0, 400))}
+          placeholder={c("report_note_placeholder")}
+          aria-label={c("report_note_placeholder")}
+          rows={2}
+          className="mt-3 w-full rounded-xl border border-border bg-background p-2.5 text-[12px] outline-none"
+        />
+
+        <div className="mt-3 flex gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-xl bg-muted py-2.5 text-[12px] font-bold text-foreground"
+          >
+            {c("cancel_label")}
+          </button>
+          <button
+            type="button"
+            disabled={sending || !canReport}
+            onClick={() => void submit()}
+            className="flex-1 rounded-xl bg-primary py-2.5 text-[12px] font-bold text-primary-foreground disabled:opacity-60"
+          >
+            {c("report_send")}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -324,6 +324,57 @@ export type Database = {
           },
         ]
       }
+      catalog_stock_reports: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          note: string | null
+          reason: string
+          report_day: string
+          store_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          note?: string | null
+          reason?: string
+          report_day?: string
+          store_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          note?: string | null
+          reason?: string
+          report_day?: string
+          store_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_stock_reports_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_stock_reports_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           code: string
@@ -2045,6 +2096,7 @@ export type Database = {
           product_id: string | null
           source: string
           stock_status: string
+          stock_updated_at: string
           store_id: string
           unit: string
           updated_at: string
@@ -2065,6 +2117,7 @@ export type Database = {
           product_id?: string | null
           source?: string
           stock_status?: string
+          stock_updated_at?: string
           store_id: string
           unit?: string
           updated_at?: string
@@ -2085,6 +2138,7 @@ export type Database = {
           product_id?: string | null
           source?: string
           stock_status?: string
+          stock_updated_at?: string
           store_id?: string
           unit?: string
           updated_at?: string

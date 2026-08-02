@@ -209,6 +209,23 @@ const COPY = {
   },
   no_stats_yet: { en: "No data for this period yet.", km: "មិនទាន់មានទិន្នន័យ។" },
   today_label: { en: "Today", km: "ថ្ងៃនេះ" },
+  stock_updated: { en: "Stock updated {v}", km: "ស្តុកកែ {v}" },
+  report_issue: { en: "Report", km: "រាយការណ៍" },
+  report_title: { en: "Report a problem", km: "រាយការណ៍បញ្ហា" },
+  report_hint: {
+    en: "Only BuildHub sees this. The supplier is never notified.",
+    km: "មានតែ BuildHub ឃើញ។ អ្នកផ្គត់ផ្គង់មិនដឹងទេ។",
+  },
+  report_reason_unavailable: { en: "Not available on arrival", km: "ទៅដល់គ្មានទំនិញ" },
+  report_reason_price: { en: "Price was different", km: "តម្លៃខុសពីបង្ហាញ" },
+  report_reason_closed: { en: "Store was closed", km: "ហាងបិទ" },
+  report_reason_other: { en: "Other", km: "ផ្សេងទៀត" },
+  report_note_placeholder: { en: "Add a detail (optional)", km: "បន្ថែមព័ត៌មាន (ស្រេចចិត្ត)" },
+  report_send: { en: "Send report", km: "ផ្ញើរាយការណ៍" },
+  report_sent: { en: "Thanks — BuildHub received your report.", km: "អរគុណ — BuildHub ទទួលបានហើយ។" },
+  report_already: { en: "You already reported this today.", km: "អ្នករាយការណ៍រួចហើយថ្ងៃនេះ។" },
+  report_login: { en: "Sign in to report a problem.", km: "ចូលគណនីដើម្បីរាយការណ៍។" },
+  cancel_label: { en: "Cancel", km: "បោះបង់" },
 } as const;
 
 
