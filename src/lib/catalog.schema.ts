@@ -39,5 +39,6 @@ export const CATALOG_CATEGORY_CODES = [
   "sanitary",
   "hardware",
   "machinery",
+  "furniture",
   "other",
 ] as const;
