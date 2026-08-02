@@ -62,6 +62,8 @@ interface PanelItem {
   views: number;
   chats: number;
   requests_week: number;
+  offer_active: boolean;
+  offer_price: number | null;
 }
 
 interface PanelStats {
@@ -97,6 +99,10 @@ function CatalogManagePage() {
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [sortByRequests, setSortByRequests] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [offerItem, setOfferItem] = useState<PanelItem | null>(null);
+  const [offerPrice, setOfferPrice] = useState("");
+
+
 
   useEffect(() => {
     let cancelled = false;
@@ -122,7 +128,7 @@ function CatalogManagePage() {
         supabase
           .from("supplier_catalog_items")
           .select(
-            "id,name_en,name_km,unit,price,currency,stock_status,in_stock,photo_url,category_id,catalog_products(market_price_min,market_price_max),supplier_categories(id,name_en,name_km)",
+            "id,name_en,name_km,unit,price,currency,stock_status,in_stock,photo_url,category_id,offer_active,offer_price,catalog_products(market_price_min,market_price_max),supplier_categories(id,name_en,name_km)",
           )
           .eq("store_id", storeId)
           .order("created_at", { ascending: false }),
@@ -146,6 +152,8 @@ function CatalogManagePage() {
         in_stock: boolean | null;
         photo_url: string | null;
         category_id: string | null;
+        offer_active: boolean | null;
+        offer_price: number | null;
         catalog_products: { market_price_min: number | null; market_price_max: number | null } | null;
         supplier_categories: { id: string; name_en: string; name_km: string | null } | null;
       }>;
@@ -169,6 +177,8 @@ function CatalogManagePage() {
             views: metrics?.views ?? 0,
             chats: metrics?.chats ?? 0,
             requests_week: metrics?.requests_week ?? 0,
+            offer_active: row.offer_active ?? false,
+            offer_price: row.offer_price,
           };
         }),
       );
@@ -223,6 +233,29 @@ function CatalogManagePage() {
     setItems((prev) => prev.filter((i) => i.id !== item.id));
     toast.success(c("removed"));
   }
+
+  async function saveOffer(active: boolean) {
+    const item = offerItem;
+    if (!item) return;
+    const parsed = offerPrice.trim() ? Number(offerPrice.replace(/[^0-9.]/g, "")) : null;
+    const payload = {
+      offer_active: active,
+      offer_price: active ? (Number.isFinite(parsed as number) ? parsed : null) : null,
+    };
+    const { error } = await supabase
+      .from("supplier_catalog_items")
+      .update(payload)
+      .eq("id", item.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, ...payload } : i)));
+    setOfferItem(null);
+    toast.success(c("offer_saved"));
+  }
+
+
 
   const diff = (stats?.requests_week ?? 0) - (stats?.requests_prev_week ?? 0);
   const maxSearch = market.length ? Math.max(...market.map((m) => m.search_count)) : 0;
@@ -385,6 +418,11 @@ function CatalogManagePage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-bold">{label(item)}</p>
+                    {item.offer_active && (
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-200">
+                        <Tag className="h-3 w-3" /> {c("on_offer")}
+                      </span>
+                    )}
                     <p className="mt-0.5 text-[12px] text-white/70">
                       {item.price != null
                         ? `${item.currency === "KHR" ? "៛" : "$"}${item.price}${item.unit ? ` / ${item.unit}` : ""}`
@@ -423,12 +461,20 @@ function CatalogManagePage() {
                   >
                     <Pencil className="h-3.5 w-3.5" /> {c("edit")}
                   </Link>
-                  <Link
-                    to="/posts/new"
-                    className="flex items-center justify-center gap-1 rounded-lg bg-white/10 py-2 text-[11px] font-bold active:scale-[0.98]"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOfferItem(item);
+                      setOfferPrice(item.offer_price != null ? String(item.offer_price) : "");
+                    }}
+                    className={`flex items-center justify-center gap-1 rounded-lg py-2 text-[11px] font-bold active:scale-[0.98] ${
+                      item.offer_active
+                        ? "bg-amber-500/20 text-amber-200"
+                        : "bg-white/10"
+                    }`}
                   >
                     <Tag className="h-3.5 w-3.5" /> {c("offer")}
-                  </Link>
+                  </button>
                   <button
                     type="button"
                     onClick={() => void removeItem(item)}
@@ -458,6 +504,69 @@ function CatalogManagePage() {
 
         <p className="pt-1 text-center text-[10px] text-white/35">{c("internal_panel_note")}</p>
       </div>
+
+      {offerItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-black/60 px-3 pb-3"
+          onClick={() => setOfferItem(null)}
+        >
+          <div
+            className="w-full rounded-2xl border border-white/10 bg-[#12161c] p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-[14px] font-bold">{c("offer_sheet_title")}</p>
+            <p className="mt-0.5 text-[12px] text-white/60">{label(offerItem)}</p>
+            <p className="mt-2 text-[11px] text-white/50">{c("offer_sheet_desc")}</p>
+
+            <label className="mt-3 block text-[11px] font-bold uppercase tracking-wide text-white/45">
+              {c("offer_price_label")}
+            </label>
+            <input
+              value={offerPrice}
+              onChange={(e) => setOfferPrice(e.target.value)}
+              inputMode="decimal"
+              placeholder={offerItem.price != null ? String(offerItem.price) : "0"}
+              className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-[13px] outline-none focus:border-primary"
+            />
+
+            <div className="mt-3 grid gap-1.5">
+              <button
+                type="button"
+                onClick={() => void saveOffer(true)}
+                className="rounded-lg bg-amber-500 py-2.5 text-[13px] font-bold text-black active:scale-[0.99]"
+              >
+                {c("offer_activate")}
+              </button>
+              {offerItem.offer_active && (
+                <button
+                  type="button"
+                  onClick={() => void saveOffer(false)}
+                  className="rounded-lg bg-white/10 py-2.5 text-[13px] font-bold active:scale-[0.99]"
+                >
+                  {c("offer_deactivate")}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setOfferItem(null)}
+                className="rounded-lg py-2 text-[12px] font-semibold text-white/60"
+              >
+                {c("cancel_label")}
+              </button>
+            </div>
+
+            <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+              <p className="text-[11px] text-amber-100/80">{c("offer_feed_note")}</p>
+              <Link
+                to="/posts/new"
+                className="mt-2 inline-flex text-[11px] font-bold text-amber-300"
+              >
+                {c("offer_post_feed")} →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
