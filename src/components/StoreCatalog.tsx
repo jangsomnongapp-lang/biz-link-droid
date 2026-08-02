@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal, MessageCircle, Bell, BellRing, Tag } from "lucide-react";
+import { Search, SlidersHorizontal, MessageCircle, Bell, BellRing, Tag, Flag, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/price";
+import { timeAgo } from "@/lib/format";
 import { catalogCopy } from "@/lib/catalog-copy";
 
 type StockStatus = "in_stock" | "low" | "out";
@@ -18,6 +19,7 @@ interface Item {
   price: number | null;
   currency: string;
   stock_status: StockStatus;
+  stock_updated_at: string | null;
   photo_url: string | null;
   offer_active: boolean;
   offer_price: number | null;
