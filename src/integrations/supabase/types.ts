@@ -285,6 +285,45 @@ export type Database = {
         }
         Relationships: []
       }
+      catalog_stock_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          store_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          store_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          store_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_stock_notifications_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_stock_notifications_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           code: string
@@ -1999,6 +2038,8 @@ export type Database = {
           name_en: string
           name_km: string | null
           note: string | null
+          offer_active: boolean
+          offer_price: number | null
           photo_url: string | null
           price: number | null
           product_id: string | null
@@ -2017,6 +2058,8 @@ export type Database = {
           name_en: string
           name_km?: string | null
           note?: string | null
+          offer_active?: boolean
+          offer_price?: number | null
           photo_url?: string | null
           price?: number | null
           product_id?: string | null
@@ -2035,6 +2078,8 @@ export type Database = {
           name_en?: string
           name_km?: string | null
           note?: string | null
+          offer_active?: boolean
+          offer_price?: number | null
           photo_url?: string | null
           price?: number | null
           product_id?: string | null
@@ -2227,10 +2272,13 @@ export type Database = {
         Row: {
           contact_count: number
           created_at: string
+          delivery_available: boolean
           description: string | null
+          fast_response: boolean
           id: string
           location: string | null
           logo_url: string | null
+          min_order: number | null
           name: string
           phone: string | null
           status: string
@@ -2241,10 +2289,13 @@ export type Database = {
         Insert: {
           contact_count?: number
           created_at?: string
+          delivery_available?: boolean
           description?: string | null
+          fast_response?: boolean
           id?: string
           location?: string | null
           logo_url?: string | null
+          min_order?: number | null
           name: string
           phone?: string | null
           status?: string
@@ -2255,10 +2306,13 @@ export type Database = {
         Update: {
           contact_count?: number
           created_at?: string
+          delivery_available?: boolean
           description?: string | null
+          fast_response?: boolean
           id?: string
           location?: string | null
           logo_url?: string | null
+          min_order?: number | null
           name?: string
           phone?: string | null
           status?: string
