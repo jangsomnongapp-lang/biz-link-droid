@@ -22,7 +22,30 @@ interface SupplierCategory {
 
 function SupplierJoinPage() {
   const { token } = Route.useParams();
-  const { t, lang } = useI18n();
+  const { t, lang, setLang } = useI18n();
+
+  const LangToggle = ({ dark = false }: { dark?: boolean }) => (
+    <div
+      className={`flex overflow-hidden rounded-pill text-[11px] font-semibold ${
+        dark ? "bg-white/95 text-foreground" : "border border-border bg-surface text-foreground"
+      }`}
+    >
+      {(["en", "km"] as const).map((l) => (
+        <button
+          key={l}
+          type="button"
+          onClick={() => setLang(l)}
+          aria-pressed={lang === l}
+          className={`flex items-center gap-1 px-2.5 py-1 transition ${
+            lang === l ? "bg-primary text-primary-foreground" : ""
+          }`}
+        >
+          <span className="text-sm leading-none">{l === "km" ? "🇰🇭" : "🇬🇧"}</span>
+          <span>{l === "km" ? "ខ្មែរ" : "EN"}</span>
+        </button>
+      ))}
+    </div>
+  );
   const { user, loading } = useAuth();
   const nav = useNavigate();
 
