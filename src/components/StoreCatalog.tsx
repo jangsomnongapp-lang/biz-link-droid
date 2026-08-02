@@ -349,6 +349,25 @@ export function StoreCatalog({
                     )
                   )}
                 </div>
+                <div className="mt-1.5 flex items-center gap-2">
+                  {item.stock_updated_at && (
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {c("stock_updated").replace("{v}", timeAgo(item.stock_updated_at, t))}
+                    </span>
+                  )}
+                  {!isOwner && (
+                    <button
+                      type="button"
+                      onClick={() => setReportItem(item)}
+                      className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground underline-offset-2 active:underline"
+                      aria-label={c("report_title")}
+                    >
+                      <Flag className="h-3 w-3" />
+                      {c("report_issue")}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -357,6 +376,17 @@ export function StoreCatalog({
           <p className="py-6 text-center text-xs text-muted-foreground">{c("no_results")}</p>
         )}
       </div>
+
+      {reportItem && (
+        <ReportDialog
+          item={reportItem}
+          storeId={storeId}
+          name={label(reportItem)}
+          c={c}
+          canReport={!!user}
+          onClose={() => setReportItem(null)}
+        />
+      )}
     </div>
   );
 }
