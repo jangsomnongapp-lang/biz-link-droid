@@ -26,7 +26,16 @@ interface ReportRow {
   created_at: string;
 }
 
-type View = "open" | "resolved" | "dismissed";
+type View = "open" | "resolved" | "dismissed" | "stock";
+
+interface StockReportRow {
+  id: string;
+  reason: string;
+  note: string | null;
+  created_at: string;
+  supplier_catalog_items: { name_en: string } | null;
+  supplier_stores: { name: string } | null;
+}
 
 function AdminReportsPage() {
   const { t } = useI18n();
@@ -35,6 +44,7 @@ function AdminReportsPage() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [view, setView] = useState<View>("open");
   const [rows, setRows] = useState<ReportRow[]>([]);
+  const [stockRows, setStockRows] = useState<StockReportRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,7 +62,21 @@ function AdminReportsPage() {
   }, [user, nav]);
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isAdmin || view !== "stock") return;
+    setLoading(true);
+    void supabase
+      .from("catalog_stock_reports")
+      .select("id, reason, note, created_at, supplier_catalog_items(name_en), supplier_stores(name)")
+      .order("created_at", { ascending: false })
+      .limit(100)
+      .then(({ data }) => {
+        setStockRows((data ?? []) as unknown as StockReportRow[]);
+        setLoading(false);
+      });
+  }, [isAdmin, view]);
+
+  useEffect(() => {
+    if (!isAdmin || view === "stock") return;
     setLoading(true);
     void supabase
       .from("reports")
@@ -108,7 +132,7 @@ function AdminReportsPage() {
       </header>
 
       <div className="flex gap-2 px-3 pt-3">
-        {(["open", "resolved", "dismissed"] as View[]).map((v) => (
+        {(["open", "resolved", "dismissed", "stock"] as View[]).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
@@ -118,21 +142,52 @@ function AdminReportsPage() {
                 : "bg-surface text-muted-foreground border border-border"
             }`}
           >
-            {v === "open" ? t("open_status") : v === "resolved" ? t("resolved") : t("dismissed")}
+            {v === "open"
+              ? t("open_status")
+              : v === "resolved"
+                ? t("resolved")
+                : v === "dismissed"
+                  ? t("dismissed")
+                  : "Stock"}
           </button>
         ))}
       </div>
 
       <div className="flex-1 space-y-2 px-3 pt-3">
+        {view === "stock" && !loading && (
+          <>
+            <p className="px-1 text-[11px] text-muted-foreground">
+              Client stock reports — internal only, suppliers never see these.
+            </p>
+            {stockRows.length === 0 && (
+              <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                {t("no_reports")}
+              </div>
+            )}
+            {stockRows.map((r) => (
+              <article key={r.id} className="rounded-xl bg-surface p-3 shadow-card">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-foreground">
+                    {r.supplier_catalog_items?.name_en ?? "Product"}
+                  </p>
+                  <span className="text-[11px] text-muted-foreground">{timeAgo(r.created_at, t)}</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">{r.supplier_stores?.name ?? ""}</p>
+                <p className="mt-1 text-xs font-semibold text-destructive">{r.reason}</p>
+                {r.note && <p className="mt-1 text-sm text-foreground">{r.note}</p>}
+              </article>
+            ))}
+          </>
+        )}
         {loading && (
           <div className="p-6 text-center text-sm text-muted-foreground">{t("loading")}</div>
         )}
-        {!loading && rows.length === 0 && (
+        {!loading && view !== "stock" && rows.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
             {t("no_reports")}
           </div>
         )}
-        {rows.map((r) => {
+        {view !== "stock" && rows.map((r) => {
           const link = targetLink(r);
           return (
             <article key={r.id} className="rounded-xl bg-surface p-3 shadow-card">
