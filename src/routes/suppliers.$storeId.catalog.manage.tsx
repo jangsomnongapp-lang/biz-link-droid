@@ -418,6 +418,11 @@ function CatalogManagePage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-bold">{label(item)}</p>
+                    {item.offer_active && (
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-200">
+                        <Tag className="h-3 w-3" /> {c("on_offer")}
+                      </span>
+                    )}
                     <p className="mt-0.5 text-[12px] text-white/70">
                       {item.price != null
                         ? `${item.currency === "KHR" ? "៛" : "$"}${item.price}${item.unit ? ` / ${item.unit}` : ""}`
@@ -456,12 +461,20 @@ function CatalogManagePage() {
                   >
                     <Pencil className="h-3.5 w-3.5" /> {c("edit")}
                   </Link>
-                  <Link
-                    to="/posts/new"
-                    className="flex items-center justify-center gap-1 rounded-lg bg-white/10 py-2 text-[11px] font-bold active:scale-[0.98]"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOfferItem(item);
+                      setOfferPrice(item.offer_price != null ? String(item.offer_price) : "");
+                    }}
+                    className={`flex items-center justify-center gap-1 rounded-lg py-2 text-[11px] font-bold active:scale-[0.98] ${
+                      item.offer_active
+                        ? "bg-amber-500/20 text-amber-200"
+                        : "bg-white/10"
+                    }`}
                   >
                     <Tag className="h-3.5 w-3.5" /> {c("offer")}
-                  </Link>
+                  </button>
                   <button
                     type="button"
                     onClick={() => void removeItem(item)}
