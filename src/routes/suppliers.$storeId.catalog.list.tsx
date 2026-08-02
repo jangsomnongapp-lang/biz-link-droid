@@ -82,6 +82,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   sanitary: "🚽",
   hardware: "🛠️",
   machinery: "🚜",
+  furniture: "🛋️",
   other: "📦",
 };
 
