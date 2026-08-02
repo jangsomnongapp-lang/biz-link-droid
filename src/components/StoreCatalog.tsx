@@ -38,7 +38,7 @@ export function StoreCatalog({
   isOwner: boolean;
   onAsk: (item: { id: string; name: string }) => void;
 }) {
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const { user } = useAuth();
   const c = (key: Parameters<typeof catalogCopy>[1]) => catalogCopy(lang, key);
 
@@ -49,6 +49,9 @@ export function StoreCatalog({
   const [sort, setSort] = useState<SortMode>("default");
   const [showSort, setShowSort] = useState(false);
   const [subscribed, setSubscribed] = useState<Set<string>>(new Set());
+  const [reportItem, setReportItem] = useState<Item | null>(null);
+
+
 
   useEffect(() => {
     let cancelled = false;
