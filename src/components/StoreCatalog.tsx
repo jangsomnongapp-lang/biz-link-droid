@@ -391,6 +391,119 @@ export function StoreCatalog({
   );
 }
 
+function ReportDialog({
+  item,
+  storeId,
+  name,
+  c,
+  canReport,
+  onClose,
+}: {
+  item: { id: string };
+  storeId: string;
+  name: string;
+  c: (key: Parameters<typeof catalogCopy>[1]) => string;
+  canReport: boolean;
+  onClose: () => void;
+}) {
+  const { user } = useAuth();
+  const [reason, setReason] = useState("unavailable");
+  const [note, setNote] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const reasons: Array<[string, string]> = [
+    ["unavailable", c("report_reason_unavailable")],
+    ["price", c("report_reason_price")],
+    ["closed", c("report_reason_closed")],
+    ["other", c("report_reason_other")],
+  ];
+
+  async function submit() {
+    if (!user) {
+      toast.error(c("report_login"));
+      return;
+    }
+    setSending(true);
+    const { error } = await supabase.from("catalog_stock_reports").insert({
+      item_id: item.id,
+      store_id: storeId,
+      user_id: user.id,
+      reason,
+      note: note.trim() || null,
+    });
+    setSending(false);
+    if (error) {
+      toast.error(error.code === "23505" ? c("report_already") : error.message);
+      return;
+    }
+    toast.success(c("report_sent"));
+    onClose();
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={c("report_title")}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-t-2xl bg-card p-4 sm:rounded-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="text-sm font-bold text-foreground">{c("report_title")}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{name}</p>
+        <p className="mt-1 text-[11px] text-muted-foreground">{c("report_hint")}</p>
+
+        <div className="mt-3 space-y-1.5">
+          {reasons.map(([key, text]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setReason(key)}
+              className={`w-full rounded-xl border px-3 py-2 text-left text-[12px] font-semibold ${
+                reason === key
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border text-muted-foreground"
+              }`}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
+
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value.slice(0, 400))}
+          placeholder={c("report_note_placeholder")}
+          aria-label={c("report_note_placeholder")}
+          rows={2}
+          className="mt-3 w-full rounded-xl border border-border bg-background p-2.5 text-[12px] outline-none"
+        />
+
+        <div className="mt-3 flex gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-xl bg-muted py-2.5 text-[12px] font-bold text-foreground"
+          >
+            {c("cancel_label")}
+          </button>
+          <button
+            type="button"
+            disabled={sending || !canReport}
+            onClick={() => void submit()}
+            className="flex-1 rounded-xl bg-primary py-2.5 text-[12px] font-bold text-primary-foreground disabled:opacity-60"
+          >
+            {c("report_send")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Tab({
   active,
   onClick,
