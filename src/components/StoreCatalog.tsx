@@ -56,7 +56,7 @@ export function StoreCatalog({
       const { data } = await supabase
         .from("supplier_catalog_items")
         .select(
-          "id,name_en,name_km,note,unit,price,currency,stock_status,in_stock,photo_url,offer_active,offer_price,category_id,supplier_categories(id,name_en,name_km)",
+          "id,name_en,name_km,note,unit,price,currency,stock_status,stock_updated_at,in_stock,photo_url,offer_active,offer_price,category_id,supplier_categories(id,name_en,name_km)",
         )
         .eq("store_id", storeId)
         .order("created_at", { ascending: false });
@@ -70,6 +70,7 @@ export function StoreCatalog({
         price: number | null;
         currency: string | null;
         stock_status: string | null;
+        stock_updated_at: string | null;
         in_stock: boolean | null;
         photo_url: string | null;
         offer_active: boolean | null;
@@ -86,6 +87,7 @@ export function StoreCatalog({
         price: r.price,
         currency: r.currency ?? "USD",
         stock_status: (r.stock_status as StockStatus | null) ?? (r.in_stock ? "in_stock" : "out"),
+        stock_updated_at: r.stock_updated_at,
         photo_url: r.photo_url,
         offer_active: r.offer_active ?? false,
         offer_price: r.offer_price,
