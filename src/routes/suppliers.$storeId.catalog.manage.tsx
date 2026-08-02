@@ -99,6 +99,10 @@ function CatalogManagePage() {
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [sortByRequests, setSortByRequests] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [offerItem, setOfferItem] = useState<PanelItem | null>(null);
+  const [offerPrice, setOfferPrice] = useState("");
+
+
 
   useEffect(() => {
     let cancelled = false;
@@ -229,6 +233,29 @@ function CatalogManagePage() {
     setItems((prev) => prev.filter((i) => i.id !== item.id));
     toast.success(c("removed"));
   }
+
+  async function saveOffer(active: boolean) {
+    const item = offerItem;
+    if (!item) return;
+    const parsed = offerPrice.trim() ? Number(offerPrice.replace(/[^0-9.]/g, "")) : null;
+    const payload = {
+      offer_active: active,
+      offer_price: active ? (Number.isFinite(parsed as number) ? parsed : null) : null,
+    };
+    const { error } = await supabase
+      .from("supplier_catalog_items")
+      .update(payload)
+      .eq("id", item.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, ...payload } : i)));
+    setOfferItem(null);
+    toast.success(c("offer_saved"));
+  }
+
+
 
   const diff = (stats?.requests_week ?? 0) - (stats?.requests_prev_week ?? 0);
   const maxSearch = market.length ? Math.max(...market.map((m) => m.search_count)) : 0;
