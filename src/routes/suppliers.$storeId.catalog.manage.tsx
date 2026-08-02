@@ -62,6 +62,8 @@ interface PanelItem {
   views: number;
   chats: number;
   requests_week: number;
+  offer_active: boolean;
+  offer_price: number | null;
 }
 
 interface PanelStats {
