@@ -22,7 +22,30 @@ interface SupplierCategory {
 
 function SupplierJoinPage() {
   const { token } = Route.useParams();
-  const { t, lang } = useI18n();
+  const { t, lang, setLang } = useI18n();
+
+  const LangToggle = ({ dark = false }: { dark?: boolean }) => (
+    <div
+      className={`flex overflow-hidden rounded-pill text-[11px] font-semibold ${
+        dark ? "bg-white/95 text-foreground" : "border border-border bg-surface text-foreground"
+      }`}
+    >
+      {(["en", "km"] as const).map((l) => (
+        <button
+          key={l}
+          type="button"
+          onClick={() => setLang(l)}
+          aria-pressed={lang === l}
+          className={`flex items-center gap-1 px-2.5 py-1 transition ${
+            lang === l ? "bg-primary text-primary-foreground" : ""
+          }`}
+        >
+          <span className="text-sm leading-none">{l === "km" ? "🇰🇭" : "🇬🇧"}</span>
+          <span>{l === "km" ? "ខ្មែរ" : "EN"}</span>
+        </button>
+      ))}
+    </div>
+  );
   const { user, loading } = useAuth();
   const nav = useNavigate();
 
@@ -218,7 +241,11 @@ function SupplierJoinPage() {
   if (step === 0) {
     return (
       <div className="flex min-h-screen flex-col bg-primary text-primary-foreground">
-        <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+        <div className="flex justify-end px-5 pt-5">
+          <LangToggle dark />
+        </div>
+        <div className="flex flex-1 flex-col items-center justify-center px-6 pb-12 text-center">
+
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white shadow-card">
             <span className="text-3xl">📍</span>
           </div>
@@ -250,7 +277,11 @@ function SupplierJoinPage() {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h2 className="text-lg font-bold">{t("app_name")}</h2>
-          <span className="text-xs font-medium opacity-80">{t("step_of", { n: step })}</span>
+          <div className="flex items-center gap-2">
+            <LangToggle dark />
+            <span className="text-xs font-medium opacity-80">{t("step_of", { n: step })}</span>
+          </div>
+
         </div>
         <div className="flex gap-1.5">
           {[1, 2, 3].map((s) => (
