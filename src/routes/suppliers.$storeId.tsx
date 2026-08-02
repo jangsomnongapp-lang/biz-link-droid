@@ -128,6 +128,9 @@ function SupplierProfilePage() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [posts, setPosts] = useState<RecentPost[]>([]);
   const [postsCount, setPostsCount] = useState(0);
+  const [catalogCount, setCatalogCount] = useState(0);
+  const cc = (key: Parameters<typeof catalogCopy>[1]) => catalogCopy(lang, key);
+
   const [contacting, setContacting] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [deleting, setDeleting] = useState(false);
