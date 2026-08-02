@@ -504,6 +504,69 @@ function CatalogManagePage() {
 
         <p className="pt-1 text-center text-[10px] text-white/35">{c("internal_panel_note")}</p>
       </div>
+
+      {offerItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-black/60 px-3 pb-3"
+          onClick={() => setOfferItem(null)}
+        >
+          <div
+            className="w-full rounded-2xl border border-white/10 bg-[#12161c] p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-[14px] font-bold">{c("offer_sheet_title")}</p>
+            <p className="mt-0.5 text-[12px] text-white/60">{label(offerItem)}</p>
+            <p className="mt-2 text-[11px] text-white/50">{c("offer_sheet_desc")}</p>
+
+            <label className="mt-3 block text-[11px] font-bold uppercase tracking-wide text-white/45">
+              {c("offer_price_label")}
+            </label>
+            <input
+              value={offerPrice}
+              onChange={(e) => setOfferPrice(e.target.value)}
+              inputMode="decimal"
+              placeholder={offerItem.price != null ? String(offerItem.price) : "0"}
+              className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2.5 text-[13px] outline-none focus:border-primary"
+            />
+
+            <div className="mt-3 grid gap-1.5">
+              <button
+                type="button"
+                onClick={() => void saveOffer(true)}
+                className="rounded-lg bg-amber-500 py-2.5 text-[13px] font-bold text-black active:scale-[0.99]"
+              >
+                {c("offer_activate")}
+              </button>
+              {offerItem.offer_active && (
+                <button
+                  type="button"
+                  onClick={() => void saveOffer(false)}
+                  className="rounded-lg bg-white/10 py-2.5 text-[13px] font-bold active:scale-[0.99]"
+                >
+                  {c("offer_deactivate")}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setOfferItem(null)}
+                className="rounded-lg py-2 text-[12px] font-semibold text-white/60"
+              >
+                {c("cancel_label")}
+              </button>
+            </div>
+
+            <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+              <p className="text-[11px] text-amber-100/80">{c("offer_feed_note")}</p>
+              <Link
+                to="/posts/new"
+                className="mt-2 inline-flex text-[11px] font-bold text-amber-300"
+              >
+                {c("offer_post_feed")} →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
