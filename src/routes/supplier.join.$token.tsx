@@ -277,7 +277,11 @@ function SupplierJoinPage() {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <h2 className="text-lg font-bold">{t("app_name")}</h2>
-          <span className="text-xs font-medium opacity-80">{t("step_of", { n: step })}</span>
+          <div className="flex items-center gap-2">
+            <LangToggle dark />
+            <span className="text-xs font-medium opacity-80">{t("step_of", { n: step })}</span>
+          </div>
+
         </div>
         <div className="flex gap-1.5">
           {[1, 2, 3].map((s) => (
