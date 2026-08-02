@@ -226,6 +226,21 @@ const COPY = {
   report_already: { en: "You already reported this today.", km: "អ្នករាយការណ៍រួចហើយថ្ងៃនេះ។" },
   report_login: { en: "Sign in to report a problem.", km: "ចូលគណនីដើម្បីរាយការណ៍។" },
   cancel_label: { en: "Cancel", km: "បោះបង់" },
+  on_offer: { en: "On offer", km: "កំពុងបញ្ចុះតម្លៃ" },
+  offer_sheet_title: { en: "Flag as on offer", km: "ដាក់ស្លាកបញ្ចុះតម្លៃ" },
+  offer_sheet_desc: {
+    en: "The product keeps its place in your catalogue and shows an amber Offer tag to clients.",
+    km: "ផលិតផលនៅតែក្នុងកាតាឡុក ហើយបង្ហាញស្លាកបញ្ចុះតម្លៃពណ៌លឿងដល់អតិថិជន។",
+  },
+  offer_price_label: { en: "Offer price (optional)", km: "តម្លៃបញ្ចុះ (ស្រេចចិត្ត)" },
+  offer_activate: { en: "Activate offer", km: "បើកការបញ្ចុះតម្លៃ" },
+  offer_deactivate: { en: "Remove offer", km: "ដកការបញ្ចុះតម្លៃ" },
+  offer_saved: { en: "Offer updated", km: "បានធ្វើបច្ចុប្បន្នភាព" },
+  offer_feed_note: {
+    en: "Liquidations and time-limited deals are separate — post them in the feed. You don't need a catalogue for that.",
+    km: "ការលក់សម្រាល និងការបញ្ចុះពេលកំណត់ ដាច់ដោយឡែក — ផ្សាយក្នុងព័ត៌មាន។ មិនត្រូវការកាតាឡុកទេ។",
+  },
+  offer_post_feed: { en: "Post a liquidation in the feed", km: "ផ្សាយការលក់សម្រាលក្នុងព័ត៌មាន" },
 } as const;
 
 
