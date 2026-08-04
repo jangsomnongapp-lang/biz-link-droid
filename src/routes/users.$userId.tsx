@@ -92,8 +92,13 @@ function UserProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cats, setCats] = useState<{ name_en: string; name_km: string }[]>([]);
   const [posted, setPosted] = useState(0);
+  const [appliedCount, setAppliedCount] = useState(0);
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
+  const [userPosts, setUserPosts] = useState<
+    { id: string; title: string | null; content: string | null; created_at: string; post_type: string | null; photo: string | null }[]
+  >([]);
   const [activeProjects, setActiveProjects] = useState<{ id: string; title: string; location: string | null }[]>([]);
+
   const [checkingSupplier, setCheckingSupplier] = useState(true);
   const [supplierStore, setSupplierStore] = useState<{
     id: string;
@@ -158,6 +163,29 @@ function UserProfilePage() {
       .select("id, photo_url")
       .eq("user_id", userId)
       .then(({ data }) => setPortfolio(data ?? []));
+    void supabase
+      .from("applications")
+      .select("id", { count: "exact", head: true })
+      .eq("applicant_id", userId)
+      .then(({ count }) => setAppliedCount(count ?? 0));
+    void (async () => {
+      const { data: ps } = await supabase
+        .from("posts")
+        .select("id, title, content, created_at, post_type")
+        .eq("user_id", userId)
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (!ps?.length) return setUserPosts([]);
+      const { data: photos } = await supabase
+        .from("post_photos")
+        .select("post_id, photo_url")
+        .in("post_id", ps.map((p) => p.id));
+      const firstPhoto = new Map<string, string>();
+      for (const ph of photos ?? []) if (!firstPhoto.has(ph.post_id)) firstPhoto.set(ph.post_id, ph.photo_url);
+      setUserPosts(ps.map((p) => ({ ...p, photo: firstPhoto.get(p.id) ?? null })));
+    })();
+
     void (async () => {
       const { data: rs } = await supabase.rpc("get_user_reviews", { _rated_id: userId });
       if (!rs) return;
@@ -268,7 +296,7 @@ function UserProfilePage() {
 
       <div className="grid grid-cols-3 bg-surface shadow-card">
         <Stat n={posted} l={t("projects_posted")} />
-        <Stat n={0} l={t("applied_to")} />
+        <Stat n={appliedCount} l={t("applied_to")} />
         <Stat n={0} l={t("contacts_made")} />
       </div>
 
@@ -350,6 +378,45 @@ function UserProfilePage() {
             {profile.about_me || <span className="text-text-hint">—</span>}
           </p>
         </Section>
+
+        <Section title={`${lang === "km" ? "សកម្មភាព" : "Activity"} (${userPosts.length})`}>
+          {userPosts.length === 0 ? (
+            <p className="text-sm text-text-hint">
+              {lang === "km" ? "មិនទាន់មានការបង្ហោះ" : "No posts yet"}
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {userPosts.map((p) => (
+                <Link
+                  key={p.id}
+                  to="/posts/$postId"
+                  params={{ postId: p.id }}
+                  className="flex gap-3 rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
+                >
+                  {p.photo && (
+                    <img
+                      src={p.photo}
+                      alt=""
+                      className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    {p.title && (
+                      <div className="truncate text-sm font-semibold text-foreground">{p.title}</div>
+                    )}
+                    {p.content && (
+                      <p className="line-clamp-2 text-xs text-muted-foreground">{p.content}</p>
+                    )}
+                    <div className="mt-1 text-[10px] text-text-hint">
+                      {new Date(p.created_at).toLocaleDateString(lang === "km" ? "km-KH" : "en-GB")}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </Section>
+
 
         <Section title={`${t("portfolio")} (${portfolio.length})`}>
           {portfolio.length === 0 ? (
