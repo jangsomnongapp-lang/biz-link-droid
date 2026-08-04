@@ -5,6 +5,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeDataUrl, resizeImageFile } from "@/lib/image-resize";
 import { ArrowLeft, Camera, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarCropper } from "@/components/AvatarCropper";
