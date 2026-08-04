@@ -62,25 +62,28 @@ function EditProfilePage() {
     if (!file || !user) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(file)) return;
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(r.result as string);
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
-    setPendingAvatar(dataUrl);
+    try {
+      setPendingAvatar(await resizeImageFile(file, { maxEdge: 1024, quality: 0.85 }));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    }
   }
 
   async function saveCroppedAvatar(cropped: string) {
     if (!user) return;
     setUploadingAvatar(true);
     try {
+      const avatar_url = await resizeDataUrl(cropped, {
+        maxEdge: 512,
+        quality: 0.85,
+        maxBytes: 400_000,
+      });
       const { error } = await supabase
         .from("profiles")
-        .update({ avatar_url: cropped })
+        .update({ avatar_url })
         .eq("id", user.id);
       if (error) throw error;
-      setAvatarUrl(cropped);
+      setAvatarUrl(avatar_url);
       setPendingAvatar(null);
       toast.success(lang === "km" ? "បានធ្វើបច្ចុប្បន្នភាពរូបភាព" : "Photo updated");
     } catch (err) {
