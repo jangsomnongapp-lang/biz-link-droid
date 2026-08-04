@@ -4,6 +4,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeImageFile } from "@/lib/image-resize";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { PortfolioGridSkeleton, ListSkeleton } from "@/components/SkeletonFeed";
