@@ -92,8 +92,13 @@ function UserProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cats, setCats] = useState<{ name_en: string; name_km: string }[]>([]);
   const [posted, setPosted] = useState(0);
+  const [appliedCount, setAppliedCount] = useState(0);
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
+  const [userPosts, setUserPosts] = useState<
+    { id: string; title: string | null; content: string | null; created_at: string; post_type: string | null; photo: string | null }[]
+  >([]);
   const [activeProjects, setActiveProjects] = useState<{ id: string; title: string; location: string | null }[]>([]);
+
   const [checkingSupplier, setCheckingSupplier] = useState(true);
   const [supplierStore, setSupplierStore] = useState<{
     id: string;
