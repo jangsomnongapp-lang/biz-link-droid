@@ -379,6 +379,45 @@ function UserProfilePage() {
           </p>
         </Section>
 
+        <Section title={`${lang === "km" ? "សកម្មភាព" : "Activity"} (${userPosts.length})`}>
+          {userPosts.length === 0 ? (
+            <p className="text-sm text-text-hint">
+              {lang === "km" ? "មិនទាន់មានការបង្ហោះ" : "No posts yet"}
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {userPosts.map((p) => (
+                <Link
+                  key={p.id}
+                  to="/posts/$postId"
+                  params={{ postId: p.id }}
+                  className="flex gap-3 rounded-lg border border-border bg-background p-3 active:scale-[0.99]"
+                >
+                  {p.photo && (
+                    <img
+                      src={p.photo}
+                      alt=""
+                      className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    {p.title && (
+                      <div className="truncate text-sm font-semibold text-foreground">{p.title}</div>
+                    )}
+                    {p.content && (
+                      <p className="line-clamp-2 text-xs text-muted-foreground">{p.content}</p>
+                    )}
+                    <div className="mt-1 text-[10px] text-text-hint">
+                      {new Date(p.created_at).toLocaleDateString(lang === "km" ? "km-KH" : "en-GB")}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </Section>
+
+
         <Section title={`${t("portfolio")} (${portfolio.length})`}>
           {portfolio.length === 0 ? (
             <p className="text-sm text-text-hint">{lang === "km" ? "មិនទាន់មានរូបថត" : "No photos yet"}</p>
