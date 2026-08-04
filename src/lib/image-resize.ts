@@ -6,7 +6,7 @@ export const prepareImageForRecognition = createClientOnlyFn(
   async (file: File): Promise<string> => {
     return resizeImageFile(file, { maxEdge: MAX_EDGE, quality: 0.82 });
   },
-);
+) as (file: File) => Promise<string>;
 
 interface ResizeOptions {
   maxEdge?: number;
