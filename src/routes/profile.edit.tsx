@@ -5,6 +5,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeDataUrl, resizeImageFile } from "@/lib/image-resize";
 import { ArrowLeft, Camera, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarCropper } from "@/components/AvatarCropper";
@@ -148,12 +149,7 @@ function EditProfilePage() {
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(file)) return;
     try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(r.result as string);
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
+      const dataUrl = await resizeImageFile(file);
       setPendingPhoto(dataUrl);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error");
@@ -164,9 +160,10 @@ function EditProfilePage() {
     if (!user) return;
     setSavingPhoto(true);
     try {
+      const photo_url = await resizeDataUrl(cropped);
       const { data, error } = await supabase
         .from("portfolio_photos")
-        .insert({ user_id: user.id, photo_url: cropped })
+        .insert({ user_id: user.id, photo_url })
         .select("id, photo_url")
         .single();
       if (error) throw error;

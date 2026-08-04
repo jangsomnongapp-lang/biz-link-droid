@@ -4,6 +4,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeImageFile } from "@/lib/image-resize";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { PortfolioGridSkeleton, ListSkeleton } from "@/components/SkeletonFeed";
@@ -78,17 +79,8 @@ function PortfolioPage() {
     if (!valid.length) return;
     setAdding(true);
     try {
-      const rows = await Promise.all(
-        valid.map(
-          (file) =>
-            new Promise<{ user_id: string; photo_url: string }>((resolve, reject) => {
-              const r = new FileReader();
-              r.onload = () => resolve({ user_id: user.id, photo_url: String(r.result) });
-              r.onerror = reject;
-              r.readAsDataURL(file);
-            }),
-        ),
-      );
+      const urls = await Promise.all(valid.map((file) => resizeImageFile(file)));
+      const rows = urls.map((photo_url) => ({ user_id: user.id, photo_url }));
       const { error } = await supabase.from("portfolio_photos").insert(rows);
       if (error) throw error;
       toast.success(`${rows.length} photo${rows.length > 1 ? "s" : ""} added`);
