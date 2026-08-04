@@ -296,7 +296,7 @@ function UserProfilePage() {
 
       <div className="grid grid-cols-3 bg-surface shadow-card">
         <Stat n={posted} l={t("projects_posted")} />
-        <Stat n={0} l={t("applied_to")} />
+        <Stat n={appliedCount} l={t("applied_to")} />
         <Stat n={0} l={t("contacts_made")} />
       </div>
 
