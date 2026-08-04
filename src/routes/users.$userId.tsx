@@ -163,6 +163,29 @@ function UserProfilePage() {
       .select("id, photo_url")
       .eq("user_id", userId)
       .then(({ data }) => setPortfolio(data ?? []));
+    void supabase
+      .from("applications")
+      .select("id", { count: "exact", head: true })
+      .eq("applicant_id", userId)
+      .then(({ count }) => setAppliedCount(count ?? 0));
+    void (async () => {
+      const { data: ps } = await supabase
+        .from("posts")
+        .select("id, title, content, created_at, post_type")
+        .eq("user_id", userId)
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (!ps?.length) return setUserPosts([]);
+      const { data: photos } = await supabase
+        .from("post_photos")
+        .select("post_id, photo_url")
+        .in("post_id", ps.map((p) => p.id));
+      const firstPhoto = new Map<string, string>();
+      for (const ph of photos ?? []) if (!firstPhoto.has(ph.post_id)) firstPhoto.set(ph.post_id, ph.photo_url);
+      setUserPosts(ps.map((p) => ({ ...p, photo: firstPhoto.get(p.id) ?? null })));
+    })();
+
     void (async () => {
       const { data: rs } = await supabase.rpc("get_user_reviews", { _rated_id: userId });
       if (!rs) return;
