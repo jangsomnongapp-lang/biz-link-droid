@@ -44,13 +44,6 @@ export const Route = createRootRoute({
         href: "https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap",
       },
     ],
-    scripts: [
-      {
-        async: true,
-        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7966158732628344",
-        crossOrigin: "anonymous",
-      },
-    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
