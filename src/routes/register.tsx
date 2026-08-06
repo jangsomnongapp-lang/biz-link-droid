@@ -93,7 +93,7 @@ function RegisterFlow() {
   }, []);
 
   const anyRole = roles.is_provider || roles.is_coordinator || roles.is_organization || roles.is_client || roles.is_specialist;
-  const needsCats = roles.is_provider || roles.is_coordinator || roles.is_organization;
+  const needsCats = roles.is_provider || roles.is_coordinator || roles.is_organization || roles.is_specialist;
 
   async function signInWithGoogle() {
     await loginWithGoogle(nav);
