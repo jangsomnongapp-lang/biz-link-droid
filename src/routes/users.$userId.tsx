@@ -82,6 +82,7 @@ interface Profile {
   is_verified?: boolean | null;
   is_recruiter?: boolean | null;
   is_featured?: boolean | null;
+  is_specialist?: boolean | null;
 }
 
 function UserProfilePage() {
