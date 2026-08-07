@@ -244,6 +244,7 @@ function UserProfilePage() {
   if (profile.is_coordinator) roleLabels.push(t("role_coordinator"));
   if (profile.is_organization) roleLabels.push(t("role_organization"));
   if (profile.is_client) roleLabels.push(t("role_client"));
+  if (profile.is_specialist) roleLabels.push(t("role_specialist"));
 
   const isSelf = user?.id === profile.id;
 
