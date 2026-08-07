@@ -139,7 +139,7 @@ function UserProfilePage() {
     })();
     void supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client, is_verified, is_recruiter, is_featured")
+      .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client, is_verified, is_recruiter, is_featured, is_specialist")
       .eq("id", userId)
       .maybeSingle()
       .then(({ data }) => setProfile(data));
