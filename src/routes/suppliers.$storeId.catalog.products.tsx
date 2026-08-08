@@ -86,7 +86,7 @@ function CatalogProductsPage() {
           to="/suppliers/$storeId"
           params={{ storeId }}
           className="rounded-full p-2 active:bg-white/10"
-          aria-label={c("back_label")}
+          aria-label={lang === "km" ? "ត្រឡប់" : "Back"}
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
