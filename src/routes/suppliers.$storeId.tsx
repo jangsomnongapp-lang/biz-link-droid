@@ -405,6 +405,26 @@ function SupplierProfilePage() {
         <Stat value={store.contact_count ?? 0} label={t("contacts_label")} divider />
       </div>
 
+      {/* Catalogue (public) */}
+      {catalogCount > 0 && (
+        <div className="border-b border-border bg-surface px-5 py-3">
+          <Link
+            to="/suppliers/$storeId/catalog/products"
+            params={{ storeId }}
+            className="flex items-center justify-between rounded-xl border border-primary bg-primary/5 px-4 py-3 text-sm font-bold text-primary active:scale-[0.98]"
+          >
+            <span className="flex items-center gap-2">
+              🧾 {lang === "km" ? "កាតាឡុក" : "Catalogue"}
+            </span>
+            <span className="text-xs font-semibold opacity-80">
+              {catalogCount} {cc("products_count")}
+            </span>
+          </Link>
+        </div>
+      )}
+
+
+
       {/* Online orders (owner only) */}
       {isOwner && (
         <div className="border-b border-border bg-surface px-5 py-3 space-y-2">
