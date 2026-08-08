@@ -80,6 +80,7 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as SuppliersStoreIdCatalogIndexRouteImport } from './routes/suppliers.$storeId.catalog.index'
 import { Route as SuppliersStoreIdCatalogStatsRouteImport } from './routes/suppliers.$storeId.catalog.stats'
+import { Route as SuppliersStoreIdCatalogProductsRouteImport } from './routes/suppliers.$storeId.catalog.products'
 import { Route as SuppliersStoreIdCatalogPhotoRouteImport } from './routes/suppliers.$storeId.catalog.photo'
 import { Route as SuppliersStoreIdCatalogManageRouteImport } from './routes/suppliers.$storeId.catalog.manage'
 import { Route as SuppliersStoreIdCatalogListRouteImport } from './routes/suppliers.$storeId.catalog.list'
@@ -449,6 +450,12 @@ const SuppliersStoreIdCatalogStatsRoute =
     path: '/stats',
     getParentRoute: () => SuppliersStoreIdCatalogRoute,
   } as any)
+const SuppliersStoreIdCatalogProductsRoute =
+  SuppliersStoreIdCatalogProductsRouteImport.update({
+    id: '/products',
+    path: '/products',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
 const SuppliersStoreIdCatalogPhotoRoute =
   SuppliersStoreIdCatalogPhotoRouteImport.update({
     id: '/photo',
@@ -567,6 +574,7 @@ export interface FileRoutesByFullPath {
   '/suppliers/$storeId/catalog/list': typeof SuppliersStoreIdCatalogListRoute
   '/suppliers/$storeId/catalog/manage': typeof SuppliersStoreIdCatalogManageRoute
   '/suppliers/$storeId/catalog/photo': typeof SuppliersStoreIdCatalogPhotoRoute
+  '/suppliers/$storeId/catalog/products': typeof SuppliersStoreIdCatalogProductsRoute
   '/suppliers/$storeId/catalog/stats': typeof SuppliersStoreIdCatalogStatsRoute
   '/suppliers/$storeId/catalog/': typeof SuppliersStoreIdCatalogIndexRoute
 }
@@ -645,6 +653,7 @@ export interface FileRoutesByTo {
   '/suppliers/$storeId/catalog/list': typeof SuppliersStoreIdCatalogListRoute
   '/suppliers/$storeId/catalog/manage': typeof SuppliersStoreIdCatalogManageRoute
   '/suppliers/$storeId/catalog/photo': typeof SuppliersStoreIdCatalogPhotoRoute
+  '/suppliers/$storeId/catalog/products': typeof SuppliersStoreIdCatalogProductsRoute
   '/suppliers/$storeId/catalog/stats': typeof SuppliersStoreIdCatalogStatsRoute
   '/suppliers/$storeId/catalog': typeof SuppliersStoreIdCatalogIndexRoute
 }
@@ -726,6 +735,7 @@ export interface FileRoutesById {
   '/suppliers/$storeId/catalog/list': typeof SuppliersStoreIdCatalogListRoute
   '/suppliers/$storeId/catalog/manage': typeof SuppliersStoreIdCatalogManageRoute
   '/suppliers/$storeId/catalog/photo': typeof SuppliersStoreIdCatalogPhotoRoute
+  '/suppliers/$storeId/catalog/products': typeof SuppliersStoreIdCatalogProductsRoute
   '/suppliers/$storeId/catalog/stats': typeof SuppliersStoreIdCatalogStatsRoute
   '/suppliers/$storeId/catalog/': typeof SuppliersStoreIdCatalogIndexRoute
 }
@@ -808,6 +818,7 @@ export interface FileRouteTypes {
     | '/suppliers/$storeId/catalog/list'
     | '/suppliers/$storeId/catalog/manage'
     | '/suppliers/$storeId/catalog/photo'
+    | '/suppliers/$storeId/catalog/products'
     | '/suppliers/$storeId/catalog/stats'
     | '/suppliers/$storeId/catalog/'
   fileRoutesByTo: FileRoutesByTo
@@ -886,6 +897,7 @@ export interface FileRouteTypes {
     | '/suppliers/$storeId/catalog/list'
     | '/suppliers/$storeId/catalog/manage'
     | '/suppliers/$storeId/catalog/photo'
+    | '/suppliers/$storeId/catalog/products'
     | '/suppliers/$storeId/catalog/stats'
     | '/suppliers/$storeId/catalog'
   id:
@@ -966,6 +978,7 @@ export interface FileRouteTypes {
     | '/suppliers/$storeId/catalog/list'
     | '/suppliers/$storeId/catalog/manage'
     | '/suppliers/$storeId/catalog/photo'
+    | '/suppliers/$storeId/catalog/products'
     | '/suppliers/$storeId/catalog/stats'
     | '/suppliers/$storeId/catalog/'
   fileRoutesById: FileRoutesById
@@ -1535,6 +1548,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuppliersStoreIdCatalogStatsRouteImport
       parentRoute: typeof SuppliersStoreIdCatalogRoute
     }
+    '/suppliers/$storeId/catalog/products': {
+      id: '/suppliers/$storeId/catalog/products'
+      path: '/products'
+      fullPath: '/suppliers/$storeId/catalog/products'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogProductsRouteImport
+      parentRoute: typeof SuppliersStoreIdCatalogRoute
+    }
     '/suppliers/$storeId/catalog/photo': {
       id: '/suppliers/$storeId/catalog/photo'
       path: '/photo'
@@ -1633,6 +1653,7 @@ interface SuppliersStoreIdCatalogRouteChildren {
   SuppliersStoreIdCatalogListRoute: typeof SuppliersStoreIdCatalogListRoute
   SuppliersStoreIdCatalogManageRoute: typeof SuppliersStoreIdCatalogManageRoute
   SuppliersStoreIdCatalogPhotoRoute: typeof SuppliersStoreIdCatalogPhotoRoute
+  SuppliersStoreIdCatalogProductsRoute: typeof SuppliersStoreIdCatalogProductsRoute
   SuppliersStoreIdCatalogStatsRoute: typeof SuppliersStoreIdCatalogStatsRoute
   SuppliersStoreIdCatalogIndexRoute: typeof SuppliersStoreIdCatalogIndexRoute
 }
@@ -1643,6 +1664,7 @@ const SuppliersStoreIdCatalogRouteChildren: SuppliersStoreIdCatalogRouteChildren
     SuppliersStoreIdCatalogListRoute: SuppliersStoreIdCatalogListRoute,
     SuppliersStoreIdCatalogManageRoute: SuppliersStoreIdCatalogManageRoute,
     SuppliersStoreIdCatalogPhotoRoute: SuppliersStoreIdCatalogPhotoRoute,
+    SuppliersStoreIdCatalogProductsRoute: SuppliersStoreIdCatalogProductsRoute,
     SuppliersStoreIdCatalogStatsRoute: SuppliersStoreIdCatalogStatsRoute,
     SuppliersStoreIdCatalogIndexRoute: SuppliersStoreIdCatalogIndexRoute,
   }
