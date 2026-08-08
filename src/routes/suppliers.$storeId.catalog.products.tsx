@@ -35,7 +35,7 @@ function CatalogProductsPage() {
   const { lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
-  const c = (key: Parameters<typeof catalogCopy>[1]) => catalogCopy(lang, key);
+  
   const [store, setStore] = useState<{ id: string; name: string; user_id: string } | null>(null);
 
   useEffect(() => {
