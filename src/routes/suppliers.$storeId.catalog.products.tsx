@@ -6,7 +6,7 @@ import { StoreCatalog } from "@/components/StoreCatalog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
-import { catalogCopy } from "@/lib/catalog-copy";
+
 
 export const Route = createFileRoute("/suppliers/$storeId/catalog/products")({
   head: () => ({
