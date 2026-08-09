@@ -134,7 +134,7 @@ function ImportCatalogPage() {
           ref={fileInput}
           type="file"
           hidden
-          accept="image/*,.pdf,.csv,.txt,.xls,.xlsx"
+          accept="image/*,.pdf,.csv,.tsv,.txt,.xls,.xlsx,.xlsm,.ods,.heic,.heif"
           onChange={onPick}
         />
         <button
