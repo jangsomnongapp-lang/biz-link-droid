@@ -8,8 +8,9 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { catalogCopy } from "@/lib/catalog-copy";
 import { importCatalogPriceList } from "@/lib/catalog.functions";
-import { prepareImageForRecognition } from "@/lib/image-resize";
+import { buildCatalogImportPayload } from "@/lib/catalog-file";
 import type { ParsedCatalogItem } from "@/lib/catalog.schema";
+
 
 export const Route = createFileRoute("/suppliers/$storeId/catalog/import")({
   head: () => ({
