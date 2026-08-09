@@ -24,12 +24,21 @@ export const importCatalogPriceList = createServerFn({ method: "POST" })
     try {
       const { parsePriceList } = await import("@/lib/catalog.server");
       const items = await parsePriceList(data);
-      return { items, error: items.length ? null : ("no-items" as const) };
+      return {
+        items,
+        error: items.length ? null : ("no-items" as const),
+        detail: null as string | null,
+      };
     } catch (error) {
       console.error("Catalogue import failed", error);
-      return { items: [], error: "import-failed" as const };
+      return {
+        items: [],
+        error: "import-failed" as const,
+        detail: error instanceof Error ? error.message.slice(0, 200) : null,
+      };
     }
   });
+
 
 export const recognizeCatalogProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

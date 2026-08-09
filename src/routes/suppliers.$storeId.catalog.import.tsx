@@ -8,8 +8,9 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { catalogCopy } from "@/lib/catalog-copy";
 import { importCatalogPriceList } from "@/lib/catalog.functions";
-import { prepareImageForRecognition } from "@/lib/image-resize";
+import { buildCatalogImportPayload } from "@/lib/catalog-file";
 import type { ParsedCatalogItem } from "@/lib/catalog.schema";
+
 
 export const Route = createFileRoute("/suppliers/$storeId/catalog/import")({
   head: () => ({
@@ -58,24 +59,10 @@ function ImportCatalogPage() {
     setBusy(true);
     setFileName(file.name);
     try {
-      const payload: {
-        storeId: string;
-        imageDataUrl?: string;
-        fileDataUrl?: string;
-        fileName?: string;
-        text?: string;
-      } = { storeId };
-      if (file.type.startsWith("image/")) {
-        payload.imageDataUrl = await prepareImageForRecognition(file);
-      } else if (file.type === "application/pdf") {
-        payload.fileDataUrl = await readDataUrl(file);
-        payload.fileName = file.name;
-      } else {
-        payload.text = (await file.text()).slice(0, 18_000);
-      }
+      const payload = await buildCatalogImportPayload(storeId, file);
       const result = await runImport({ data: payload });
       if (result.error === "import-failed") {
-        toast.error(c("import_failed"));
+        toast.error(result.detail || c("import_failed"));
         return;
       }
       if (!result.items.length) {
@@ -83,12 +70,13 @@ function ImportCatalogPage() {
         return;
       }
       setRows(result.items.map((item) => ({ ...item, keep: true })));
-    } catch {
-      toast.error(c("import_failed"));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : c("import_failed"));
     } finally {
       setBusy(false);
     }
   }
+
 
   async function save() {
     const keep = rows.filter((row) => row.keep);
@@ -146,7 +134,7 @@ function ImportCatalogPage() {
           ref={fileInput}
           type="file"
           hidden
-          accept="image/*,.pdf,.csv,.txt,.xls,.xlsx"
+          accept="image/*,.pdf,.csv,.tsv,.txt,.xls,.xlsx,.xlsm,.ods,.heic,.heif"
           onChange={onPick}
         />
         <button
@@ -272,11 +260,3 @@ function ImportCatalogPage() {
   );
 }
 
-function readDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
