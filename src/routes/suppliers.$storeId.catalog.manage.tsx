@@ -119,11 +119,6 @@ function CatalogManagePage() {
       }
       setStoreName(store?.name ?? "");
 
-      const rpc = supabase.rpc as unknown as (
-        fn: string,
-        args?: Record<string, unknown>,
-      ) => Promise<{ data: unknown; error: { message: string } | null }>;
-
       const [itemsRes, statsRes, marketRes] = await Promise.all([
         supabase
           .from("supplier_catalog_items")
@@ -132,8 +127,8 @@ function CatalogManagePage() {
           )
           .eq("store_id", storeId)
           .order("created_at", { ascending: false }),
-        rpc("catalog_panel_stats", { _store_id: storeId }),
-        rpc("catalog_market_searches", { _province: store?.location ?? null, _limit: 6 }),
+        supabase.rpc("catalog_panel_stats", { _store_id: storeId }),
+        supabase.rpc("catalog_market_searches", { _province: store?.location ?? undefined, _limit: 6 }),
       ]);
       if (cancelled) return;
 
