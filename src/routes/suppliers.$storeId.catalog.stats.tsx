@@ -82,11 +82,7 @@ function CatalogStatsPage() {
         nav({ to: "/suppliers/$storeId", params: { storeId } });
         return;
       }
-      const rpc = supabase.rpc as unknown as (
-        fn: string,
-        args?: Record<string, unknown>,
-      ) => Promise<{ data: unknown; error: { message: string } | null }>;
-      const res = await rpc("catalog_stats", { _store_id: storeId, _days: days });
+      const res = await supabase.rpc("catalog_stats", { _store_id: storeId, _days: days });
       if (cancelled) return;
       setStats((res.data as Stats | null) ?? null);
       setLoading(false);
