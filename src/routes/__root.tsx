@@ -88,7 +88,7 @@ function RootComponent() {
       persistOptions={{
         persister: queryPersister,
         maxAge: 24 * 60 * 60_000,
-        buster: "v1",
+        buster: CACHE_BUSTER,
         dehydrateOptions: {
           shouldDehydrateQuery: (query) =>
             query.state.status === "success" && shouldPersistQuery(query.queryKey),
