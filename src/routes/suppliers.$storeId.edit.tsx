@@ -23,14 +23,6 @@ interface SupplierCategory {
   name_km: string;
 }
 
-function fileToDataUrl(f: File): Promise<string> {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(String(r.result));
-    r.onerror = rej;
-    r.readAsDataURL(f);
-  });
-}
 
 function SupplierEditPage() {
   const { storeId } = Route.useParams();
@@ -99,19 +91,29 @@ function SupplierEditPage() {
   async function onLogo(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     e.target.value = "";
-    if (!f) return;
+    if (!f || !user) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(f)) return;
-    setLogo(await fileToDataUrl(f));
+    try {
+      const { uploadImage } = await import("@/lib/media-upload");
+      setLogo(await uploadImage(user.id, "stores", f, { maxEdge: 600 }));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    }
   }
 
   async function onAddPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     e.target.value = "";
-    if (!f || photos.length >= 5) return;
+    if (!f || !user || photos.length >= 5) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(f)) return;
-    setPhotos([...photos, { url: await fileToDataUrl(f) }]);
+    try {
+      const { uploadImage } = await import("@/lib/media-upload");
+      setPhotos([...photos, { url: await uploadImage(user.id, "stores", f) }]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    }
   }
 
   function removePhoto(idx: number) {
