@@ -908,8 +908,19 @@ function HomePage() {
                   </div>
                 )
               ) : (
-                p.post_photos[0] && (
-                  <img src={p.post_photos[0].photo_url} loading="lazy" decoding="async" className="mt-3 w-full rounded-lg object-cover" alt={p.content ? p.content.slice(0, 100) : `Post by ${p.profiles?.full_name ?? "user"}`} />
+                p.post_photos.length > 0 && (
+                  <div className={`mt-3 grid gap-2 ${p.post_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+                    {p.post_photos.map((ph, i) => (
+                      <img
+                        key={i}
+                        src={ph.photo_url}
+                        loading="lazy"
+                        decoding="async"
+                        className={`w-full rounded-lg bg-muted object-cover ${p.post_photos.length === 1 ? "" : "aspect-square"}`}
+                        alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
+                      />
+                    ))}
+                  </div>
                 )
               )}
               {p.video_url && <VideoEmbed url={p.video_url} />}
