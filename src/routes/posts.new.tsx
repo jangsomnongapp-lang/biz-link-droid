@@ -169,20 +169,22 @@ function NewProductPage() {
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file) return;
+    if (!file || !user) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(file)) return;
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(String(r.result));
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
+    const { resizeImageFile } = await import("@/lib/image-resize");
+    const dataUrl = await resizeImageFile(file, { maxEdge: 1400, quality: 0.8 });
     void runAutofill({
       imageDataUrl: dataUrl,
       text: [title, category, description].filter(Boolean).join(". "),
     });
-    setPhotos((p) => [...p, dataUrl].slice(0, 4));
+    try {
+      const { uploadDataUrl } = await import("@/lib/media-upload");
+      const url = await uploadDataUrl(user.id, "posts", dataUrl);
+      setPhotos((p) => [...p, url].slice(0, 4));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    }
   }
 
   async function submit() {

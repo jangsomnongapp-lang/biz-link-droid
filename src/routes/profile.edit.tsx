@@ -5,7 +5,7 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { resizeDataUrl, resizeImageFile } from "@/lib/image-resize";
+import { resizeImageFile } from "@/lib/image-resize";
 import { ArrowLeft, Camera, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { AvatarCropper } from "@/components/AvatarCropper";
@@ -73,10 +73,10 @@ function EditProfilePage() {
     if (!user) return;
     setUploadingAvatar(true);
     try {
-      const avatar_url = await resizeDataUrl(cropped, {
+      const { uploadDataUrl } = await import("@/lib/media-upload");
+      const avatar_url = await uploadDataUrl(user.id, "avatars", cropped, {
         maxEdge: 512,
         quality: 0.85,
-        maxBytes: 400_000,
       });
       const { error } = await supabase
         .from("profiles")
@@ -163,7 +163,8 @@ function EditProfilePage() {
     if (!user) return;
     setSavingPhoto(true);
     try {
-      const photo_url = await resizeDataUrl(cropped);
+      const { uploadDataUrl } = await import("@/lib/media-upload");
+      const photo_url = await uploadDataUrl(user.id, "portfolio", cropped);
       const { data, error } = await supabase
         .from("portfolio_photos")
         .insert({ user_id: user.id, photo_url })

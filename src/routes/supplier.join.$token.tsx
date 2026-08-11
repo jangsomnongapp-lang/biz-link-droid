@@ -100,12 +100,10 @@ function SupplierJoinPage() {
   }
 
   async function fileToDataUrl(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(r.result as string);
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
+    // Compress hard: the join flow can run before sign-in, so the image is
+    // carried as a small data URL instead of a storage upload.
+    const { resizeImageFile } = await import("@/lib/image-resize");
+    return resizeImageFile(file, { maxEdge: 800, quality: 0.7, maxBytes: 250_000 });
   }
 
   async function onPickLogo(e: React.ChangeEvent<HTMLInputElement>) {
