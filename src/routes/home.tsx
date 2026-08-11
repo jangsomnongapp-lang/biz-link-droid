@@ -17,6 +17,7 @@ import { timeAgo } from "@/lib/format";
 import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
+import { clearPersistedQueryCache } from "@/lib/query-persist";
 
 interface SupplierStoreInfo {
   id: string;
@@ -329,13 +330,21 @@ function HomePage() {
     return () => io.disconnect();
   }, [feedQuery.hasNextPage, feedQuery.isFetchingNextPage, feedQuery]);
 
-  // Realtime: invalidate paginated feed when relevant tables change
+  // Realtime: invalidate paginated feed when relevant tables change.
+  // Runs for guests too, and drops the persisted offline snapshot so nobody
+  // keeps browsing stale cached posts after new content/updates arrive.
   useEffect(() => {
-    if (!user) return;
-    const inv = () => qc.invalidateQueries({ queryKey: ["home:feed", user.id] });
-    const invStories = () => qc.invalidateQueries({ queryKey: ["home:stories"] });
+    const uid = user?.id ?? null;
+    const inv = () => {
+      void clearPersistedQueryCache();
+      void qc.invalidateQueries({ queryKey: ["home:feed", uid] });
+    };
+    const invStories = () => {
+      void clearPersistedQueryCache();
+      void qc.invalidateQueries({ queryKey: ["home:stories"] });
+    };
     const ch = supabase
-      .channel(`home-feed:${user.id}`)
+      .channel(`home-feed:${uid ?? "guest"}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, inv)
       .on("postgres_changes", { event: "*", schema: "public", table: "rental_listings" }, inv)
       .on("postgres_changes", { event: "*", schema: "public", table: "post_likes" }, inv)
@@ -346,6 +355,7 @@ function HomePage() {
       .subscribe();
     return () => { void supabase.removeChannel(ch); };
   }, [user, qc]);
+
 
   // Ensure the focused post is in the feed (fetch + prepend if missing),
   // then scroll it into view and briefly highlight it.

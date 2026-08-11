@@ -20,3 +20,18 @@ export function shouldPersistQuery(queryKey: readonly unknown[]): boolean {
   const root = queryKey[0];
   return typeof root === "string" && OFFLINE_KEYS.has(root);
 }
+
+// Changes with every new build/deploy, so every user's stale offline cache is
+// dropped automatically when the app updates.
+export const CACHE_BUSTER = `v2-${import.meta.env["VITE_BUILD_ID"] ?? import.meta.env.MODE}`;
+
+// Wipe the persisted snapshot (used when new content arrives so the offline
+// copy can't serve stale posts).
+export async function clearPersistedQueryCache(): Promise<void> {
+  try {
+    await del("buildhub-query-cache-v1");
+  } catch {
+    // ignore — cache clearing is best-effort
+  }
+}
+
