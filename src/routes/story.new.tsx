@@ -27,16 +27,15 @@ function NewStoryPage() {
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file) return;
+    if (!file || !user) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(file)) return;
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(String(r.result));
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
-    setPhoto(dataUrl);
+    try {
+      const { uploadImage } = await import("@/lib/media-upload");
+      setPhoto(await uploadImage(user.id, "stories", file));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    }
   }
 
   async function submit() {
