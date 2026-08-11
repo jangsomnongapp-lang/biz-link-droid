@@ -73,10 +73,10 @@ function EditProfilePage() {
     if (!user) return;
     setUploadingAvatar(true);
     try {
-      const avatar_url = await resizeDataUrl(cropped, {
+      const { uploadDataUrl } = await import("@/lib/media-upload");
+      const avatar_url = await uploadDataUrl(user.id, "avatars", cropped, {
         maxEdge: 512,
         quality: 0.85,
-        maxBytes: 400_000,
       });
       const { error } = await supabase
         .from("profiles")
