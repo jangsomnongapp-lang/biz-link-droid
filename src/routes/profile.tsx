@@ -113,16 +113,12 @@ function ProfilePage() {
     if (!valid.length) return;
     setAddingPhotos(true);
     try {
+      const { uploadImage } = await import("@/lib/media-upload");
       const rows = await Promise.all(
-        valid.map(
-          (file) =>
-            new Promise<{ user_id: string; photo_url: string }>((resolve, reject) => {
-              const r = new FileReader();
-              r.onload = () => resolve({ user_id: user.id, photo_url: String(r.result) });
-              r.onerror = reject;
-              r.readAsDataURL(file);
-            }),
-        ),
+        valid.map(async (file) => ({
+          user_id: user.id,
+          photo_url: await uploadImage(user.id, "portfolio", file),
+        })),
       );
       const { error, data } = await supabase
         .from("portfolio_photos")

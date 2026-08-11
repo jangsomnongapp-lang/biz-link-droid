@@ -163,7 +163,8 @@ function EditProfilePage() {
     if (!user) return;
     setSavingPhoto(true);
     try {
-      const photo_url = await resizeDataUrl(cropped);
+      const { uploadDataUrl } = await import("@/lib/media-upload");
+      const photo_url = await uploadDataUrl(user.id, "portfolio", cropped);
       const { data, error } = await supabase
         .from("portfolio_photos")
         .insert({ user_id: user.id, photo_url })
