@@ -59,9 +59,15 @@ export const getRouter = () => {
     routeTree,
     context: {},
     scrollRestoration: true,
-    defaultPreloadStaleTime: 0,
+    // Preload routes on link hover/touch and reuse loader data for a minute so
+    // repeat navigations render instantly instead of waiting on the network.
+    defaultPreload: "intent",
+    defaultPreloadDelay: 50,
+    defaultPreloadStaleTime: 60_000,
+    defaultStaleTime: 60_000,
     defaultErrorComponent: DefaultErrorComponent,
   });
+
 
   return router;
 };
