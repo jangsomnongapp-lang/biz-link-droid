@@ -16,7 +16,11 @@ import { getSupplierSeo } from "@/lib/seo-fetchers.functions";
 
 
 export const Route = createFileRoute("/suppliers/$storeId")({
+  // SEO metadata is only needed for the server-rendered HTML crawlers see.
+  // Skipping it in the browser removes a blocking round-trip on every navigation.
+  staleTime: 5 * 60_000,
   loader: async ({ params }) => {
+    if (typeof window !== "undefined") return { seo: null };
     try {
       const seo = await getSupplierSeo({ data: { id: params.storeId } });
       return { seo };

@@ -13,7 +13,9 @@ import { toast } from "sonner";
 import { getUserSeo } from "@/lib/seo-fetchers.functions";
 
 export const Route = createFileRoute("/users/$userId")({
+  staleTime: 5 * 60_000,
   loader: async ({ params }) => {
+    if (typeof window !== "undefined") return { seo: null };
     try {
       const seo = await getUserSeo({ data: { id: params.userId } });
       return { seo };
