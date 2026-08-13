@@ -270,10 +270,9 @@ function NewProductPage() {
         setSubmitting(false);
         return;
       }
-      const catLabel = category ? CATEGORIES.find((c) => c.id === category) : null;
       const content = [
         title.trim(),
-        catLabel ? `Category: ${catLabel.en}` : "",
+        activeCat ? `Category: ${activeCat.name_en}` : "",
         description.trim(),
       ]
         .filter(Boolean)
