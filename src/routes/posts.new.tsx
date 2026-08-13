@@ -193,9 +193,18 @@ function NewProductPage() {
         setTitle(result.name);
         filled.add("title");
       }
-      if (!category && result.category && CATEGORIES.some((c) => c.id === result.category)) {
-        setCategory(result.category as Cat);
-        filled.add("category");
+      if (!category && result.category) {
+        const guess = result.category.toLowerCase();
+        const match = cats.find(
+          (c) =>
+            c.code.toLowerCase() === guess ||
+            c.name_en.toLowerCase().includes(guess) ||
+            guess.includes(c.name_en.toLowerCase()),
+        );
+        if (match) {
+          setCategory(match.code);
+          filled.add("category");
+        }
       }
       if (!description.trim() && result.description) {
         setDescription(result.description);
