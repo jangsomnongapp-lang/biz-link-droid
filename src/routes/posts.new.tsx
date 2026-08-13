@@ -88,28 +88,23 @@ const TYPES: Array<{
   },
 ];
 
-type Cat =
-  | "electrical"
-  | "cement"
-  | "steel"
-  | "zinc"
-  | "tools"
-  | "timber"
-  | "sanitary"
-  | "paint"
-  | "other";
+interface CatalogCategory {
+  id: string;
+  code: string;
+  name_en: string;
+  name_km: string;
+}
 
-const CATEGORIES: { id: Cat; en: string; km: string; emoji: string }[] = [
-  { id: "electrical", en: "Electrical", km: "អគ្គិសនី", emoji: "⚡" },
-  { id: "cement", en: "Cement", km: "ស៊ីម៉ងត៍", emoji: "🧱" },
-  { id: "steel", en: "Steel", km: "ដែក", emoji: "🔩" },
-  { id: "zinc", en: "Zinc", km: "ស័ង្កសី", emoji: "🏠" },
-  { id: "tools", en: "Tools", km: "ឧបករណ៍", emoji: "🛠️" },
-  { id: "timber", en: "Timber", km: "ឈើ", emoji: "🪵" },
-  { id: "sanitary", en: "Sanitary", km: "បង្គន់", emoji: "🚿" },
-  { id: "paint", en: "Paint", km: "ថ្នាំលាប", emoji: "🎨" },
-  { id: "other", en: "Other", km: "ផ្សេងៗ", emoji: "📦" },
-];
+interface CatalogProduct {
+  id: string;
+  category_id: string;
+  name_en: string;
+  name_km: string;
+  unit: string;
+  market_price_min: number | null;
+  market_price_max: number | null;
+  market_currency: string;
+}
 
 function NewProductPage() {
   const { lang } = useI18n();
@@ -121,7 +116,10 @@ function NewProductPage() {
   const [price, setPrice] = useState("");
   const [discountPrice, setDiscountPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Cat | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
+  const [cats, setCats] = useState<CatalogCategory[]>([]);
+  const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
+  const [productQuery, setProductQuery] = useState("");
   const [marketPriceRange, setMarketPriceRange] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -130,6 +128,59 @@ function NewProductPage() {
   const fileInput = useRef<HTMLInputElement>(null);
   const fillForm = useServerFn(smartAutofill);
   const requestId = useRef(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const [catRes, prodRes] = await Promise.all([
+        supabase
+          .from("supplier_categories")
+          .select("id,code,name_en,name_km")
+          .eq("is_active", true)
+          .order("sort_order"),
+        supabase
+          .from("catalog_products")
+          .select(
+            "id,category_id,name_en,name_km,unit,market_price_min,market_price_max,market_currency",
+          )
+          .eq("is_active", true)
+          .order("sort_order"),
+      ]);
+      if (cancelled) return;
+      setCats((catRes.data ?? []) as CatalogCategory[]);
+      setCatalogProducts((prodRes.data ?? []) as CatalogProduct[]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const activeCat = cats.find((c) => c.code === category) ?? null;
+  const catLabel = (c: { name_en: string; name_km: string }) =>
+    lang === "km" && c.name_km ? c.name_km : c.name_en;
+  const suggestions = activeCat
+    ? catalogProducts
+        .filter((p) => p.category_id === activeCat.id)
+        .filter((p) => {
+          const q = productQuery.trim().toLowerCase();
+          if (!q) return true;
+          return (
+            p.name_en.toLowerCase().includes(q) || (p.name_km ?? "").toLowerCase().includes(q)
+          );
+        })
+    : [];
+
+  function pickProduct(p: CatalogProduct) {
+    setTitle(p.unit ? `${catLabel(p)} (${p.unit})` : catLabel(p));
+    if (p.market_price_min != null && p.market_price_max != null) {
+      setMarketPriceRange(
+        `${p.market_price_min}–${p.market_price_max} ${p.market_currency}${p.unit ? ` / ${p.unit}` : ""}`,
+      );
+      if (p.market_currency === "USD" || p.market_currency === "KHR") {
+        setCurrency(p.market_currency);
+      }
+    }
+  }
 
   async function runAutofill(input: { text?: string; imageDataUrl?: string }) {
     const id = ++requestId.current;
@@ -142,9 +193,18 @@ function NewProductPage() {
         setTitle(result.name);
         filled.add("title");
       }
-      if (!category && result.category && CATEGORIES.some((c) => c.id === result.category)) {
-        setCategory(result.category as Cat);
-        filled.add("category");
+      if (!category && result.category) {
+        const guess = result.category.toLowerCase();
+        const match = cats.find(
+          (c) =>
+            c.code.toLowerCase() === guess ||
+            c.name_en.toLowerCase().includes(guess) ||
+            guess.includes(c.name_en.toLowerCase()),
+        );
+        if (match) {
+          setCategory(match.code);
+          filled.add("category");
+        }
       }
       if (!description.trim() && result.description) {
         setDescription(result.description);
@@ -210,10 +270,9 @@ function NewProductPage() {
         setSubmitting(false);
         return;
       }
-      const catLabel = category ? CATEGORIES.find((c) => c.id === category) : null;
       const content = [
         title.trim(),
-        catLabel ? `Category: ${catLabel.en}` : "",
+        activeCat ? `Category: ${activeCat.name_en}` : "",
         description.trim(),
       ]
         .filter(Boolean)
@@ -334,24 +393,28 @@ function NewProductPage() {
 
             <div className="rounded-xl bg-surface p-3 shadow-card">
               <Label required>{lang === "km" ? "ប្រភេទផលិតផល" : "Product category"}</Label>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {CATEGORIES.map((c) => {
-                  const active = category === c.id;
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {cats.map((c) => {
+                  const active = category === c.code;
+                  const n = catalogProducts.filter((p) => p.category_id === c.id).length;
                   return (
                     <button
                       key={c.id}
                       type="button"
-                      onClick={() => setCategory(c.id)}
-                      className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 px-2 py-2 transition ${
+                      onClick={() => {
+                        setCategory(c.code);
+                        setProductQuery("");
+                      }}
+                      className={`rounded-lg border-2 px-2.5 py-2 text-left transition ${
                         active
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border bg-background text-muted-foreground"
                       }`}
                     >
-                      <span className="text-xl leading-none">{c.emoji}</span>
-                      <span className="text-[11px] font-semibold">
-                        {lang === "km" ? c.km : c.en}
+                      <span className="block text-[12px] font-semibold leading-tight">
+                        {catLabel(c)}
                       </span>
+                      {n > 0 && <span className="text-[10px] opacity-70">{n}</span>}
                     </button>
                   );
                 })}
@@ -360,6 +423,40 @@ function NewProductPage() {
                 loading={autofilling && !category}
                 filled={autofilled.has("category")}
               />
+
+              {activeCat && suggestions.length > 0 && (
+                <div className="mt-3 border-t border-border pt-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                    {lang === "km" ? "ជ្រើសផលិតផលពីកាតាឡុក" : "Pick a product from the catalogue"}
+                  </p>
+                  <input
+                    value={productQuery}
+                    onChange={(e) => setProductQuery(e.target.value)}
+                    placeholder={lang === "km" ? "ស្វែងរក..." : "Search..."}
+                    aria-label={lang === "km" ? "ស្វែងរកផលិតផល" : "Search products"}
+                    className="mt-2 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                  />
+                  <div className="mt-2 max-h-64 space-y-1.5 overflow-y-auto">
+                    {suggestions.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => pickProduct(p)}
+                        className="flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left active:scale-[0.98]"
+                      >
+                        <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-foreground">
+                          {catLabel(p)}
+                        </span>
+                        {p.unit && (
+                          <span className="shrink-0 text-[10px] text-muted-foreground">
+                            / {p.unit}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3 rounded-xl bg-surface p-3 shadow-card">
