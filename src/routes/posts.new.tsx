@@ -385,24 +385,28 @@ function NewProductPage() {
 
             <div className="rounded-xl bg-surface p-3 shadow-card">
               <Label required>{lang === "km" ? "ប្រភេទផលិតផល" : "Product category"}</Label>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {CATEGORIES.map((c) => {
-                  const active = category === c.id;
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {cats.map((c) => {
+                  const active = category === c.code;
+                  const n = catalogProducts.filter((p) => p.category_id === c.id).length;
                   return (
                     <button
                       key={c.id}
                       type="button"
-                      onClick={() => setCategory(c.id)}
-                      className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 px-2 py-2 transition ${
+                      onClick={() => {
+                        setCategory(c.code);
+                        setProductQuery("");
+                      }}
+                      className={`rounded-lg border-2 px-2.5 py-2 text-left transition ${
                         active
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border bg-background text-muted-foreground"
                       }`}
                     >
-                      <span className="text-xl leading-none">{c.emoji}</span>
-                      <span className="text-[11px] font-semibold">
-                        {lang === "km" ? c.km : c.en}
+                      <span className="block text-[12px] font-semibold leading-tight">
+                        {catLabel(c)}
                       </span>
+                      {n > 0 && <span className="text-[10px] opacity-70">{n}</span>}
                     </button>
                   );
                 })}
@@ -411,6 +415,40 @@ function NewProductPage() {
                 loading={autofilling && !category}
                 filled={autofilled.has("category")}
               />
+
+              {activeCat && suggestions.length > 0 && (
+                <div className="mt-3 border-t border-border pt-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                    {lang === "km" ? "ជ្រើសផលិតផលពីកាតាឡុក" : "Pick a product from the catalogue"}
+                  </p>
+                  <input
+                    value={productQuery}
+                    onChange={(e) => setProductQuery(e.target.value)}
+                    placeholder={lang === "km" ? "ស្វែងរក..." : "Search..."}
+                    aria-label={lang === "km" ? "ស្វែងរកផលិតផល" : "Search products"}
+                    className="mt-2 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                  />
+                  <div className="mt-2 max-h-64 space-y-1.5 overflow-y-auto">
+                    {suggestions.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => pickProduct(p)}
+                        className="flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left active:scale-[0.98]"
+                      >
+                        <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-foreground">
+                          {catLabel(p)}
+                        </span>
+                        {p.unit && (
+                          <span className="shrink-0 text-[10px] text-muted-foreground">
+                            / {p.unit}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3 rounded-xl bg-surface p-3 shadow-card">
