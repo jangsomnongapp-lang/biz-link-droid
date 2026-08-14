@@ -27,7 +27,7 @@ interface Profile {
 }
 
 function NewPostPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
   const qc = useQueryClient();
@@ -36,7 +36,36 @@ function NewPostPage() {
   const [videoUrl, setVideoUrl] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [pendingVideo, setPendingVideo] = useState<File | null>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const videoInput = useRef<HTMLInputElement>(null);
+
+  function onPickVideo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("video/")) {
+      toast.error(lang === "km" ? "សូមជ្រើសវីដេអូ" : "Please pick a video file");
+      return;
+    }
+    setPendingVideo(file);
+  }
+
+  async function uploadClip(clip: Blob) {
+    if (!user) return;
+    setUploadingVideo(true);
+    try {
+      const { uploadVideo } = await import("@/lib/media-upload");
+      const url = await uploadVideo(user.id, "posts", clip);
+      setVideoUrl(url);
+      setPendingVideo(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingVideo(false);
+    }
+  }
 
   useQuery({
     queryKey: ["profile:announce", user?.id ?? null],
