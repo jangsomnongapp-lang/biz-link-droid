@@ -50,3 +50,15 @@ export async function uploadDataUrl(
   const blob = await (await fetch(sized)).blob();
   return uploadBlob(userId, folder, blob);
 }
+
+/** Upload a short video clip and return its public URL. */
+export async function uploadVideo(userId: string, folder: string, clip: Blob): Promise<string> {
+  const type = clip.type || "video/mp4";
+  const ext = type.includes("webm") ? "webm" : type.includes("quicktime") ? "mov" : "mp4";
+  const path = `${userId}/${folder}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage
+    .from(MEDIA_BUCKET)
+    .upload(path, clip, { contentType: type, cacheControl: "31536000" });
+  if (error) throw error;
+  return publicUrl(path);
+}
