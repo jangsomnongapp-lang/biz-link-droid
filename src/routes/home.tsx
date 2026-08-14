@@ -17,6 +17,7 @@ import { timeAgo } from "@/lib/format";
 import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
+import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
 import { clearPersistedQueryCache } from "@/lib/query-persist";
 
 interface SupplierStoreInfo {
@@ -1070,6 +1071,7 @@ function isSafeHttpUrl(raw: string): string | null {
 function VideoEmbed({ url }: { url: string }) {
   const trimmed = url.trim();
   const safeHref = isSafeHttpUrl(trimmed);
+  if (safeHref && isDirectVideoUrl(safeHref)) return <FeedVideo url={safeHref} />;
   let embed: string | null = null;
   if (safeHref) {
     try {

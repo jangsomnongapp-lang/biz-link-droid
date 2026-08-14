@@ -8,6 +8,8 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Info, Plus, Play, X } from "lucide-react";
 import { toast } from "sonner";
+import { isDirectVideoUrl } from "@/components/FeedVideo";
+import { VideoTrimmer } from "@/components/VideoTrimmer";
 
 export const Route = createFileRoute("/announce")({
   component: () => (
@@ -27,7 +29,7 @@ interface Profile {
 }
 
 function NewPostPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
   const qc = useQueryClient();
@@ -36,7 +38,36 @@ function NewPostPage() {
   const [videoUrl, setVideoUrl] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [pendingVideo, setPendingVideo] = useState<File | null>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const videoInput = useRef<HTMLInputElement>(null);
+
+  function onPickVideo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("video/")) {
+      toast.error(lang === "km" ? "សូមជ្រើសវីដេអូ" : "Please pick a video file");
+      return;
+    }
+    setPendingVideo(file);
+  }
+
+  async function uploadClip(clip: Blob) {
+    if (!user) return;
+    setUploadingVideo(true);
+    try {
+      const { uploadVideo } = await import("@/lib/media-upload");
+      const url = await uploadVideo(user.id, "posts", clip);
+      setVideoUrl(url);
+      setPendingVideo(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingVideo(false);
+    }
+  }
 
   useQuery({
     queryKey: ["profile:announce", user?.id ?? null],
@@ -180,13 +211,44 @@ function NewPostPage() {
           </div>
         </div>
 
+        {/* Short video upload */}
+        <div className="space-y-2 rounded-xl bg-surface p-3 shadow-card">
+          <label className="text-sm font-semibold text-foreground">
+            {lang === "km" ? "វីដេអូខ្លី (១៥–៣០ វិនាទី)" : "Short video (15–30s)"}
+          </label>
+          <input ref={videoInput} type="file" accept="video/*" hidden onChange={onPickVideo} />
+          {isDirectVideoUrl(videoUrl) ? (
+            <div className="relative overflow-hidden rounded-lg bg-black">
+              <video src={videoUrl} className="max-h-72 w-full object-contain" controls playsInline muted />
+              <button
+                onClick={() => setVideoUrl("")}
+                className="absolute right-2 top-2 rounded-full bg-foreground/70 p-1 text-background"
+                aria-label="Remove video"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => videoInput.current?.click()}
+              disabled={uploadingVideo}
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-background text-sm font-semibold text-primary disabled:opacity-60"
+            >
+              <Play className="h-4 w-4" />
+              {uploadingVideo
+                ? lang === "km" ? "កំពុងបញ្ចូល..." : "Uploading..."
+                : lang === "km" ? "បញ្ចូលវីដេអូខ្លី" : "Add short video"}
+            </button>
+          )}
+        </div>
+
         {/* Video link */}
         <div className="space-y-2 rounded-xl bg-surface p-3 shadow-card">
           <label className="text-sm font-semibold text-foreground">{t("add_video_link")}</label>
           <div className="flex h-11 items-center gap-2 rounded-lg border border-border bg-background px-3 focus-within:border-primary">
             <Play className="h-4 w-4 text-muted-foreground" />
             <input
-              value={videoUrl}
+              value={isDirectVideoUrl(videoUrl) ? "" : videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               placeholder={t("video_link_ph")}
               className="h-full flex-1 bg-transparent text-sm outline-none"
@@ -210,6 +272,14 @@ function NewPostPage() {
           {submitting ? t("loading") : t("submit_review")}
         </button>
       </div>
+
+      {pendingVideo && (
+        <VideoTrimmer
+          file={pendingVideo}
+          onCancel={() => setPendingVideo(null)}
+          onConfirm={(clip) => uploadClip(clip)}
+        />
+      )}
     </div>
   );
 }
