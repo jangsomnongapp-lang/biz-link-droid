@@ -272,6 +272,14 @@ function NewPostPage() {
           {submitting ? t("loading") : t("submit_review")}
         </button>
       </div>
+
+      {pendingVideo && (
+        <VideoTrimmer
+          file={pendingVideo}
+          onCancel={() => setPendingVideo(null)}
+          onConfirm={(clip) => uploadClip(clip)}
+        />
+      )}
     </div>
   );
 }
