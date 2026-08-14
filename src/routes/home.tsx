@@ -1070,6 +1070,7 @@ function isSafeHttpUrl(raw: string): string | null {
 function VideoEmbed({ url }: { url: string }) {
   const trimmed = url.trim();
   const safeHref = isSafeHttpUrl(trimmed);
+  if (safeHref && isDirectVideoUrl(safeHref)) return <FeedVideo url={safeHref} />;
   let embed: string | null = null;
   if (safeHref) {
     try {
