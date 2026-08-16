@@ -16,21 +16,75 @@ export interface VideoMeta {
 export function loadVideoElement(src: string): Promise<HTMLVideoElement> {
   return new Promise((resolve, reject) => {
     const el = document.createElement("video");
-    el.preload = "auto";
+    el.preload = "metadata";
     el.muted = true;
     el.playsInline = true;
-    el.crossOrigin = "anonymous";
-    el.onloadedmetadata = () => resolve(el);
-    el.onerror = () => reject(new Error("Could not read this video"));
+    // NOTE: no crossOrigin — blob:/object URLs are same-origin and setting it
+    // makes some browsers (Safari, older Chrome) fail to load the media.
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(el);
+    };
+    const fail = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error("Could not read this video"));
+    };
+    const timer = window.setTimeout(() => {
+      // Metadata events can silently never fire for some containers; accept
+      // whatever the element already knows instead of blocking the user.
+      if (el.videoWidth || Number.isFinite(el.duration)) done();
+      else fail();
+    }, 8000);
+    function cleanup() {
+      window.clearTimeout(timer);
+      el.onloadedmetadata = null;
+      el.onloadeddata = null;
+      el.ondurationchange = null;
+      el.onerror = null;
+    }
+    el.onloadedmetadata = done;
+    el.onloadeddata = done;
+    el.ondurationchange = () => {
+      if (Number.isFinite(el.duration) && el.duration > 0) done();
+    };
+    el.onerror = fail;
     el.src = src;
+    el.load();
+  });
+}
+
+/** Some containers report Infinity until you seek; nudge the element to resolve it. */
+async function resolveDuration(el: HTMLVideoElement): Promise<number> {
+  if (Number.isFinite(el.duration) && el.duration > 0) return el.duration;
+  return new Promise<number>((resolve) => {
+    const finish = () => {
+      el.ontimeupdate = null;
+      el.currentTime = 0;
+      resolve(Number.isFinite(el.duration) && el.duration > 0 ? el.duration : 0);
+    };
+    el.ontimeupdate = () => {
+      if (Number.isFinite(el.duration) && el.duration > 0) finish();
+    };
+    try {
+      el.currentTime = 1e6;
+    } catch {
+      finish();
+    }
+    window.setTimeout(finish, 3000);
   });
 }
 
 export async function readVideoMeta(src: string): Promise<VideoMeta> {
   const el = await loadVideoElement(src);
-  const duration = Number.isFinite(el.duration) ? el.duration : 0;
+  const duration = await resolveDuration(el);
   return { duration, width: el.videoWidth, height: el.videoHeight };
 }
+
 
 function pickMimeType(): string {
   const candidates = [
