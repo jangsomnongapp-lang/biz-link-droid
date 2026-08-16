@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle, MessageSquare, Package } from "lucide-react";
+import { ArrowLeft, Plus, X, Sparkles, Box, Percent, AlertCircle, MessageSquare, Package, Play } from "lucide-react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
@@ -9,6 +9,8 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { AutofillHint } from "@/components/AutofillHint";
 import { smartAutofill } from "@/lib/smart-autofill.functions";
+import { VideoTrimmer } from "@/components/VideoTrimmer";
+import { isDirectVideoUrl } from "@/components/FeedVideo";
 
 export const Route = createFileRoute("/posts/new")({
   component: () => (
@@ -122,6 +124,10 @@ function NewProductPage() {
   const [productQuery, setProductQuery] = useState("");
   const [marketPriceRange, setMarketPriceRange] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [pendingVideo, setPendingVideo] = useState<File | null>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const videoInput = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [autofilling, setAutofilling] = useState(false);
   const [autofilled, setAutofilled] = useState<Set<string>>(new Set());
@@ -247,6 +253,32 @@ function NewProductPage() {
     }
   }
 
+  function onPickVideo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("video/")) {
+      toast.error(lang === "km" ? "សូមជ្រើសវីដេអូ" : "Please pick a video file");
+      return;
+    }
+    setPendingVideo(file);
+  }
+
+  async function uploadClip(clip: Blob) {
+    if (!user) return;
+    setUploadingVideo(true);
+    try {
+      const { uploadVideo } = await import("@/lib/media-upload");
+      const url = await uploadVideo(user.id, "posts", clip);
+      setVideoUrl(url);
+      setPendingVideo(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingVideo(false);
+    }
+  }
+
   async function submit() {
     if (!user || !type) return;
     if (!title.trim()) {
@@ -288,6 +320,7 @@ function NewProductPage() {
           discount_price: discountNum,
           currency,
           content,
+          video_url: videoUrl.trim() || null,
           status: "pending",
         } as never)
         .select("id")
@@ -583,6 +616,38 @@ function NewProductPage() {
                 ))}
               </div>
             </div>
+
+            <div className="rounded-xl bg-surface p-3 shadow-card">
+              <Label optional>
+                {lang === "km" ? "វីដេអូខ្លី (រហូតដល់ ៣០ វិនាទី)" : "Short video (up to 30s)"}
+              </Label>
+              <input ref={videoInput} type="file" accept="video/*" hidden onChange={onPickVideo} />
+              {isDirectVideoUrl(videoUrl) ? (
+                <div className="relative overflow-hidden rounded-lg bg-black">
+                  <video src={videoUrl} className="max-h-72 w-full object-contain" controls playsInline muted />
+                  <button
+                    type="button"
+                    onClick={() => setVideoUrl("")}
+                    className="absolute right-2 top-2 rounded-full bg-foreground/70 p-1 text-background"
+                    aria-label="Remove video"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => videoInput.current?.click()}
+                  disabled={uploadingVideo}
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-background text-sm font-semibold text-primary disabled:opacity-60"
+                >
+                  <Play className="h-4 w-4" />
+                  {uploadingVideo
+                    ? lang === "km" ? "កំពុងបញ្ចូល..." : "Uploading..."
+                    : lang === "km" ? "បញ្ចូលវីដេអូខ្លី" : "Add short video"}
+                </button>
+              )}
+            </div>
           </>
         )}
       </div>
@@ -602,6 +667,14 @@ function NewProductPage() {
             {submitting ? "…" : lang === "km" ? "ដាក់ស្នើ" : "Submit for review"}
           </button>
         </div>
+      )}
+
+      {pendingVideo && (
+        <VideoTrimmer
+          file={pendingVideo}
+          onCancel={() => setPendingVideo(null)}
+          onConfirm={(clip) => uploadClip(clip)}
+        />
       )}
     </div>
   );
