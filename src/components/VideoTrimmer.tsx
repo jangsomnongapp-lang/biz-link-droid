@@ -23,17 +23,24 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
   const [start, setStart] = useState(0);
   const [length, setLength] = useState(MAX_CLIP_SECONDS);
   const [working, setWorking] = useState(false);
+  const [unreadable, setUnreadable] = useState(false);
 
   useEffect(() => () => URL.revokeObjectURL(src), [src]);
 
   useEffect(() => {
     void readVideoMeta(src)
       .then((meta) => {
+        if (!meta.duration) {
+          // Duration unknown (some phone recordings) — upload as-is.
+          setUnreadable(true);
+          return;
+        }
+        setUnreadable(false);
         setDuration(meta.duration);
         setLength(Math.min(MAX_CLIP_SECONDS, Math.max(1, meta.duration)));
       })
-      .catch(() => toast.error(km ? "មិនអាចអានវីដេអូ" : "Could not read this video"));
-  }, [src, km]);
+      .catch(() => setUnreadable(true));
+  }, [src]);
 
   const maxLength = Math.min(MAX_CLIP_SECONDS, Math.max(1, duration));
   const maxStart = Math.max(0, duration - Math.min(length, duration));
@@ -54,9 +61,10 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
   async function handleSave() {
     setWorking(true);
     try {
-      const clip = canTrimInBrowser()
-        ? await trimVideo(file, { start, duration: effectiveLength })
-        : file;
+      const clip =
+        !unreadable && duration && canTrimInBrowser()
+          ? await trimVideo(file, { start, duration: effectiveLength })
+          : file;
       await onConfirm(clip);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Video export failed");
@@ -64,6 +72,7 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
       setWorking(false);
     }
   }
+
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black">
