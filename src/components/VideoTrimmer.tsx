@@ -152,8 +152,6 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
           </button>
         </div>
       </div>
-
-      </div>
     </div>
   );
 }
