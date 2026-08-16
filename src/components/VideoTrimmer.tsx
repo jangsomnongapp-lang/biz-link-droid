@@ -89,39 +89,49 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
       </div>
 
       <div className="space-y-4 bg-surface p-4">
-        <div>
-          <div className="mb-1 flex items-center justify-between text-xs font-medium text-muted-foreground">
-            <span>{km ? "ចាប់ផ្តើមនៅ" : "Start at"}</span>
-            <span>{start.toFixed(1)}s</span>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={Math.max(0.1, maxStart)}
-            step={0.1}
-            value={Math.min(start, maxStart)}
-            onChange={(e) => setStart(Number(e.target.value))}
-            disabled={working || maxStart <= 0}
-            className="w-full accent-primary"
-          />
-        </div>
+        {unreadable ? (
+          <p className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs leading-relaxed text-foreground">
+            {km
+              ? "មិនអាចកាត់វីដេអូនេះនៅលើឧបករណ៍នេះទេ — វានឹងបញ្ចូលទាំងស្រុង។"
+              : "This video can't be trimmed on this device — it will upload as-is."}
+          </p>
+        ) : (
+          <>
+            <div>
+              <div className="mb-1 flex items-center justify-between text-xs font-medium text-muted-foreground">
+                <span>{km ? "ចាប់ផ្តើមនៅ" : "Start at"}</span>
+                <span>{start.toFixed(1)}s</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={Math.max(0.1, maxStart)}
+                step={0.1}
+                value={Math.min(start, maxStart)}
+                onChange={(e) => setStart(Number(e.target.value))}
+                disabled={working || maxStart <= 0}
+                className="w-full accent-primary"
+              />
+            </div>
 
-        <div>
-          <div className="mb-1 flex items-center justify-between text-xs font-medium text-muted-foreground">
-            <span>{km ? "ប្រវែង (០–៣០ វិនាទី)" : "Length (0–30s)"}</span>
-            <span>{effectiveLength.toFixed(1)}s</span>
-          </div>
-          <input
-            type="range"
-            min={1}
-            max={maxLength}
-            step={0.5}
-            value={Math.min(length, maxLength)}
-            onChange={(e) => setLength(Number(e.target.value))}
-            disabled={working || !duration}
-            className="w-full accent-primary"
-          />
-        </div>
+            <div>
+              <div className="mb-1 flex items-center justify-between text-xs font-medium text-muted-foreground">
+                <span>{km ? "ប្រវែង (០–៣០ វិនាទី)" : "Length (0–30s)"}</span>
+                <span>{effectiveLength.toFixed(1)}s</span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={maxLength}
+                step={0.5}
+                value={Math.min(length, maxLength)}
+                onChange={(e) => setLength(Number(e.target.value))}
+                disabled={working || !duration}
+                className="w-full accent-primary"
+              />
+            </div>
+          </>
+        )}
 
         <div className="flex gap-2">
           <button
@@ -135,12 +145,14 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
           <button
             type="button"
             onClick={() => void handleSave()}
-            disabled={working || !duration}
+            disabled={working || (!duration && !unreadable)}
             className="h-11 flex-1 rounded-lg bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
             {working ? (km ? "កំពុងកាត់..." : "Trimming...") : km ? "រក្សាទុក" : "Use clip"}
           </button>
         </div>
+      </div>
+
       </div>
     </div>
   );
