@@ -14,15 +14,6 @@ interface Props {
   onConfirm: (clip: Blob) => Promise<void> | void;
 }
 
-const ASPECTS: Array<{ id: string; label: string; value?: number }> = [
-  { id: "original", label: "Original" },
-  { id: "vertical", label: "9:16", value: 9 / 16 },
-  { id: "square", label: "1:1", value: 1 },
-  { id: "wide", label: "16:9", value: 16 / 9 },
-];
-
-const LENGTHS = [15, 30];
-
 export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
   const { lang } = useI18n();
   const km = lang === "km";
@@ -30,8 +21,7 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
   const [src] = useState(() => URL.createObjectURL(file));
   const [duration, setDuration] = useState(0);
   const [start, setStart] = useState(0);
-  const [length, setLength] = useState(15);
-  const [aspect, setAspect] = useState<string>("original");
+  const [length, setLength] = useState(MAX_CLIP_SECONDS);
   const [working, setWorking] = useState(false);
 
   useEffect(() => () => URL.revokeObjectURL(src), [src]);
@@ -40,11 +30,12 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
     void readVideoMeta(src)
       .then((meta) => {
         setDuration(meta.duration);
-        setLength(Math.min(MAX_CLIP_SECONDS, Math.max(3, Math.min(15, meta.duration))));
+        setLength(Math.min(MAX_CLIP_SECONDS, Math.max(1, meta.duration)));
       })
       .catch(() => toast.error(km ? "មិនអាចអានវីដេអូ" : "Could not read this video"));
   }, [src, km]);
 
+  const maxLength = Math.min(MAX_CLIP_SECONDS, Math.max(1, duration));
   const maxStart = Math.max(0, duration - Math.min(length, duration));
   const effectiveLength = Math.min(length, Math.max(0.5, duration - start));
 
@@ -63,9 +54,8 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
   async function handleSave() {
     setWorking(true);
     try {
-      const aspectValue = ASPECTS.find((a) => a.id === aspect)?.value;
       const clip = canTrimInBrowser()
-        ? await trimVideo(file, { start, duration: effectiveLength, aspect: aspectValue })
+        ? await trimVideo(file, { start, duration: effectiveLength })
         : file;
       await onConfirm(clip);
     } catch (error) {
@@ -75,19 +65,16 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
     }
   }
 
-  const aspectClass =
-    aspect === "vertical" ? "aspect-[9/16]" : aspect === "square" ? "aspect-square" : aspect === "wide" ? "aspect-video" : "aspect-[3/4]";
-
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black">
       <div className="flex flex-1 items-center justify-center overflow-hidden p-3">
-        <div className={`relative w-full max-w-sm overflow-hidden rounded-xl bg-black ${aspectClass}`}>
+        <div className="relative flex w-full max-w-sm items-center justify-center overflow-hidden rounded-xl bg-black">
           <video
             ref={videoRef}
             src={src}
             muted
             playsInline
-            className={`h-full w-full ${aspect === "original" ? "object-contain" : "object-cover"}`}
+            className="max-h-[60vh] w-full object-contain"
           />
         </div>
       </div>
@@ -96,9 +83,7 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
         <div>
           <div className="mb-1 flex items-center justify-between text-xs font-medium text-muted-foreground">
             <span>{km ? "ចាប់ផ្តើមនៅ" : "Start at"}</span>
-            <span>
-              {start.toFixed(1)}s · {effectiveLength.toFixed(0)}s
-            </span>
+            <span>{start.toFixed(1)}s</span>
           </div>
           <input
             type="range"
@@ -112,36 +97,21 @@ export function VideoTrimmer({ file, onCancel, onConfirm }: Props) {
           />
         </div>
 
-        <div className="flex gap-2">
-          {LENGTHS.map((value) => (
-            <button
-              key={value}
-              type="button"
-              disabled={working}
-              onClick={() => setLength(value)}
-              className={`h-10 flex-1 rounded-lg border text-sm font-semibold ${
-                length === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground"
-              }`}
-            >
-              {value}s
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-4 gap-2">
-          {ASPECTS.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              disabled={working}
-              onClick={() => setAspect(option.id)}
-              className={`h-10 rounded-lg border text-xs font-semibold ${
-                aspect === option.id ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-foreground"
-              }`}
-            >
-              {option.id === "original" ? (km ? "ដើម" : "Original") : option.label}
-            </button>
-          ))}
+        <div>
+          <div className="mb-1 flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span>{km ? "ប្រវែង (០–៣០ វិនាទី)" : "Length (0–30s)"}</span>
+            <span>{effectiveLength.toFixed(1)}s</span>
+          </div>
+          <input
+            type="range"
+            min={1}
+            max={maxLength}
+            step={0.5}
+            value={Math.min(length, maxLength)}
+            onChange={(e) => setLength(Number(e.target.value))}
+            disabled={working || !duration}
+            className="w-full accent-primary"
+          />
         </div>
 
         <div className="flex gap-2">

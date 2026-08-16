@@ -5,7 +5,7 @@
  */
 
 export const MAX_CLIP_SECONDS = 30;
-export const MIN_CLIP_SECONDS = 3;
+export const MIN_CLIP_SECONDS = 0.5;
 
 export interface VideoMeta {
   duration: number;
@@ -59,8 +59,6 @@ export interface TrimOptions {
   start: number;
   /** Clip length in seconds (capped at MAX_CLIP_SECONDS). */
   duration: number;
-  /** Output aspect ratio (width / height). Omit to keep the source ratio. */
-  aspect?: number;
   /** Longest output edge in pixels. */
   maxEdge?: number;
 }
@@ -87,7 +85,7 @@ export async function trimVideo(file: File | Blob, options: TrimOptions): Promis
 
     const srcW = video.videoWidth || 720;
     const srcH = video.videoHeight || 1280;
-    const targetAspect = options.aspect ?? srcW / srcH;
+    const targetAspect = srcW / srcH;
     const maxEdge = options.maxEdge ?? 720;
 
     // Center crop rectangle inside the source frame.
