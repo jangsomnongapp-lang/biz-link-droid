@@ -115,6 +115,7 @@ function HomePage() {
   const [openRentalComments, setOpenRentalComments] = useState<string | null>(null);
   const [editingPost, setEditingPost] = useState<PostRow | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  const [viewer, setViewer] = useState<{ photos: string[]; index: number } | null>(null);
 
   // Profile + stories load once per user (cheap, separate from paginated feed)
   useQuery({
@@ -921,19 +922,40 @@ function HomePage() {
               ) : (
                 p.post_photos.length > 0 && (
                   <div className={`mt-3 grid gap-2 ${p.post_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                    {p.post_photos.map((ph, i) => (
-                      <img
-                        key={i}
-                        src={ph.photo_url}
-                        loading="lazy"
-                        decoding="async"
-                        className={`w-full rounded-lg bg-muted object-cover ${p.post_photos.length === 1 ? "" : "aspect-square"}`}
-                        alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
-                      />
-                    ))}
+                    {p.post_photos.slice(0, 4).map((ph, i) => {
+                      const total = p.post_photos.length;
+                      const extra = i === 3 && total > 4 ? total - 4 : 0;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() =>
+                            setViewer({ photos: p.post_photos.map((x) => x.photo_url), index: i })
+                          }
+                          className={`relative block w-full overflow-hidden rounded-lg bg-muted ${total === 1 ? "" : "aspect-square"}`}
+                        >
+                          <img
+                            src={ph.photo_url}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-full w-full object-cover brightness-90"
+                            alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
+                          />
+                          <span className="absolute right-2 top-2 rounded-pill bg-black/55 px-2 py-0.5 text-[11px] font-semibold text-white">
+                            {total} <ImageIcon className="ml-0.5 inline h-3 w-3" />
+                          </span>
+                          {extra > 0 && (
+                            <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
+                              +{extra}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 )
               )}
+
               {p.video_url && <VideoEmbed url={p.video_url} />}
 
               {isSupplierPost && !isOwner && (
