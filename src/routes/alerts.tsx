@@ -212,8 +212,20 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   const { user } = useAuth();
   const { lang } = useI18n();
   const nav = useNavigate();
+  const qc = useQueryClient();
   const [opening, setOpening] = useState(false);
   const loc = localizeNotif(n, lang);
+
+  async function markRead() {
+    if (n.read_at) return;
+    await supabase
+      .from("notifications")
+      .update({ read_at: new Date().toISOString() })
+      .eq("id", n.id);
+    qc.invalidateQueries({ queryKey: ["notifications", user?.id ?? null] });
+    qc.invalidateQueries({ queryKey: ["unread-alerts", user?.id ?? null] });
+  }
+
   const Icon =
     n.kind === "application" || n.kind === "accepted"
       ? Check
