@@ -267,6 +267,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   }`;
 
   async function openChatWith(otherId: string) {
+    void markRead();
     if (!user || opening) return;
     if (user.id === otherId) return;
     setOpening(true);
@@ -309,6 +310,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   }
 
   async function openPost(postId: string) {
+    void markRead();
     if (opening) return;
     setOpening(true);
     try {
@@ -318,13 +320,14 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
         nav({ to: "/home" });
         return;
       }
-      nav({ to: "/posts/$postId", params: { postId } });
+      nav({ to: "/home", search: { post: postId } });
     } finally {
       setOpening(false);
     }
   }
 
   async function openListing(listingId: string) {
+    void markRead();
     if (opening) return;
     setOpening(true);
     try {
@@ -341,6 +344,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   }
 
   async function openProject(projectId: string) {
+    void markRead();
     if (opening) return;
     setOpening(true);
     try {
@@ -371,7 +375,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   // Material request fan-out → supplier panel
   if (n.kind === "material_request") {
     return (
-      <Link to="/online-orders" className={`${cls} active:opacity-60`}>
+      <Link to="/online-orders" onClick={() => void markRead()} className={`${cls} active:opacity-60`}>
         {avatar}
         {body}
         {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
@@ -391,7 +395,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   // Anonymous "Sorry" → just go to my searches
   if (n.kind === "material_unavailable") {
     return (
-      <Link to="/find-material/mine" className={`${cls} active:opacity-60`}>
+      <Link to="/find-material/mine" onClick={() => void markRead()} className={`${cls} active:opacity-60`}>
         {avatar}
         {body}
         {!n.read_at && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
@@ -429,7 +433,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
   return (
     <div className={cls}>
       {n.related_user_id ? (
-        <Link to="/users/$userId" params={{ userId: n.related_user_id }} className="active:opacity-60">
+        <Link to="/users/$userId" params={{ userId: n.related_user_id }} onClick={() => void markRead()} className="active:opacity-60">
           {avatar}
         </Link>
       ) : (
@@ -450,7 +454,7 @@ function NotifRow({ n, t, highlighted }: { n: Notif; t: ReturnType<typeof useI18
           {body}
         </button>
       ) : n.related_user_id ? (
-        <Link to="/users/$userId" params={{ userId: n.related_user_id }} className="min-w-0 flex-1 active:opacity-60">
+        <Link to="/users/$userId" params={{ userId: n.related_user_id }} onClick={() => void markRead()} className="min-w-0 flex-1 active:opacity-60">
           {body}
         </Link>
       ) : (
