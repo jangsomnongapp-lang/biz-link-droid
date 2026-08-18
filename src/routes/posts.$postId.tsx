@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { ArrowLeft, MessageCircle, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -84,7 +84,14 @@ function PostDetailPage() {
   const { lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
+  const router = useRouter();
   const post = initial;
+
+  function goBack() {
+    if (router.history.canGoBack()) router.history.back();
+    else void nav({ to: "/home" });
+  }
+
   const store = initial?.store ?? null;
   const [contacting, setContacting] = useState(false);
 
@@ -153,7 +160,7 @@ function PostDetailPage() {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-20 flex h-14 items-center bg-primary px-2 text-primary-foreground">
-        <button onClick={() => nav({ to: ".." })} className="rounded-full p-2 active:bg-white/10">
+        <button onClick={goBack} aria-label="Back" className="rounded-full p-2 active:bg-white/10">
           <ArrowLeft className="h-5 w-5" />
         </button>
         <h1 className="flex-1 text-center text-base font-semibold">
