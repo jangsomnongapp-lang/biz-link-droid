@@ -1076,7 +1076,35 @@ function HomePage() {
         }}
         onCancel={() => setDeletingPostId(null)}
       />
+
+      {viewer && (
+        <div className="ios-backdrop fixed inset-0 z-50 flex flex-col bg-black/95">
+          <div className="flex h-14 shrink-0 items-center justify-between px-4 text-white">
+            <span className="text-sm font-semibold">
+              {viewer.index + 1} / {viewer.photos.length}
+            </span>
+            <button onClick={() => setViewer(null)} aria-label="Close" className="rounded-full p-2 active:bg-white/10">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="no-scrollbar flex flex-1 snap-x snap-mandatory overflow-x-auto">
+            {viewer.photos.map((url, i) => (
+              <div key={i} className="flex w-full shrink-0 snap-center items-center justify-center p-2">
+                <img
+                  src={url}
+                  alt={`Photo ${i + 1}`}
+                  ref={(el) => {
+                    if (el && i === viewer.index) el.parentElement?.scrollIntoView({ block: "nearest" });
+                  }}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
+
   );
 }
 
