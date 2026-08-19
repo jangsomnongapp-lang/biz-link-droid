@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Search, SlidersHorizontal, MessageCircle, Bell, BellRing, Tag, Flag, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
@@ -10,99 +11,181 @@ import { catalogCopy } from "@/lib/catalog-copy";
 
 type StockStatus = "in_stock" | "low" | "out";
 
-interface Item {
+interface Cat {
+  id: string;
+  code: string;
+  name_en: string;
+  name_km: string | null;
+}
+
+interface Entry {
+  kind: "item" | "post";
   id: string;
   name_en: string;
   name_km: string | null;
   note: string | null;
   unit: string | null;
   price: number | null;
+  old_price: number | null;
   currency: string;
-  stock_status: StockStatus;
+  stock_status: StockStatus | null;
   stock_updated_at: string | null;
   photo_url: string | null;
   offer_active: boolean;
-  offer_price: number | null;
-  category_id: string | null;
-  category: { id: string; name_en: string; name_km: string | null } | null;
+  post_type: string | null;
+  cat_id: string | null;
 }
 
 type SortMode = "default" | "price_asc" | "price_desc" | "name";
+type SourceMode = "all" | "item" | "post";
+
+const POST_TYPE_LABELS: Record<string, { en: string; km: string; cls: string }> = {
+  novedad: { en: "New", km: "ថ្មី", cls: "bg-emerald-100 text-emerald-700" },
+  stock: { en: "Stock", km: "ស្តុក", cls: "bg-sky-100 text-sky-700" },
+  oferta: { en: "Offer", km: "ការផ្តល់ជូន", cls: "bg-amber-100 text-amber-700" },
+  liquidacion: { en: "Clearance", km: "បោះតម្លៃ", cls: "bg-rose-100 text-rose-700" },
+};
 
 export function StoreCatalog({
   storeId,
   isOwner,
   onAsk,
+  onAskPost,
 }: {
   storeId: string;
   isOwner: boolean;
   onAsk: (item: { id: string; name: string }) => void;
+  onAskPost?: (postId: string) => void;
 }) {
   const { lang, t } = useI18n();
   const { user } = useAuth();
   const c = (key: Parameters<typeof catalogCopy>[1]) => catalogCopy(lang, key);
 
-  const [items, setItems] = useState<Item[]>([]);
+  const [entries, setEntries] = useState<Entry[]>([]);
+  const [catMap, setCatMap] = useState<Map<string, Cat>>(new Map());
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState<string | null>(null);
+  const [source, setSource] = useState<SourceMode>("all");
   const [sort, setSort] = useState<SortMode>("default");
   const [showSort, setShowSort] = useState(false);
   const [subscribed, setSubscribed] = useState<Set<string>>(new Set());
-  const [reportItem, setReportItem] = useState<Item | null>(null);
-
-
+  const [reportItem, setReportItem] = useState<Entry | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const { data } = await supabase
-        .from("supplier_catalog_items")
-        .select(
-          "id,name_en,name_km,note,unit,price,currency,stock_status,stock_updated_at,in_stock,photo_url,offer_active,offer_price,category_id,supplier_categories(id,name_en,name_km)",
-        )
-        .eq("store_id", storeId)
-        .order("created_at", { ascending: false });
+      const [{ data: catRows }, { data: store }, { data: itemRows }] = await Promise.all([
+        supabase.from("supplier_categories").select("id,code,name_en,name_km"),
+        supabase.from("supplier_stores").select("user_id").eq("id", storeId).maybeSingle(),
+        supabase
+          .from("supplier_catalog_items")
+          .select(
+            "id,name_en,name_km,note,unit,price,currency,stock_status,stock_updated_at,in_stock,photo_url,offer_active,offer_price,category_id",
+          )
+          .eq("store_id", storeId)
+          .order("created_at", { ascending: false }),
+      ]);
       if (cancelled) return;
-      const rows = (data ?? []) as unknown as Array<{
-        id: string;
-        name_en: string;
-        name_km: string | null;
-        note: string | null;
-        unit: string | null;
-        price: number | null;
-        currency: string | null;
-        stock_status: string | null;
-        stock_updated_at: string | null;
-        in_stock: boolean | null;
-        photo_url: string | null;
-        offer_active: boolean | null;
-        offer_price: number | null;
-        category_id: string | null;
-        supplier_categories: { id: string; name_en: string; name_km: string | null } | null;
-      }>;
-      const mapped: Item[] = rows.map((r) => ({
-        id: r.id,
-        name_en: r.name_en,
-        name_km: r.name_km,
-        note: r.note,
-        unit: r.unit,
-        price: r.price,
-        currency: r.currency ?? "USD",
-        stock_status: (r.stock_status as StockStatus | null) ?? (r.in_stock ? "in_stock" : "out"),
-        stock_updated_at: r.stock_updated_at,
-        photo_url: r.photo_url,
-        offer_active: r.offer_active ?? false,
-        offer_price: r.offer_price,
-        category_id: r.category_id,
-        category: r.supplier_categories,
-      }));
-      setItems(mapped);
+
+      const cm = new Map<string, Cat>();
+      const byCode = new Map<string, Cat>();
+      ((catRows ?? []) as Cat[]).forEach((r) => {
+        cm.set(r.id, r);
+        byCode.set(r.code, r);
+      });
+      setCatMap(cm);
+
+      const items: Entry[] = (
+        (itemRows ?? []) as unknown as Array<{
+          id: string;
+          name_en: string;
+          name_km: string | null;
+          note: string | null;
+          unit: string | null;
+          price: number | null;
+          currency: string | null;
+          stock_status: string | null;
+          stock_updated_at: string | null;
+          in_stock: boolean | null;
+          photo_url: string | null;
+          offer_active: boolean | null;
+          offer_price: number | null;
+          category_id: string | null;
+        }>
+      ).map((r) => {
+        const offer = (r.offer_active ?? false) && r.offer_price != null;
+        return {
+          kind: "item" as const,
+          id: r.id,
+          name_en: r.name_en,
+          name_km: r.name_km,
+          note: r.note,
+          unit: r.unit,
+          price: offer ? r.offer_price : r.price,
+          old_price: offer ? r.price : null,
+          currency: r.currency ?? "USD",
+          stock_status: (r.stock_status as StockStatus | null) ?? (r.in_stock ? "in_stock" : "out"),
+          stock_updated_at: r.stock_updated_at,
+          photo_url: r.photo_url,
+          offer_active: r.offer_active ?? false,
+          post_type: null,
+          cat_id: r.category_id,
+        };
+      });
+
+      let posts: Entry[] = [];
+      if (store?.user_id) {
+        const { data: postRows } = await supabase
+          .from("posts")
+          .select(
+            "id,title,content,price,discount_price,currency,post_type,category,created_at,post_photos(photo_url)",
+          )
+          .eq("user_id", store.user_id)
+          .eq("status", "approved")
+          .order("created_at", { ascending: false })
+          .limit(100);
+        if (cancelled) return;
+        posts = (
+          (postRows ?? []) as unknown as Array<{
+            id: string;
+            title: string | null;
+            content: string | null;
+            price: number | null;
+            discount_price: number | null;
+            currency: string | null;
+            post_type: string | null;
+            category: string | null;
+            created_at: string;
+            post_photos: Array<{ photo_url: string }>;
+          }>
+        )
+          .filter((p) => p.title || p.price != null || p.category)
+          .map((p) => ({
+            kind: "post" as const,
+            id: p.id,
+            name_en: p.title || p.content?.split("\n")[0] || "Product",
+            name_km: null,
+            note: p.title ? (p.content?.split("\n")[0] ?? null) : null,
+            unit: null,
+            price: p.discount_price ?? p.price,
+            old_price: p.discount_price != null ? p.price : null,
+            currency: p.currency ?? "USD",
+            stock_status: null,
+            stock_updated_at: p.created_at,
+            photo_url: p.post_photos?.[0]?.photo_url ?? null,
+            offer_active: p.discount_price != null,
+            post_type: p.post_type,
+            cat_id: p.category ? (byCode.get(p.category)?.id ?? null) : null,
+          }));
+      }
+
+      setEntries([...items, ...posts]);
       setLoading(false);
 
-      if (user && !isOwner && mapped.length) {
+      if (user && !isOwner && items.length) {
         void supabase.from("catalog_item_events").insert(
-          mapped.slice(0, 60).map((i) => ({
+          items.slice(0, 60).map((i) => ({
             item_id: i.id,
             store_id: storeId,
             user_id: user.id,
@@ -124,23 +207,38 @@ export function StoreCatalog({
     };
   }, [storeId, user, isOwner]);
 
-  const cats = useMemo(() => {
-    const map = new Map<string, { id: string; name_en: string; name_km: string | null; n: number }>();
-    items.forEach((i) => {
-      if (!i.category) return;
-      const prev = map.get(i.category.id);
-      map.set(i.category.id, { ...i.category, n: (prev?.n ?? 0) + 1 });
-    });
-    return [...map.values()];
-  }, [items]);
-
   const label = (i: { name_en: string; name_km: string | null }) =>
     lang === "km" && i.name_km ? i.name_km : i.name_en;
 
+  const sourceFiltered = useMemo(
+    () => (source === "all" ? entries : entries.filter((e) => e.kind === source)),
+    [entries, source],
+  );
+
+  const cats = useMemo(() => {
+    const map = new Map<string, { cat: Cat; n: number }>();
+    sourceFiltered.forEach((e) => {
+      if (!e.cat_id) return;
+      const cat = catMap.get(e.cat_id);
+      if (!cat) return;
+      map.set(cat.id, { cat, n: (map.get(cat.id)?.n ?? 0) + 1 });
+    });
+    return [...map.values()].sort((a, b) => b.n - a.n);
+  }, [sourceFiltered, catMap]);
+
+  const counts = useMemo(
+    () => ({
+      all: entries.length,
+      item: entries.filter((e) => e.kind === "item").length,
+      post: entries.filter((e) => e.kind === "post").length,
+    }),
+    [entries],
+  );
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    let list = items;
-    if (activeCat) list = list.filter((i) => i.category_id === activeCat);
+    let list = sourceFiltered;
+    if (activeCat) list = list.filter((i) => i.cat_id === activeCat);
     if (q) {
       list = list.filter(
         (i) =>
@@ -149,23 +247,21 @@ export function StoreCatalog({
           (i.note ?? "").toLowerCase().includes(q),
       );
     }
-    const effective = (i: Item) => (i.offer_active && i.offer_price != null ? i.offer_price : i.price);
     return [...list].sort((a, b) => {
       if (sort === "name") return label(a).localeCompare(label(b));
       if (sort === "price_asc" || sort === "price_desc") {
-        const pa = effective(a);
-        const pb = effective(b);
+        const pa = a.price;
+        const pb = b.price;
         if (pa == null) return 1;
         if (pb == null) return -1;
         return sort === "price_asc" ? pa - pb : pb - pa;
       }
-      // default: available first
-      const rank = (s: StockStatus) => (s === "out" ? 1 : 0);
+      const rank = (s: StockStatus | null) => (s === "out" ? 1 : 0);
       return rank(a.stock_status) - rank(b.stock_status);
     });
-  }, [items, query, activeCat, sort, lang]);
+  }, [sourceFiltered, query, activeCat, sort, lang]);
 
-  async function toggleNotify(item: Item) {
+  async function toggleNotify(item: Entry) {
     if (!user) return;
     if (subscribed.has(item.id)) {
       await supabase
@@ -201,7 +297,7 @@ export function StoreCatalog({
     );
   }
 
-  if (!items.length) return null;
+  if (!entries.length) return null;
 
   return (
     <div className="border-b border-border bg-surface px-5 py-4">
@@ -217,15 +313,42 @@ export function StoreCatalog({
         />
       </div>
 
+      {/* Source toggle: catalogue vs posts */}
+      {counts.item > 0 && counts.post > 0 && (
+        <div className="mt-3 flex gap-1.5">
+          {(
+            [
+              ["all", `${c("all_label")} (${counts.all})`],
+              ["item", `${lang === "km" ? "កាតាឡុក" : "Catalogue"} (${counts.item})`],
+              ["post", `${lang === "km" ? "ការបង្ហោះ" : "Posts"} (${counts.post})`],
+            ] as Array<[SourceMode, string]>
+          ).map(([mode, text]) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => {
+                setSource(mode);
+                setActiveCat(null);
+              }}
+              className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] font-bold transition ${
+                source === mode ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Category tabs */}
       <div className="-mx-5 mt-3 overflow-x-auto px-5 scrollbar-none">
         <div className="flex gap-1.5">
           <Tab active={activeCat === null} onClick={() => setActiveCat(null)}>
-            {c("all_label")} ({items.length})
+            {c("all_label")} ({sourceFiltered.length})
           </Tab>
-          {cats.map((cat) => (
+          {cats.map(({ cat, n }) => (
             <Tab key={cat.id} active={activeCat === cat.id} onClick={() => setActiveCat(cat.id)}>
-              {label(cat)} ({cat.n})
+              {label(cat)} ({n})
             </Tab>
           ))}
         </div>
@@ -274,43 +397,70 @@ export function StoreCatalog({
       <div className="mt-3 space-y-2">
         {visible.map((item) => {
           const out = item.stock_status === "out";
-          const showOffer = item.offer_active;
-          const price =
-            showOffer && item.offer_price != null ? item.offer_price : item.price;
+          const isPost = item.kind === "post";
+          const meta = item.post_type ? POST_TYPE_LABELS[item.post_type] : undefined;
+          const media = item.photo_url ? (
+            <img
+              src={item.photo_url}
+              alt={label(item)}
+              loading="lazy"
+              className="h-16 w-16 shrink-0 rounded-lg bg-muted object-cover"
+            />
+          ) : (
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-muted text-lg">
+              📦
+            </div>
+          );
           return (
             <div
-              key={item.id}
+              key={`${item.kind}-${item.id}`}
               className={`flex gap-3 rounded-xl border border-border bg-card p-2.5 ${out ? "opacity-60" : ""}`}
             >
-              {item.photo_url ? (
-                <img
-                  src={item.photo_url}
-                  alt={label(item)}
-                  loading="lazy"
-                  className="h-16 w-16 shrink-0 rounded-lg bg-muted object-cover"
-                />
+              {isPost ? (
+                <Link to="/posts/$postId" params={{ postId: item.id }} className="shrink-0 active:opacity-80">
+                  {media}
+                </Link>
               ) : (
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-muted text-lg">
-                  📦
-                </div>
+                media
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-start gap-1.5">
-                  <p className="min-w-0 flex-1 text-[13px] font-bold text-foreground">{label(item)}</p>
-                  {showOffer && (
-                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
-                      <Tag className="h-3 w-3" />
-                      {c("offer")}
+                  {isPost ? (
+                    <Link
+                      to="/posts/$postId"
+                      params={{ postId: item.id }}
+                      className="min-w-0 flex-1 text-[13px] font-bold text-foreground active:underline"
+                    >
+                      {label(item)}
+                    </Link>
+                  ) : (
+                    <p className="min-w-0 flex-1 text-[13px] font-bold text-foreground">{label(item)}</p>
+                  )}
+                  {meta ? (
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${meta.cls}`}>
+                      {lang === "km" ? meta.km : meta.en}
                     </span>
+                  ) : (
+                    item.offer_active && (
+                      <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                        <Tag className="h-3 w-3" />
+                        {c("offer")}
+                      </span>
+                    )
                   )}
                 </div>
                 {item.note && (
                   <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{item.note}</p>
                 )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                  {price != null ? (
+                  {item.price != null ? (
                     <p className="text-sm font-bold text-foreground">
-                      {formatPrice(price, item.currency)}
+                      {formatPrice(item.price, item.currency)}
+                      {item.old_price != null && (
+                        <span className="ml-1 text-[10px] font-normal text-muted-foreground line-through">
+                          {formatPrice(item.old_price, item.currency)}
+                        </span>
+                      )}
                       {item.unit && (
                         <span className="text-[11px] font-normal text-muted-foreground"> / {item.unit}</span>
                       )}
@@ -318,9 +468,9 @@ export function StoreCatalog({
                   ) : (
                     <p className="text-[11px] text-muted-foreground">{c("ask_price")}</p>
                   )}
-                  <StockBadge status={item.stock_status} lang={lang} />
-                  {!isOwner && (
-                    out ? (
+                  {item.stock_status && <StockBadge status={item.stock_status} lang={lang} />}
+                  {!isOwner &&
+                    (out ? (
                       <button
                         type="button"
                         onClick={() => void toggleNotify(item)}
@@ -340,23 +490,26 @@ export function StoreCatalog({
                     ) : (
                       <button
                         type="button"
-                        onClick={() => onAsk({ id: item.id, name: label(item) })}
+                        onClick={() =>
+                          isPost
+                            ? onAskPost?.(item.id)
+                            : onAsk({ id: item.id, name: label(item) })
+                        }
                         className="ml-auto flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground active:scale-[0.97]"
                       >
                         <MessageCircle className="h-3 w-3" />
                         {c("ask")}
                       </button>
-                    )
-                  )}
+                    ))}
                 </div>
                 <div className="mt-1.5 flex items-center gap-2">
-                  {item.stock_updated_at && (
+                  {item.stock_updated_at && !isPost && (
                     <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                       <Clock className="h-3 w-3" />
                       {c("stock_updated").replace("{v}", timeAgo(item.stock_updated_at, t))}
                     </span>
                   )}
-                  {!isOwner && (
+                  {!isOwner && !isPost && (
                     <button
                       type="button"
                       onClick={() => setReportItem(item)}
