@@ -179,7 +179,7 @@ function SupplierProfilePage() {
           .eq("status", "approved"),
         supabase
           .from("posts")
-          .select("id, content, title, price, discount_price, currency, post_type, created_at, view_count, post_photos(photo_url)")
+          .select("id, content, title, price, discount_price, currency, post_type, category, created_at, view_count, post_photos(photo_url)")
           .eq("user_id", s.user_id)
           .eq("status", "approved")
           .order("created_at", { ascending: false })
@@ -200,7 +200,8 @@ function SupplierProfilePage() {
       setPhotos(((ph ?? []) as Array<{ photo_url: string }>).map((p) => p.photo_url));
       setPostsCount(count ?? 0);
       setPosts(
-        ((pp ?? []) as unknown as Array<{ id: string; content: string | null; title: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string | null; created_at: string; view_count: number | null; post_photos: Array<{ photo_url: string }> }>).map((p) => ({
+        ((pp ?? []) as unknown as Array<{ id: string; content: string | null; title: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string | null; category: string | null; created_at: string; view_count: number | null; post_photos: Array<{ photo_url: string }> }>).filter((p) => !p.title && p.price == null && !p.category)
+        .map((p) => ({
           id: p.id,
           content: p.content,
           title: p.title,
