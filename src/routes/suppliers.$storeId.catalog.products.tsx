@@ -102,6 +102,7 @@ function CatalogProductsPage() {
         <StoreCatalog
           storeId={storeId}
           isOwner={isOwner}
+          onAskPost={() => void startConversation()}
           onAsk={(item) => {
             if (user) {
               void supabase.from("catalog_item_events").insert({
