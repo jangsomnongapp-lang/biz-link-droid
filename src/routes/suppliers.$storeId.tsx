@@ -493,6 +493,7 @@ function SupplierProfilePage() {
       <StoreCatalog
         storeId={storeId}
         isOwner={isOwner}
+        onAskPost={(postId) => void startConversation(postId)}
         onAsk={(item) => {
           if (user) {
             void supabase.from("catalog_item_events").insert({
