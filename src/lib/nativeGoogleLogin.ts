@@ -76,6 +76,59 @@ async function clearBrokenLocalSessionIfNeeded() {
 
 export async function loginWithGoogle(navigate: NavigateFn) {
   try {
+    // Detect Expo WebView wrapper (React Native WebView)
+    const isExpoWrapper =
+      typeof window !== "undefined" &&
+      (window as unknown as { ReactNativeWebView?: { postMessage: (msg: string) => void } }).ReactNativeWebView;
+
+    if (isExpoWrapper) {
+      // Ask the native Expo app to handle Google login via system browser
+      return new Promise<void>((resolve, reject) => {
+        const handler = (event: MessageEvent) => {
+          const data = event.data;
+          if (data?.type === "GOOGLE_LOGIN_SUCCESS") {
+            window.removeEventListener("message", handler);
+            clearTimeout(timeout);
+            const idToken = data.payload?.idToken;
+            if (!idToken) {
+              reject(new Error("No ID token received from app"));
+              return;
+            }
+            supabase.auth
+              .signInWithIdToken({
+                provider: "google",
+                token: idToken,
+              })
+              .then(({ error }) => {
+                if (error) reject(error);
+                else {
+                  navigate({ to: "/home" });
+                  resolve();
+                }
+              })
+              .catch(reject);
+          } else if (data?.type === "GOOGLE_LOGIN_ERROR") {
+            window.removeEventListener("message", handler);
+            clearTimeout(timeout);
+            reject(new Error(data.payload?.error || "Google login failed"));
+          }
+        };
+
+        // Set timeout to avoid hanging
+        const timeout = setTimeout(() => {
+          window.removeEventListener("message", handler);
+          reject(new Error("Google login timed out"));
+        }, 120000);
+
+        window.addEventListener("message", handler);
+
+        // Tell the Expo wrapper to start Google login
+        (window as unknown as { ReactNativeWebView: { postMessage: (msg: string) => void } }).ReactNativeWebView.postMessage(
+          JSON.stringify({ type: "GOOGLE_LOGIN" })
+        );
+      });
+    }
+
     // In the native Capacitor app, use the native Google Sign-In plugin to avoid WebView blocks.
     if (
       typeof window !== "undefined" &&

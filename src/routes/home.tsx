@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -117,53 +117,67 @@ function HomePage() {
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const [viewer, setViewer] = useState<{ photos: string[]; index: number } | null>(null);
 
-  // Profile + stories load once per user (cheap, separate from paginated feed)
-  useQuery({
-    queryKey: ["home:profile", user?.id ?? null],
-    enabled: !!user,
-    staleTime: 5 * 60_000,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, avatar_url")
-        .eq("id", user!.id)
-        .maybeSingle();
-      setProfile(data);
-      const { data: flags } = await supabase.rpc("get_my_profile_flags");
-      setIsAdmin(!!flags?.[0]?.is_admin);
-      return data ?? null;
-    },
-  });
+  const [storiesLoading, setStoriesLoading] = useState(false);
 
-  const { isLoading: storiesLoading } = useQuery({
-    queryKey: ["home:stories"],
-    enabled: !!user,
-    staleTime: 60_000,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("stories")
-        .select("id, user_id, media_url, created_at, profiles(full_name, avatar_url)")
-        .eq("status", "approved")
-        .gt("expires_at", new Date().toISOString())
-        .order("created_at", { ascending: false })
-        .limit(50);
-      const rows = (data as StoryRow[] | null) ?? [];
-      const map = new Map<string, StoryGroup>();
-      for (const r of rows) {
-        if (!map.has(r.user_id)) {
-          map.set(r.user_id, {
-            id: r.id,
-            user_id: r.user_id,
-            full_name: r.profiles?.full_name ?? null,
-            avatar_url: r.profiles?.avatar_url ?? null,
-            cover: r.media_url,
-          });
-        }
+  // Profile + stories load once per user (cheap, separate from paginated feed)
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("full_name, avatar_url")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (cancelled) return;
+        setProfile(data);
+        const { data: flags } = await supabase.rpc("get_my_profile_flags");
+        if (cancelled) return;
+        setIsAdmin(!!flags?.[0]?.is_admin);
+      } catch {
+        // ignore
       }
-      setStories(Array.from(map.values()));
-      return rows;
-    },
-  });
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    setStoriesLoading(true);
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("stories")
+          .select("id, user_id, media_url, created_at, profiles(full_name, avatar_url)")
+          .eq("status", "approved")
+          .gt("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: false })
+          .limit(50);
+        if (cancelled) return;
+        const rows = (data as StoryRow[] | null) ?? [];
+        const map = new Map<string, StoryGroup>();
+        for (const r of rows) {
+          if (!map.has(r.user_id)) {
+            map.set(r.user_id, {
+              id: r.id,
+              user_id: r.user_id,
+              full_name: r.profiles?.full_name ?? null,
+              avatar_url: r.profiles?.avatar_url ?? null,
+              cover: r.media_url,
+            });
+          }
+        }
+        setStories(Array.from(map.values()));
+      } catch {
+        // ignore
+      } finally {
+        if (!cancelled) setStoriesLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   // Paginated feed: 20 posts + 20 rentals per page, merged client-side
   const PAGE_SIZE = 20;
@@ -343,7 +357,41 @@ function HomePage() {
     };
     const invStories = () => {
       void clearPersistedQueryCache();
-      void qc.invalidateQueries({ queryKey: ["home:stories"] });
+      void qc.invalidateQueries({ queryKey: ["home:feed", uid] });
+      // Re-fetch stories directly since we no longer cache them via useQuery
+      if (!user) return;
+      let cancelled = false;
+      setStoriesLoading(true);
+      (async () => {
+        try {
+          const { data } = await supabase
+            .from("stories")
+            .select("id, user_id, media_url, created_at, profiles(full_name, avatar_url)")
+            .eq("status", "approved")
+            .gt("expires_at", new Date().toISOString())
+            .order("created_at", { ascending: false })
+            .limit(50);
+          if (cancelled) return;
+          const rows = (data as StoryRow[] | null) ?? [];
+          const map = new Map<string, StoryGroup>();
+          for (const r of rows) {
+            if (!map.has(r.user_id)) {
+              map.set(r.user_id, {
+                id: r.id,
+                user_id: r.user_id,
+                full_name: r.profiles?.full_name ?? null,
+                avatar_url: r.profiles?.avatar_url ?? null,
+                cover: r.media_url,
+              });
+            }
+          }
+          setStories(Array.from(map.values()));
+        } catch {
+          // ignore
+        } finally {
+          if (!cancelled) setStoriesLoading(false);
+        }
+      })();
     };
     const ch = supabase
       .channel(`home-feed:${uid ?? "guest"}`)

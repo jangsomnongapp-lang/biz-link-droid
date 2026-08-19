@@ -187,20 +187,14 @@ function ProfilePage() {
       setUploadingAvatar(false);
     }
   }
-  useQuery({
-    queryKey: ["profile:page", user?.id ?? null],
-    enabled: !!user,
-    staleTime: 30_000,
-    queryFn: async () => {
-      if (!user) return true;
-      await loadProfile();
-      return true;
-    },
-  });
+  useEffect(() => {
+    if (!user) return;
+    loadProfile();
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
-    const inv = () => qc.invalidateQueries({ queryKey: ["profile:page", user.id] });
+    const inv = () => loadProfile();
     const ch = supabase
       .channel(`profile-page:${user.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter: `id=eq.${user.id}` }, inv)
@@ -212,66 +206,94 @@ function ProfilePage() {
       .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, inv)
       .subscribe();
     return () => { void supabase.removeChannel(ch); };
-  }, [user, qc]);
+  }, [user]);
 
   async function loadProfile() {
     if (!user) return;
-    void supabase
-      .from("supplier_stores")
-      .select("id")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.id) {
-          nav({ to: "/suppliers/$storeId", params: { storeId: data.id }, replace: true });
-        }
-      });
-    void supabase
-      .from("profiles")
-      .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client, member_number")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setProfile(data));
-    void supabase
-      .from("user_categories")
-      .select("categories(name_en, name_km)")
-      .eq("user_id", user.id)
-      .then(({ data }) => {
-        setCats(((data ?? []).map((r) => r.categories).filter(Boolean) as { name_en: string; name_km: string }[]));
-      });
-    void supabase
-      .from("listings")
-      .select("id, title, status", { count: "exact" })
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .then(({ data, count }) => {
-        setMyListings(data ?? []);
-        setStats((s) => ({ ...s, posted: count ?? 0 }));
-      });
-    void supabase
-      .from("applications")
-      .select("id, status, listing:listings(id, title, status)")
-      .eq("applicant_id", user.id)
-      .then(({ data, count }) => {
-        setStats((s) => ({ ...s, applied: count ?? (data?.length ?? 0) }));
-        const accepted = (data ?? [])
-          .filter((a: any) => a.status === "accepted" && a.listing && a.listing.status !== "closed")
-          .map((a: any) => a.listing as { id: string; title: string; status: string });
-        setDoingListings(accepted);
-      });
-    void supabase
-      .from("portfolio_photos")
-      .select("id, photo_url")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => setPortfolio(data ?? []));
-    void supabase
-      .from("rental_listings")
-      .select("id, title, status, price_per_day, category, availability, available_from")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => setMyRentals(data ?? []));
-    void (async () => {
+    try {
+      const { data } = await supabase
+        .from("supplier_stores")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data?.id) {
+        nav({ to: "/suppliers/$storeId", params: { storeId: data.id }, replace: true });
+        return;
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization, is_client, member_number")
+        .eq("id", user.id)
+        .maybeSingle();
+      setProfile(data);
+    } catch {
+      // ignore
+    }
+
+    try {
+      const { data } = await supabase
+        .from("user_categories")
+        .select("categories(name_en, name_km)")
+        .eq("user_id", user.id);
+      setCats(((data ?? []).map((r: any) => r.categories).filter(Boolean) as { name_en: string; name_km: string }[]));
+    } catch {
+      // ignore
+    }
+
+    try {
+      const { data, count } = await supabase
+        .from("listings")
+        .select("id, title, status", { count: "exact" })
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      setMyListings(data ?? []);
+      setStats((s) => ({ ...s, posted: count ?? 0 }));
+    } catch {
+      // ignore
+    }
+
+    try {
+      const { data, count } = await supabase
+        .from("applications")
+        .select("id, status, listing:listings(id, title, status)")
+        .eq("applicant_id", user.id);
+      setStats((s) => ({ ...s, applied: count ?? (data?.length ?? 0) }));
+      const accepted = (data ?? [])
+        .filter((a: any) => a.status === "accepted" && a.listing && a.listing.status !== "closed")
+        .map((a: any) => a.listing as { id: string; title: string; status: string });
+      setDoingListings(accepted);
+    } catch {
+      // ignore
+    }
+
+    try {
+      const { data } = await supabase
+        .from("portfolio_photos")
+        .select("id, photo_url")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      setPortfolio(data ?? []);
+    } catch {
+      // ignore
+    }
+
+    try {
+      const { data } = await supabase
+        .from("rental_listings")
+        .select("id, title, status, price_per_day, category, availability, available_from")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      setMyRentals(data ?? []);
+    } catch {
+      // ignore
+    }
+
+    try {
       const { data: ps } = await supabase
         .from("projects")
         .select("id, status, owner_id, worker_id, completion_requested_by")
@@ -292,7 +314,9 @@ function ProfilePage() {
           other: byId.get(p.owner_id === user.id ? p.worker_id : p.owner_id) ?? null,
         })),
       );
-    })();
+    } catch {
+      // ignore
+    }
   }
 
   const roleLabels: string[] = [];
@@ -304,7 +328,6 @@ function ProfilePage() {
   async function handleRefresh() {
     await Promise.all([
       loadProfile(),
-      qc.invalidateQueries({ queryKey: ["profile:page", user?.id ?? null] }),
       qc.invalidateQueries({ queryKey: ["profile-ticket-count", user?.id] }),
       qc.invalidateQueries(),
     ]);
