@@ -180,7 +180,14 @@ export function StoreCatalog({
           }));
       }
 
-      setEntries([...items, ...posts]);
+      // Older product posts were copied into the catalogue, so hide the duplicate post entry
+      const itemNames = new Set(items.map((i) => i.name_en.trim().toLowerCase()));
+      const dedupedPosts = posts.filter((p) => {
+        const base = p.name_en.split(" - ")[0].trim().toLowerCase();
+        return !itemNames.has(base) && !itemNames.has(p.name_en.trim().toLowerCase());
+      });
+
+      setEntries([...items, ...dedupedPosts]);
       setLoading(false);
 
       if (user && !isOwner && items.length) {
