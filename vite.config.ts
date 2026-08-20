@@ -7,29 +7,8 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
-function patchedMcpPlugin() {
-  const plugin = mcpPlugin();
-  const originalConfigResolved = (plugin as any).configResolved;
-  if (originalConfigResolved) {
-    (plugin as any).configResolved = function (config: any) {
-      const originalRoot = config.root;
-      Object.defineProperty(config, "root", {
-        value: originalRoot.replace(/\//g, "\\"),
-        configurable: true,
-      });
-      const result = originalConfigResolved.call(this, config);
-      Object.defineProperty(config, "root", {
-        value: originalRoot,
-        configurable: true,
-      });
-      return result;
-    };
-  }
-  return plugin;
-}
-
 export default defineConfig({
   vite: {
-    plugins: [patchedMcpPlugin()],
+    plugins: [mcpPlugin()],
   },
 });
