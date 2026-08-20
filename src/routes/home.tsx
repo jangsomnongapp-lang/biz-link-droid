@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -14,7 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
@@ -115,9 +116,47 @@ function HomePage() {
   const [openRentalComments, setOpenRentalComments] = useState<string | null>(null);
   const [editingPost, setEditingPost] = useState<PostRow | null>(null);
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  // Viewer state: photos array is stable; current index lives in a ref so scroll
+  // never triggers React re-renders (which cause jank). Display index is updated
+  // only after scroll ends or when arrows are clicked.
   const [viewer, setViewer] = useState<{ photos: string[]; index: number } | null>(null);
+  const viewerScrollRef = useRef<HTMLDivElement | null>(null);
+  const viewerIndexRef = useRef(0);
+  const [viewerDisplayIndex, setViewerDisplayIndex] = useState(0);
 
   const [storiesLoading, setStoriesLoading] = useState(false);
+
+  // Sync display index when viewer opens or arrow buttons are used
+  useEffect(() => {
+    if (viewer) {
+      viewerIndexRef.current = viewer.index;
+      setViewerDisplayIndex(viewer.index);
+    }
+  }, [viewer?.photos, viewer?.index]);
+
+  // Scroll to the correct slide when viewer opens (no smooth here – instant)
+  useEffect(() => {
+    if (!viewer) return;
+    const el = viewerScrollRef.current;
+    if (!el) return;
+    el.scrollTo({ left: viewer.index * el.clientWidth });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewer?.photos]);
+
+  // Update display index on scroll end (native event, no re-renders during swipe)
+  useEffect(() => {
+    const el = viewerScrollRef.current;
+    if (!el || !viewer) return;
+    const onEnd = () => {
+      const idx = Math.round(el.scrollLeft / el.clientWidth);
+      if (idx !== viewerIndexRef.current) {
+        viewerIndexRef.current = idx;
+        setViewerDisplayIndex(idx);
+      }
+    };
+    el.addEventListener("scrollend", onEnd);
+    return () => el.removeEventListener("scrollend", onEnd);
+  }, [viewer]);
 
   // Profile + stories load once per user (cheap, separate from paginated feed)
   useEffect(() => {
@@ -989,9 +1028,6 @@ function HomePage() {
                             className="h-full w-full object-cover brightness-90"
                             alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
                           />
-                          <span className="absolute right-2 top-2 rounded-pill bg-black/55 px-2 py-0.5 text-[11px] font-semibold text-white">
-                            {total} <ImageIcon className="ml-0.5 inline h-3 w-3" />
-                          </span>
                           {extra > 0 && (
                             <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
                               +{extra}
@@ -1125,32 +1161,98 @@ function HomePage() {
         onCancel={() => setDeletingPostId(null)}
       />
 
-      {viewer && (
-        <div className="ios-backdrop fixed inset-0 z-50 flex flex-col bg-black/95">
-          <div className="flex h-14 shrink-0 items-center justify-between px-4 text-white">
-            <span className="text-sm font-semibold">
-              {viewer.index + 1} / {viewer.photos.length}
-            </span>
-            <button onClick={() => setViewer(null)} aria-label="Close" className="rounded-full p-2 active:bg-white/10">
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="no-scrollbar flex flex-1 snap-x snap-mandatory overflow-x-auto">
-            {viewer.photos.map((url, i) => (
-              <div key={i} className="flex w-full shrink-0 snap-center items-center justify-center p-2">
-                <img
-                  src={url}
-                  alt={`Photo ${i + 1}`}
-                  ref={(el) => {
-                    if (el && i === viewer.index) el.parentElement?.scrollIntoView({ block: "nearest" });
+      {viewer &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex flex-col bg-black"
+            onClick={(e) => {
+              if (e.currentTarget === e.target) setViewer(null);
+            }}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
+            {/* Top bar */}
+            <div className="flex h-14 shrink-0 items-center justify-between px-4 text-white">
+              <span className="text-sm font-semibold tabular-nums">
+                {viewerDisplayIndex + 1} / {viewer.photos.length}
+              </span>
+              <button
+                onClick={() => setViewer(null)}
+                aria-label="Close"
+                className="rounded-full p-2 active:bg-white/10"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Image strip: horizontal swipe, one image per viewport */}
+            <div
+              ref={viewerScrollRef}
+              className="no-scrollbar relative flex h-full min-h-0 w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden"
+            >
+              {viewer.photos.map((url, i) => (
+                <div
+                  key={i}
+                  className="flex h-full w-full shrink-0 snap-center items-center justify-center"
+                  onClick={(e) => {
+                    if (e.currentTarget === e.target) setViewer(null);
                   }}
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+                >
+                  <img
+                    src={url}
+                    alt={`Photo ${i + 1}`}
+                    draggable={false}
+                    className="max-h-full max-w-full select-none object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop arrows */}
+            <div className="pointer-events-none absolute inset-y-14 left-0 right-0 flex items-center justify-between px-2">
+              {viewerDisplayIndex > 0 && (
+                <button
+                  onClick={() => {
+                    const el = viewerScrollRef.current;
+                    if (!el) return;
+                    const idx = Math.max(0, viewerDisplayIndex - 1);
+                    el.scrollTo({ left: idx * el.clientWidth, behavior: "smooth" });
+                    viewerIndexRef.current = idx;
+                    setViewerDisplayIndex(idx);
+                  }}
+                  className="pointer-events-auto rounded-full bg-black/40 p-2 text-white backdrop-blur-sm active:bg-black/60"
+                  aria-label="Previous"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+              )}
+              {viewerDisplayIndex < viewer.photos.length - 1 && (
+                <button
+                  onClick={() => {
+                    const el = viewerScrollRef.current;
+                    if (!el) return;
+                    const idx = Math.min(viewer.photos.length - 1, viewerDisplayIndex + 1);
+                    el.scrollTo({ left: idx * el.clientWidth, behavior: "smooth" });
+                    viewerIndexRef.current = idx;
+                    setViewerDisplayIndex(idx);
+                  }}
+                  className="pointer-events-auto ml-auto rounded-full bg-black/40 p-2 text-white backdrop-blur-sm active:bg-black/60"
+                  aria-label="Next"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              )}
+            </div>
+
+            {/* Swipe hint */}
+            <div className="pointer-events-none flex h-10 shrink-0 items-center justify-center text-xs text-white/60">
+              {viewerDisplayIndex < viewer.photos.length - 1 ? "Swipe for next" : ""}
+            </div>
+          </div>,
+          document.body
+        )
+      }
     </div>
 
   );

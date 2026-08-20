@@ -60,6 +60,7 @@ interface ProductRow {
   store_logo: string | null;
   store_location: string | null;
   store_categories: SupplierCategory[];
+  cat_id: string | null;
 }
 
 interface StoreCardRow {
@@ -188,7 +189,7 @@ function SuppliersListPage() {
       let postsQuery = supabase
         .from("posts")
         .select(
-          "id, user_id, title, content, price, discount_price, currency, post_type, created_at, post_photos(photo_url)",
+          "id, user_id, title, content, price, discount_price, currency, post_type, category, created_at, post_photos(photo_url)",
         )
         .eq("status", "approved")
         .in("post_type", ["novedad", "stock", "oferta", "liquidacion"])
@@ -201,7 +202,7 @@ function SuppliersListPage() {
         }
       }
 
-      const [{ data: postsData }, { data: allStores }] = await Promise.all([
+      const [{ data: postsData }, { data: allStores }, { data: catRows }] = await Promise.all([
         postsQuery,
         supabase
           .from("supplier_stores")
@@ -209,6 +210,9 @@ function SuppliersListPage() {
           .eq("status", "approved")
           .order("created_at", { ascending: false })
           .limit(60),
+        supabase
+          .from("supplier_categories")
+          .select("id, code, name_en, name_km"),
       ]);
 
       const storeByUser = new Map<string, { id: string; name: string; location: string | null; logo_url: string | null }>();
@@ -252,7 +256,13 @@ function SuppliersListPage() {
         photos: (photosByStore.get(s.id) ?? []).slice(0, 3),
       }));
 
-      const list: ProductRow[] = ((postsData ?? []) as Array<{ id: string; user_id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string | null; created_at: string; post_photos: Array<{ photo_url: string }> }>).map((p) => {
+      const byCode = new Map<string, string>();
+      for (const c of (catRows ?? []) as SupplierCategory[]) {
+        byCode.set(c.code, c.id);
+      }
+
+      // Build product rows from posts
+      const postRows: ProductRow[] = ((postsData ?? []) as Array<{ id: string; user_id: string; title: string | null; content: string | null; price: number | null; discount_price: number | null; currency: string | null; post_type: string | null; category: string | null; created_at: string; post_photos: Array<{ photo_url: string }> }>).map((p) => {
         const st = storeByUser.get(p.user_id);
         return {
           id: p.id,
@@ -270,8 +280,63 @@ function SuppliersListPage() {
           store_logo: st?.logo_url ?? null,
           store_location: st?.location ?? null,
           store_categories: st ? catsByStore.get(st.id) ?? [] : [],
+          cat_id: p.category ? (byCode.get(p.category) ?? null) : null,
         };
       });
+
+      // Fetch catalog items for approved stores
+      let catalogRows: ProductRow[] = [];
+      if (storeIds.length) {
+        const { data: itemData } = await supabase
+          .from("supplier_catalog_items")
+          .select(
+            "id, store_id, name_en, name_km, note, price, offer_price, offer_active, currency, photo_url, category_id, created_at",
+          )
+          .in("store_id", storeIds)
+          .order("created_at", { ascending: false })
+          .limit(60);
+        catalogRows = ((itemData ?? []) as Array<{
+          id: string;
+          store_id: string;
+          name_en: string;
+          name_km: string | null;
+          note: string | null;
+          price: number | null;
+          offer_price: number | null;
+          offer_active: boolean | null;
+          currency: string | null;
+          photo_url: string | null;
+          category_id: string | null;
+          created_at: string;
+        }>).map((i) => {
+          const st = storeByUser.get(
+            ((allStores ?? []) as Array<{ id: string; user_id: string }>).find((s) => s.id === i.store_id)?.user_id ?? ""
+          );
+          const offer = (i.offer_active ?? false) && i.offer_price != null;
+          return {
+            id: i.id,
+            user_id: st?.id ?? i.store_id,
+            title: i.name_en,
+            content: i.note,
+            price: offer ? i.offer_price : i.price,
+            discount_price: offer ? i.price : null,
+            currency: i.currency ?? "USD",
+            post_type: "stock",
+            created_at: i.created_at,
+            photo_url: i.photo_url,
+            store_id: i.store_id,
+            store_name: st?.name ?? null,
+            store_logo: st?.logo_url ?? null,
+            store_location: st?.location ?? null,
+            store_categories: st ? catsByStore.get(st.id) ?? [] : [],
+            cat_id: i.category_id ?? null,
+          };
+        });
+      }
+
+      const list = [...postRows, ...catalogRows].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
       setProducts(list);
       setStoreCards(storeList);
       setLoading(false);
@@ -302,7 +367,7 @@ function SuppliersListPage() {
     const filteredProducts = products
       .filter((p) => {
         if (filters.location && p.store_location !== filters.location) return false;
-        if (filters.categoryId && !p.store_categories.some((c) => c.id === filters.categoryId)) return false;
+        if (filters.categoryId && p.cat_id !== filters.categoryId) return false;
         if (min != null && (p.price == null || p.price < min)) return false;
         if (max != null && (p.price == null || p.price > max)) return false;
         if (q) {
