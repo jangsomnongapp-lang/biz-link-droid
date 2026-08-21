@@ -1,0 +1,15 @@
+diff --git a/dist/stacks/tanstack/vite.js b/dist/stacks/tanstack/vite.js
+index abcd123..efgh456 100644
+--- a/dist/stacks/tanstack/vite.js
++++ b/dist/stacks/tanstack/vite.js
+@@ -14,8 +14,10 @@ function normalizePath(p) {
+   return p.split(sep).join("/");
+ }
+ function assertContains(parent, child, label) {
+-  if (child !== parent && !child.startsWith(parent + sep)) {
++  const normParent = normalizePath(parent);
++  const normChild = normalizePath(child);
++  if (normChild !== normParent && !normChild.startsWith(normParent + "/")) {
+     throw new Error(`@lovable.dev/mcp-js: ${label} must resolve under ${parent}, got ${child}`);
+   }
+ }

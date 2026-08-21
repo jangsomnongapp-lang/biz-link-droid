@@ -95,6 +95,12 @@ interface RentalRow {
 
 type Mode = "shops" | "rent";
 type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools";
+type SortMode = "newest" | "price_low" | "price_high";
+const SORT_OPTIONS: { value: SortMode; en: string; km: string }[] = [
+  { value: "newest", en: "Newest", km: "ថ្មីបំផុត" },
+  { value: "price_low", en: "Price: Low–High", km: "តម្លៃ៖ ទាប→ខ្ពស់" },
+  { value: "price_high", en: "Price: High–Low", km: "តម្លៃ៖ ខ្ពស់→ទាប" },
+];
 
 const POST_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg: string }> = {
   novedad:     { en: "New",       km: "ថ្មី",        bg: "bg-emerald-100", fg: "text-emerald-700" },
@@ -122,8 +128,8 @@ function SuppliersListPage() {
   const [loadingRent, setLoadingRent] = useState(true);
   // Filter state
   const [filterOpen, setFilterOpen] = useState(false);
-  const [filters, setFilters] = useState({ location: "", categoryId: "", minPrice: "", maxPrice: "" });
-  const [draft, setDraft] = useState({ location: "", categoryId: "", minPrice: "", maxPrice: "" });
+  const [filters, setFilters] = useState({ location: "", categoryId: "", typeId: "", minPrice: "", maxPrice: "", sort: "newest" as SortMode });
+  const [draft, setDraft] = useState({ location: "", categoryId: "", typeId: "", minPrice: "", maxPrice: "", sort: "newest" as SortMode });
 
   const km = lang === "km";
   const locationLabel = km ? "ទីតាំង" : "Location";
@@ -133,11 +139,15 @@ function SuppliersListPage() {
   const applyLabel = km ? "អនុវត្ត" : "Apply";
   const clearLabel = km ? "សម្អាត" : "Clear";
   const allLabel = km ? "ទាំងអស់" : "All";
+  const sortLabel = km ? "តម្រៀបតាម" : "Sort by";
+  const typeLabel = km ? "ប្រភេទប្រកាស" : "Post Type";
 
   const activeCount =
     (filters.location ? 1 : 0) +
     (filters.categoryId ? 1 : 0) +
-    (filters.minPrice || filters.maxPrice ? 1 : 0);
+    (filters.typeId ? 1 : 0) +
+    (filters.minPrice || filters.maxPrice ? 1 : 0) +
+    (filters.sort !== "newest" ? 1 : 0);
 
   async function contactAboutProduct(p: ProductRow) {
     if (!user || !p.store_id) return;
@@ -368,6 +378,7 @@ function SuppliersListPage() {
       .filter((p) => {
         if (filters.location && p.store_location !== filters.location) return false;
         if (filters.categoryId && p.cat_id !== filters.categoryId) return false;
+        if (filters.typeId && p.post_type !== filters.typeId) return false;
         if (min != null && (p.price == null || p.price < min)) return false;
         if (max != null && (p.price == null || p.price > max)) return false;
         if (q) {
@@ -390,9 +401,21 @@ function SuppliersListPage() {
       })
       .map((s) => ({ kind: "store" as const, created_at: s.created_at, store: s }));
 
-    return [...filteredProducts, ...filteredStores].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-    );
+    const list = [...filteredProducts, ...filteredStores];
+    list.sort((a, b) => {
+      if (filters.sort === "price_low") {
+        const pa = a.kind === "product" ? a.product.price ?? Infinity : Infinity;
+        const pb = b.kind === "product" ? b.product.price ?? Infinity : Infinity;
+        return pa - pb;
+      }
+      if (filters.sort === "price_high") {
+        const pa = a.kind === "product" ? a.product.price ?? -Infinity : -Infinity;
+        const pb = b.kind === "product" ? b.product.price ?? -Infinity : -Infinity;
+        return pb - pa;
+      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+    return list;
   }, [products, storeCards, filters, q]);
 
   const filteredRentals = useMemo(() => {
@@ -462,7 +485,7 @@ function SuppliersListPage() {
               />
             </div>
             <button
-              onClick={() => { setDraft(filters); setFilterOpen(true); }}
+              onClick={() => { setDraft({ ...filters, sort: filters.sort }); setFilterOpen(true); }}
               aria-label={filterTitle}
               className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-surface text-foreground shadow-card active:scale-[0.97]"
             >
@@ -498,15 +521,36 @@ function SuppliersListPage() {
             </div>
           )}
 
-          {(filters.location || filters.minPrice || filters.maxPrice) && (
+          {activeCount > 0 && (
             <div className="mt-2 flex flex-wrap gap-2">
               {filters.location && (
-                <FilterChip label={filters.location} onClear={() => setFilters({ ...filters, location: "" })} />
+                <FilterChip
+                  label={km ? CAMBODIA_PROVINCES.find(p => p.en === filters.location)?.km ?? filters.location : filters.location}
+                  onClear={() => setFilters({ ...filters, location: "" })}
+                />
               )}
               {(filters.minPrice || filters.maxPrice) && (
                 <FilterChip
-                  label={`$${filters.minPrice || "0"} - $${filters.maxPrice || "∞"}`}
+                  label={`$${filters.minPrice || "0"} – $${filters.maxPrice || "∞"}`}
                   onClear={() => setFilters({ ...filters, minPrice: "", maxPrice: "" })}
+                />
+              )}
+              {filters.categoryId && (
+                <FilterChip
+                  label={categories.find(c => c.id === filters.categoryId)?.[km ? "name_km" : "name_en"] ?? filters.categoryId}
+                  onClear={() => setFilters({ ...filters, categoryId: "" })}
+                />
+              )}
+              {filters.typeId && (
+                <FilterChip
+                  label={POST_TYPE_LABELS[filters.typeId]?.[km ? "km" : "en"] ?? filters.typeId}
+                  onClear={() => setFilters({ ...filters, typeId: "" })}
+                />
+              )}
+              {filters.sort !== "newest" && (
+                <FilterChip
+                  label={SORT_OPTIONS.find(s => s.value === filters.sort)?.[km ? "km" : "en"] ?? filters.sort}
+                  onClear={() => setFilters({ ...filters, sort: "newest" })}
                 />
               )}
             </div>
@@ -675,7 +719,7 @@ function SuppliersListPage() {
             <SheetTitle className="text-base font-semibold">{filterTitle}</SheetTitle>
             {activeCount > 0 && (
               <button
-                onClick={() => { setDraft({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); setFilters({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); }}
+                onClick={() => { setDraft({ location: "", categoryId: "", typeId: "", minPrice: "", maxPrice: "", sort: "newest" }); setFilters({ location: "", categoryId: "", typeId: "", minPrice: "", maxPrice: "", sort: "newest" }); }}
                 className="text-sm font-semibold text-primary active:opacity-70"
               >
                 {km ? "សម្អាតទាំងអស់" : "Clear All"}
@@ -683,26 +727,79 @@ function SuppliersListPage() {
             )}
           </SheetHeader>
 
-          <div className="space-y-5 p-4">
-            <section>
-              <h4 className="mb-2 text-sm font-semibold text-foreground">{locationLabel}</h4>
-              <div className="flex flex-wrap gap-2">
-                <Chip
-                  active={!draft.location}
-                  onClick={() => setDraft({ ...draft, location: "" })}
-                  label={allLabel}
+          {/* Active filter preview */}
+          {(draft.location || draft.categoryId || draft.typeId || draft.minPrice || draft.maxPrice || draft.sort !== "newest") && (
+            <div className="flex flex-wrap gap-2 border-b border-border bg-surface/50 px-4 py-3">
+              {draft.location && (
+                <FilterChip
+                  label={km ? CAMBODIA_PROVINCES.find(p => p.en === draft.location)?.km ?? draft.location : draft.location}
+                  onClear={() => setDraft({ ...draft, location: "" })}
                 />
-                {CAMBODIA_PROVINCES.map((p) => (
+              )}
+              {(draft.minPrice || draft.maxPrice) && (
+                <FilterChip
+                  label={`$${draft.minPrice || "0"} – $${draft.maxPrice || "∞"}`}
+                  onClear={() => setDraft({ ...draft, minPrice: "", maxPrice: "" })}
+                />
+              )}
+              {draft.categoryId && (
+                <FilterChip
+                  label={categories.find(c => c.id === draft.categoryId)?.[km ? "name_km" : "name_en"] ?? draft.categoryId}
+                  onClear={() => setDraft({ ...draft, categoryId: "" })}
+                />
+              )}
+              {draft.typeId && (
+                <FilterChip
+                  label={POST_TYPE_LABELS[draft.typeId]?.[km ? "km" : "en"] ?? draft.typeId}
+                  onClear={() => setDraft({ ...draft, typeId: "" })}
+                />
+              )}
+              {draft.sort !== "newest" && (
+                <FilterChip
+                  label={SORT_OPTIONS.find(s => s.value === draft.sort)?.[km ? "km" : "en"] ?? draft.sort}
+                  onClear={() => setDraft({ ...draft, sort: "newest" })}
+                />
+              )}
+            </div>
+          )}
+
+          <div className="space-y-5 p-4">
+            {/* Sort */}
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{sortLabel}</h4>
+              <div className="flex flex-wrap gap-2">
+                {SORT_OPTIONS.map((s) => (
                   <Chip
-                    key={p.en}
-                    active={draft.location === p.en}
-                    onClick={() => setDraft({ ...draft, location: p.en })}
-                    label={km ? p.km : p.en}
+                    key={s.value}
+                    active={draft.sort === s.value}
+                    onClick={() => setDraft({ ...draft, sort: s.value })}
+                    label={km ? s.km : s.en}
                   />
                 ))}
               </div>
             </section>
 
+            {/* Location */}
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{locationLabel}</h4>
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-destructive shrink-0" />
+                <select
+                  value={draft.location}
+                  onChange={(e) => setDraft({ ...draft, location: e.target.value })}
+                  className="h-11 flex-1 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                >
+                  <option value="">{allLabel}</option>
+                  {CAMBODIA_PROVINCES.map((p) => (
+                    <option key={p.en} value={p.en}>
+                      {km ? p.km : p.en}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </section>
+
+            {/* Price */}
             <section>
               <h4 className="mb-2 text-sm font-semibold text-foreground">{priceLabel}</h4>
               <div className="grid grid-cols-2 gap-2">
@@ -721,6 +818,11 @@ function SuppliersListPage() {
                   className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
                 />
               </div>
+              {draft.minPrice && draft.maxPrice && Number(draft.minPrice) > Number(draft.maxPrice) && (
+                <p className="mt-1.5 text-xs text-destructive">
+                  {km ? "តម្លៃអប្បបរមាត្រូវតែតិចជាងតម្លៃអតិបរមា" : "Min price must be less than max price"}
+                </p>
+              )}
               <div className="mt-2 flex flex-wrap gap-2">
                 {[
                   { min: "", max: "100", label: "< $100" },
@@ -738,20 +840,38 @@ function SuppliersListPage() {
               </div>
             </section>
 
+            {/* Category */}
             <section>
               <h4 className="mb-2 text-sm font-semibold text-foreground">{categoryLabel}</h4>
+              <select
+                value={draft.categoryId}
+                onChange={(e) => setDraft({ ...draft, categoryId: e.target.value })}
+                className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+              >
+                <option value="">{allLabel}</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {km ? c.name_km : c.name_en}
+                  </option>
+                ))}
+              </select>
+            </section>
+
+            {/* Post Type */}
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{typeLabel}</h4>
               <div className="flex flex-wrap gap-2">
                 <Chip
-                  active={!draft.categoryId}
-                  onClick={() => setDraft({ ...draft, categoryId: "" })}
+                  active={!draft.typeId}
+                  onClick={() => setDraft({ ...draft, typeId: "" })}
                   label={allLabel}
                 />
-                {categories.map((c) => (
+                {Object.entries(POST_TYPE_LABELS).map(([key, meta]) => (
                   <Chip
-                    key={c.id}
-                    active={draft.categoryId === c.id}
-                    onClick={() => setDraft({ ...draft, categoryId: c.id })}
-                    label={km ? c.name_km : c.name_en}
+                    key={key}
+                    active={draft.typeId === key}
+                    onClick={() => setDraft({ ...draft, typeId: key })}
+                    label={km ? meta.km : meta.en}
                   />
                 ))}
               </div>
@@ -760,14 +880,15 @@ function SuppliersListPage() {
 
           <SheetFooter className="sticky bottom-0 flex-row gap-2 border-t border-border bg-surface p-3">
             <button
-              onClick={() => { setDraft({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); setFilters({ location: "", categoryId: "", minPrice: "", maxPrice: "" }); setFilterOpen(false); }}
+              onClick={() => { setDraft({ location: "", categoryId: "", typeId: "", minPrice: "", maxPrice: "", sort: "newest" }); setFilters({ location: "", categoryId: "", typeId: "", minPrice: "", maxPrice: "", sort: "newest" }); setFilterOpen(false); }}
               className="h-11 flex-1 rounded-xl border border-border bg-background text-sm font-semibold text-foreground active:scale-[0.99]"
             >
               {clearLabel}
             </button>
             <button
               onClick={() => { setFilters(draft); setFilterOpen(false); }}
-              className="h-11 flex-[2] rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]"
+              disabled={draft.minPrice && draft.maxPrice ? Number(draft.minPrice) > Number(draft.maxPrice) : false}
+              className="h-11 flex-[2] rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99] disabled:opacity-50"
             >
               {applyLabel}
             </button>
