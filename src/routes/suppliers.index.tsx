@@ -475,19 +475,33 @@ function SuppliersListPage() {
             </button>
           </div>
 
-          {activeCount > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
+          {/* Quick category picker — one tap, applies instantly */}
+          {categories.length > 0 && (
+            <div className="-mx-4 mt-3 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max gap-2 pb-1">
+                <Chip
+                  active={!filters.categoryId}
+                  onClick={() => setFilters({ ...filters, categoryId: "" })}
+                  label={allLabel}
+                />
+                {categories.map((c) => (
+                  <Chip
+                    key={c.id}
+                    active={filters.categoryId === c.id}
+                    onClick={() =>
+                      setFilters({ ...filters, categoryId: filters.categoryId === c.id ? "" : c.id })
+                    }
+                    label={km ? c.name_km : c.name_en}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(filters.location || filters.minPrice || filters.maxPrice) && (
+            <div className="mt-2 flex flex-wrap gap-2">
               {filters.location && (
                 <FilterChip label={filters.location} onClear={() => setFilters({ ...filters, location: "" })} />
-              )}
-              {filters.categoryId && (
-                <FilterChip
-                  label={(() => {
-                    const c = categories.find((c) => c.id === filters.categoryId);
-                    return c ? (km ? c.name_km : c.name_en) : categoryLabel;
-                  })()}
-                  onClear={() => setFilters({ ...filters, categoryId: "" })}
-                />
               )}
               {(filters.minPrice || filters.maxPrice) && (
                 <FilterChip
@@ -497,6 +511,7 @@ function SuppliersListPage() {
               )}
             </div>
           )}
+
 
           <h2 className="sr-only">{km ? "ហាងនិងផលិតផល" : "Stores and Products"}</h2>
           <div className="mt-4">
