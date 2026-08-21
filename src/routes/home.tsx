@@ -909,17 +909,14 @@ function HomePage() {
           const cc = commentCounts[p.id] ?? 0;
           const supplier = supplierByUser[p.user_id];
           const isSupplierPost = !!supplier;
-          // Only show photos that were actually attached to this post
-          const supplierGalleryPhotos = isSupplierPost
-            ? p.post_photos.map((ph) => ph.photo_url).slice(0, 2)
-            : [];
+          const isSupplierLike = isSupplierPost || !!p.profiles?.is_supplier;
           const isOwner = user?.id === p.user_id;
           return (
             <article
               key={p.id}
               id={`post-${p.id}`}
               className={`relative bg-surface px-4 py-3 shadow-card transition-shadow ${
-                isSupplierPost ? "border-l-4 border-amber-500" : ""
+                isSupplierLike ? "border-l-4 border-amber-500" : ""
               } ${highlightId === p.id ? "ring-2 ring-primary" : ""}`}
             >
               {isAdmin && !isOwner && (
