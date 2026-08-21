@@ -59,7 +59,7 @@ interface PostRow {
   content: string | null;
   video_url: string | null;
   created_at: string;
-  profiles: { full_name: string | null; avatar_url: string | null; is_verified: boolean | null; is_recruiter: boolean | null; is_featured: boolean | null } | null;
+  profiles: { full_name: string | null; avatar_url: string | null; is_verified: boolean | null; is_recruiter: boolean | null; is_featured: boolean | null; is_supplier?: boolean | null } | null;
   post_photos: { photo_url: string }[];
 }
 
@@ -231,7 +231,7 @@ function HomePage() {
       const [{ data: postsData }, { data: rentalsData }] = await Promise.all([
         supabase
           .from("posts")
-          .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured), post_photos(photo_url)")
+          .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured, is_supplier), post_photos(photo_url)")
           .eq("status", "approved")
           .order("created_at", { ascending: false })
           .range(from, to),
@@ -457,7 +457,7 @@ function HomePage() {
       if (!inFeed) {
         const { data: pData } = await supabase
           .from("posts")
-          .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured), post_photos(photo_url)")
+          .select("id, user_id, content, video_url, created_at, profiles(full_name, avatar_url, is_verified, is_recruiter, is_featured, is_supplier), post_photos(photo_url)")
           .eq("id", focusPostId!)
           .maybeSingle();
         if (cancelled || !pData) return;
@@ -979,6 +979,11 @@ function HomePage() {
                       {p.profiles?.is_verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-sky-400 text-white" />}
                       {p.profiles?.is_recruiter && <Briefcase className="h-4 w-4 shrink-0 text-amber-500" />}
                       {p.profiles?.is_featured && <Sparkles className="h-4 w-4 shrink-0 text-pink-500" />}
+                      {p.profiles?.is_supplier && (
+                        <span className="shrink-0 rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                          {t("supplier_badge")}
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
                   </Link>
