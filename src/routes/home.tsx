@@ -550,7 +550,7 @@ function HomePage() {
     }
   }
 
-  async function contactSupplier(ownerId: string, storeId: string, postId?: string) {
+  async function contactSupplier(ownerId: string, storeId: string | undefined, postId?: string) {
     if (!user || user.id === ownerId) return;
     setContactingUser(ownerId);
     try {
@@ -571,7 +571,7 @@ function HomePage() {
         if (error) throw error;
         threadId = created.id;
       }
-      void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
+      if (storeId) void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
       nav({ to: "/messages/$threadId", params: { threadId }, search: postId ? { pin: `post:${postId}` } : {} });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
@@ -909,17 +909,14 @@ function HomePage() {
           const cc = commentCounts[p.id] ?? 0;
           const supplier = supplierByUser[p.user_id];
           const isSupplierPost = !!supplier;
-          // Only show photos that were actually attached to this post
-          const supplierGalleryPhotos = isSupplierPost
-            ? p.post_photos.map((ph) => ph.photo_url).slice(0, 2)
-            : [];
+          const isSupplierLike = isSupplierPost || !!p.profiles?.is_supplier;
           const isOwner = user?.id === p.user_id;
           return (
             <article
               key={p.id}
               id={`post-${p.id}`}
               className={`relative bg-surface px-4 py-3 shadow-card transition-shadow ${
-                isSupplierPost ? "border-l-4 border-amber-500" : ""
+                isSupplierLike ? "border-l-4 border-amber-500" : ""
               } ${highlightId === p.id ? "ring-2 ring-primary" : ""}`}
             >
               {isAdmin && !isOwner && (
@@ -998,58 +995,43 @@ function HomePage() {
                 )}
               </header>
               {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
-              {isSupplierPost ? (
-                supplierGalleryPhotos.length > 0 && (
-                  <div className={`mt-3 grid gap-2 ${supplierGalleryPhotos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                    {supplierGalleryPhotos.map((url, i) => (
-                      <img
+              {p.post_photos.length > 0 && (
+                <div className={`mt-3 grid gap-2 ${p.post_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {p.post_photos.slice(0, 4).map((ph, i) => {
+                    const total = p.post_photos.length;
+                    const extra = i === 3 && total > 4 ? total - 4 : 0;
+                    return (
+                      <button
                         key={i}
-                        src={url}
-                        alt={`${supplier.name} — photo ${i + 1}`}
-                        className="aspect-square w-full rounded-lg bg-muted object-cover"
-                      />
-                    ))}
-                  </div>
-                )
-              ) : (
-                p.post_photos.length > 0 && (
-                  <div className={`mt-3 grid gap-2 ${p.post_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                    {p.post_photos.slice(0, 4).map((ph, i) => {
-                      const total = p.post_photos.length;
-                      const extra = i === 3 && total > 4 ? total - 4 : 0;
-                      return (
-                        <button
-                          key={i}
-                          type="button"
-                          onClick={() =>
-                            setViewer({ photos: p.post_photos.map((x) => x.photo_url), index: i })
-                          }
-                          className={`relative block w-full overflow-hidden rounded-lg bg-muted ${total === 1 ? "" : "aspect-square"}`}
-                        >
-                          <img
-                            src={ph.photo_url}
-                            loading="lazy"
-                            decoding="async"
-                            className="h-full w-full object-cover brightness-90"
-                            alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
-                          />
-                          {extra > 0 && (
-                            <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
-                              +{extra}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )
+                        type="button"
+                        onClick={() =>
+                          setViewer({ photos: p.post_photos.map((x) => x.photo_url), index: i })
+                        }
+                        className={`relative block w-full overflow-hidden rounded-lg bg-muted ${total === 1 ? "" : "aspect-square"}`}
+                      >
+                        <img
+                          src={ph.photo_url}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-full w-full object-cover brightness-90"
+                          alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
+                        />
+                        {extra > 0 && (
+                          <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
+                            +{extra}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               )}
 
               {p.video_url && <VideoEmbed url={p.video_url} />}
 
-              {isSupplierPost && !isOwner && (
+              {isSupplierLike && !isOwner && (
                 <button
-                  onClick={() => void contactSupplier(p.user_id, supplier.id, p.id)}
+                  onClick={() => void contactSupplier(p.user_id, supplier?.id, p.id)}
                   disabled={contactingUser === p.user_id}
                   className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-500 text-sm font-bold text-white shadow active:scale-[0.98] disabled:opacity-50"
                 >
