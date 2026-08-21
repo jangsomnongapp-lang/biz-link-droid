@@ -571,7 +571,7 @@ function HomePage() {
         if (error) throw error;
         threadId = created.id;
       }
-      void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
+      if (storeId) void supabase.rpc("increment_supplier_contact", { _store_id: storeId });
       nav({ to: "/messages/$threadId", params: { threadId }, search: postId ? { pin: `post:${postId}` } : {} });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
