@@ -75,7 +75,9 @@ import { Route as RentalsRequestNewRouteImport } from './routes/rentals.request.
 import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
 import { Route as ApiPublicTelegramPasswordResetRouteImport } from './routes/api/public/telegram-password-reset'
 import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
+import { Route as ApiPublicProcessPushQueueRouteImport } from './routes/api/public/process-push-queue'
 import { Route as ApiPublicFcmSendRouteImport } from './routes/api/public/fcm-send'
+import { Route as ApiPublicExpoSendRouteImport } from './routes/api/public/expo-send'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as SuppliersStoreIdCatalogIndexRouteImport } from './routes/suppliers.$storeId.catalog.index'
@@ -422,9 +424,20 @@ const ApiPublicTelegramNotifyRoute = ApiPublicTelegramNotifyRouteImport.update({
   path: '/api/public/telegram-notify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicProcessPushQueueRoute =
+  ApiPublicProcessPushQueueRouteImport.update({
+    id: '/api/public/process-push-queue',
+    path: '/api/public/process-push-queue',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicFcmSendRoute = ApiPublicFcmSendRouteImport.update({
   id: '/api/public/fcm-send',
   path: '/api/public/fcm-send',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicExpoSendRoute = ApiPublicExpoSendRouteImport.update({
+  id: '/api/public/expo-send',
+  path: '/api/public/expo-send',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
@@ -559,7 +572,9 @@ export interface FileRoutesByFullPath {
   '/suppliers/': typeof SuppliersIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/expo-send': typeof ApiPublicExpoSendRoute
   '/api/public/fcm-send': typeof ApiPublicFcmSendRoute
+  '/api/public/process-push-queue': typeof ApiPublicProcessPushQueueRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
@@ -639,7 +654,9 @@ export interface FileRoutesByTo {
   '/suppliers': typeof SuppliersIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/expo-send': typeof ApiPublicExpoSendRoute
   '/api/public/fcm-send': typeof ApiPublicFcmSendRoute
+  '/api/public/process-push-queue': typeof ApiPublicProcessPushQueueRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
@@ -720,7 +737,9 @@ export interface FileRoutesById {
   '/suppliers/': typeof SuppliersIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/public/expo-send': typeof ApiPublicExpoSendRoute
   '/api/public/fcm-send': typeof ApiPublicFcmSendRoute
+  '/api/public/process-push-queue': typeof ApiPublicProcessPushQueueRoute
   '/api/public/telegram-notify': typeof ApiPublicTelegramNotifyRoute
   '/api/public/telegram-password-reset': typeof ApiPublicTelegramPasswordResetRoute
   '/projects/new/$workerId': typeof ProjectsNewWorkerIdRoute
@@ -803,7 +822,9 @@ export interface FileRouteTypes {
     | '/suppliers/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/expo-send'
     | '/api/public/fcm-send'
+    | '/api/public/process-push-queue'
     | '/api/public/telegram-notify'
     | '/api/public/telegram-password-reset'
     | '/projects/new/$workerId'
@@ -883,7 +904,9 @@ export interface FileRouteTypes {
     | '/suppliers'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/expo-send'
     | '/api/public/fcm-send'
+    | '/api/public/process-push-queue'
     | '/api/public/telegram-notify'
     | '/api/public/telegram-password-reset'
     | '/projects/new/$workerId'
@@ -963,7 +986,9 @@ export interface FileRouteTypes {
     | '/suppliers/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/public/expo-send'
     | '/api/public/fcm-send'
+    | '/api/public/process-push-queue'
     | '/api/public/telegram-notify'
     | '/api/public/telegram-password-reset'
     | '/projects/new/$workerId'
@@ -1038,7 +1063,9 @@ export interface RootRouteChildren {
   SuppliersIndexRoute: typeof SuppliersIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiPublicExpoSendRoute: typeof ApiPublicExpoSendRoute
   ApiPublicFcmSendRoute: typeof ApiPublicFcmSendRoute
+  ApiPublicProcessPushQueueRoute: typeof ApiPublicProcessPushQueueRoute
   ApiPublicTelegramNotifyRoute: typeof ApiPublicTelegramNotifyRoute
   ApiPublicTelegramPasswordResetRoute: typeof ApiPublicTelegramPasswordResetRoute
   ProjectsNewWorkerIdRoute: typeof ProjectsNewWorkerIdRoute
@@ -1513,11 +1540,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTelegramNotifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/process-push-queue': {
+      id: '/api/public/process-push-queue'
+      path: '/api/public/process-push-queue'
+      fullPath: '/api/public/process-push-queue'
+      preLoaderRoute: typeof ApiPublicProcessPushQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/fcm-send': {
       id: '/api/public/fcm-send'
       path: '/api/public/fcm-send'
       fullPath: '/api/public/fcm-send'
       preLoaderRoute: typeof ApiPublicFcmSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/expo-send': {
+      id: '/api/public/expo-send'
+      path: '/api/public/expo-send'
+      fullPath: '/api/public/expo-send'
+      preLoaderRoute: typeof ApiPublicExpoSendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/invoke-tool/$tool': {
@@ -1743,7 +1784,9 @@ const rootRouteChildren: RootRouteChildren = {
   SuppliersIndexRoute: SuppliersIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiPublicExpoSendRoute: ApiPublicExpoSendRoute,
   ApiPublicFcmSendRoute: ApiPublicFcmSendRoute,
+  ApiPublicProcessPushQueueRoute: ApiPublicProcessPushQueueRoute,
   ApiPublicTelegramNotifyRoute: ApiPublicTelegramNotifyRoute,
   ApiPublicTelegramPasswordResetRoute: ApiPublicTelegramPasswordResetRoute,
   ProjectsNewWorkerIdRoute: ProjectsNewWorkerIdRoute,

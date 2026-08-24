@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { initPushNotifications } from "@/lib/pushNotifications";
+import { initExpoPushTokenListener } from "@/lib/expoPushToken";
 import type { Session, User } from "@supabase/supabase-js";
 
 interface AuthCtx {
@@ -56,7 +57,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const uid = session?.user?.id ?? null;
-    if (uid) void initPushNotifications(uid);
+    if (uid) {
+      void initPushNotifications(uid);
+      const cleanup = initExpoPushTokenListener(uid);
+      return () => { cleanup(); };
+    }
   }, [session?.user?.id]);
 
 
