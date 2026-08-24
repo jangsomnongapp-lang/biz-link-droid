@@ -569,24 +569,26 @@ function ProfilePage() {
           ) : null
         }
       >
-        <Link
-          to="/find-worker"
-          className="mb-3 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 active:scale-[0.99]"
-        >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
-            +
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-foreground">
-              {lang === "km" ? "ចាប់ផ្តើមគម្រោងជាមួយអ្នកធ្វើការ" : "Start a project with a worker"}
+        {myListings.length > 0 && (
+          <Link
+            to="/find-worker"
+            className="mb-3 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 active:scale-[0.99]"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
+              +
             </div>
-            <div className="text-[11px] text-muted-foreground">
-              {lang === "km"
-                ? "ជ្រើសរើសអ្នកធ្វើការ ហើយផ្ញើសំណើ"
-                : "Pick a worker and send a request"}
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-semibold text-foreground">
+                {lang === "km" ? "ចាប់ផ្តើមគម្រោងជាមួយអ្នកធ្វើការ" : "Start a project with a worker"}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                {lang === "km"
+                  ? "ជ្រើសរើសអ្នកធ្វើការ ហើយផ្ញើសំណើ"
+                  : "Pick a worker and send a request"}
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+        )}
         {myProjects.length === 0 ? (
           <p className="text-sm text-text-hint">
             {lang === "km" ? "មិនទាន់មានគម្រោង" : "No projects yet"}
