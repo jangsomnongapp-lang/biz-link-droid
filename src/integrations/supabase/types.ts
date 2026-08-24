@@ -472,6 +472,7 @@ export type Database = {
           created_at: string
           id: string
           platform: string | null
+          provider: string
           token: string
           updated_at: string
           user_id: string
@@ -480,6 +481,7 @@ export type Database = {
           created_at?: string
           id?: string
           platform?: string | null
+          provider?: string
           token: string
           updated_at?: string
           user_id: string
@@ -488,6 +490,7 @@ export type Database = {
           created_at?: string
           id?: string
           platform?: string | null
+          provider?: string
           token?: string
           updated_at?: string
           user_id?: string
@@ -1648,6 +1651,45 @@ export type Database = {
           status?: string
           updated_at?: string
           worker_id?: string
+        }
+        Relationships: []
+      }
+      push_notification_queue: {
+        Row: {
+          body: string | null
+          created_at: string
+          data: Json | null
+          device_token: string
+          error_message: string | null
+          id: string
+          platform: string | null
+          processed_at: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          data?: Json | null
+          device_token: string
+          error_message?: string | null
+          id?: string
+          platform?: string | null
+          processed_at?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          data?: Json | null
+          device_token?: string
+          error_message?: string | null
+          id?: string
+          platform?: string | null
+          processed_at?: string | null
+          status?: string
+          title?: string
         }
         Relationships: []
       }
