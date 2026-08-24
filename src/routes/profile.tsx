@@ -798,38 +798,42 @@ function ProfilePage() {
           </div>
         </Link>
 
-        <Link
-          to="/listings/new"
-          className="mt-2 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 active:scale-[0.99]"
-        >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
-            +
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-foreground">{t("new_project")}</div>
-            <div className="text-[11px] text-muted-foreground">{t("post_project_hint") !== "post_project_hint" ? t("post_project_hint") : (lang === "km" ? "បង្ហោះការងារដើម្បីស្វែងរកអ្នកជំនាញ" : "Post a project to find specialists")}</div>
-          </div>
-        </Link>
-        <Link
-          to="/find-worker"
-          className="relative mt-2 flex items-center gap-3 rounded-xl p-3 text-white active:scale-[0.99]"
-          style={{ backgroundColor: "#0F6E56" }}
-        >
-          <span className="absolute right-2 top-2 rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold leading-none text-amber-950">
-            NEW
-          </span>
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-base font-bold">
-            ▶
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold">
-              {lang === "km" ? "ចាប់ផ្តើមគម្រោង" : "Start a project"}
-            </div>
-            <div className="text-[11px] text-white/85">
-              {lang === "km" ? "តាមដានការងារ · គ្រប់គ្រងគម្រោងរបស់អ្នក" : "Track work · manage your project"}
-            </div>
-          </div>
-        </Link>
+        {myListings.length > 0 && (
+          <>
+            <Link
+              to="/listings/new"
+              className="mt-2 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3 active:scale-[0.99]"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">
+                +
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-foreground">{t("new_project")}</div>
+                <div className="text-[11px] text-muted-foreground">{t("post_project_hint") !== "post_project_hint" ? t("post_project_hint") : (lang === "km" ? "បង្ហោះការងារដើម្បីស្វែងរកអ្នកជំនាញ" : "Post a project to find specialists")}</div>
+              </div>
+            </Link>
+            <Link
+              to="/find-worker"
+              className="relative mt-2 flex items-center gap-3 rounded-xl p-3 text-white active:scale-[0.99]"
+              style={{ backgroundColor: "#0F6E56" }}
+            >
+              <span className="absolute right-2 top-2 rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold leading-none text-amber-950">
+                NEW
+              </span>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-base font-bold">
+                ▶
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold">
+                  {lang === "km" ? "ចាប់ផ្តើមគម្រោង" : "Start a project"}
+                </div>
+                <div className="text-[11px] text-white/85">
+                  {lang === "km" ? "តាមដានការងារ · គ្រប់គ្រងគម្រោងរបស់អ្នក" : "Track work · manage your project"}
+                </div>
+              </div>
+            </Link>
+          </>
+        )}
         {(() => {
           const hasActive = myListings.some((l) => l.status === "active");
           const isClient = !!profile?.is_client;
