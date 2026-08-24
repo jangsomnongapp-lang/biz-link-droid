@@ -1,0 +1,1 @@
+ALTER FUNCTION public.validate_post_category() SET search_path = public;
