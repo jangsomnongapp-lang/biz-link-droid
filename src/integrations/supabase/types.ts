@@ -2655,6 +2655,7 @@ export type Database = {
       record_invite_join: { Args: { _code: string }; Returns: string }
       resolve_invite_code: { Args: { _code: string }; Returns: string }
       run_lottery_draw: { Args: { _draw_id: string }; Returns: Json }
+      run_push_queue_worker: { Args: never; Returns: undefined }
       start_material_chat: {
         Args: { _request_id: string; _supplier_id: string }
         Returns: string
