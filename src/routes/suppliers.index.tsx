@@ -94,7 +94,7 @@ interface RentalRow {
 }
 
 type Mode = "shops" | "rent";
-type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools";
+type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools" | "space";
 type SortMode = "newest" | "price_low" | "price_high";
 const SORT_OPTIONS: { value: SortMode; en: string; km: string }[] = [
   { value: "newest", en: "Newest", km: "ថ្មីបំផុត" },
@@ -899,12 +899,13 @@ function SuppliersListPage() {
   );
 }
 
-const RENT_CATS: { id: RentCat; key: "filter_all" | "filter_vehicles" | "filter_heavy" | "filter_light" | "filter_tools" }[] = [
+const RENT_CATS: { id: RentCat; key: "filter_all" | "filter_vehicles" | "filter_heavy" | "filter_light" | "filter_tools" | "filter_space" }[] = [
   { id: "all", key: "filter_all" },
   { id: "vehicles", key: "filter_vehicles" },
   { id: "heavy", key: "filter_heavy" },
   { id: "light", key: "filter_light" },
   { id: "tools", key: "filter_tools" },
+  { id: "space", key: "filter_space" },
 ];
 
 type RentSubMode = "for_rent" | "looking_for";
@@ -1139,6 +1140,7 @@ function catLabel(cat: string) {
     case "heavy": return "Heavy";
     case "light": return "Light";
     case "tools": return "Tools";
+    case "space": return "Space & Warehouse";
     default: return cat;
   }
 }
