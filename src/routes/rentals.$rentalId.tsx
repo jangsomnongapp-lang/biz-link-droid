@@ -47,6 +47,7 @@ const CAT_LABELS: Record<string, { km: string; en: string }> = {
   heavy: { km: "គ្រឿងចក្រ", en: "Heavy" },
   light: { km: "ម៉ាស៊ីនស្រាល", en: "Light machinery" },
   tools: { km: "ឧបករណ៍", en: "Tools" },
+  space: { km: "ឃ្លាំង & ទីតាំង", en: "Space & Warehouse" },
 };
 
 function RentalDetailPage() {
