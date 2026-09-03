@@ -64,6 +64,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [session?.user?.id]);
 
+  // Hand the session back to the native app via deep link when a Google login
+  // was initiated from the system browser (see nativeGoogleLogin.ts). The
+  // native wrapper injects this session into the WebView so the user is logged
+  // in there too.
+  useEffect(() => {
+    if (loading || !session) return;
+    const redirectBack = localStorage.getItem("buildhub_oauth_redirect");
+    if (!redirectBack) return;
+    localStorage.removeItem("buildhub_oauth_redirect");
+    const sessionJson = encodeURIComponent(JSON.stringify(session));
+    window.location.href = `${redirectBack}?session=${sessionJson}`;
+  }, [loading, session]);
+
 
 
 

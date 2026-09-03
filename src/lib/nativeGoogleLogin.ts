@@ -82,51 +82,18 @@ export async function loginWithGoogle(navigate: NavigateFn) {
       (window as unknown as { ReactNativeWebView?: { postMessage: (msg: string) => void } }).ReactNativeWebView;
 
     if (isExpoWrapper) {
-      // Ask the native Expo app to handle Google login via system browser
-      return new Promise<void>((resolve, reject) => {
-        const handler = (event: MessageEvent) => {
-          const data = event.data;
-          if (data?.type === "GOOGLE_LOGIN_SUCCESS") {
-            window.removeEventListener("message", handler);
-            clearTimeout(timeout);
-            const idToken = data.payload?.idToken;
-            if (!idToken) {
-              reject(new Error("No ID token received from app"));
-              return;
-            }
-            supabase.auth
-              .signInWithIdToken({
-                provider: "google",
-                token: idToken,
-              })
-              .then(({ error }) => {
-                if (error) reject(error);
-                else {
-                  navigate({ to: "/home" });
-                  resolve();
-                }
-              })
-              .catch(reject);
-          } else if (data?.type === "GOOGLE_LOGIN_ERROR") {
-            window.removeEventListener("message", handler);
-            clearTimeout(timeout);
-            reject(new Error(data.payload?.error || "Google login failed"));
-          }
-        };
-
-        // Set timeout to avoid hanging
-        const timeout = setTimeout(() => {
-          window.removeEventListener("message", handler);
-          reject(new Error("Google login timed out"));
-        }, 120000);
-
-        window.addEventListener("message", handler);
-
-        // Tell the Expo wrapper to start Google login
-        (window as unknown as { ReactNativeWebView: { postMessage: (msg: string) => void } }).ReactNativeWebView.postMessage(
-          JSON.stringify({ type: "GOOGLE_LOGIN" })
-        );
-      });
+      // Google blocks OAuth inside embedded WebViews, so we can't run the
+      // Lovable OAuth broker here. Instead, ask the native wrapper to open the
+      // web app's own login page in the SYSTEM browser. The user logs in there
+      // (Lovable's backend holds the OAuth secret), and the web app hands the
+      // session back to the app via a deep link, which the native wrapper
+      // injects into this WebView.
+      const redirectBack = "buildhubkh://auth/callback";
+      const loginUrl = `${window.location.origin}/login?google=1&redirect=${encodeURIComponent(redirectBack)}`;
+      (window as unknown as { ReactNativeWebView: { postMessage: (msg: string) => void } }).ReactNativeWebView.postMessage(
+        JSON.stringify({ type: "GOOGLE_LOGIN_WEB", payload: { url: loginUrl } })
+      );
+      return;
     }
 
     // In the native Capacitor app, use the native Google Sign-In plugin to avoid WebView blocks.
@@ -182,6 +149,15 @@ export async function loginWithGoogle(navigate: NavigateFn) {
     // click handler. Awaiting other auth calls first can make browsers treat the
     // Google window as non-user-initiated and render it in a blocked frame.
     console.log("[google-login] starting web flow, origin=", window.location.origin);
+
+    // If this login was launched from the native app (system browser), remember
+    // the deep-link redirect target so we can hand the session back to the app
+    // after the OAuth round-trip (which drops the original query string).
+    const redirectParam = new URLSearchParams(window.location.search).get("redirect");
+    if (redirectParam) {
+      localStorage.setItem("buildhub_oauth_redirect", redirectParam);
+    }
+
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });

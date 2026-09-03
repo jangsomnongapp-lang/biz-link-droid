@@ -56,6 +56,16 @@ function LoginPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
 
+  // When opened from the native app's system browser with ?google=1, kick off
+  // Google login immediately so the user doesn't have to tap the button again.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("google") === "1" && !loading && !user) {
+      void signInWithGoogle();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user]);
+
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
