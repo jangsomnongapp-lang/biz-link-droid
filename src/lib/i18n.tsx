@@ -452,6 +452,7 @@ const dict: Dict = {
   filter_heavy: { km: "គ្រឿងចក្រ", en: "Heavy" },
   filter_light: { km: "ម៉ាស៊ីនស្រាល", en: "Light" },
   filter_tools: { km: "ឧបករណ៍", en: "Tools" },
+  filter_space: { km: "ឃ្លាំង", en: "Warehouse" },
   rental_review_notice: {
     km: "ការជួលរបស់អ្នកនឹងត្រូវពិនិត្យមុនបង្ហាញ។",
     en: "Your listing will be reviewed before going live.",
