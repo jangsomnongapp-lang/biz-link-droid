@@ -30,18 +30,24 @@ export const Route = createFileRoute("/rentals/new")({
   ),
 });
 
-type Cat = "vehicles" | "heavy" | "light" | "tools";
+type Cat = "vehicles" | "heavy" | "light" | "tools" | "space";
 
 const CATS: {
   id: Cat;
   icon: typeof Truck;
-  titleKey: "cat_vehicles" | "cat_heavy" | "cat_light_machinery" | "cat_tools";
-  descKey: "cat_vehicles_desc" | "cat_heavy_desc" | "cat_light_desc" | "cat_tools_desc";
+  titleKey: "cat_vehicles" | "cat_heavy" | "cat_light_machinery" | "cat_tools" | "cat_space";
+  descKey:
+    | "cat_vehicles_desc"
+    | "cat_heavy_desc"
+    | "cat_light_desc"
+    | "cat_tools_desc"
+    | "cat_space_desc";
 }[] = [
   { id: "vehicles", icon: Truck, titleKey: "cat_vehicles", descKey: "cat_vehicles_desc" },
   { id: "heavy", icon: HardHat, titleKey: "cat_heavy", descKey: "cat_heavy_desc" },
   { id: "light", icon: Wrench, titleKey: "cat_light_machinery", descKey: "cat_light_desc" },
   { id: "tools", icon: Hammer, titleKey: "cat_tools", descKey: "cat_tools_desc" },
+  { id: "space", icon: Warehouse, titleKey: "cat_space", descKey: "cat_space_desc" },
 ];
 
 function NewRentalPage() {
