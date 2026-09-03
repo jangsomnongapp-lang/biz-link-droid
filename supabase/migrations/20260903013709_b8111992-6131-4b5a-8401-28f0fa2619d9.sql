@@ -1,0 +1,2 @@
+ALTER TABLE public.rental_listings DROP CONSTRAINT IF EXISTS rental_listings_category_check;
+ALTER TABLE public.rental_listings ADD CONSTRAINT rental_listings_category_check CHECK (category = ANY (ARRAY['vehicles'::text, 'heavy'::text, 'light'::text, 'tools'::text, 'space'::text]));

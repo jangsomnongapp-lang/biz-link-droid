@@ -417,6 +417,11 @@ const dict: Dict = {
   cat_heavy_desc: { km: "អេស្កាវ៉ាទ័រ...", en: "Excavators, cranes..." },
   cat_light_desc: { km: "ផ្សារ...", en: "Welders, grinders..." },
   cat_tools_desc: { km: "ឡាស៊ែរ, ញញួរ...", en: "Lasers, hammers..." },
+  cat_space: { km: "ឃ្លាំង & ទីតាំង", en: "Space & Warehouse" },
+  cat_space_desc: {
+    km: "ឃ្លាំង, ទីលានទុកសម្ភារ, ការិយាល័យ...",
+    en: "Warehouses, yards, storage, offices...",
+  },
   per_day: { km: "ក្នុងមួយថ្ងៃ", en: "per day" },
   available_now: { km: "មានឥឡូវនេះ", en: "Available now" },
   available_label: { km: "មាន", en: "Available" },
@@ -447,6 +452,7 @@ const dict: Dict = {
   filter_heavy: { km: "គ្រឿងចក្រ", en: "Heavy" },
   filter_light: { km: "ម៉ាស៊ីនស្រាល", en: "Light" },
   filter_tools: { km: "ឧបករណ៍", en: "Tools" },
+  filter_space: { km: "ឃ្លាំង", en: "Warehouse" },
   rental_review_notice: {
     km: "ការជួលរបស់អ្នកនឹងត្រូវពិនិត្យមុនបង្ហាញ។",
     en: "Your listing will be reviewed before going live.",
