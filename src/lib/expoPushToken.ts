@@ -14,11 +14,24 @@ export function initExpoPushTokenListener(userId: string | null) {
 
   if (!isExpoWrapper) return () => {};
 
-  const handleMessage = async (event: MessageEvent) => {
-    const data = event.data;
+  const handleMessage = async (event: MessageEvent | string) => {
+    // The native wrapper sends the token as a JSON *string* (via
+    // `window.dispatchEvent(new MessageEvent('message', { data: <string> }))`
+    // and `window.handleExpoPushToken(<string>)`). Normalize both shapes here:
+    // a MessageEvent whose `.data` is a string, or a raw string.
+    let data: unknown = typeof event === "string" ? event : event?.data;
+    if (typeof data === "string") {
+      try {
+        data = JSON.parse(data);
+      } catch {
+        return;
+      }
+    }
+    const msg = data as { type?: string; payload?: { token?: string; platform?: string } } | null;
 
     // Check if this is an Expo push token message from the native wrapper
-    if (data?.type === "EXPO_PUSH_TOKEN") {
+    if (msg?.type === "EXPO_PUSH_TOKEN") {
+      const { token, platform } = msg.payload || {};
       const { token, platform } = data.payload || {};
       console.log("[expo-push] Received token from app:", token);
 
