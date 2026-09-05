@@ -24,9 +24,9 @@ export const Route = createFileRoute("/api/public/process-push-queue")({
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
           // Fetch up to 100 pending rows (oldest first)
-          const { data: rows, error } = await supabaseAdmin
+          const { data: candidates, error } = await supabaseAdmin
             .from("push_notification_queue")
-            .select("id, device_token, platform, title, body, data")
+            .select("id")
             .eq("status", "pending")
             .order("created_at", { ascending: true })
             .limit(100);
@@ -36,9 +36,27 @@ export const Route = createFileRoute("/api/public/process-push-queue")({
             return Response.json({ ok: false, error: error.message }, { status: 500 });
           }
 
+          if (!candidates || candidates.length === 0) {
+            return Response.json({ ok: true, processed: 0 });
+          }
+
+          // Atomically claim the rows so overlapping worker runs can't send the same push twice.
+          const { data: rows, error: claimError } = await supabaseAdmin
+            .from("push_notification_queue")
+            .update({ status: "processing" })
+            .in("id", candidates.map((c) => c.id))
+            .eq("status", "pending")
+            .select("id, device_token, platform, title, body, data");
+
+          if (claimError) {
+            console.error("process-push-queue: claim failed", claimError);
+            return Response.json({ ok: false, error: claimError.message }, { status: 500 });
+          }
+
           if (!rows || rows.length === 0) {
             return Response.json({ ok: true, processed: 0 });
           }
+
 
           // Group by token provider using device_tokens table lookup
           const tokens = rows.map((r) => r.device_token);
