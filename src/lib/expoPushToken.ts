@@ -32,7 +32,6 @@ export function initExpoPushTokenListener(userId: string | null) {
     // Check if this is an Expo push token message from the native wrapper
     if (msg?.type === "EXPO_PUSH_TOKEN") {
       const { token, platform } = msg.payload || {};
-      const { token, platform } = data.payload || {};
       console.log("[expo-push] Received token from app:", token);
 
       if (!userId || !token) {
