@@ -51,13 +51,24 @@ function LoginPage() {
     else nav({ to: "/home" });
   };
 
+  // Save the deep-link redirect target EARLY, on page load, before any user
+  // state is known. This is critical for the "already logged in" case: if
+  // Chrome already has a Supabase session, `user` is set immediately and the
+  // Google login flow below never runs — so without this, the redirect target
+  // is never saved and the user gets stuck in Chrome. Saving it here ensures
+  // auth.tsx's handoff always fires.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get("redirect");
+    if (redirect) {
+      localStorage.setItem("buildhub_oauth_redirect", redirect);
+    }
+  }, []);
+
   useEffect(() => {
     if (!loading && user) {
-      // If this login was launched from the native app (system browser), a
-      // pending deep-link handoff is waiting in localStorage. Do NOT navigate
-      // away here — let auth.tsx's handoff redirect back to the app. Otherwise
-      // the fast "already logged in to Google" path navigates to /home before
-      // the handoff fires, and the user stays stuck in Chrome.
+      // If a deep-link handoff is pending, do NOT navigate away — let
+      // auth.tsx redirect back to the app instead.
       if (localStorage.getItem("buildhub_oauth_redirect")) {
         return;
       }
@@ -68,6 +79,8 @@ function LoginPage() {
 
   // When opened from the native app's system browser with ?google=1, kick off
   // Google login immediately so the user doesn't have to tap the button again.
+  // (Only when not already logged in — if already logged in, the handoff above
+  // handles it.)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("google") === "1" && !loading && !user) {
