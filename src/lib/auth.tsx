@@ -64,6 +64,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [session?.user?.id]);
 
+  // Expose a global handler the native wrapper can call to set the session
+  // after a Google login deep link. Using supabase.auth.setSession() (instead
+  // of the wrapper writing localStorage directly) ensures the session is
+  // stored in the exact format Supabase expects (user split into a separate
+  // key, expires_at handling, etc.).
+  useEffect(() => {
+    (window as unknown as Record<string, unknown>).__setBuildHubSession = async (sessionJson: string) => {
+      try {
+        const session = JSON.parse(sessionJson);
+        await supabase.auth.setSession(session);
+      } catch (e) {
+        console.error("[auth] __setBuildHubSession failed", e);
+      }
+    };
+    return () => {
+      delete (window as unknown as Record<string, unknown>).__setBuildHubSession;
+    };
+  }, []);
+
   // Hand the session back to the native app via deep link when a Google login
   // was initiated from the system browser (see nativeGoogleLogin.ts). The
   // native wrapper injects this session into the WebView so the user is logged
