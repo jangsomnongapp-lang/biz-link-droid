@@ -52,7 +52,17 @@ function LoginPage() {
   };
 
   useEffect(() => {
-    if (!loading && user) goNext();
+    if (!loading && user) {
+      // If this login was launched from the native app (system browser), a
+      // pending deep-link handoff is waiting in localStorage. Do NOT navigate
+      // away here — let auth.tsx's handoff redirect back to the app. Otherwise
+      // the fast "already logged in to Google" path navigates to /home before
+      // the handoff fires, and the user stays stuck in Chrome.
+      if (localStorage.getItem("buildhub_oauth_redirect")) {
+        return;
+      }
+      goNext();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
 
