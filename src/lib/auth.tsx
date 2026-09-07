@@ -99,9 +99,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // hand back a session that is actually still valid.
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
-        // Stale session — clear the redirect marker so login.tsx can do a
-        // fresh Google login instead of handing back a dead session.
-        localStorage.removeItem("buildhub_oauth_redirect");
+        // Stale session. Do NOT clear the redirect marker here — login.tsx is
+        // doing a fresh Google login, and once it completes it will set a
+        // valid session that re-triggers this effect. Clearing the marker now
+        // would strand the user in Chrome with no way to hand back the fresh
+        // session.
         return;
       }
       localStorage.removeItem("buildhub_oauth_redirect");

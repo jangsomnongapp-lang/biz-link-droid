@@ -51,12 +51,10 @@ function LoginPage() {
     else nav({ to: "/home" });
   };
 
-  // Save the deep-link redirect target EARLY, on page load, before any user
-  // state is known. This is critical for the "already logged in" case: if
-  // Chrome already has a Supabase session, `user` is set immediately and the
-  // Google login flow below never runs — so without this, the redirect target
-  // is never saved and the user gets stuck in Chrome. Saving it here ensures
-  // auth.tsx's handoff always fires.
+  // Save the deep-link redirect target EARLY, on page load, before the OAuth
+  // round-trip. The OAuth flow redirects to Google and back to the bare origin
+  // (dropping the `redirect` query param), so we must persist it now or the
+  // handoff in auth.tsx will have nothing to redirect to.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get("redirect");
@@ -67,6 +65,10 @@ function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
+      // In forced-login mode (?google=1) we never navigate away — we always
+      // do a fresh Google login and hand the session back to the app.
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("google") === "1") return;
       // If a deep-link handoff is pending, do NOT navigate away — let
       // auth.tsx redirect back to the app instead.
       if (localStorage.getItem("buildhub_oauth_redirect")) {
@@ -77,29 +79,18 @@ function LoginPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
 
-  // When opened from the native app's system browser with ?google=1, kick off
-  // Google login immediately so the user doesn't have to tap the button again.
+  // When opened from the native app's system browser with ?google=1, ALWAYS
+  // force a fresh Google login. Chrome may hold a cached session that was
+  // already revoked by a logout in the app (Chrome and the WebView have
+  // separate localStorage), so trusting it causes a stale-session bounce back
+  // to the app before the user is actually logged in. A fresh OAuth round-trip
+  // is the only reliable way to get a valid session.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("google") !== "1" || loading) return;
-
-    if (user) {
-      // Chrome may have a CACHED session that was already revoked by a logout
-      // in the app (the WebView and Chrome have separate localStorage). If we
-      // blindly hand it back, the app gets a dead session and can't log in.
-      // Validate it against the server first; if it's stale, clear it and do a
-      // fresh Google login.
-      supabase.auth.getUser().then(({ data }) => {
-        if (!data.user) {
-          void supabase.auth.signOut({ scope: "local" }).then(() => signInWithGoogle());
-        }
-        // else: valid session — the handoff effect in auth.tsx will fire.
-      });
-    } else {
-      void signInWithGoogle();
-    }
+    void signInWithGoogle();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user]);
+  }, [loading]);
 
 
   async function submit(e: React.FormEvent) {
