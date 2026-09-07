@@ -9,6 +9,7 @@ import { ArrowLeft, Eye, EyeOff, Check } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { CategoryImage } from "@/components/CategoryImage";
+import { savePendingRegistration } from "@/lib/pending-registration";
 import workerImg from "@/assets/roles/worker.jpg.asset.json";
 import teamLeaderImg from "@/assets/roles/team-leader.jpg.asset.json";
 import companyImg from "@/assets/roles/company.jpg.asset.json";
@@ -96,6 +97,7 @@ function RegisterFlow() {
   const needsCats = roles.is_provider || roles.is_coordinator || roles.is_organization;
 
   async function signInWithGoogle() {
+    savePendingRegistration({ roles, categoryIds: Array.from(selectedCats) });
     await loginWithGoogle(nav);
   }
 
