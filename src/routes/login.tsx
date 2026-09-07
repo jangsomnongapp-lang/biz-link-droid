@@ -79,11 +79,23 @@ function LoginPage() {
 
   // When opened from the native app's system browser with ?google=1, kick off
   // Google login immediately so the user doesn't have to tap the button again.
-  // (Only when not already logged in — if already logged in, the handoff above
-  // handles it.)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("google") === "1" && !loading && !user) {
+    if (params.get("google") !== "1" || loading) return;
+
+    if (user) {
+      // Chrome may have a CACHED session that was already revoked by a logout
+      // in the app (the WebView and Chrome have separate localStorage). If we
+      // blindly hand it back, the app gets a dead session and can't log in.
+      // Validate it against the server first; if it's stale, clear it and do a
+      // fresh Google login.
+      supabase.auth.getUser().then(({ data }) => {
+        if (!data.user) {
+          void supabase.auth.signOut({ scope: "local" }).then(() => signInWithGoogle());
+        }
+        // else: valid session — the handoff effect in auth.tsx will fire.
+      });
+    } else {
       void signInWithGoogle();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
