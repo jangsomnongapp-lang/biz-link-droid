@@ -91,9 +91,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (loading || !session) return;
     const redirectBack = localStorage.getItem("buildhub_oauth_redirect");
     if (!redirectBack) return;
-    localStorage.removeItem("buildhub_oauth_redirect");
-    const sessionJson = encodeURIComponent(JSON.stringify(session));
-    window.location.href = `${redirectBack}?session=${sessionJson}`;
+
+    // Chrome may have a CACHED session that was already revoked by a logout in
+    // the app (Chrome and the WebView have separate localStorage). If we hand
+    // it back without validating, the app gets a dead session and the user is
+    // bounced back still logged out. Validate against the server first; only
+    // hand back a session that is actually still valid.
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        // Stale session — clear the redirect marker so login.tsx can do a
+        // fresh Google login instead of handing back a dead session.
+        localStorage.removeItem("buildhub_oauth_redirect");
+        return;
+      }
+      localStorage.removeItem("buildhub_oauth_redirect");
+      const sessionJson = encodeURIComponent(JSON.stringify(session));
+      window.location.href = `${redirectBack}?session=${sessionJson}`;
+    });
   }, [loading, session]);
 
 
