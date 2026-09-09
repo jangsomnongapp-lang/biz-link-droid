@@ -206,7 +206,7 @@ function RegisterFlow() {
       </div>
 
       {/* Footer buttons */}
-      <div className="sticky bottom-0 flex gap-3 border-t border-border bg-surface px-5 py-4">
+      <div className="sticky bottom-0 z-20 flex gap-3 border-t border-border bg-surface px-5 pt-4 pb-safe-nav shadow-[0_-4px_16px_-8px_rgba(0,0,0,0.15)]">
         {step > 1 && (
           <button
             onClick={() => (step === 3 ? goBackFromStep3() : setStep(1))}
