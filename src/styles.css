@@ -243,3 +243,8 @@
   .tap:active, .tap-soft:active { transform: none; }
 }
 
+
+/* Keep sticky footers clear of the device home/nav bar */
+@utility pb-safe-nav {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
