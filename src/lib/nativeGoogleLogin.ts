@@ -134,6 +134,10 @@ export async function loginWithGoogle(navigate: NavigateFn) {
         });
       };
 
+      // Always clear the cached Google account first so the user gets the
+      // account chooser instead of being signed straight back into the last one.
+      await SocialLogin.logout({ provider: "google" }).catch(() => undefined);
+
       let { error } = await signInOnce();
       if (error) {
         await SocialLogin.logout({ provider: "google" }).catch(() => undefined);
@@ -160,6 +164,8 @@ export async function loginWithGoogle(navigate: NavigateFn) {
 
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
+      // Force the Google account chooser so signing out really means signing out.
+      extraParams: { prompt: "select_account" },
     });
     console.log("[google-login] result", { redirected: result.redirected, hasError: !!result.error });
     if (result.error) throw result.error;
