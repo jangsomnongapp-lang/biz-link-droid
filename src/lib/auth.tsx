@@ -124,6 +124,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         loading,
         signOut: async () => {
+          // Also drop the cached native Google account so the next sign-in
+          // shows the account chooser instead of reusing the same account.
+          try {
+            if ((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) {
+              const { SocialLogin } = await import("@capgo/capacitor-social-login");
+              await SocialLogin.logout({ provider: "google" }).catch(() => undefined);
+            }
+          } catch {
+            // ignore
+          }
           await supabase.auth.signOut();
         },
       }}
