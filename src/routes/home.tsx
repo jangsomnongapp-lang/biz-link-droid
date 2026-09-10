@@ -936,11 +936,13 @@ function HomePage() {
                     className="active:opacity-60"
                   >
                     {supplier.logo_url ? (
-                      <img
-                        src={supplier.logo_url}
-                        alt={supplier.name}
-                        className="h-10 w-10 rounded-lg bg-muted object-cover"
-                      />
+                       <img
+                         src={supplier.logo_url}
+                         alt={supplier.name}
+                         loading="lazy"
+                         decoding="async"
+                         className="h-10 w-10 rounded-lg bg-muted object-cover"
+                       />
                     ) : (
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
                         {supplier.name.slice(0, 2).toUpperCase()}
