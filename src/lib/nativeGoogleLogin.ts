@@ -164,6 +164,8 @@ export async function loginWithGoogle(navigate: NavigateFn) {
 
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
+      // Force the Google account chooser so signing out really means signing out.
+      extraParams: { prompt: "select_account" },
     });
     console.log("[google-login] result", { redirected: result.redirected, hasError: !!result.error });
     if (result.error) throw result.error;
