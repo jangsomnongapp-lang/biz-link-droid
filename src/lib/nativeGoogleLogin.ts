@@ -134,6 +134,10 @@ export async function loginWithGoogle(navigate: NavigateFn) {
         });
       };
 
+      // Always clear the cached Google account first so the user gets the
+      // account chooser instead of being signed straight back into the last one.
+      await SocialLogin.logout({ provider: "google" }).catch(() => undefined);
+
       let { error } = await signInOnce();
       if (error) {
         await SocialLogin.logout({ provider: "google" }).catch(() => undefined);
