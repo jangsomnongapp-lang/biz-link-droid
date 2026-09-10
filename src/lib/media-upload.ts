@@ -13,10 +13,12 @@ function publicUrl(path: string): string {
 }
 
 async function uploadBlob(userId: string, folder: string, blob: Blob): Promise<string> {
-  const path = `${userId}/${folder}/${crypto.randomUUID()}.jpg`;
+  const type = blob.type || "image/jpeg";
+  const ext = type.includes("webp") ? "webp" : type.includes("png") ? "png" : "jpg";
+  const path = `${userId}/${folder}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage
     .from(MEDIA_BUCKET)
-    .upload(path, blob, { contentType: "image/jpeg", cacheControl: "31536000" });
+    .upload(path, blob, { contentType: type, cacheControl: "31536000" });
   if (error) throw error;
   return publicUrl(path);
 }
@@ -29,8 +31,8 @@ export async function uploadImage(
   options: { maxEdge?: number; quality?: number } = {},
 ): Promise<string> {
   const dataUrl = await resizeImageFile(file, {
-    maxEdge: options.maxEdge ?? 1400,
-    quality: options.quality ?? 0.8,
+    maxEdge: options.maxEdge ?? 1280,
+    quality: options.quality ?? 0.78,
   });
   return uploadDataUrl(userId, folder, dataUrl, options);
 }
@@ -44,8 +46,8 @@ export async function uploadDataUrl(
 ): Promise<string> {
   if (!dataUrl.startsWith("data:")) return dataUrl; // already a URL
   const sized = await resizeDataUrl(dataUrl, {
-    maxEdge: options.maxEdge ?? 1400,
-    quality: options.quality ?? 0.8,
+    maxEdge: options.maxEdge ?? 1280,
+    quality: options.quality ?? 0.78,
   });
   const blob = await (await fetch(sized)).blob();
   return uploadBlob(userId, folder, blob);
