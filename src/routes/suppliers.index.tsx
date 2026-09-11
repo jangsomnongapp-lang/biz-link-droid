@@ -115,7 +115,10 @@ function SuppliersListPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
-  const [mode, setMode] = useState<Mode>("shops");
+  const mode: Mode = modeParam ?? "shops";
+  const setMode = (m: Mode) => {
+    void nav({ to: "/suppliers", search: (prev) => ({ ...prev, mode: m }), replace: true });
+  };
   const [search, setSearch] = useState(scannedProduct ?? "");
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [storeCards, setStoreCards] = useState<StoreCardRow[]>([]);
