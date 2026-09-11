@@ -25,8 +25,9 @@ export const Route = createFileRoute("/suppliers/")({
     ],
     links: [{ rel: "canonical", href: "https://buildhubkh.com/suppliers" }],
   }),
-  validateSearch: (params: Record<string, unknown>): { q?: string } => ({
+  validateSearch: (params: Record<string, unknown>): { q?: string; mode?: "shops" | "rent" } => ({
     q: typeof params.q === "string" ? params.q.slice(0, 120) : undefined,
+    mode: params.mode === "rent" ? "rent" : params.mode === "shops" ? "shops" : undefined,
   }),
   component: () => (
     <RequireAuth>
