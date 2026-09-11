@@ -206,8 +206,8 @@ function SearchPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-30 bg-primary px-3 pb-0 pt-3 text-primary-foreground">
-        <div className="flex h-10 items-center gap-2">
+      <header className="pt-safe-top sticky top-0 z-30 bg-primary px-4 pb-1 text-primary-foreground">
+        <div className="flex h-11 items-center gap-2.5">
           <button
             onClick={() => window.history.back()}
             className="rounded-full p-2 active:bg-white/10"
