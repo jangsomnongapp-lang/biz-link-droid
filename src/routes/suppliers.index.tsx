@@ -111,7 +111,7 @@ const POST_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg:
 };
 
 function SuppliersListPage() {
-  const { q: scannedProduct } = Route.useSearch();
+  const { q: scannedProduct, mode: modeParam } = Route.useSearch();
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
