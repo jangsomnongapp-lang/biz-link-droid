@@ -620,7 +620,12 @@ function ConversationPage() {
             <Avatar name={other?.full_name} url={other?.avatar_url} size={36} />
             <div className="flex-1 min-w-0">
               <div className="truncate text-sm font-semibold">{other?.full_name ?? "—"}</div>
-              {otherOnline && <div className="text-[11px] text-white/80">{t("online")}</div>}
+              <div className="flex items-center gap-1 text-[11px] text-white/80">
+                <span
+                  className={`inline-block h-1.5 w-1.5 rounded-full ${otherOnline ? "bg-emerald-400" : "bg-white/40"}`}
+                />
+                {otherOnline ? t("online") : t("offline")}
+              </div>
             </div>
           </Link>
         ) : (
