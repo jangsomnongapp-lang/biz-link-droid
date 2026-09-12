@@ -359,6 +359,18 @@ function HomePage() {
 
   const loading = feedQuery.isLoading;
 
+  // New seed whenever the feed is refreshed (pull-to-refresh / invalidate),
+  // but not when loading additional pages while scrolling.
+  const wasRefetching = useRef(false);
+  useEffect(() => {
+    const refetching = feedQuery.isRefetching && !feedQuery.isFetchingNextPage;
+    if (refetching && !wasRefetching.current) {
+      setShuffleSeed(Math.floor(Math.random() * 1_000_000));
+    }
+    wasRefetching.current = refetching;
+  }, [feedQuery.isRefetching, feedQuery.isFetchingNextPage]);
+
+
   // Sync paginated query data into existing component state (preserves
   // optimistic-update logic for likes/comment counts).
   useEffect(() => {
