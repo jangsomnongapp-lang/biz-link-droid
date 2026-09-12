@@ -160,6 +160,7 @@ function formatMessageDate(iso: string, lang: "km" | "en", todayLabel: string, y
 function ConversationPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
+  const [otherOnline, setOtherOnline] = useState(false);
   const { threadId } = useParams({ from: "/messages/$threadId" });
   const { pin, prefill } = useSearch({ from: "/messages/$threadId" });
   const navigate = useNavigate();
@@ -348,6 +349,30 @@ function ConversationPage() {
       void supabase.removeChannel(channel);
     };
   }, [user, threadId, pin]);
+
+  // Live presence: only show "Online" when the other person actually has the
+  // chat open right now.
+  useEffect(() => {
+    if (!user || !other?.id) return;
+    const otherId = other.id;
+    const ch = supabase.channel(`presence:thread:${threadId}`, {
+      config: { presence: { key: user.id } },
+    });
+    const sync = () => {
+      const state = ch.presenceState() as Record<string, unknown[]>;
+      setOtherOnline(Object.keys(state).includes(otherId));
+    };
+    ch.on("presence", { event: "sync" }, sync)
+      .on("presence", { event: "join" }, sync)
+      .on("presence", { event: "leave" }, sync)
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") void ch.track({ at: Date.now() });
+      });
+    return () => {
+      setOtherOnline(false);
+      void supabase.removeChannel(ch);
+    };
+  }, [user, other?.id, threadId]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -595,7 +620,7 @@ function ConversationPage() {
             <Avatar name={other?.full_name} url={other?.avatar_url} size={36} />
             <div className="flex-1 min-w-0">
               <div className="truncate text-sm font-semibold">{other?.full_name ?? "—"}</div>
-              <div className="text-[11px] text-white/80">{t("online")}</div>
+              {otherOnline && <div className="text-[11px] text-white/80">{t("online")}</div>}
             </div>
           </Link>
         ) : (
@@ -603,7 +628,7 @@ function ConversationPage() {
             <Avatar name={other?.full_name} url={other?.avatar_url} size={36} />
             <div className="flex-1 min-w-0">
               <div className="truncate text-sm font-semibold">{other?.full_name ?? "—"}</div>
-              <div className="text-[11px] text-white/80">{t("online")}</div>
+              {otherOnline && <div className="text-[11px] text-white/80">{t("online")}</div>}
             </div>
           </div>
         )}
