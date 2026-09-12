@@ -101,6 +101,7 @@ function UserProfilePage() {
     { id: string; title: string | null; content: string | null; created_at: string; post_type: string | null; photo: string | null }[]
   >([]);
   const [activeProjects, setActiveProjects] = useState<{ id: string; title: string; location: string | null }[]>([]);
+  const [myPostedCount, setMyPostedCount] = useState(0);
 
   const [checkingSupplier, setCheckingSupplier] = useState(true);
   const [supplierStore, setSupplierStore] = useState<{
