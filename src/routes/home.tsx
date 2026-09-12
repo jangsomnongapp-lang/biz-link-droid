@@ -218,8 +218,13 @@ function HomePage() {
     return () => { cancelled = true; };
   }, [user]);
 
+  // Feed variety: a seed that changes on every pull-to-refresh so the order
+  // feels fresh without losing recency (items are shuffled within small blocks).
+  const [shuffleSeed, setShuffleSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
+
   // Paginated feed: 20 posts + 20 rentals per page, merged client-side
   const PAGE_SIZE = 20;
+
   const feedQuery = useInfiniteQuery({
     queryKey: ["home:feed", user?.id ?? null],
     enabled: !!user,
@@ -353,6 +358,18 @@ function HomePage() {
   });
 
   const loading = feedQuery.isLoading;
+
+  // New seed whenever the feed is refreshed (pull-to-refresh / invalidate),
+  // but not when loading additional pages while scrolling.
+  const wasRefetching = useRef(false);
+  useEffect(() => {
+    const refetching = feedQuery.isRefetching && !feedQuery.isFetchingNextPage;
+    if (refetching && !wasRefetching.current) {
+      setShuffleSeed(Math.floor(Math.random() * 1_000_000));
+    }
+    wasRefetching.current = refetching;
+  }, [feedQuery.isRefetching, feedQuery.isFetchingNextPage]);
+
 
   // Sync paginated query data into existing component state (preserves
   // optimistic-update logic for likes/comment counts).
@@ -780,6 +797,25 @@ function HomePage() {
             ...visiblePosts.map((p) => ({ kind: "post" as const, created_at: p.created_at, data: p })),
             ...visibleRentals.map((r) => ({ kind: "rental" as const, created_at: r.created_at, data: r })),
           ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+          // Shuffle within blocks of 4 so recent content stays near the top
+          // but the exact order varies on each refresh.
+          if (!focused) {
+            const rand = (n: number) => {
+              const x = Math.sin(shuffleSeed * 9301 + n * 49297) * 233280;
+              return x - Math.floor(x);
+            };
+            const BLOCK = 4;
+            for (let start = 0; start < items.length; start += BLOCK) {
+              const block = items.slice(start, start + BLOCK);
+              block
+                .map((it, i) => ({ it, k: rand(start + i) }))
+                .sort((a, b) => a.k - b.k)
+                .forEach(({ it }, i) => {
+                  items[start + i] = it;
+                });
+            }
+          }
+
           return items.map((item) => {
             if (item.kind === "rental") {
               const r = item.data;
