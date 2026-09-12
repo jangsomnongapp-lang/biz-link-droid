@@ -349,6 +349,30 @@ function ConversationPage() {
     };
   }, [user, threadId, pin]);
 
+  // Live presence: only show "Online" when the other person actually has the
+  // chat open right now.
+  useEffect(() => {
+    if (!user || !other?.id) return;
+    const otherId = other.id;
+    const ch = supabase.channel(`presence:thread:${threadId}`, {
+      config: { presence: { key: user.id } },
+    });
+    const sync = () => {
+      const state = ch.presenceState() as Record<string, unknown[]>;
+      setOtherOnline(Object.keys(state).includes(otherId));
+    };
+    ch.on("presence", { event: "sync" }, sync)
+      .on("presence", { event: "join" }, sync)
+      .on("presence", { event: "leave" }, sync)
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") void ch.track({ at: Date.now() });
+      });
+    return () => {
+      setOtherOnline(false);
+      void supabase.removeChannel(ch);
+    };
+  }, [user, other?.id, threadId]);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages]);
