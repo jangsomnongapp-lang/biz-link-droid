@@ -19,7 +19,7 @@ import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus,
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
-import { clearPersistedQueryCache } from "@/lib/query-persist";
+
 
 interface SupplierStoreInfo {
   id: string;
@@ -386,16 +386,14 @@ function HomePage() {
   }, [feedQuery.hasNextPage, feedQuery.isFetchingNextPage, feedQuery]);
 
   // Realtime: invalidate paginated feed when relevant tables change.
-  // Runs for guests too, and drops the persisted offline snapshot so nobody
-  // keeps browsing stale cached posts after new content/updates arrive.
+  // Runs for guests too. Invalidating refetches and the persister rewrites the
+  // offline snapshot automatically, so we never wipe the whole cache here.
   useEffect(() => {
     const uid = user?.id ?? null;
     const inv = () => {
-      void clearPersistedQueryCache();
       void qc.invalidateQueries({ queryKey: ["home:feed", uid] });
     };
     const invStories = () => {
-      void clearPersistedQueryCache();
       void qc.invalidateQueries({ queryKey: ["home:feed", uid] });
       // Re-fetch stories directly since we no longer cache them via useQuery
       if (!user) return;
