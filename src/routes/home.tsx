@@ -218,8 +218,13 @@ function HomePage() {
     return () => { cancelled = true; };
   }, [user]);
 
+  // Feed variety: a seed that changes on every pull-to-refresh so the order
+  // feels fresh without losing recency (items are shuffled within small blocks).
+  const [shuffleSeed, setShuffleSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
+
   // Paginated feed: 20 posts + 20 rentals per page, merged client-side
   const PAGE_SIZE = 20;
+
   const feedQuery = useInfiniteQuery({
     queryKey: ["home:feed", user?.id ?? null],
     enabled: !!user,
