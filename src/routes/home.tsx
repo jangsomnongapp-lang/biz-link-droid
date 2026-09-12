@@ -797,6 +797,25 @@ function HomePage() {
             ...visiblePosts.map((p) => ({ kind: "post" as const, created_at: p.created_at, data: p })),
             ...visibleRentals.map((r) => ({ kind: "rental" as const, created_at: r.created_at, data: r })),
           ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+          // Shuffle within blocks of 4 so recent content stays near the top
+          // but the exact order varies on each refresh.
+          if (!focused) {
+            const rand = (n: number) => {
+              const x = Math.sin(shuffleSeed * 9301 + n * 49297) * 233280;
+              return x - Math.floor(x);
+            };
+            const BLOCK = 4;
+            for (let start = 0; start < items.length; start += BLOCK) {
+              const block = items.slice(start, start + BLOCK);
+              block
+                .map((it, i) => ({ it, k: rand(start + i) }))
+                .sort((a, b) => a.k - b.k)
+                .forEach(({ it }, i) => {
+                  items[start + i] = it;
+                });
+            }
+          }
+
           return items.map((item) => {
             if (item.kind === "rental") {
               const r = item.data;
