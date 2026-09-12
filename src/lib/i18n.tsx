@@ -135,6 +135,7 @@ const dict: Dict = {
   no_more_messages: { km: "គ្មានសារទៀត", en: "No more messages" },
   no_messages_yet: { km: "មិនទាន់មានសារ", en: "No messages yet" },
   online: { km: "កំពុងភ្ជាប់", en: "Online" },
+  offline: { km: "គ្មានអុនឡាញ", en: "Offline" },
   write_message: { km: "សរសេរសារ...", en: "Write a message..." },
   today: { km: "ថ្ងៃនេះ", en: "Today" },
   yesterday: { km: "ម្សិលមិញ", en: "Yesterday" },
