@@ -19,7 +19,7 @@ import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus,
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
-import { clearPersistedQueryCache } from "@/lib/query-persist";
+
 
 interface SupplierStoreInfo {
   id: string;
