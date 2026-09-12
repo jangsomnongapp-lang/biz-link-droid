@@ -518,13 +518,15 @@ function UserProfilePage() {
 
       {!isSelf && (
         <div className="sticky bottom-0 space-y-2 border-t border-border bg-surface p-3">
-          <Link
-            to="/projects/new/$workerId"
-            params={{ workerId: profile.id }}
-            className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]"
-          >
-            {lang === "km" ? "ចាប់ផ្តើមគម្រោង" : "Start a project"}
-          </Link>
+          {myPostedCount > 0 && (
+            <Link
+              to="/projects/new/$workerId"
+              params={{ workerId: profile.id }}
+              className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]"
+            >
+              {lang === "km" ? "ចាប់ផ្តើមគម្រោង" : "Start a project"}
+            </Link>
+          )}
           <button
             onClick={startConversation}
             disabled={contacting}
