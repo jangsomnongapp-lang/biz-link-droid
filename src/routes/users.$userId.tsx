@@ -210,6 +210,15 @@ function UserProfilePage() {
     })();
   }, [userId]);
 
+  useEffect(() => {
+    if (!user?.id) return setMyPostedCount(0);
+    void supabase
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .then(({ count }) => setMyPostedCount(count ?? 0));
+  }, [user?.id]);
+
   async function startConversation() {
     if (!user || !profile) return;
     if (user.id === profile.id) return;
