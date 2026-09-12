@@ -160,6 +160,7 @@ function formatMessageDate(iso: string, lang: "km" | "en", todayLabel: string, y
 function ConversationPage() {
   const { t, lang } = useI18n();
   const { user } = useAuth();
+  const [otherOnline, setOtherOnline] = useState(false);
   const { threadId } = useParams({ from: "/messages/$threadId" });
   const { pin, prefill } = useSearch({ from: "/messages/$threadId" });
   const navigate = useNavigate();
