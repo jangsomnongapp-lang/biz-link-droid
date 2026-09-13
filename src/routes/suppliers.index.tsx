@@ -196,9 +196,11 @@ function SuppliersListPage() {
       .then(({ count }) => setIsSupplier((count ?? 0) > 0));
   }, [user]);
 
-  useEffect(() => {
-    void (async () => {
-      setLoading(true);
+  const { data: feed, isLoading: loading } = useQuery({
+    queryKey: ["suppliers:feed", scannedProduct ?? null],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+
 
       let postsQuery = supabase
         .from("posts")
