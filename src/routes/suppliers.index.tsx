@@ -947,23 +947,20 @@ function RentMode({
 }) {
   void lang;
   const [subMode, setSubMode] = useState<RentSubMode>("for_rent");
-  const [requests, setRequests] = useState<RentalRequestRow[]>([]);
-  const [loadingReq, setLoadingReq] = useState(false);
-
-  useEffect(() => {
-    if (subMode !== "looking_for") return;
-    setLoadingReq(true);
-    void supabase
-      .from("rental_requests")
-      .select("id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, profiles(full_name, avatar_url)")
-      .eq("status", "approved")
-      .order("created_at", { ascending: false })
-      .limit(40)
-      .then(({ data }) => {
-        setRequests((data as RentalRequestRow[] | null) ?? []);
-        setLoadingReq(false);
-      });
-  }, [subMode]);
+  const { data: requests = [], isLoading: loadingReq } = useQuery({
+    queryKey: ["suppliers:rental-requests"],
+    enabled: subMode === "looking_for",
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("rental_requests")
+        .select("id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, profiles(full_name, avatar_url)")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(40);
+      return (data as RentalRequestRow[] | null) ?? [];
+    },
+  });
 
   const filteredRequests = requests.filter((r) => {
     if (rentCat !== "all" && r.category !== rentCat) return false;
