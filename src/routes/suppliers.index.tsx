@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, MessageCircle, SlidersHorizontal, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -120,16 +121,11 @@ function SuppliersListPage() {
     void nav({ to: "/suppliers", search: (prev) => ({ ...prev, mode: m }), replace: true });
   };
   const [search, setSearch] = useState(scannedProduct ?? "");
-  const [products, setProducts] = useState<ProductRow[]>([]);
-  const [storeCards, setStoreCards] = useState<StoreCardRow[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
   const [categories, setCategories] = useState<SupplierCategory[]>([]);
   const [contactingId, setContactingId] = useState<string | null>(null);
   // rent
-  const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
-  const [loadingRent, setLoadingRent] = useState(true);
   // Filter state
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState({ location: "", categoryId: "", typeId: "", minPrice: "", maxPrice: "", sort: "newest" as SortMode });
@@ -196,9 +192,11 @@ function SuppliersListPage() {
       .then(({ count }) => setIsSupplier((count ?? 0) > 0));
   }, [user]);
 
-  useEffect(() => {
-    void (async () => {
-      setLoading(true);
+  const { data: feed, isLoading: loading } = useQuery({
+    queryKey: ["suppliers:feed", scannedProduct ?? null],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+
 
       let postsQuery = supabase
         .from("posts")
@@ -351,26 +349,27 @@ function SuppliersListPage() {
       const list = [...postRows, ...catalogRows].sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
-      setProducts(list);
-      setStoreCards(storeList);
-      setLoading(false);
-    })();
-  }, [scannedProduct]);
+      return { products: list, stores: storeList };
+    },
+  });
 
-  useEffect(() => {
-    if (mode !== "rent") return;
-    setLoadingRent(true);
-    void supabase
-      .from("rental_listings")
-      .select("id, user_id, title, description, category, price_per_day, location, availability, available_from, profiles(full_name, avatar_url), rental_photos(photo_url)")
-      .eq("status", "approved")
-      .order("created_at", { ascending: false })
-      .limit(40)
-      .then(({ data }) => {
-        setRentals((data as RentalRow[] | null) ?? []);
-        setLoadingRent(false);
-      });
-  }, [mode]);
+  const products = feed?.products ?? [];
+  const storeCards = feed?.stores ?? [];
+
+  const { data: rentals = [], isLoading: loadingRent } = useQuery({
+    queryKey: ["suppliers:rentals"],
+    enabled: mode === "rent",
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("rental_listings")
+        .select("id, user_id, title, description, category, price_per_day, location, availability, available_from, profiles(full_name, avatar_url), rental_photos(photo_url)")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(40);
+      return (data as RentalRow[] | null) ?? [];
+    },
+  });
 
   const q = search.toLowerCase();
 
@@ -948,23 +947,20 @@ function RentMode({
 }) {
   void lang;
   const [subMode, setSubMode] = useState<RentSubMode>("for_rent");
-  const [requests, setRequests] = useState<RentalRequestRow[]>([]);
-  const [loadingReq, setLoadingReq] = useState(false);
-
-  useEffect(() => {
-    if (subMode !== "looking_for") return;
-    setLoadingReq(true);
-    void supabase
-      .from("rental_requests")
-      .select("id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, profiles(full_name, avatar_url)")
-      .eq("status", "approved")
-      .order("created_at", { ascending: false })
-      .limit(40)
-      .then(({ data }) => {
-        setRequests((data as RentalRequestRow[] | null) ?? []);
-        setLoadingReq(false);
-      });
-  }, [subMode]);
+  const { data: requests = [], isLoading: loadingReq } = useQuery({
+    queryKey: ["suppliers:rental-requests"],
+    enabled: subMode === "looking_for",
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("rental_requests")
+        .select("id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, profiles(full_name, avatar_url)")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(40);
+      return (data as RentalRequestRow[] | null) ?? [];
+    },
+  });
 
   const filteredRequests = requests.filter((r) => {
     if (rentCat !== "all" && r.category !== rentCat) return false;
