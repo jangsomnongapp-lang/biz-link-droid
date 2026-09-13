@@ -7,6 +7,9 @@ import { Home, Newspaper, Bell, User, Menu, Search, MessageCircle, Store } from 
 import { useEffect, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
+// Remembers where the user was on each page so going back lands in the same spot.
+const scrollMemory = new Map<string, number>();
+
 function UnreadBadge({ count }: { count: number }) {
   if (!count) return null;
   return (
@@ -26,8 +29,35 @@ export function AppShell({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
 
   async function handleRefresh() {
-    await qc.invalidateQueries();
+    // Only refresh what is on screen right now — other pages keep their data.
+    await qc.invalidateQueries({ type: "active" });
   }
+
+  // Save the position while scrolling, and put it back when returning to a page.
+  useEffect(() => {
+    const key = path;
+    let raf = 0;
+    let tries = 0;
+    const target = scrollMemory.get(key) ?? 0;
+    const restore = () => {
+      window.scrollTo(0, target);
+      tries += 1;
+      if (tries < 20 && Math.abs(window.scrollY - target) > 2) {
+        raf = requestAnimationFrame(restore);
+      }
+    };
+    if (target > 0) raf = requestAnimationFrame(restore);
+
+    const onScroll = () => {
+      scrollMemory.set(key, window.scrollY);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [path]);
+
 
   useEffect(() => {
     if (!user) {
@@ -156,7 +186,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <main className="flex-1 pb-4">
         <PullToRefresh onRefresh={handleRefresh}>
-          <div key={path} className="ios-page">
+          <div className="ios-page">
             {children}
           </div>
         </PullToRefresh>
