@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
+import { useBackClose } from "@/hooks/useBackClose";
 import { toast } from "sonner";
 
 interface CommentRow {
@@ -41,6 +42,8 @@ export function CommentsSheet({
   const [replyTo, setReplyTo] = useState<CommentRow | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+
+  useBackClose(onClose);
 
   async function deleteComment(id: string) {
     if (!confirm(t("delete_confirm_desc"))) return;
