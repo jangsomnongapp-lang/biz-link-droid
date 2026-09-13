@@ -120,16 +120,11 @@ function SuppliersListPage() {
     void nav({ to: "/suppliers", search: (prev) => ({ ...prev, mode: m }), replace: true });
   };
   const [search, setSearch] = useState(scannedProduct ?? "");
-  const [products, setProducts] = useState<ProductRow[]>([]);
-  const [storeCards, setStoreCards] = useState<StoreCardRow[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isSupplier, setIsSupplier] = useState(false);
   const [categories, setCategories] = useState<SupplierCategory[]>([]);
   const [contactingId, setContactingId] = useState<string | null>(null);
   // rent
-  const [rentals, setRentals] = useState<RentalRow[]>([]);
   const [rentCat, setRentCat] = useState<RentCat>("all");
-  const [loadingRent, setLoadingRent] = useState(true);
   // Filter state
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState({ location: "", categoryId: "", typeId: "", minPrice: "", maxPrice: "", sort: "newest" as SortMode });
