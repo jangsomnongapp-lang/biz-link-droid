@@ -43,6 +43,8 @@ export function CommentsSheet({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
 
+  useBackClose(onClose);
+
   async function deleteComment(id: string) {
     if (!confirm(t("delete_confirm_desc"))) return;
     const { error } = await supabase.from("post_comments").delete().eq("id", id);
