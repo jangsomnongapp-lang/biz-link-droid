@@ -7,6 +7,9 @@ import { Home, Newspaper, Bell, User, Menu, Search, MessageCircle, Store } from 
 import { useEffect, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
+// Remembers where the user was on each page so going back lands in the same spot.
+const scrollMemory = new Map<string, number>();
+
 function UnreadBadge({ count }: { count: number }) {
   if (!count) return null;
   return (
