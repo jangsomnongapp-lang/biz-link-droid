@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
+import { useBackClose } from "@/hooks/useBackClose";
 import { toast } from "sonner";
 
 interface CommentRow {
