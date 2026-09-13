@@ -186,7 +186,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <main className="flex-1 pb-4">
         <PullToRefresh onRefresh={handleRefresh}>
-          <div key={path} className="ios-page">
+          <div className="ios-page">
             {children}
           </div>
         </PullToRefresh>
