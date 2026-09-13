@@ -351,26 +351,27 @@ function SuppliersListPage() {
       const list = [...postRows, ...catalogRows].sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
-      setProducts(list);
-      setStoreCards(storeList);
-      setLoading(false);
-    })();
-  }, [scannedProduct]);
+      return { products: list, stores: storeList };
+    },
+  });
 
-  useEffect(() => {
-    if (mode !== "rent") return;
-    setLoadingRent(true);
-    void supabase
-      .from("rental_listings")
-      .select("id, user_id, title, description, category, price_per_day, location, availability, available_from, profiles(full_name, avatar_url), rental_photos(photo_url)")
-      .eq("status", "approved")
-      .order("created_at", { ascending: false })
-      .limit(40)
-      .then(({ data }) => {
-        setRentals((data as RentalRow[] | null) ?? []);
-        setLoadingRent(false);
-      });
-  }, [mode]);
+  const products = feed?.products ?? [];
+  const storeCards = feed?.stores ?? [];
+
+  const { data: rentals = [], isLoading: loadingRent } = useQuery({
+    queryKey: ["suppliers:rentals"],
+    enabled: mode === "rent",
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("rental_listings")
+        .select("id, user_id, title, description, category, price_per_day, location, availability, available_from, profiles(full_name, avatar_url), rental_photos(photo_url)")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(40);
+      return (data as RentalRow[] | null) ?? [];
+    },
+  });
 
   const q = search.toLowerCase();
 
