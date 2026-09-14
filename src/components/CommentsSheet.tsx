@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
 import { useBackClose } from "@/hooks/useBackClose";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { toast } from "sonner";
 
 interface CommentRow {
@@ -42,11 +43,12 @@ export function CommentsSheet({
   const [replyTo, setReplyTo] = useState<CommentRow | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useBackClose(onClose);
 
   async function deleteComment(id: string) {
-    if (!confirm(t("delete_confirm_desc"))) return;
+    setDeleteId(null);
     const { error } = await supabase.from("post_comments").delete().eq("id", id);
     if (error) {
       toast.error(t("delete_failed"));
@@ -256,7 +258,7 @@ export function CommentsSheet({
                   <Pencil className="h-3 w-3" /> {t("edit")}
                 </button>
                 <button
-                  onClick={() => void deleteComment(c.id)}
+                  onClick={() => setDeleteId(c.id)}
                   className="flex items-center gap-0.5 font-medium text-destructive active:opacity-60"
                 >
                   <Trash2 className="h-3 w-3" /> {t("delete")}
@@ -340,6 +342,16 @@ export function CommentsSheet({
             <Send className="h-4 w-4" />
           </button>
         </div>
+
+        <ConfirmDialog
+          open={deleteId !== null}
+          title={t("delete")}
+          description={t("delete_confirm_desc")}
+          confirmLabel={t("delete")}
+          destructive
+          onConfirm={() => deleteId && deleteComment(deleteId)}
+          onCancel={() => setDeleteId(null)}
+        />
       </div>
     </div>
   );
