@@ -349,7 +349,9 @@ export function CommentsSheet({
           description={t("delete_confirm_desc")}
           confirmLabel={t("delete")}
           destructive
-          onConfirm={() => deleteId && deleteComment(deleteId)}
+          onConfirm={() => {
+            if (deleteId) void deleteComment(deleteId);
+          }}
           onCancel={() => setDeleteId(null)}
         />
       </div>
