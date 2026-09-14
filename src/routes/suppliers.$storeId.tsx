@@ -162,7 +162,7 @@ function SupplierProfilePage() {
       setStore(s ?? null);
       if (!s) return;
 
-      const [{ data: scs }, { data: ph }, { count }, { data: pp }, { count: catCount }] = await Promise.all([
+      const [{ data: scs }, { data: ph }, { count }, { data: pp }, { count: catCount }, { data: prodPosts }] = await Promise.all([
         supabase
           .from("supplier_store_categories")
           .select("supplier_categories(id, name_en, name_km)")
@@ -188,8 +188,18 @@ function SupplierProfilePage() {
           .from("supplier_catalog_items")
           .select("id", { count: "exact", head: true })
           .eq("store_id", storeId),
+        supabase
+          .from("posts")
+          .select("id, title, price, category")
+          .eq("user_id", s.user_id)
+          .eq("status", "approved")
+          .limit(500),
       ]);
-      setCatalogCount(catCount ?? 0);
+      const productPostCount = (
+        (prodPosts ?? []) as Array<{ title: string | null; price: number | null; category: string | null }>
+      ).filter((p) => p.title || p.price != null || p.category).length;
+      setCatalogCount((catCount ?? 0) + productPostCount);
+
 
 
       setCats(
