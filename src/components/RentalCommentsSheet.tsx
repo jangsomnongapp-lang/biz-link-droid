@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { X, Send, Heart, CornerDownRight, Pencil, Trash2, Check } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
@@ -48,6 +48,12 @@ export function RentalCommentsSheet({
 
   useBackClose(onClose);
 
+  // Keep a stable reference so the loader effect doesn't re-run when the
+  // parent re-renders with a new inline callback identity.
+  const onCountChangeRef = useRef(onCountChange);
+  onCountChangeRef.current = onCountChange;
+  const userId = user?.id ?? null;
+
   async function deleteComment(id: string) {
     setDeleteId(null);
     const { error } = await supabase.from("rental_comments").delete().eq("id", id);
@@ -84,7 +90,7 @@ export function RentalCommentsSheet({
         .order("created_at", { ascending: true });
       const rows = (data as CommentRow[] | null) ?? [];
       setItems(rows);
-      onCountChange?.(rows.length);
+      onCountChangeRef.current?.(rows.length);
       setLoading(false);
 
       if (rows.length > 0) {
@@ -99,12 +105,12 @@ export function RentalCommentsSheet({
           const e = map[r.comment_id];
           if (!e) continue;
           e.count += 1;
-          if (user && r.user_id === user.id) e.mine = true;
+          if (userId && r.user_id === userId) e.mine = true;
         }
         setLikes(map);
       }
     })();
-  }, [rentalId, user, onCountChange]);
+  }, [rentalId, userId]);
 
   const { tops, repliesByParent } = useMemo(() => {
     const tops: CommentRow[] = [];
