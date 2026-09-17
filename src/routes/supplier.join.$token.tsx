@@ -156,7 +156,7 @@ function SupplierJoinPage() {
         phoneFmt = `+855${phone.replace(/\D/g, "")}`;
         const { data, error } = await supabase.auth.signUp({
           email,
-          password: normalizePassword(password),
+          password: pwd,
           options: {
             emailRedirectTo: `${window.location.origin}/home`,
             data: {
@@ -171,6 +171,21 @@ function SupplierJoinPage() {
         const newId = data.user?.id;
         if (!newId) throw new Error("Signup failed");
         userId = newId;
+
+        // Make sure we have an active session before touching supplier tables —
+        // RLS requires an authenticated user with is_supplier = true.
+        if (!data.session) {
+          const { error: signInErr } = await supabase.auth.signInWithPassword({
+            email,
+            password: pwd,
+          });
+          if (signInErr) throw signInErr;
+        }
+
+        // Consume the invite BEFORE inserting the store: the RPC flips
+        // profiles.is_supplier = true, which the insert policy requires.
+        const { error: invErr } = await supabase.rpc("consume_supplier_invite", { _token: token });
+        if (invErr) throw invErr;
       }
 
 
@@ -203,10 +218,8 @@ function SupplierJoinPage() {
           productPhotos.map((url, i) => ({ store_id: storeId, photo_url: url, sort_order: i })),
         );
       }
-      // For new signups, consume the invite now (logged-in users already did above)
-      if (!isLoggedIn) {
-        await supabase.rpc("consume_supplier_invite", { _token: token });
-      }
+
+
 
       toast.success(lang === "km" ? "បានបញ្ជូន!" : "Submitted!");
       nav({ to: "/home" });
