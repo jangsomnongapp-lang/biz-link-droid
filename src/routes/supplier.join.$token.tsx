@@ -152,6 +152,7 @@ function SupplierJoinPage() {
         if (invErr) throw invErr;
       } else {
         const email = phoneToEmail(phone);
+        const pwd = normalizePassword(password);
         phoneFmt = `+855${phone.replace(/\D/g, "")}`;
         const { data, error } = await supabase.auth.signUp({
           email,
