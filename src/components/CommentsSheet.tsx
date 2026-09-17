@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { X, Send, Heart, CornerDownRight, Pencil, Trash2, Check } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
@@ -47,6 +47,12 @@ export function CommentsSheet({
 
   useBackClose(onClose);
 
+  // Keep a stable reference so the loader effect doesn't re-run when the
+  // parent re-renders with a new inline callback identity.
+  const onCountChangeRef = useRef(onCountChange);
+  onCountChangeRef.current = onCountChange;
+  const userId = user?.id ?? null;
+
   async function deleteComment(id: string) {
     setDeleteId(null);
     const { error } = await supabase.from("post_comments").delete().eq("id", id);
@@ -83,7 +89,7 @@ export function CommentsSheet({
         .order("created_at", { ascending: true });
       const rows = (data as CommentRow[] | null) ?? [];
       setItems(rows);
-      onCountChange?.(rows.length);
+      onCountChangeRef.current?.(rows.length);
       setLoading(false);
 
       if (rows.length > 0) {
@@ -98,12 +104,12 @@ export function CommentsSheet({
           const e = map[r.comment_id];
           if (!e) continue;
           e.count += 1;
-          if (user && r.user_id === user.id) e.mine = true;
+          if (userId && r.user_id === userId) e.mine = true;
         }
         setLikes(map);
       }
     })();
-  }, [postId, user, onCountChange]);
+  }, [postId, userId]);
 
   // Group: top-level + map of replies by parent_id
   const { tops, repliesByParent } = useMemo(() => {
