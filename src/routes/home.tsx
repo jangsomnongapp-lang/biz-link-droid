@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
@@ -119,7 +119,7 @@ function HomePage() {
   // Viewer state: photos array is stable; current index lives in a ref so scroll
   // never triggers React re-renders (which cause jank). Display index is updated
   // only after scroll ends or when arrows are clicked.
-  const [viewer, setViewer] = useState<{ photos: string[]; index: number } | null>(null);
+  const [viewer, setViewer] = useState<{ items: ViewerMedia[]; index: number } | null>(null);
   const viewerScrollRef = useRef<HTMLDivElement | null>(null);
   const viewerIndexRef = useRef(0);
   const [viewerDisplayIndex, setViewerDisplayIndex] = useState(0);
@@ -132,7 +132,7 @@ function HomePage() {
       viewerIndexRef.current = viewer.index;
       setViewerDisplayIndex(viewer.index);
     }
-  }, [viewer?.photos, viewer?.index]);
+  }, [viewer?.items, viewer?.index]);
 
   // Scroll to the correct slide when viewer opens (no smooth here – instant)
   useEffect(() => {
@@ -141,7 +141,7 @@ function HomePage() {
     if (!el) return;
     el.scrollTo({ left: viewer.index * el.clientWidth });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewer?.photos]);
+  }, [viewer?.items]);
 
   // Update display index on scroll end (native event, no re-renders during swipe)
   useEffect(() => {
@@ -1031,39 +1031,63 @@ function HomePage() {
                 )}
               </header>
               {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
-              {p.post_photos.length > 0 && (
-                <div className={`mt-3 grid gap-2 ${p.post_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                  {p.post_photos.slice(0, 4).map((ph, i) => {
-                    const total = p.post_photos.length;
-                    const extra = i === 3 && total > 4 ? total - 4 : 0;
-                    return (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() =>
-                          setViewer({ photos: p.post_photos.map((x) => x.photo_url), index: i })
-                        }
-                        className={`relative block w-full overflow-hidden rounded-lg bg-muted ${total === 1 ? "" : "aspect-square"}`}
-                      >
-                        <img
-                          src={ph.photo_url}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-full w-full object-cover brightness-90"
-                          alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
-                        />
-                        {extra > 0 && (
-                          <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
-                            +{extra}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+              {(() => {
+                const directVideo =
+                  p.video_url && isDirectVideoUrl(p.video_url) ? p.video_url : null;
+                const media: ViewerMedia[] = [
+                  ...p.post_photos.map((ph) => ({ type: "photo" as const, url: ph.photo_url })),
+                  ...(directVideo ? [{ type: "video" as const, url: directVideo }] : []),
+                ];
+                if (media.length === 0) return null;
+                const total = media.length;
+                return (
+                  <div className={`mt-3 grid gap-2 ${total === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+                    {media.slice(0, 4).map((m, i) => {
+                      const extra = i === 3 && total > 4 ? total - 4 : 0;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setViewer({ items: media, index: i })}
+                          className={`relative block w-full overflow-hidden rounded-lg bg-black ${total === 1 ? "" : "aspect-square"}`}
+                        >
+                          {m.type === "photo" ? (
+                            <img
+                              src={m.url}
+                              loading="lazy"
+                              decoding="async"
+                              className="h-full w-full object-cover brightness-90"
+                              alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
+                            />
+                          ) : (
+                            <>
+                              <video
+                                src={m.url}
+                                muted
+                                playsInline
+                                preload="metadata"
+                                className="pointer-events-none h-full w-full object-cover brightness-90"
+                              />
+                              <span className="absolute inset-0 flex items-center justify-center">
+                                <span className="rounded-full bg-black/60 p-3">
+                                  <Play className="h-6 w-6 fill-white text-white" />
+                                </span>
+                              </span>
+                            </>
+                          )}
+                          {extra > 0 && (
+                            <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
+                              +{extra}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
 
-              {p.video_url && <VideoEmbed url={p.video_url} />}
+              {p.video_url && !isDirectVideoUrl(p.video_url) && <VideoEmbed url={p.video_url} />}
 
               {isSupplierLike && !isOwner && (
                 <button
