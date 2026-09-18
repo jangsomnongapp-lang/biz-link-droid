@@ -22,6 +22,58 @@ import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
 
 type ViewerMedia = { type: "photo" | "video"; url: string };
 
+/** Video tile in the mixed-media grid: preloads ahead, autoplays muted while visible. */
+function AutoplayVideoTile({ url }: { url: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [near, setNear] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const preloader = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setNear(true);
+          preloader.disconnect();
+        }
+      },
+      { rootMargin: "600px 0px" },
+    );
+    preloader.observe(el);
+    const player = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) void el.play().catch(() => undefined);
+          else el.pause();
+        }
+      },
+      { threshold: 0.5 },
+    );
+    player.observe(el);
+    return () => {
+      preloader.disconnect();
+      player.disconnect();
+    };
+  }, []);
+
+  return (
+    <>
+      <video
+        ref={ref}
+        src={url}
+        muted
+        loop
+        playsInline
+        preload={near ? "auto" : "metadata"}
+        className="pointer-events-none h-full w-full object-cover brightness-90"
+      />
+      <span className="absolute right-2 top-2 rounded-full bg-black/60 p-2">
+        <Play className="h-3 w-3 fill-white text-white" />
+      </span>
+    </>
+  );
+}
+
 
 interface SupplierStoreInfo {
   id: string;
@@ -1037,8 +1089,8 @@ function HomePage() {
                 const directVideo =
                   p.video_url && isDirectVideoUrl(p.video_url) ? p.video_url : null;
                 const media: ViewerMedia[] = [
-                  ...p.post_photos.map((ph) => ({ type: "photo" as const, url: ph.photo_url })),
                   ...(directVideo ? [{ type: "video" as const, url: directVideo }] : []),
+                  ...p.post_photos.map((ph) => ({ type: "photo" as const, url: ph.photo_url })),
                 ];
                 if (media.length === 0) return null;
                 const total = media.length;
@@ -1062,20 +1114,7 @@ function HomePage() {
                               alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
                             />
                           ) : (
-                            <>
-                              <video
-                                src={m.url}
-                                muted
-                                playsInline
-                                preload="metadata"
-                                className="pointer-events-none h-full w-full object-cover brightness-90"
-                              />
-                              <span className="absolute inset-0 flex items-center justify-center">
-                                <span className="rounded-full bg-black/60 p-3">
-                                  <Play className="h-6 w-6 fill-white text-white" />
-                                </span>
-                              </span>
-                            </>
+                            <AutoplayVideoTile url={m.url} />
                           )}
                           {extra > 0 && (
                             <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
