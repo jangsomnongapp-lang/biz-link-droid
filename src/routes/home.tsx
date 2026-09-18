@@ -1114,20 +1114,7 @@ function HomePage() {
                               alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
                             />
                           ) : (
-                            <>
-                              <video
-                                src={m.url}
-                                muted
-                                playsInline
-                                preload="metadata"
-                                className="pointer-events-none h-full w-full object-cover brightness-90"
-                              />
-                              <span className="absolute inset-0 flex items-center justify-center">
-                                <span className="rounded-full bg-black/60 p-3">
-                                  <Play className="h-6 w-6 fill-white text-white" />
-                                </span>
-                              </span>
-                            </>
+                            <AutoplayVideoTile url={m.url} />
                           )}
                           {extra > 0 && (
                             <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
