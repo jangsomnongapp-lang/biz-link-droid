@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
 
+type ViewerMedia = { type: "photo" | "video"; url: string };
+
 
 interface SupplierStoreInfo {
   id: string;
@@ -1222,7 +1224,7 @@ function HomePage() {
             {/* Top bar */}
             <div className="flex h-14 shrink-0 items-center justify-between px-4 text-white">
               <span className="text-sm font-semibold tabular-nums">
-                {viewerDisplayIndex + 1} / {viewer.photos.length}
+                {viewerDisplayIndex + 1} / {viewer.items.length}
               </span>
               <button
                 onClick={() => setViewer(null)}
@@ -1238,7 +1240,7 @@ function HomePage() {
               ref={viewerScrollRef}
               className="no-scrollbar relative flex h-full min-h-0 w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden"
             >
-              {viewer.photos.map((url, i) => (
+              {viewer.items.map((m, i) => (
                 <div
                   key={i}
                   className="flex h-full w-full shrink-0 snap-center items-center justify-center"
@@ -1246,12 +1248,23 @@ function HomePage() {
                     if (e.currentTarget === e.target) setViewer(null);
                   }}
                 >
-                  <img
-                    src={url}
-                    alt={`Photo ${i + 1}`}
-                    draggable={false}
-                    className="max-h-full max-w-full select-none object-contain"
-                  />
+                  {m.type === "photo" ? (
+                    <img
+                      src={m.url}
+                      alt={`Photo ${i + 1}`}
+                      draggable={false}
+                      className="max-h-full max-w-full select-none object-contain"
+                    />
+                  ) : (
+                    <video
+                      src={m.url}
+                      controls
+                      autoPlay={i === viewer.index}
+                      playsInline
+                      className="max-h-full max-w-full"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -1274,12 +1287,12 @@ function HomePage() {
                   <ChevronLeft className="h-6 w-6" />
                 </button>
               )}
-              {viewerDisplayIndex < viewer.photos.length - 1 && (
+              {viewerDisplayIndex < viewer.items.length - 1 && (
                 <button
                   onClick={() => {
                     const el = viewerScrollRef.current;
                     if (!el) return;
-                    const idx = Math.min(viewer.photos.length - 1, viewerDisplayIndex + 1);
+                    const idx = Math.min(viewer.items.length - 1, viewerDisplayIndex + 1);
                     el.scrollTo({ left: idx * el.clientWidth, behavior: "smooth" });
                     viewerIndexRef.current = idx;
                     setViewerDisplayIndex(idx);
@@ -1294,7 +1307,7 @@ function HomePage() {
 
             {/* Swipe hint */}
             <div className="pointer-events-none flex h-10 shrink-0 items-center justify-center text-xs text-white/60">
-              {viewerDisplayIndex < viewer.photos.length - 1 ? "Swipe for next" : ""}
+              {viewerDisplayIndex < viewer.items.length - 1 ? "Swipe for next" : ""}
             </div>
           </div>,
           document.body
