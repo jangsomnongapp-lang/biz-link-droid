@@ -137,7 +137,8 @@ export function CommentsSheet({
         post_id: postId,
         user_id: user.id,
         content,
-        parent_id: replyTo?.id ?? null,
+        // Replying to a reply attaches to the top-level comment (2 levels max).
+        parent_id: replyTo ? (replyTo.parent_id ?? replyTo.id) : null,
       })
       .select("id, content, created_at, user_id, parent_id, profiles(full_name, avatar_url)")
       .single();
@@ -244,14 +245,12 @@ export function CommentsSheet({
               <Heart className="h-3 w-3" fill={l.mine ? "currentColor" : "none"} />
               {l.count > 0 ? l.count : t("like")}
             </button>
-            {!isReply && (
-              <button
-                onClick={() => setReplyTo(c)}
-                className="font-medium active:opacity-60"
-              >
-                {t("reply")}
-              </button>
-            )}
+            <button
+              onClick={() => setReplyTo(c)}
+              className="font-medium active:opacity-60"
+            >
+              {t("reply")}
+            </button>
             {user?.id === c.user_id && editingId !== c.id && (
               <>
                 <button
