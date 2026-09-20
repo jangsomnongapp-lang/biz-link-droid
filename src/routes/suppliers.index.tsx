@@ -134,7 +134,7 @@ function SuppliersListPage() {
 
   const km = lang === "km";
   const locationLabel = km ? "ទីតាំង" : "Location";
-  const priceLabel = km ? "តម្លៃ (USD)" : "Price (USD)";
+  const priceLabel = km ? "តម្លៃ" : "Price";
   const categoryLabel = km ? "ប្រភេទ" : "Category";
   const filterTitle = km ? "តម្រង" : "Filters";
   const applyLabel = km ? "អនុវត្ត" : "Apply";

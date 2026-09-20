@@ -391,7 +391,7 @@ function AdminPostsPage() {
                   </span>
                 )}
                 {r.budget_per_day != null && (
-                  <span className="font-semibold text-[#534AB7]">Max $ {r.budget_per_day}/day</span>
+                  <span className="font-semibold text-[#534AB7]">Max {formatPrice(r.budget_per_day, r.currency)}/day</span>
                 )}
                 {r.needed_from && (
                   <span className="text-[#26215C]/70">From {r.needed_from}</span>
