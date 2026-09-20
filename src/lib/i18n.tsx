@@ -44,6 +44,7 @@ const dict: Dict = {
   login: { km: "ចូល", en: "Log in" },
   forgot_password: { km: "ភ្លេចពាក្យសម្ងាត់?", en: "Forgot your password?" },
   no_account: { km: "មិនទាន់មានគណនី?", en: "Don't have an account?" },
+  login_not_registered: { km: "គណនីនេះមិនទាន់បានចុះឈ្មោះទេ។ សូមចុះឈ្មោះជាមុនសិន។", en: "This account is not registered yet. Please register first." },
   blog_link: { km: "អានគន្លឹះសាងសង់", en: "Read construction tips & guides" },
   // nav
   nav_home: { km: "ដើម", en: "Home" },

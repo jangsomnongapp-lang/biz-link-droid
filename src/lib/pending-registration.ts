@@ -45,6 +45,11 @@ function readPendingRegistration(): PendingRegistration | null {
   }
 }
 
+/** True when a registration was started (roles chosen) before a Google redirect. */
+export function hasPendingRegistration() {
+  return readPendingRegistration() !== null;
+}
+
 export function clearPendingRegistration() {
   if (typeof window === "undefined") return;
   try {
