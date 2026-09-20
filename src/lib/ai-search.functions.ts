@@ -30,6 +30,7 @@ interface ListingRow {
   description: string | null;
   location: string | null;
   budget: number | null;
+  currency: string;
 }
 interface PersonRow {
   id: string;
@@ -93,7 +94,7 @@ async function fetchCandidates(query: string): Promise<{
 
   const liQ = supabaseAdmin
     .from("listings")
-    .select("id, title, description, location, budget")
+    .select("id, title, description, location, budget, currency")
     .eq("status", "approved")
     .order("created_at", { ascending: false })
     .limit(25);
