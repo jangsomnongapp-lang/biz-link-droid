@@ -36,7 +36,7 @@ function safeNext(next: string | undefined): string | null {
 
 function LoginPage() {
   const { t } = useI18n();
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const nav = useNavigate();
   const { next } = Route.useSearch();
   const target = safeNext(next);
@@ -64,6 +64,9 @@ function LoginPage() {
     }
   }, []);
 
+  // Guard against running the registration check twice for the same user.
+  const checkedUserRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!loading && user) {
       // In forced-login mode (?google=1) we never navigate away — we always
@@ -75,10 +78,47 @@ function LoginPage() {
       if (localStorage.getItem("buildhub_oauth_redirect")) {
         return;
       }
-      goNext();
+      void ensureRegistered(user.id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading]);
+
+  // Google sign-in auto-creates an account even for people who never
+  // registered. Block that on the LOGIN page: if the account has no role
+  // flags (registration was never completed) and no registration is pending,
+  // sign them back out and ask them to register first.
+  async function ensureRegistered(uid: string) {
+    if (checkedUserRef.current === uid) return;
+    checkedUserRef.current = uid;
+
+    // Came from the register flow (roles chosen before the Google redirect).
+    if (hasPendingRegistration()) {
+      goNext();
+      return;
+    }
+
+    try {
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("is_provider, is_coordinator, is_organization, is_client, is_specialist, is_supplier")
+        .eq("id", uid)
+        .maybeSingle();
+      const registered = !!(
+        p &&
+        (p.is_provider || p.is_coordinator || p.is_organization || p.is_client || p.is_specialist || p.is_supplier)
+      );
+      if (registered) {
+        goNext();
+        return;
+      }
+      // Not registered — sign the fresh account back out.
+      await signOut();
+      toast.error(t("login_not_registered"));
+    } catch {
+      // Network hiccup — let them through rather than trapping real users.
+      goNext();
+    }
+  }
 
   // When opened from the native app's system browser with ?google=1, ALWAYS
   // force a fresh Google login. Chrome may hold a cached session that was
