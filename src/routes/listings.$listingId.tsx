@@ -13,6 +13,7 @@ import { timeAgo } from "@/lib/format";
 import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { getListingSeo } from "@/lib/seo-fetchers.functions";
+import { formatPrice } from "@/lib/price";
 
 export const Route = createFileRoute("/listings/$listingId")({
   staleTime: 5 * 60_000,
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/listings/$listingId")({
       ? `${rawTitle.slice(0, 50)} — BuildHub`
       : "Construction Project — BuildHub";
     const rawDesc = seo?.description?.trim();
-    const locBudget = [seo?.location, seo?.budget ? `$${seo.budget}` : null]
+    const locBudget = [seo?.location, seo?.budget ? formatPrice(seo.budget, seo.currency) : null]
       .filter(Boolean)
       .join(" · ");
     let description =
@@ -74,7 +75,7 @@ export const Route = createFileRoute("/listings/$listingId")({
                 seo?.status === "finished"
                   ? "https://schema.org/SoldOut"
                   : "https://schema.org/InStock",
-              priceCurrency: "USD",
+              priceCurrency: seo?.currency === "KHR" ? "KHR" : "USD",
               ...(seo?.budget ? { price: seo.budget } : {}),
             },
           }),
@@ -95,6 +96,7 @@ interface DetailRow {
   title: string;
   description: string | null;
   budget: number | null;
+  currency: string;
   location: string | null;
   status: string;
   created_at: string;
@@ -132,7 +134,7 @@ function ListingDetailPage() {
     void supabase
       .from("listings")
       .select(
-        "id, user_id, title, description, budget, location, status, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km)), listing_photos(photo_url)"
+        "id, user_id, title, description, budget, currency, location, status, created_at, profiles(full_name, avatar_url), listing_categories(categories(name_en, name_km)), listing_photos(photo_url)"
       )
       .eq("id", listingId)
       .maybeSingle()
@@ -434,7 +436,7 @@ function ListingDetailPage() {
           <div className="bg-surface p-4">
             <div className="text-xs font-medium text-muted-foreground">{t("budget")}</div>
             <div className="mt-1 text-sm font-bold text-success">
-              {listing.budget ? `$ ${listing.budget}` : t("to_discuss")}
+              {listing.budget ? formatPrice(listing.budget, listing.currency) : t("to_discuss")}
             </div>
           </div>
         </div>

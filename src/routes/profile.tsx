@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { formatPrice } from "@/lib/price";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -70,7 +71,7 @@ function ProfilePage() {
   const [stats, setStats] = useState({ posted: 0, applied: 0, contacts: 0 });
   const [portfolio, setPortfolio] = useState<{ id: string; photo_url: string }[]>([]);
   const [myListings, setMyListings] = useState<{ id: string; title: string; status: string }[]>([]);
-  const [myRentals, setMyRentals] = useState<{ id: string; title: string; status: string; price_per_day: number; category: string; availability: string; available_from: string | null }[]>([]);
+  const [myRentals, setMyRentals] = useState<{ id: string; title: string; status: string; price_per_day: number; currency: string; category: string; availability: string; available_from: string | null }[]>([]);
   const [doingListings, setDoingListings] = useState<{ id: string; title: string; status: string }[]>([]);
   const [myProjects, setMyProjects] = useState<{ id: string; status: string; role: "owner" | "worker"; completion_requested_by: string | null; other: { id: string; full_name: string | null; avatar_url: string | null } | null }[]>([]);
   const [projectBusy, setProjectBusy] = useState<string | null>(null);
@@ -285,7 +286,7 @@ function ProfilePage() {
     try {
       const { data } = await supabase
         .from("rental_listings")
-        .select("id, title, status, price_per_day, category, availability, available_from")
+        .select("id, title, status, price_per_day, currency, category, availability, available_from")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       setMyRentals(data ?? []);
@@ -917,7 +918,7 @@ function ProfilePage() {
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate text-sm font-semibold text-[#26215C]">{r.title}</span>
-                  <span className="shrink-0 text-sm font-bold text-[#534AB7]">${r.price_per_day}/d</span>
+                  <span className="shrink-0 text-sm font-bold text-[#534AB7]">{formatPrice(r.price_per_day, r.currency)}/d</span>
                 </div>
                 <div className="mt-1 flex items-center gap-1.5 text-[11px]">
                   <span className="rounded-pill bg-white/70 px-1.5 py-0.5 font-semibold text-[#26215C]">

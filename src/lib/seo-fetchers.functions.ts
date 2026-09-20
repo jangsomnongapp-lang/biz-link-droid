@@ -9,7 +9,7 @@ export const getListingSeo = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("listings")
-      .select("id, title, description, location, budget, status, listing_photos(photo_url)")
+      .select("id, title, description, location, budget, currency, status, listing_photos(photo_url)")
       .eq("id", data.id)
       .eq("status", "active")
       .maybeSingle();
@@ -20,6 +20,7 @@ export const getListingSeo = createServerFn({ method: "GET" })
       description: (row.description as string | null) ?? null,
       location: (row.location as string | null) ?? null,
       budget: (row.budget as number | null) ?? null,
+      currency: (row.currency as string) ?? "USD",
       status: (row.status as string) ?? "active",
       photo: (row.listing_photos as { photo_url: string }[] | null)?.[0]?.photo_url ?? null,
     };

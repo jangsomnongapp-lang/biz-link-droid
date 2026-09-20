@@ -4,6 +4,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPrice } from "@/lib/price";
 import {
   ArrowLeft,
   Search as SearchIcon,
@@ -48,6 +49,7 @@ interface ListingRow {
   description: string | null;
   location: string | null;
   budget: number | null;
+  currency: string;
 }
 interface PostRow {
   id: string;
@@ -135,7 +137,7 @@ function SearchPage() {
           .limit(20),
         supabase
           .from("listings")
-          .select("id, title, description, location, budget")
+          .select("id, title, description, location, budget, currency")
           .eq("status", "approved")
           .or(`title.ilike.${needle},description.ilike.${needle},location.ilike.${needle}`)
           .limit(20),
@@ -487,7 +489,7 @@ function ListingItem({ l, lang }: { l: ListingRow; lang: "km" | "en" }) {
           )}
           {l.budget != null && (
             <span className="font-semibold text-primary">
-              {lang === "km" ? "ថវិកា" : "Budget"}: ${l.budget}
+              {lang === "km" ? "ថវិកា" : "Budget"}: {formatPrice(l.budget, l.currency)}
             </span>
           )}
         </div>

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { RequireAdmin } from "@/components/RequireAdmin";
+import { formatPrice } from "@/lib/price";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
@@ -44,6 +45,7 @@ interface PendingListing {
   title: string;
   description: string | null;
   budget: number | null;
+  currency: string;
   location: string | null;
   created_at: string;
   status: string;
@@ -58,6 +60,7 @@ interface PendingRental {
   description: string | null;
   category: string;
   price_per_day: number | null;
+  currency: string;
   location: string | null;
   created_at: string;
   status: string;
@@ -73,6 +76,7 @@ interface PendingRentalRequest {
   category: string;
   location: string;
   budget_per_day: number | null;
+  currency: string;
   needed_from: string | null;
   created_at: string;
   status: string;
@@ -147,21 +151,21 @@ function AdminPostsPage() {
       supabase
         .from("listings")
         .select(
-          "id, user_id, title, description, budget, location, created_at, status, profiles(full_name, avatar_url), listing_photos(photo_url)",
+          "id, user_id, title, description, budget, currency, location, created_at, status, profiles(full_name, avatar_url), listing_photos(photo_url)",
         )
         .in("status", listingStatuses)
         .order("created_at", { ascending: false }),
       supabase
         .from("rental_listings")
         .select(
-          "id, user_id, title, description, category, price_per_day, location, created_at, status, profiles(full_name, avatar_url), rental_photos(photo_url)",
+          "id, user_id, title, description, category, price_per_day, currency, location, created_at, status, profiles(full_name, avatar_url), rental_photos(photo_url)",
         )
         .in("status", rentalStatuses)
         .order("created_at", { ascending: false }),
       supabase
         .from("rental_requests")
         .select(
-          "id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, status, profiles(full_name, avatar_url)",
+          "id, user_id, title, description, category, location, budget_per_day, currency, needed_from, created_at, status, profiles(full_name, avatar_url)",
         )
         .in("status", requestStatuses)
         .order("created_at", { ascending: false }),
@@ -387,7 +391,7 @@ function AdminPostsPage() {
                   </span>
                 )}
                 {r.budget_per_day != null && (
-                  <span className="font-semibold text-[#534AB7]">Max $ {r.budget_per_day}/day</span>
+                  <span className="font-semibold text-[#534AB7]">Max {formatPrice(r.budget_per_day, r.currency)}/day</span>
                 )}
                 {r.needed_from && (
                   <span className="text-[#26215C]/70">From {r.needed_from}</span>
@@ -438,7 +442,7 @@ function AdminPostsPage() {
                   </span>
                 )}
                 <span className="font-semibold text-[#534AB7]">
-                  {r.price_per_day ? `$ ${r.price_per_day}/day` : t("to_discuss")}
+                  {r.price_per_day ? `${formatPrice(r.price_per_day, r.currency)}/day` : t("to_discuss")}
                 </span>
               </div>
               <DecisionFooter
@@ -541,7 +545,7 @@ function AdminPostsPage() {
                   </span>
                 )}
                 <span className="font-semibold text-success">
-                  {l.budget ? `$ ${l.budget}` : t("to_discuss")}
+                  {l.budget ? formatPrice(l.budget, l.currency) : t("to_discuss")}
                 </span>
               </div>
               <DecisionFooter

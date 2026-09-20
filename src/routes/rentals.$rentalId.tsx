@@ -11,6 +11,7 @@ import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { formatPrice } from "@/lib/price";
 
 export const Route = createFileRoute("/rentals/$rentalId")({
   component: () => (
@@ -27,6 +28,7 @@ interface RentalDetail {
   description: string | null;
   category: string;
   price_per_day: number;
+  currency: string;
   min_days: number;
   availability: string;
   available_from: string | null;
@@ -200,7 +202,7 @@ function RentalDetailPage() {
           <div className="mt-2 flex items-start justify-between gap-3">
             <h2 className="flex-1 text-base font-semibold text-foreground">{rental.title}</h2>
             <div className="text-right">
-              <div className="text-2xl font-bold text-[#534AB7]">${rental.price_per_day}</div>
+              <div className="text-2xl font-bold text-[#534AB7]">{formatPrice(rental.price_per_day, rental.currency)}</div>
               <div className="text-[11px] text-muted-foreground">{t("per_day")}</div>
             </div>
           </div>
@@ -247,7 +249,7 @@ function RentalDetailPage() {
           <h3 className="mb-2 text-sm font-bold">{t("details")}</h3>
           <dl className="divide-y divide-border text-sm">
             <Row label={t("category_label")} value={catLabel} />
-            <Row label={t("price_per_day_label")} value={`$${rental.price_per_day}`} />
+            <Row label={t("price_per_day_label")} value={formatPrice(rental.price_per_day, rental.currency)} />
             <Row label={t("min_days")} value={`${rental.min_days} day${rental.min_days > 1 ? "s" : ""}`} />
             <Row label={t("location")} value={rental.location} icon={<MapPin className="h-3.5 w-3.5 text-destructive" />} />
             <Row

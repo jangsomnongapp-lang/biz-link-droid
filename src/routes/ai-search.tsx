@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { aiSearch } from "@/lib/ai-search.functions";
 import { ArrowLeft, Search, Store, ClipboardList, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatPrice } from "@/lib/price";
 
 export const Route = createFileRoute("/ai-search")({
   head: () => ({
@@ -185,7 +186,7 @@ function RecCard({ r }: { r: Rec }) {
             <div className="line-clamp-1 text-xs text-muted-foreground">{l.description}</div>
           )}
           {l.budget != null && (
-            <div className="mt-0.5 text-[11px] font-semibold text-primary">${l.budget}</div>
+            <div className="mt-0.5 text-[11px] font-semibold text-primary">{formatPrice(l.budget, l.currency)}</div>
           )}
           <ReasonChip reason={r.reason} />
         </div>
