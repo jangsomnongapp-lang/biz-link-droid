@@ -19,6 +19,7 @@ import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus,
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
+import { formatPrice } from "@/lib/price";
 
 type ViewerMedia = { type: "photo" | "video"; url: string };
 
@@ -124,6 +125,7 @@ interface RentalRow {
   description: string | null;
   category: string;
   price_per_day: number;
+  currency: string;
   location: string;
   availability: string;
   available_from: string | null;
@@ -296,7 +298,7 @@ function HomePage() {
           .range(from, to),
         supabase
           .from("rental_listings")
-          .select("id, user_id, title, description, category, price_per_day, location, availability, available_from, created_at, profiles(full_name, avatar_url), rental_photos(photo_url)")
+          .select("id, user_id, title, description, category, price_per_day, currency, location, availability, available_from, created_at, profiles(full_name, avatar_url), rental_photos(photo_url)")
           .eq("status", "approved")
           .order("created_at", { ascending: false })
           .range(from, to),
@@ -907,7 +909,7 @@ function HomePage() {
                         )}
                       </div>
                       <div className="text-right">
-                        <div className="text-base font-bold text-[#534AB7]">${r.price_per_day}</div>
+                        <div className="text-base font-bold text-[#534AB7]">{formatPrice(r.price_per_day, r.currency)}</div>
                         <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
                       </div>
                     </div>

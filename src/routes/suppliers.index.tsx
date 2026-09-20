@@ -88,6 +88,7 @@ interface RentalRow {
   description: string | null;
   category: string;
   price_per_day: number;
+  currency: string;
   location: string;
   availability: string;
   available_from: string | null;
@@ -363,7 +364,7 @@ function SuppliersListPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("rental_listings")
-        .select("id, user_id, title, description, category, price_per_day, location, availability, available_from, profiles(full_name, avatar_url), rental_photos(photo_url)")
+        .select("id, user_id, title, description, category, price_per_day, currency, location, availability, available_from, profiles(full_name, avatar_url), rental_photos(photo_url)")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(40);
@@ -921,6 +922,7 @@ interface RentalRequestRow {
   category: string;
   location: string;
   budget_per_day: number | null;
+  currency: string;
   needed_from: string | null;
   created_at: string;
   profiles?: { full_name: string | null; avatar_url: string | null } | null;
@@ -954,7 +956,7 @@ function RentMode({
     queryFn: async () => {
       const { data } = await supabase
         .from("rental_requests")
-        .select("id, user_id, title, description, category, location, budget_per_day, needed_from, created_at, profiles(full_name, avatar_url)")
+        .select("id, user_id, title, description, category, location, budget_per_day, currency, needed_from, created_at, profiles(full_name, avatar_url)")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(40);
@@ -1047,7 +1049,7 @@ function RentMode({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-base font-bold text-[#534AB7]">${r.price_per_day}</div>
+                  <div className="text-base font-bold text-[#534AB7]">{formatPrice(r.price_per_day, r.currency)}</div>
                   <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
                 </div>
               </div>
@@ -1114,7 +1116,7 @@ function RentMode({
                 </div>
                 {r.budget_per_day != null && (
                   <div className="text-right">
-                    <div className="text-base font-bold text-[#534AB7]">≤ ${r.budget_per_day}</div>
+                    <div className="text-base font-bold text-[#534AB7]">≤ {formatPrice(r.budget_per_day, r.currency)}</div>
                     <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
                   </div>
                 )}

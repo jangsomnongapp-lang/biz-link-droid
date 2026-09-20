@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { ListingListSkeleton } from "@/components/SkeletonFeed";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { CAMBODIA_PROVINCES } from "@/components/ProvinceSelect";
+import { formatPrice } from "@/lib/price";
 
 export const Route = createFileRoute("/listings/")({
   head: () => ({
@@ -44,6 +45,7 @@ interface ListingRow {
   title: string;
   description: string | null;
   budget: number | null;
+  currency: string;
   location: string | null;
   created_at: string;
   profiles: { full_name: string | null; avatar_url: string | null } | null;
@@ -77,7 +79,7 @@ function ListingsPage() {
       const { data: rows } = await supabase
         .from("listings")
         .select(
-          "id, user_id, title, description, budget, location, created_at, profiles(full_name, avatar_url), listing_categories(categories(id, name_en, name_km))"
+          "id, user_id, title, description, budget, currency, location, created_at, profiles(full_name, avatar_url), listing_categories(categories(id, name_en, name_km))"
         )
         .eq("status", "active")
         .gte("created_at", sixtyDaysAgo)
@@ -335,7 +337,7 @@ function ListingsPage() {
                     </span>
                   )}
                   <span className="font-semibold text-success">
-                    {l.budget ? `$ ${l.budget}` : t("to_discuss")}
+                    {l.budget ? formatPrice(l.budget, l.currency) : t("to_discuss")}
                   </span>
                 </div>
                 {!isOwn && (
