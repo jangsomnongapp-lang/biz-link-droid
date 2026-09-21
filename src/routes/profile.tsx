@@ -320,6 +320,17 @@ function ProfilePage() {
           other: byId.get(p.owner_id === user.id ? p.worker_id : p.owner_id) ?? null,
         })),
       );
+      const completedIds = ps.filter((p) => p.status === "completed").map((p) => p.id);
+      if (completedIds.length) {
+        const { data: rs } = await supabase
+          .from("project_ratings")
+          .select("project_id")
+          .eq("rater_id", user.id)
+          .in("project_id", completedIds);
+        setRatedProjectIds((rs ?? []).map((r) => r.project_id));
+      } else {
+        setRatedProjectIds([]);
+      }
     } catch {
       // ignore
     }
