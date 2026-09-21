@@ -634,6 +634,7 @@ function ProfilePage() {
                       x.id === p.id ? { ...x, status: "completed", completion_requested_by: null } : x,
                     ),
                   );
+                  setRating({ id: p.id, name: p.other?.full_name ?? "—" });
                 } catch (err: any) {
                   toast.error(err?.message ?? "Failed");
                 } finally {
