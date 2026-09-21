@@ -191,20 +191,40 @@ function ListingDetailPage() {
   }
 
   async function finishProject() {
-    if (!listing) return;
+    if (!listing || !user) return;
     setFinishing(true);
     const { error } = await supabase
       .from("listings")
       .update({ status: "finished" })
       .eq("id", listing.id);
-    setFinishing(false);
     setShowFinishConfirm(false);
     if (error) {
+      setFinishing(false);
       toast.error(error.message);
       return;
     }
     setListing({ ...listing, status: "finished" });
     toast.success(t("project_finished"));
+    // If a worker was accepted, create a completed project record so both
+    // sides can rate each other (ratings live on the projects table).
+    const accepted = applicants.find((a) => a.status === "accepted");
+    if (accepted && accepted.applicant_id !== user.id) {
+      const { data: proj, error: perr } = await supabase
+        .from("projects")
+        .insert({
+          owner_id: user.id,
+          worker_id: accepted.applicant_id,
+          status: "completed",
+          agreed_price: listing.budget,
+          setup_completed: true,
+        })
+        .select("id")
+        .single();
+      if (!perr && proj) {
+        setRating({ projectId: proj.id, name: accepted.profiles?.full_name ?? "—" });
+      }
+    }
+    setFinishing(false);
   }
 
   
