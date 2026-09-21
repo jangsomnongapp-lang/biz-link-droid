@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { requestFreeHelp } from "@/lib/help-request.functions";
-import { confirmCompletion, cancelCompletion, requestCompletion, forceCompleteProject, submitRating } from "@/lib/projects.functions";
+import { confirmCompletion, cancelCompletion, requestCompletion, forceCompleteProject, cancelPendingProject, submitRating } from "@/lib/projects.functions";
 import { ProjectRateSheet } from "@/components/ProjectRateSheet";
 import { AvatarCropper } from "@/components/AvatarCropper";
 import { ProfileSkeleton } from "@/components/SkeletonFeed";
@@ -85,6 +85,7 @@ function ProfilePage() {
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const requestCompletionFn = useServerFn(requestCompletion);
   const forceCompleteFn = useServerFn(forceCompleteProject);
+  const cancelPendingFn = useServerFn(cancelPendingProject);
   const submitRatingFn = useServerFn(submitRating);
   const [ratedProjectIds, setRatedProjectIds] = useState<string[]>([]);
   const [rating, setRating] = useState<{ id: string; name: string } | null>(null);
