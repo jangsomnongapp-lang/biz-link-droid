@@ -169,6 +169,46 @@ export const requestCompletion = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// Force-complete a project when the requester already asked to finish and the
+// other party hasn't responded. Lets a user end the project on their own.
+export const forceCompleteProject = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ projectId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { data: p, error: gerr } = await supabase
+      .from("projects").select("owner_id, worker_id, status, completion_requested_by").eq("id", data.projectId).maybeSingle();
+    if (gerr) throw new Error(gerr.message);
+    if (!p) throw new Error("Not found");
+    if (p.owner_id !== userId && p.worker_id !== userId) throw new Error("Not a participant");
+    if (p.status !== "active") throw new Error("Project must be active");
+    if (p.completion_requested_by !== userId) throw new Error("Request completion first");
+    const { error } = await supabase
+      .from("projects")
+      .update({ status: "completed", completion_requested_by: null })
+      .eq("id", data.projectId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// Cancel a pending project (owner backs out before the worker accepts).
+export const cancelPendingProject = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ projectId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { data: p, error: gerr } = await supabase
+      .from("projects").select("owner_id, status").eq("id", data.projectId).maybeSingle();
+    if (gerr) throw new Error(gerr.message);
+    if (!p) throw new Error("Not found");
+    if (p.owner_id !== userId) throw new Error("Only the owner can cancel");
+    if (p.status !== "pending") throw new Error("Not pending");
+    const { error } = await supabase
+      .from("projects").update({ status: "cancelled" }).eq("id", data.projectId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const cancelCompletion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ projectId: z.string().uuid() }).parse(d))
