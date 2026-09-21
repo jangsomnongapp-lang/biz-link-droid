@@ -792,6 +792,36 @@ function ProfilePage() {
                       {lang === "km" ? "បញ្ចប់ឥឡូវនេះ" : "End now"}
                     </button>
                   )}
+                  {p.status === "pending" && p.role === "owner" && (
+                    <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (projectBusy) return;
+                        setProjectBusy(p.id);
+                        try {
+                          const { data: { session } } = await supabase.auth.getSession();
+                          await cancelPendingFn({
+                            headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+                            data: { projectId: p.id },
+                          });
+                          toast.success(lang === "km" ? "បានលុបចោល" : "Cancelled");
+                          setMyProjects((prev) =>
+                            prev.map((x) => (x.id === p.id ? { ...x, status: "cancelled" } : x)),
+                          );
+                        } catch (err: any) {
+                          toast.error(err?.message ?? "Failed");
+                        } finally {
+                          setProjectBusy(null);
+                        }
+                      }}
+                      disabled={projectBusy === p.id}
+                      className="mt-3 w-full rounded-lg border border-rose-300 bg-rose-50 py-2 text-xs font-semibold text-rose-800 active:scale-[0.99] disabled:opacity-50"
+                    >
+                      {lang === "km" ? "លុបចោលសំណើ" : "Cancel request"}
+                    </button>
+                  )}
                   {p.status === "completed" && !ratedProjectIds.includes(p.id) && (
                     <button
                       type="button"
