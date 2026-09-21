@@ -727,12 +727,77 @@ function ProfilePage() {
                       </button>
                     </div>
                   )}
+                  {p.status === "active" && !p.completion_requested_by && (
+                    <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (projectBusy) return;
+                        setProjectBusy(p.id);
+                        try {
+                          const { data: { session } } = await supabase.auth.getSession();
+                          await requestCompletionFn({
+                            headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+                            data: { projectId: p.id },
+                          });
+                          setMyProjects((prev) =>
+                            prev.map((x) => (x.id === p.id ? { ...x, completion_requested_by: user?.id ?? null } : x)),
+                          );
+                          toast.success(lang === "km" ? "បានស្នើបញ្ចប់គម្រោង" : "End requested");
+                        } catch (err: any) {
+                          toast.error(err?.message ?? "Failed");
+                        } finally {
+                          setProjectBusy(null);
+                        }
+                      }}
+                      disabled={projectBusy === p.id}
+                      className="mt-3 w-full rounded-lg border border-border bg-background py-2 text-xs font-semibold text-foreground active:scale-[0.99] disabled:opacity-50"
+                    >
+                      {lang === "km" ? "បញ្ចប់គម្រោង" : "End project"}
+                    </button>
+                  )}
+                  {p.status === "completed" && !ratedProjectIds.includes(p.id) && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setRating({ id: p.id, name: p.other?.full_name ?? "—" });
+                      }}
+                      className="mt-3 w-full rounded-lg bg-primary py-2 text-xs font-semibold text-primary-foreground active:scale-[0.99]"
+                    >
+                      {lang === "km" ? "វាយតម្លៃ" : "Rate"}
+                    </button>
+                  )}
                 </Link>
               );
             })}
           </div>
         )}
       </Section>
+      {rating && (
+        <ProjectRateSheet
+          name={rating.name}
+          onClose={() => setRating(null)}
+          onSubmit={async (stars, comment) => {
+            const target = rating;
+            if (!target) return;
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              await submitRatingFn({
+                headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+                data: { projectId: target.id, stars, comment },
+              });
+              setRatedProjectIds((prev) => [...prev, target.id]);
+              setRating(null);
+              toast.success(lang === "km" ? "បានដាក់ស្នើ" : "Submitted");
+            } catch (err: any) {
+              toast.error(err?.message ?? "Failed");
+            }
+          }}
+        />
+      )}
 
 
 
