@@ -758,6 +758,39 @@ function ProfilePage() {
                       {lang === "km" ? "បញ្ចប់គម្រោង" : "End project"}
                     </button>
                   )}
+                  {p.status === "active" && p.completion_requested_by === user?.id && (
+                    <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (projectBusy) return;
+                        setProjectBusy(p.id);
+                        try {
+                          const { data: { session } } = await supabase.auth.getSession();
+                          await forceCompleteFn({
+                            headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+                            data: { projectId: p.id },
+                          });
+                          toast.success(lang === "km" ? "បានបញ្ចប់គម្រោង" : "Project ended");
+                          setMyProjects((prev) =>
+                            prev.map((x) =>
+                              x.id === p.id ? { ...x, status: "completed", completion_requested_by: null } : x,
+                            ),
+                          );
+                          setRating({ id: p.id, name: p.other?.full_name ?? "—" });
+                        } catch (err: any) {
+                          toast.error(err?.message ?? "Failed");
+                        } finally {
+                          setProjectBusy(null);
+                        }
+                      }}
+                      disabled={projectBusy === p.id}
+                      className="mt-3 w-full rounded-lg bg-primary py-2 text-xs font-semibold text-primary-foreground active:scale-[0.99] disabled:opacity-50"
+                    >
+                      {lang === "km" ? "បញ្ចប់ឥឡូវនេះ" : "End now"}
+                    </button>
+                  )}
                   {p.status === "completed" && !ratedProjectIds.includes(p.id) && (
                     <button
                       type="button"
