@@ -1,14 +1,17 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { ReportMenu } from "@/components/ReportMenu";
 import { OwnerMenu } from "@/components/OwnerMenu";
 import { EditTextDialog } from "@/components/EditTextDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ProjectRateSheet } from "@/components/ProjectRateSheet";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { submitRating } from "@/lib/projects.functions";
 import { timeAgo } from "@/lib/format";
 import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
