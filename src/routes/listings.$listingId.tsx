@@ -132,6 +132,8 @@ function ListingDetailPage() {
   const [contactingId, setContactingId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [rating, setRating] = useState<{ projectId: string; name: string } | null>(null);
+  const submitRatingFn = useServerFn(submitRating);
 
   useEffect(() => {
     void supabase
