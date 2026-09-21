@@ -84,6 +84,7 @@ function ProfilePage() {
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
   const requestCompletionFn = useServerFn(requestCompletion);
+  const forceCompleteFn = useServerFn(forceCompleteProject);
   const submitRatingFn = useServerFn(submitRating);
   const [ratedProjectIds, setRatedProjectIds] = useState<string[]>([]);
   const [rating, setRating] = useState<{ id: string; name: string } | null>(null);
