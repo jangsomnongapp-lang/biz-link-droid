@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { ShareButton } from "@/components/ShareButton";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { requestFreeHelp } from "@/lib/help-request.functions";
-import { confirmCompletion, cancelCompletion, requestCompletion, submitRating } from "@/lib/projects.functions";
+import { confirmCompletion, cancelCompletion, requestCompletion, forceCompleteProject, submitRating } from "@/lib/projects.functions";
 import { ProjectRateSheet } from "@/components/ProjectRateSheet";
 import { AvatarCropper } from "@/components/AvatarCropper";
 import { ProfileSkeleton } from "@/components/SkeletonFeed";
