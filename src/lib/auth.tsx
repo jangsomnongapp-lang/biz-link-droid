@@ -81,6 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     registrationCheckedRef.current = uid;
     // Mid-registration (roles chosen before the Google redirect) — allowed.
     if (hasPendingRegistration()) return;
+    // The login page runs its own guard with navigation handling — don't double-fire.
+    if (window.location.pathname === "/login") return;
     void (async () => {
       try {
         const { data: p } = await supabase
