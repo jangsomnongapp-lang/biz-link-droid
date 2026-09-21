@@ -1,8 +1,10 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { initPushNotifications } from "@/lib/pushNotifications";
 import { initExpoPushTokenListener } from "@/lib/expoPushToken";
-import { applyPendingRegistration } from "@/lib/pending-registration";
+import { applyPendingRegistration, hasPendingRegistration } from "@/lib/pending-registration";
+import { useI18n } from "@/lib/i18n";
+import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
 
 interface AuthCtx {
@@ -65,6 +67,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return () => { cleanup(); };
     }
   }, [session?.user?.id]);
+
+  // Global "must be registered" guard. The web Google OAuth flow returns to
+  // "/" (not /login), so the login page's ensureRegistered check never runs
+  // there — enforce it here so unregistered Google accounts are signed out no
+  // matter which route the session lands on.
+  const { t } = useI18n();
+  const registrationCheckedRef = useRef<string | null>(null);
+  useEffect(() => {
+    const uid = session?.user?.id ?? null;
+    if (loading || !uid) return;
+    if (registrationCheckedRef.current === uid) return;
+    registrationCheckedRef.current = uid;
+    // Mid-registration (roles chosen before the Google redirect) — allowed.
+    if (hasPendingRegistration()) return;
+    // The login page runs its own guard with navigation handling — don't double-fire.
+    if (window.location.pathname === "/login") return;
+    void (async () => {
+      try {
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("is_provider, is_coordinator, is_organization, is_client, is_specialist, is_supplier")
+          .eq("id", uid)
+          .maybeSingle();
+        const registered = !!(
+          p &&
+          (p.is_provider || p.is_coordinator || p.is_organization || p.is_client || p.is_specialist || p.is_supplier)
+        );
+        if (!registered) {
+          await supabase.auth.signOut();
+          toast.error(t("login_not_registered"));
+        }
+      } catch {
+        // Network hiccup — let them through rather than trapping real users.
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, session?.user?.id]);
 
   // Expose a global handler the native wrapper can call to set the session
   // after a Google login deep link. Using supabase.auth.setSession() (instead
