@@ -1,8 +1,10 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { initPushNotifications } from "@/lib/pushNotifications";
 import { initExpoPushTokenListener } from "@/lib/expoPushToken";
-import { applyPendingRegistration } from "@/lib/pending-registration";
+import { applyPendingRegistration, hasPendingRegistration } from "@/lib/pending-registration";
+import { useI18n } from "@/lib/i18n";
+import { toast } from "sonner";
 import type { Session, User } from "@supabase/supabase-js";
 
 interface AuthCtx {
