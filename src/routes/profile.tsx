@@ -83,6 +83,10 @@ function ProfilePage() {
   const [showAllDoing, setShowAllDoing] = useState(false);
   const confirmCompletionFn = useServerFn(confirmCompletion);
   const cancelCompletionFn = useServerFn(cancelCompletion);
+  const requestCompletionFn = useServerFn(requestCompletion);
+  const submitRatingFn = useServerFn(submitRating);
+  const [ratedProjectIds, setRatedProjectIds] = useState<string[]>([]);
+  const [rating, setRating] = useState<{ id: string; name: string } | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [pendingAvatar, setPendingAvatar] = useState<string | null>(null);
   const [logoutOpen, setLogoutOpen] = useState(false);
