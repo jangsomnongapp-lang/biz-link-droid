@@ -68,6 +68,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [session?.user?.id]);
 
+  // Global "must be registered" guard. The web Google OAuth flow returns to
+  // "/" (not /login), so the login page's ensureRegistered check never runs
+  // there — enforce it here so unregistered Google accounts are signed out no
+  // matter which route the session lands on.
+  const { t } = useI18n();
+  const registrationCheckedRef = useRef<string | null>(null);
+  useEffect(() => {
+    const uid = session?.user?.id ?? null;
+    if (loading || !uid) return;
+    if (registrationCheckedRef.current === uid) return;
+    registrationCheckedRef.current = uid;
+    // Mid-registration (roles chosen before the Google redirect) — allowed.
+    if (hasPendingRegistration()) return;
+    void (async () => {
+      try {
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("is_provider, is_coordinator, is_organization, is_client, is_specialist, is_supplier")
+          .eq("id", uid)
+          .maybeSingle();
+        const registered = !!(
+          p &&
+          (p.is_provider || p.is_coordinator || p.is_organization || p.is_client || p.is_specialist || p.is_supplier)
+        );
+        if (!registered) {
+          await supabase.auth.signOut();
+          toast.error(t("login_not_registered"));
+        }
+      } catch {
+        // Network hiccup — let them through rather than trapping real users.
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, session?.user?.id]);
+
   // Expose a global handler the native wrapper can call to set the session
   // after a Google login deep link. Using supabase.auth.setSession() (instead
   // of the wrapper writing localStorage directly) ensures the session is
