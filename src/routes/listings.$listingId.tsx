@@ -1,14 +1,17 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { ReportMenu } from "@/components/ReportMenu";
 import { OwnerMenu } from "@/components/OwnerMenu";
 import { EditTextDialog } from "@/components/EditTextDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ProjectRateSheet } from "@/components/ProjectRateSheet";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { submitRating } from "@/lib/projects.functions";
 import { timeAgo } from "@/lib/format";
 import { ArrowLeft, MapPin, Share2, ChevronRight, MessageCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -129,6 +132,8 @@ function ListingDetailPage() {
   const [contactingId, setContactingId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [rating, setRating] = useState<{ projectId: string; name: string } | null>(null);
+  const submitRatingFn = useServerFn(submitRating);
 
   useEffect(() => {
     void supabase
@@ -186,20 +191,40 @@ function ListingDetailPage() {
   }
 
   async function finishProject() {
-    if (!listing) return;
+    if (!listing || !user) return;
     setFinishing(true);
     const { error } = await supabase
       .from("listings")
       .update({ status: "finished" })
       .eq("id", listing.id);
-    setFinishing(false);
     setShowFinishConfirm(false);
     if (error) {
+      setFinishing(false);
       toast.error(error.message);
       return;
     }
     setListing({ ...listing, status: "finished" });
     toast.success(t("project_finished"));
+    // If a worker was accepted, create a completed project record so both
+    // sides can rate each other (ratings live on the projects table).
+    const accepted = applicants.find((a) => a.status === "accepted");
+    if (accepted && accepted.applicant_id !== user.id) {
+      const { data: proj, error: perr } = await supabase
+        .from("projects")
+        .insert({
+          owner_id: user.id,
+          worker_id: accepted.applicant_id,
+          status: "completed",
+          agreed_price: listing.budget,
+          setup_completed: true,
+        })
+        .select("id")
+        .single();
+      if (!perr && proj) {
+        setRating({ projectId: proj.id, name: accepted.profiles?.full_name ?? "—" });
+      }
+    }
+    setFinishing(false);
   }
 
   
@@ -722,6 +747,28 @@ function ListingDetailPage() {
         onConfirm={() => void deleteListing()}
         onCancel={() => setDeleting(false)}
       />
+
+      {rating && (
+        <ProjectRateSheet
+          name={rating.name}
+          onClose={() => setRating(null)}
+          onSubmit={async (stars, comment) => {
+            const target = rating;
+            if (!target) return;
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              await submitRatingFn({
+                headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+                data: { projectId: target.projectId, stars, comment },
+              });
+              setRating(null);
+              toast.success(lang === "km" ? "បានដាក់ស្នើ" : "Submitted");
+            } catch (err: any) {
+              toast.error(err?.message ?? "Failed");
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
