@@ -747,6 +747,28 @@ function ListingDetailPage() {
         onConfirm={() => void deleteListing()}
         onCancel={() => setDeleting(false)}
       />
+
+      {rating && (
+        <ProjectRateSheet
+          name={rating.name}
+          onClose={() => setRating(null)}
+          onSubmit={async (stars, comment) => {
+            const target = rating;
+            if (!target) return;
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              await submitRatingFn({
+                headers: { Authorization: `Bearer ${session?.access_token ?? ""}` },
+                data: { projectId: target.projectId, stars, comment },
+              });
+              setRating(null);
+              toast.success(lang === "km" ? "បានដាក់ស្នើ" : "Submitted");
+            } catch (err: any) {
+              toast.error(err?.message ?? "Failed");
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
