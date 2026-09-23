@@ -163,11 +163,16 @@ export function AppShell({ children }: { children: ReactNode }) {
               {active && <span className="ios-fade absolute bottom-0 h-0.5 w-10 rounded-full bg-primary" />}
             </>
           );
+          const onTabClick = () => {
+            // Tapping a tab always pulls fresh data for the page you land on.
+            void handleRefresh();
+          };
           return isSupplierProfileTab ? (
             <Link
               key={tab.to}
               to="/suppliers/$storeId"
               params={{ storeId: mySupplierStoreId! }}
+              onClick={onTabClick}
               className="tap relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
             >
               {content}
@@ -176,6 +181,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link
               key={tab.to}
               to={tab.to}
+              onClick={onTabClick}
               className="tap relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
             >
               {content}
