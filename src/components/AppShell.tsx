@@ -4,7 +4,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Home, Newspaper, Bell, User, Menu, Search, MessageCircle, Store } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
 // Remembers where the user was on each page so going back lands in the same spot.
@@ -32,6 +32,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     // Only refresh what is on screen right now — other pages keep their data.
     await qc.invalidateQueries({ type: "active" });
   }
+
+  // A tab tap marks a refresh; it runs once the destination page has mounted.
+  const pendingTabRefresh = useRef(false);
+  useEffect(() => {
+    if (!pendingTabRefresh.current) return;
+    pendingTabRefresh.current = false;
+    const id = setTimeout(() => void handleRefresh(), 0);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [path]);
 
   // Save the position while scrolling, and put it back when returning to a page.
   useEffect(() => {
@@ -165,7 +175,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           );
           const onTabClick = () => {
             // Tapping a tab always pulls fresh data for the page you land on.
-            void handleRefresh();
+            if (active) void handleRefresh();
+            else pendingTabRefresh.current = true;
           };
           return isSupplierProfileTab ? (
             <Link
