@@ -1144,7 +1144,22 @@ function HomePage() {
     } catch {
       toast.error(t("error_generic"));
     }
-  }
+  }, [t]);
+
+  // Stable callbacks passed to the memoized feed cards.
+  const openCommentsCb = useCallback((id: string) => setOpenComments(id), []);
+  const openRentalCommentsCb = useCallback((id: string) => setOpenRentalComments(id), []);
+  const editPostCb = useCallback((p: PostRow) => setEditingPost(p), []);
+  const deletePostCb = useCallback((id: string) => setDeletingPostId(id), []);
+  const openViewerCb = useCallback((items: ViewerMedia[], index: number) => setViewer({ items, index }), []);
+  const reactCb = useCallback((id: string, r: ReactionId | null) => void reactToPost(id, r), [reactToPost]);
+  const sharePostCb = useCallback((id: string) => void sharePost(id), [sharePost]);
+  const shareRentalCb = useCallback((id: string) => void shareRental(id), [shareRental]);
+  const toggleRentalLikeCb = useCallback((id: string) => void toggleRentalLike(id), [toggleRentalLike]);
+  const contactCb = useCallback(
+    (ownerId: string, storeId: string | undefined, postId: string) => void contactSupplier(ownerId, storeId, postId),
+    [contactSupplier],
+  );
 
   async function recordStoryOpen(storyId: string, ownerId: string) {
     if (!user || ownerId === user.id) return;
