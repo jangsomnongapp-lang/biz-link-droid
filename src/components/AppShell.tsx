@@ -109,11 +109,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [user, qc]);
 
   const tabs = [
-    { to: "/home", label: t("nav_home"), icon: Home, badge: 0 },
-    { to: "/listings", label: t("nav_listings"), icon: BriefcaseBusiness, badge: 0 },
+    { to: "/home", label: t("nav_home"), icon: Home, badge: 0, prominent: false },
+    { to: "/listings", label: t("nav_listings"), icon: BriefcaseBusiness, badge: 0, prominent: false },
     { to: "/announce", label: t("nav_announce"), icon: CirclePlus, badge: 0, prominent: true },
-    { to: "/messages", label: t("messages"), icon: MessageCircle, badge: unreadMessages },
-    { to: "/settings", label: t("menu"), icon: Menu, badge: 0 },
+    { to: "/messages", label: t("messages"), icon: MessageCircle, badge: unreadMessages, prominent: false },
+    { to: "/settings", label: t("menu"), icon: Menu, badge: 0, prominent: false },
   ] as const;
 
 
