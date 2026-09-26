@@ -96,6 +96,8 @@ export const Route = createFileRoute("/home")({
       { property: "og:title", content: "Home feed — BuildHub" },
       { property: "og:description", content: "Your BuildHub feed: latest jobs, stories, and updates from Cambodia's construction community." },
       { property: "og:url", content: "https://buildhubkh.com/home" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, follow" },
     ],
     links: [{ rel: "canonical", href: "https://buildhubkh.com/home" }],
