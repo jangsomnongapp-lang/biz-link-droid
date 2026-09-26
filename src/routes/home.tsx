@@ -164,7 +164,7 @@ function HomePage() {
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [stories, setStories] = useState<StoryGroup[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean; reaction: ReactionId | null }>>({});
+  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean; reaction: ReactionId | null; top: ReactionId[] }>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
@@ -311,7 +311,8 @@ function HomePage() {
       const rentalRows = (rentalsData as RentalRow[] | null) ?? [];
 
       // Build auxiliary maps scoped to this page's IDs
-      const likeMap: Record<string, { count: number; mine: boolean; reaction: ReactionId | null }> = {};
+      const likeMap: Record<string, { count: number; mine: boolean; reaction: ReactionId | null; top: ReactionId[] }> = {};
+      const likeCounts: Record<string, Record<string, number>> = {};
       const cMap: Record<string, number> = {};
       const rLikeMap: Record<string, { count: number; mine: boolean }> = {};
       const rcMap: Record<string, number> = {};
@@ -322,7 +323,8 @@ function HomePage() {
       if (postRows.length > 0) {
         const ids = postRows.map((p) => p.id);
         for (const id of ids) {
-          likeMap[id] = { count: 0, mine: false, reaction: null };
+          likeMap[id] = { count: 0, mine: false, reaction: null, top: [] };
+          likeCounts[id] = {};
           cMap[id] = 0;
         }
         auxTasks.push(
@@ -335,10 +337,15 @@ function HomePage() {
               const e = likeMap[r.post_id];
               if (!e) continue;
               e.count += 1;
+              const rid = (r.reaction as ReactionId) ?? "like";
+              likeCounts[r.post_id][rid] = (likeCounts[r.post_id][rid] ?? 0) + 1;
               if (r.user_id === user!.id) {
                 e.mine = true;
-                e.reaction = (r.reaction as ReactionId) ?? "like";
+                e.reaction = rid;
               }
+            }
+            for (const id of ids) {
+              likeMap[id].top = topReactions(likeCounts[id]);
             }
             for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
           })(),
