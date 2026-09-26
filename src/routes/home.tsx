@@ -1006,9 +1006,16 @@ function HomePage() {
     setEditingPost(null);
   }
 
-  async function reactToPost(postId: string, reaction: ReactionId | null) {
+  // Ref mirrors let the callbacks below stay stable (useCallback) so memoized
+  // feed cards don't re-render when an unrelated post's like state changes.
+  const likesRef = useRef(likes);
+  likesRef.current = likes;
+  const rentalLikesRef = useRef(rentalLikes);
+  rentalLikesRef.current = rentalLikes;
+
+  const reactToPost = useCallback(async (postId: string, reaction: ReactionId | null) => {
     if (!user) return;
-    const cur0 = likes[postId] ?? { count: 0, mine: false, reaction: null, top: [] };
+    const cur0 = likesRef.current[postId] ?? { count: 0, mine: false, reaction: null, top: [] };
     const cur = { ...cur0, top: cur0.top ?? [] };
     // optimistic
     setLikes((m) => ({
