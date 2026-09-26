@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Bell, BriefcaseBusiness, CirclePlus, Home, Menu, MessageCircle, Search } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import logoImg from "@/assets/logo.jpg";
 
 // Remembers where the user was on each page so going back lands in the same spot.
 const scrollMemory = new Map<string, number>();
@@ -120,7 +121,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="grid min-h-[44px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-primary px-4 py-1.5 text-primary-foreground shadow-sm">
-        <Link to="/home" className="tap flex min-w-0 items-center gap-2.5" aria-label="BuildHub Home">
+        <Link to="/home" className="tap flex min-w-0 items-center gap-2" aria-label="BuildHub Home">
+          <img src={logoImg} alt="BuildHub logo" className="h-7 w-7 shrink-0 rounded-md object-cover" />
           <span className="min-w-0">
             <span className="block truncate font-display text-[16px] font-bold leading-none">BuildHub</span>
           </span>
