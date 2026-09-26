@@ -630,7 +630,8 @@ function HomePage() {
 
   async function reactToPost(postId: string, reaction: ReactionId | null) {
     if (!user) return;
-    const cur = likes[postId] ?? { count: 0, mine: false, reaction: null, top: [] };
+    const cur0 = likes[postId] ?? { count: 0, mine: false, reaction: null, top: [] };
+    const cur = { ...cur0, top: cur0.top ?? [] };
     // optimistic
     setLikes((m) => ({
       ...m,
