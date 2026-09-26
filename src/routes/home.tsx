@@ -163,7 +163,7 @@ function HomePage() {
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [stories, setStories] = useState<StoryGroup[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
+  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean; reaction: ReactionId | null }>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
@@ -310,7 +310,7 @@ function HomePage() {
       const rentalRows = (rentalsData as RentalRow[] | null) ?? [];
 
       // Build auxiliary maps scoped to this page's IDs
-      const likeMap: Record<string, { count: number; mine: boolean }> = {};
+      const likeMap: Record<string, { count: number; mine: boolean; reaction: ReactionId | null }> = {};
       const cMap: Record<string, number> = {};
       const rLikeMap: Record<string, { count: number; mine: boolean }> = {};
       const rcMap: Record<string, number> = {};
@@ -321,20 +321,23 @@ function HomePage() {
       if (postRows.length > 0) {
         const ids = postRows.map((p) => p.id);
         for (const id of ids) {
-          likeMap[id] = { count: 0, mine: false };
+          likeMap[id] = { count: 0, mine: false, reaction: null };
           cMap[id] = 0;
         }
         auxTasks.push(
           (async () => {
             const [{ data: likeRows }, { data: commentRows }] = await Promise.all([
-              supabase.from("post_likes").select("post_id, user_id").in("post_id", ids),
+              supabase.from("post_likes").select("post_id, user_id, reaction").in("post_id", ids),
               supabase.from("post_comments").select("post_id").in("post_id", ids),
             ]);
             for (const r of likeRows ?? []) {
               const e = likeMap[r.post_id];
               if (!e) continue;
               e.count += 1;
-              if (r.user_id === user!.id) e.mine = true;
+              if (r.user_id === user!.id) {
+                e.mine = true;
+                e.reaction = (r.reaction as ReactionId) ?? "like";
+              }
             }
             for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
           })(),
@@ -539,15 +542,17 @@ function HomePage() {
         setPosts((cur) => (cur.some((p) => p.id === row.id) ? cur : [row, ...cur]));
         // Hydrate like / comment counts for this single post
         const [{ data: likeRows }, { data: cmtRows }] = await Promise.all([
-          supabase.from("post_likes").select("user_id").eq("post_id", focusPostId!),
+          supabase.from("post_likes").select("user_id, reaction").eq("post_id", focusPostId!),
           supabase.from("post_comments").select("id").eq("post_id", focusPostId!),
         ]);
         if (cancelled) return;
+        const myRow = user ? likeRows?.find((r) => r.user_id === user.id) : null;
         setLikes((m) => ({
           ...m,
           [focusPostId!]: {
             count: likeRows?.length ?? 0,
-            mine: !!user && !!likeRows?.some((r) => r.user_id === user.id),
+            mine: !!myRow,
+            reaction: (myRow?.reaction as ReactionId) ?? null,
           },
         }));
         setCommentCounts((m) => ({ ...m, [focusPostId!]: cmtRows?.length ?? 0 }));
