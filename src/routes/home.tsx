@@ -445,7 +445,7 @@ const PostFeedCard = memo(function PostFeedCard({
 
       <footer className="mt-2 flex border-t border-border pt-1">
         <ReactionButton
-          mine={like.reaction}
+          mine={like.reaction ?? null}
           onReact={(r) => onReact(p.id, r)}
           label={t("like")}
         />
