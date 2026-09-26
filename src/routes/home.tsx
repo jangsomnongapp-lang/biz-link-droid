@@ -15,7 +15,15 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { ReactionButton, type ReactionId } from "@/components/ReactionButton";
+import { ReactionButton, reactionMeta, type ReactionId } from "@/components/ReactionButton";
+
+/** Most-used reactions first, up to 3 — used for the Facebook-style emoji stack. */
+function topReactions(counts: Record<string, number>): ReactionId[] {
+  return (Object.entries(counts) as [ReactionId, number][])
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([id]) => id);
+}
 import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play, HardHat, Boxes, Construction, Users, Search, BriefcaseBusiness } from "lucide-react";
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
@@ -164,7 +172,7 @@ function HomePage() {
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [stories, setStories] = useState<StoryGroup[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean; reaction: ReactionId | null }>>({});
+  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean; reaction: ReactionId | null; top: ReactionId[] }>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
@@ -311,7 +319,8 @@ function HomePage() {
       const rentalRows = (rentalsData as RentalRow[] | null) ?? [];
 
       // Build auxiliary maps scoped to this page's IDs
-      const likeMap: Record<string, { count: number; mine: boolean; reaction: ReactionId | null }> = {};
+      const likeMap: Record<string, { count: number; mine: boolean; reaction: ReactionId | null; top: ReactionId[] }> = {};
+      const likeCounts: Record<string, Record<string, number>> = {};
       const cMap: Record<string, number> = {};
       const rLikeMap: Record<string, { count: number; mine: boolean }> = {};
       const rcMap: Record<string, number> = {};
@@ -322,7 +331,8 @@ function HomePage() {
       if (postRows.length > 0) {
         const ids = postRows.map((p) => p.id);
         for (const id of ids) {
-          likeMap[id] = { count: 0, mine: false, reaction: null };
+          likeMap[id] = { count: 0, mine: false, reaction: null, top: [] };
+          likeCounts[id] = {};
           cMap[id] = 0;
         }
         auxTasks.push(
@@ -335,10 +345,15 @@ function HomePage() {
               const e = likeMap[r.post_id];
               if (!e) continue;
               e.count += 1;
+              const rid = (r.reaction as ReactionId) ?? "like";
+              likeCounts[r.post_id][rid] = (likeCounts[r.post_id][rid] ?? 0) + 1;
               if (r.user_id === user!.id) {
                 e.mine = true;
-                e.reaction = (r.reaction as ReactionId) ?? "like";
+                e.reaction = rid;
               }
+            }
+            for (const id of ids) {
+              likeMap[id].top = topReactions(likeCounts[id]);
             }
             for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
           })(),
@@ -548,12 +563,18 @@ function HomePage() {
         ]);
         if (cancelled) return;
         const myRow = user ? likeRows?.find((r) => r.user_id === user.id) : null;
+        const counts: Record<string, number> = {};
+        for (const r of likeRows ?? []) {
+          const rid = (r.reaction as ReactionId) ?? "like";
+          counts[rid] = (counts[rid] ?? 0) + 1;
+        }
         setLikes((m) => ({
           ...m,
           [focusPostId!]: {
             count: likeRows?.length ?? 0,
             mine: !!myRow,
             reaction: (myRow?.reaction as ReactionId) ?? null,
+            top: topReactions(counts),
           },
         }));
         setCommentCounts((m) => ({ ...m, [focusPostId!]: cmtRows?.length ?? 0 }));
@@ -609,13 +630,25 @@ function HomePage() {
 
   async function reactToPost(postId: string, reaction: ReactionId | null) {
     if (!user) return;
-    const cur = likes[postId] ?? { count: 0, mine: false, reaction: null };
+    const cur = likes[postId] ?? { count: 0, mine: false, reaction: null, top: [] };
     // optimistic
     setLikes((m) => ({
       ...m,
       [postId]: reaction
-        ? { count: cur.count + (cur.mine ? 0 : 1), mine: true, reaction }
-        : { count: cur.count - 1, mine: false, reaction: null },
+        ? {
+            count: cur.count + (cur.mine ? 0 : 1),
+            mine: true,
+            reaction,
+            top: cur.mine
+              ? cur.top.map((t) => (t === cur.reaction ? reaction : t))
+              : Array.from(new Set([reaction, ...cur.top])).slice(0, 3),
+          }
+        : {
+            count: cur.count - 1,
+            mine: false,
+            reaction: null,
+            top: cur.top.filter((t) => t !== cur.reaction),
+          },
     }));
     let error;
     if (!reaction) {
@@ -1155,8 +1188,15 @@ function HomePage() {
                   <span className="flex items-center gap-1">
                     {l.count > 0 && (
                       <>
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                          <ThumbsUp className="h-2.5 w-2.5" strokeWidth={3} />
+                        <span className="flex items-center -space-x-0.5">
+                          {(l.top.length > 0 ? l.top : (["like"] as ReactionId[])).map((rid) => (
+                            <span
+                              key={rid}
+                              className="flex h-4 w-4 items-center justify-center rounded-full bg-card text-[10px] leading-none ring-1 ring-border"
+                            >
+                              {reactionMeta(rid)?.emoji ?? "👍"}
+                            </span>
+                          ))}
                         </span>
                         {l.count}
                       </>
