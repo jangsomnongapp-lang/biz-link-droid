@@ -8,6 +8,13 @@
       "when": 1790036832696,
       "tag": "0000_public_read_access_for_visitors",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790392970325,
+      "tag": "0001_add_reaction_to_post_likes",
+      "breakpoints": true
     }
   ]
 }
