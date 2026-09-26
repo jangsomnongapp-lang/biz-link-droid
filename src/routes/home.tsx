@@ -606,27 +606,35 @@ function HomePage() {
     setEditingPost(null);
   }
 
-  async function toggleLike(postId: string) {
+  async function reactToPost(postId: string, reaction: ReactionId | null) {
     if (!user) return;
-    const cur = likes[postId] ?? { count: 0, mine: false };
+    const cur = likes[postId] ?? { count: 0, mine: false, reaction: null };
     // optimistic
     setLikes((m) => ({
       ...m,
-      [postId]: { count: cur.count + (cur.mine ? -1 : 1), mine: !cur.mine },
+      [postId]: reaction
+        ? { count: cur.count + (cur.mine ? 0 : 1), mine: true, reaction }
+        : { count: cur.count - 1, mine: false, reaction: null },
     }));
-    if (cur.mine) {
-      const { error } = await supabase
+    let error;
+    if (!reaction) {
+      ({ error } = await supabase
         .from("post_likes")
         .delete()
         .eq("post_id", postId)
-        .eq("user_id", user.id);
-      if (error) setLikes((m) => ({ ...m, [postId]: cur }));
-    } else {
-      const { error } = await supabase
+        .eq("user_id", user.id));
+    } else if (cur.mine) {
+      ({ error } = await supabase
         .from("post_likes")
-        .insert({ post_id: postId, user_id: user.id });
-      if (error) setLikes((m) => ({ ...m, [postId]: cur }));
+        .update({ reaction })
+        .eq("post_id", postId)
+        .eq("user_id", user.id));
+    } else {
+      ({ error } = await supabase
+        .from("post_likes")
+        .insert({ post_id: postId, user_id: user.id, reaction }));
     }
+    if (error) setLikes((m) => ({ ...m, [postId]: cur }));
   }
 
   async function contactSupplier(ownerId: string, storeId: string | undefined, postId?: string) {
@@ -1165,15 +1173,11 @@ function HomePage() {
               )}
 
               <footer className="mt-2 flex border-t border-border pt-1">
-                <button
-                  onClick={() => void toggleLike(p.id)}
-                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium active:bg-muted ${
-                    l.mine ? "text-primary" : "text-muted-foreground"
-                  }`}
-                >
-                  <ThumbsUp className="h-4 w-4" fill={l.mine ? "currentColor" : "none"} />
-                  {t("like")}
-                </button>
+                <ReactionButton
+                  mine={l.reaction}
+                  onReact={(r) => void reactToPost(p.id, r)}
+                  label={t("like")}
+                />
                 <button
                   onClick={() => setOpenComments(p.id)}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
