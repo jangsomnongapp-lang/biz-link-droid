@@ -1085,9 +1085,9 @@ function HomePage() {
     } finally {
       setContactingUser(null);
     }
-  }
+  }, [user, nav]);
 
-  async function sharePost(postId: string) {
+  const sharePost = useCallback(async (postId: string) => {
     const url = `${window.location.origin}/home?post=${postId}`;
     const shareData = { title: t("app_name"), url };
     try {
