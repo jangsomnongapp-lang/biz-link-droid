@@ -1126,9 +1126,9 @@ function HomePage() {
         .insert({ rental_id: rentalId, user_id: user.id });
       if (error) setRentalLikes((m) => ({ ...m, [rentalId]: cur }));
     }
-  }
+  }, [user]);
 
-  async function shareRental(rentalId: string) {
+  const shareRental = useCallback(async (rentalId: string) => {
     const url = `${window.location.origin}/rentals/${rentalId}`;
     try {
       if (navigator.share) {
