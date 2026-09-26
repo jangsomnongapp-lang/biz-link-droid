@@ -1104,11 +1104,11 @@ function HomePage() {
     } catch {
       toast.error(t("error_generic"));
     }
-  }
+  }, [t]);
 
-  async function toggleRentalLike(rentalId: string) {
+  const toggleRentalLike = useCallback(async (rentalId: string) => {
     if (!user) return;
-    const cur = rentalLikes[rentalId] ?? { count: 0, mine: false };
+    const cur = rentalLikesRef.current[rentalId] ?? { count: 0, mine: false };
     setRentalLikes((m) => ({
       ...m,
       [rentalId]: { count: cur.count + (cur.mine ? -1 : 1), mine: !cur.mine },
