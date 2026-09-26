@@ -757,7 +757,7 @@ function HomePage() {
       </div>
 
       {/* Five primary shortcuts */}
-      <div className="grid grid-cols-5 border-y border-border bg-surface px-2 pb-3 pt-1">
+      <div className="grid grid-cols-5 gap-x-1 border-y border-border bg-surface px-3 py-2.5">
         {[
           { to: "/listings" as const, label: lang === "km" ? "រកការងារ" : "Find work", icon: BriefcaseBusiness, tone: "bg-shortcut-blue" },
           { to: "/listings/new" as const, label: lang === "km" ? "បង្ហោះគម្រោង" : "Post a job", icon: HardHat, tone: "bg-shortcut-green" },
@@ -767,11 +767,11 @@ function HomePage() {
         ].map((item) => {
           const Icon = item.icon;
           return (
-            <Link key={`${item.to}-${item.label}`} to={item.to} search={item.search} className="tap flex min-w-0 flex-col items-center gap-1.5 px-0.5 text-center">
-              <span className={`grid h-12 w-[52px] place-items-center rounded-lg ${item.tone} text-primary-foreground shadow-sm`}>
-                <Icon className="h-6 w-6" strokeWidth={2.2} />
+            <Link key={`${item.to}-${item.label}`} to={item.to} search={item.search} className="tap flex min-w-0 flex-col items-center gap-1 text-center">
+              <span className={`grid h-11 w-[46px] place-items-center rounded-lg ${item.tone} text-primary-foreground shadow-sm`}>
+                <Icon className="h-5 w-5" strokeWidth={2.2} />
               </span>
-              <span className="line-clamp-2 min-h-8 text-[10px] font-semibold leading-4 text-foreground">{item.label}</span>
+              <span className="line-clamp-2 text-[10px] font-semibold leading-3.5 text-foreground">{item.label}</span>
             </Link>
           );
         })}
