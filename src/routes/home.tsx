@@ -630,7 +630,8 @@ function HomePage() {
 
   async function reactToPost(postId: string, reaction: ReactionId | null) {
     if (!user) return;
-    const cur = likes[postId] ?? { count: 0, mine: false, reaction: null, top: [] };
+    const cur0 = likes[postId] ?? { count: 0, mine: false, reaction: null, top: [] };
+    const cur = { ...cur0, top: cur0.top ?? [] };
     // optimistic
     setLikes((m) => ({
       ...m,
@@ -1189,7 +1190,7 @@ function HomePage() {
                     {l.count > 0 && (
                       <>
                         <span className="flex items-center -space-x-0.5">
-                          {(l.top.length > 0 ? l.top : (["like"] as ReactionId[])).map((rid) => (
+                          {((l.top && l.top.length > 0) ? l.top : (["like"] as ReactionId[])).map((rid) => (
                             <span
                               key={rid}
                               className="flex h-4 w-4 items-center justify-center rounded-full bg-card text-[10px] leading-none ring-1 ring-border"
