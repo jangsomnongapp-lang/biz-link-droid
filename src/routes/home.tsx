@@ -95,6 +95,10 @@ interface LikeInfo {
 
 type TFn = (key: string) => string;
 
+/** Shared empty defaults so cards without likes keep a stable prop identity. */
+const EMPTY_LIKE: LikeInfo = { count: 0, mine: false, reaction: null, top: [] };
+const EMPTY_RENTAL_LIKE = { count: 0, mine: false };
+
 /* Memoized feed cards: liking/commenting one card no longer re-renders the whole feed. */
 
 const RentalFeedCard = memo(function RentalFeedCard({
