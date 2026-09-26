@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, BriefcaseBusiness, CirclePlus, HardHat, Home, Menu, MessageCircle, Search } from "lucide-react";
+import { Bell, BriefcaseBusiness, CirclePlus, Home, Menu, MessageCircle, Search } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
@@ -121,9 +121,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-30 grid min-h-[74px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-primary px-4 pb-3 pt-safe-top text-primary-foreground shadow-sm">
         <Link to="/home" className="tap flex min-w-0 items-center gap-2.5" aria-label="BuildHub Home">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary-foreground text-primary">
-            <HardHat className="h-7 w-7" strokeWidth={2.5} />
-          </span>
           <span className="min-w-0">
             <span className="block truncate font-display text-[22px] font-bold leading-6">BuildHub</span>
           </span>
