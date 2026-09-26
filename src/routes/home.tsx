@@ -555,12 +555,18 @@ function HomePage() {
         ]);
         if (cancelled) return;
         const myRow = user ? likeRows?.find((r) => r.user_id === user.id) : null;
+        const counts: Record<string, number> = {};
+        for (const r of likeRows ?? []) {
+          const rid = (r.reaction as ReactionId) ?? "like";
+          counts[rid] = (counts[rid] ?? 0) + 1;
+        }
         setLikes((m) => ({
           ...m,
           [focusPostId!]: {
             count: likeRows?.length ?? 0,
             mine: !!myRow,
             reaction: (myRow?.reaction as ReactionId) ?? null,
+            top: topReactions(counts),
           },
         }));
         setCommentCounts((m) => ({ ...m, [focusPostId!]: cmtRows?.length ?? 0 }));
@@ -616,13 +622,25 @@ function HomePage() {
 
   async function reactToPost(postId: string, reaction: ReactionId | null) {
     if (!user) return;
-    const cur = likes[postId] ?? { count: 0, mine: false, reaction: null };
+    const cur = likes[postId] ?? { count: 0, mine: false, reaction: null, top: [] };
     // optimistic
     setLikes((m) => ({
       ...m,
       [postId]: reaction
-        ? { count: cur.count + (cur.mine ? 0 : 1), mine: true, reaction }
-        : { count: cur.count - 1, mine: false, reaction: null },
+        ? {
+            count: cur.count + (cur.mine ? 0 : 1),
+            mine: true,
+            reaction,
+            top: cur.mine
+              ? cur.top.map((t) => (t === cur.reaction ? reaction : t))
+              : Array.from(new Set([reaction, ...cur.top])).slice(0, 3),
+          }
+        : {
+            count: cur.count - 1,
+            mine: false,
+            reaction: null,
+            top: cur.top.filter((t) => t !== cur.reaction),
+          },
     }));
     let error;
     if (!reaction) {
