@@ -396,7 +396,7 @@ const PostFeedCard = memo(function PostFeedCard({
         );
       })()}
 
-      {p.video_url && !isDirectVideoUrl(p.video_url) && <FeedVideo url={p.video_url} />}
+      {p.video_url && !isDirectVideoUrl(p.video_url) && <VideoEmbed url={p.video_url} />}
 
       {isSupplierLike && !isOwner && (
         <button
