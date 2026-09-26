@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, Newspaper, Bell, User, Menu, Search, MessageCircle, Store } from "lucide-react";
+import { Bell, BriefcaseBusiness, CirclePlus, HardHat, Home, Menu, MessageCircle, Search } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
@@ -25,7 +25,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const location = useLocation();
   const path = location.pathname;
-  const [mySupplierStoreId, setMySupplierStoreId] = useState<string | null>(null);
   const qc = useQueryClient();
 
   async function handleRefresh() {
@@ -69,28 +68,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [path]);
 
 
-  useEffect(() => {
-    if (!user) {
-      setMySupplierStoreId(null);
-      return;
-    }
-    void supabase
-      .from("supplier_stores")
-      .select("id")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setMySupplierStoreId(data?.id ?? null));
-  }, [user]);
-
   const { data: unreadAlerts = 0 } = useQuery({
     queryKey: ["unread-alerts", user?.id ?? null],
     enabled: !!user,
     staleTime: 15_000,
     queryFn: async () => {
+      if (!user) return 0;
       const { count } = await supabase
         .from("notifications")
         .select("id", { count: "exact", head: true })
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .is("read_at", null);
       return count ?? 0;
     },
@@ -101,7 +88,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     enabled: !!user,
     staleTime: 15_000,
     queryFn: async () => {
-      const { data } = await supabase.rpc("unread_message_count", { _user_id: user!.id });
+      if (!user) return 0;
+      const { data } = await supabase.rpc("unread_message_count", { _user_id: user.id });
       return (data as number | null) ?? 0;
     },
   });
@@ -122,55 +110,52 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const tabs = [
     { to: "/home", label: t("nav_home"), icon: Home, badge: 0 },
-    { to: "/listings", label: t("nav_listings"), icon: Newspaper, badge: 0 },
-    { to: "/suppliers", label: t("nav_suppliers"), icon: Store, badge: 0 },
-    { to: "/alerts", label: t("nav_alerts"), icon: Bell, badge: unreadAlerts },
-    { to: "/profile", label: t("nav_profile"), icon: User, badge: 0 },
+    { to: "/listings", label: t("nav_listings"), icon: BriefcaseBusiness, badge: 0 },
+    { to: "/announce", label: t("nav_announce"), icon: CirclePlus, badge: 0, prominent: true },
+    { to: "/messages", label: t("messages"), icon: MessageCircle, badge: unreadMessages },
+    { to: "/settings", label: t("menu"), icon: Menu, badge: 0 },
   ] as const;
 
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-primary px-3 text-primary-foreground">
-        <div className="flex items-center gap-2">
-          <Link to="/settings" className="tap rounded-full p-2 active:bg-white/10" aria-label="Menu">
-            <Menu className="h-6 w-6" />
+      <header className="sticky top-0 z-30 grid min-h-[74px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-primary px-4 pb-3 pt-safe-top text-primary-foreground shadow-sm">
+        <Link to="/home" className="tap flex min-w-0 items-center gap-2.5" aria-label="BuildHub Home">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary-foreground text-primary">
+            <HardHat className="h-7 w-7" strokeWidth={2.5} />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-display text-[22px] font-bold leading-6">BuildHub</span>
+            <span className="block truncate text-[10px] font-medium leading-4 opacity-85">Build · Work · Supply · Grow</span>
+          </span>
+        </Link>
+        <div className="flex shrink-0 items-center gap-1">
+          <Link to="/search" className="tap rounded-full p-2 active:bg-primary-foreground/10" aria-label="Search">
+            <Search className="h-6 w-6" />
           </Link>
-          <span className="text-lg font-bold">{t("app_name")}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Link to="/search" className="tap rounded-full p-2 active:bg-white/10" aria-label="Search">
-            <Search className="h-5 w-5" />
-          </Link>
-          <Link to="/messages" className="tap relative rounded-full p-2 active:bg-white/10" aria-label="Messages">
-            <MessageCircle className="h-5 w-5" />
-            <UnreadBadge count={unreadMessages} />
+          <Link to="/alerts" className="tap relative rounded-full p-2 active:bg-primary-foreground/10" aria-label={t("nav_alerts")}>
+            <Bell className="h-6 w-6" />
+            <UnreadBadge count={unreadAlerts} />
           </Link>
         </div>
       </header>
 
-      <nav className="sticky top-14 z-20 flex border-b border-border bg-surface">
+      <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto grid h-[68px] max-w-[480px] grid-cols-5 border-t border-border bg-surface px-1 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-4px_16px_color-mix(in_oklab,var(--foreground)_8%,transparent)]">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isSupplierProfileTab = tab.to === "/profile" && !!mySupplierStoreId;
-          const active = isSupplierProfileTab
-            ? path === "/profile" || path.startsWith(`/suppliers/${mySupplierStoreId}`)
-            : tab.to === "/home"
-              ? path === "/home"
-              : path.startsWith(tab.to);
+          const active = tab.to === "/home" ? path === "/home" : path.startsWith(tab.to);
           const content = (
             <>
-              <span className="relative">
+              <span className={`relative grid place-items-center ${tab.prominent ? "-mt-5 h-12 w-12 rounded-full border-4 border-surface bg-primary text-primary-foreground shadow-card" : "h-7 w-8"}`}>
                 <Icon
-                  className={`h-5 w-5 transition-transform duration-300 ${active ? "scale-110 text-primary" : "text-muted-foreground"}`}
+                  className={`${tab.prominent ? "h-7 w-7" : "h-5 w-5"} transition-transform duration-300 ${active || tab.prominent ? "text-primary" : "text-muted-foreground"} ${tab.prominent ? "text-primary-foreground" : ""}`}
                   strokeWidth={active ? 2.5 : 2}
                 />
                 <UnreadBadge count={tab.badge} />
               </span>
-              <span className={`text-[10px] font-medium transition-colors duration-200 ${active ? "text-primary" : "text-muted-foreground"}`}>
+              <span className={`text-[10px] font-semibold transition-colors duration-200 ${active ? "text-primary" : "text-muted-foreground"}`}>
                 {tab.label}
               </span>
-              {active && <span className="ios-fade absolute bottom-0 h-0.5 w-10 rounded-full bg-primary" />}
             </>
           );
           const onTabClick = () => {
@@ -178,30 +163,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             if (active) void handleRefresh();
             else pendingTabRefresh.current = true;
           };
-          return isSupplierProfileTab ? (
-            <Link
-              key={tab.to}
-              to="/suppliers/$storeId"
-              params={{ storeId: mySupplierStoreId! }}
-              onClick={onTabClick}
-              className="tap relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
-            >
-              {content}
-            </Link>
-          ) : (
-            <Link
-              key={tab.to}
-              to={tab.to}
-              onClick={onTabClick}
-              className="tap relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
-            >
+          return (
+            <Link key={tab.to} to={tab.to} onClick={onTabClick} className="tap relative flex min-w-0 flex-col items-center justify-center gap-0.5 pt-1">
               {content}
             </Link>
           );
         })}
       </nav>
 
-      <main className="flex-1 pb-4">
+      <main className="flex-1 pb-[76px]">
         <PullToRefresh onRefresh={handleRefresh}>
           <div className="ios-page">
             {children}
