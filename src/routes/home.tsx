@@ -784,7 +784,7 @@ function HomePage() {
           to="/story/new"
           className="tap relative h-36 w-[92px] shrink-0 overflow-hidden rounded-lg bg-muted"
         >
-          <img src={storyCreateCover} alt="" className="absolute inset-0 h-full w-full object-cover brightness-[0.72]" />
+          <img src={profile?.avatar_url || storyCreateCover} alt="" className="absolute inset-0 h-full w-full object-cover brightness-[0.72]" />
           <span className="absolute inset-x-0 bottom-0 h-16 bg-story-fade" />
           <span className="absolute bottom-9 left-1/2 grid h-8 w-8 -translate-x-1/2 place-items-center rounded-full border-2 border-primary-foreground bg-primary text-primary-foreground">
             <Plus className="h-4 w-4" strokeWidth={3} />
