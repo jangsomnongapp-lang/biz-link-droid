@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, BriefcaseBusiness, CirclePlus, HardHat, Home, Menu, MessageCircle, Search } from "lucide-react";
+import { Bell, BriefcaseBusiness, CirclePlus, Home, Menu, MessageCircle, Search } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 
