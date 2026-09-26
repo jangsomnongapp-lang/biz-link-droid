@@ -1171,6 +1171,39 @@ function HomePage() {
 
   const focused = !!focusPostId;
 
+  // Merge + block-shuffle only when the data or seed changes — not on every
+  // like/comment state update.
+  const feedItems = useMemo(() => {
+    type FeedItem =
+      | { kind: "post"; created_at: string; data: PostRow }
+      | { kind: "rental"; created_at: string; data: RentalRow };
+    const visiblePosts = focused ? posts.filter((p) => p.id === focusPostId) : posts;
+    const visibleRentals = focused ? [] : rentals;
+    const items: FeedItem[] = [
+      ...visiblePosts.map((p) => ({ kind: "post" as const, created_at: p.created_at, data: p })),
+      ...visibleRentals.map((r) => ({ kind: "rental" as const, created_at: r.created_at, data: r })),
+    ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    // Shuffle within blocks of 4 so recent content stays near the top
+    // but the exact order varies on each refresh.
+    if (!focused) {
+      const rand = (n: number) => {
+        const x = Math.sin(shuffleSeed * 9301 + n * 49297) * 233280;
+        return x - Math.floor(x);
+      };
+      const BLOCK = 4;
+      for (let start = 0; start < items.length; start += BLOCK) {
+        const block = items.slice(start, start + BLOCK);
+        block
+          .map((it, i) => ({ it, k: rand(start + i) }))
+          .sort((a, b) => a.k - b.k)
+          .forEach(({ it }, i) => {
+            items[start + i] = it;
+          });
+      }
+    }
+    return items;
+  }, [posts, rentals, focused, focusPostId, shuffleSeed]);
+
   return (
     <div>
       <h1 className="sr-only">BuildHub Community Feed</h1>
