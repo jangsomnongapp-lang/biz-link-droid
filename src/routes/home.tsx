@@ -1180,8 +1180,15 @@ function HomePage() {
                   <span className="flex items-center gap-1">
                     {l.count > 0 && (
                       <>
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                          <ThumbsUp className="h-2.5 w-2.5" strokeWidth={3} />
+                        <span className="flex items-center -space-x-0.5">
+                          {(l.top.length > 0 ? l.top : (["like"] as ReactionId[])).map((rid) => (
+                            <span
+                              key={rid}
+                              className="flex h-4 w-4 items-center justify-center rounded-full bg-card text-[10px] leading-none ring-1 ring-border"
+                            >
+                              {reactionMeta(rid)?.emoji ?? "👍"}
+                            </span>
+                          ))}
                         </span>
                         {l.count}
                       </>
