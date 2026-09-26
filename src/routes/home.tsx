@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
+import { ReactionButton, type ReactionId } from "@/components/ReactionButton";
 import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play, HardHat, Boxes, Construction, Users, Search, BriefcaseBusiness } from "lucide-react";
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
@@ -163,7 +164,7 @@ function HomePage() {
   const [posts, setPosts] = useState<PostRow[]>([]);
   const [stories, setStories] = useState<StoryGroup[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean }>>({});
+  const [likes, setLikes] = useState<Record<string, { count: number; mine: boolean; reaction: ReactionId | null }>>({});
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
@@ -310,7 +311,7 @@ function HomePage() {
       const rentalRows = (rentalsData as RentalRow[] | null) ?? [];
 
       // Build auxiliary maps scoped to this page's IDs
-      const likeMap: Record<string, { count: number; mine: boolean }> = {};
+      const likeMap: Record<string, { count: number; mine: boolean; reaction: ReactionId | null }> = {};
       const cMap: Record<string, number> = {};
       const rLikeMap: Record<string, { count: number; mine: boolean }> = {};
       const rcMap: Record<string, number> = {};
@@ -321,20 +322,23 @@ function HomePage() {
       if (postRows.length > 0) {
         const ids = postRows.map((p) => p.id);
         for (const id of ids) {
-          likeMap[id] = { count: 0, mine: false };
+          likeMap[id] = { count: 0, mine: false, reaction: null };
           cMap[id] = 0;
         }
         auxTasks.push(
           (async () => {
             const [{ data: likeRows }, { data: commentRows }] = await Promise.all([
-              supabase.from("post_likes").select("post_id, user_id").in("post_id", ids),
+              supabase.from("post_likes").select("post_id, user_id, reaction").in("post_id", ids),
               supabase.from("post_comments").select("post_id").in("post_id", ids),
             ]);
             for (const r of likeRows ?? []) {
               const e = likeMap[r.post_id];
               if (!e) continue;
               e.count += 1;
-              if (r.user_id === user!.id) e.mine = true;
+              if (r.user_id === user!.id) {
+                e.mine = true;
+                e.reaction = (r.reaction as ReactionId) ?? "like";
+              }
             }
             for (const r of commentRows ?? []) cMap[r.post_id] = (cMap[r.post_id] ?? 0) + 1;
           })(),
@@ -539,15 +543,17 @@ function HomePage() {
         setPosts((cur) => (cur.some((p) => p.id === row.id) ? cur : [row, ...cur]));
         // Hydrate like / comment counts for this single post
         const [{ data: likeRows }, { data: cmtRows }] = await Promise.all([
-          supabase.from("post_likes").select("user_id").eq("post_id", focusPostId!),
+          supabase.from("post_likes").select("user_id, reaction").eq("post_id", focusPostId!),
           supabase.from("post_comments").select("id").eq("post_id", focusPostId!),
         ]);
         if (cancelled) return;
+        const myRow = user ? likeRows?.find((r) => r.user_id === user.id) : null;
         setLikes((m) => ({
           ...m,
           [focusPostId!]: {
             count: likeRows?.length ?? 0,
-            mine: !!user && !!likeRows?.some((r) => r.user_id === user.id),
+            mine: !!myRow,
+            reaction: (myRow?.reaction as ReactionId) ?? null,
           },
         }));
         setCommentCounts((m) => ({ ...m, [focusPostId!]: cmtRows?.length ?? 0 }));
@@ -601,27 +607,35 @@ function HomePage() {
     setEditingPost(null);
   }
 
-  async function toggleLike(postId: string) {
+  async function reactToPost(postId: string, reaction: ReactionId | null) {
     if (!user) return;
-    const cur = likes[postId] ?? { count: 0, mine: false };
+    const cur = likes[postId] ?? { count: 0, mine: false, reaction: null };
     // optimistic
     setLikes((m) => ({
       ...m,
-      [postId]: { count: cur.count + (cur.mine ? -1 : 1), mine: !cur.mine },
+      [postId]: reaction
+        ? { count: cur.count + (cur.mine ? 0 : 1), mine: true, reaction }
+        : { count: cur.count - 1, mine: false, reaction: null },
     }));
-    if (cur.mine) {
-      const { error } = await supabase
+    let error;
+    if (!reaction) {
+      ({ error } = await supabase
         .from("post_likes")
         .delete()
         .eq("post_id", postId)
-        .eq("user_id", user.id);
-      if (error) setLikes((m) => ({ ...m, [postId]: cur }));
-    } else {
-      const { error } = await supabase
+        .eq("user_id", user.id));
+    } else if (cur.mine) {
+      ({ error } = await supabase
         .from("post_likes")
-        .insert({ post_id: postId, user_id: user.id });
-      if (error) setLikes((m) => ({ ...m, [postId]: cur }));
+        .update({ reaction })
+        .eq("post_id", postId)
+        .eq("user_id", user.id));
+    } else {
+      ({ error } = await supabase
+        .from("post_likes")
+        .insert({ post_id: postId, user_id: user.id, reaction }));
     }
+    if (error) setLikes((m) => ({ ...m, [postId]: cur }));
   }
 
   async function contactSupplier(ownerId: string, storeId: string | undefined, postId?: string) {
@@ -1160,15 +1174,11 @@ function HomePage() {
               )}
 
               <footer className="mt-2 flex border-t border-border pt-1">
-                <button
-                  onClick={() => void toggleLike(p.id)}
-                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium active:bg-muted ${
-                    l.mine ? "text-primary" : "text-muted-foreground"
-                  }`}
-                >
-                  <ThumbsUp className="h-4 w-4" fill={l.mine ? "currentColor" : "none"} />
-                  {t("like")}
-                </button>
+                <ReactionButton
+                  mine={l.reaction}
+                  onReact={(r) => void reactToPost(p.id, r)}
+                  label={t("like")}
+                />
                 <button
                   onClick={() => setOpenComments(p.id)}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
