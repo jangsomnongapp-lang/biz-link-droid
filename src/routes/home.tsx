@@ -15,11 +15,12 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { Plus, ThumbsUp, MessageSquare, Share2, Image as ImageIcon, X, UserPlus, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play, HardHat, Boxes, Construction, Users, Search, BriefcaseBusiness } from "lucide-react";
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
 import { formatPrice } from "@/lib/price";
+import storyCreateCover from "@/assets/categories/full-project.jpg";
 
 type ViewerMedia = { type: "photo" | "video"; url: string };
 
@@ -95,6 +96,8 @@ export const Route = createFileRoute("/home")({
       { property: "og:title", content: "Home feed — BuildHub" },
       { property: "og:description", content: "Your BuildHub feed: latest jobs, stories, and updates from Cambodia's construction community." },
       { property: "og:url", content: "https://buildhubkh.com/home" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, follow" },
     ],
     links: [{ rel: "canonical", href: "https://buildhubkh.com/home" }],
@@ -738,65 +741,59 @@ function HomePage() {
         </div>
       )}
       {!focused && (<>
-      {/* Quick post */}
-      <div className="mt-2 flex items-center gap-2 bg-surface px-3 py-3 shadow-card">
+      {/* Search and create */}
+      <div className="flex items-center gap-2 bg-surface px-3 py-3">
         <Avatar name={profile?.full_name} url={profile?.avatar_url} size={36} />
         <Link
-          to="/announce"
-          className="flex h-10 flex-1 items-center rounded-full border border-border bg-background px-4 text-sm text-muted-foreground active:bg-muted"
+          to="/search"
+          className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-surface px-3 text-sm text-muted-foreground shadow-sm active:bg-muted"
         >
-          {t("what_share")}
+          <Search className="h-4 w-4 shrink-0" />
+          <span className="truncate">{lang === "km" ? "តើអ្នកត្រូវការអ្វីថ្ងៃនេះ?" : "What do you need today?"}</span>
         </Link>
-        <Link to="/announce" className="rounded-full p-2 text-primary active:bg-primary/10">
-          <ImageIcon className="h-5 w-5" />
+        <Link to="/announce" className="tap rounded-md p-2 text-primary active:bg-primary/10" aria-label={t("nav_announce")}>
+          <SquarePen className="h-6 w-6" />
         </Link>
       </div>
 
-      {/* Top bar: Invite friends + Find my material */}
-      <div className="mt-2 grid grid-cols-2 gap-2 px-2">
-        <Link
-          to="/invitations"
-          className="flex items-center gap-3 rounded-xl bg-primary/10 px-3 py-2.5 text-primary shadow-card active:opacity-90"
-        >
-          <UserPlus className="h-5 w-5 shrink-0 text-primary" />
-          <div className="flex flex-col leading-tight text-left">
-            <span className="text-[10px] font-medium text-primary/70">
-              {lang === "km" ? "ទទួលរង្វាន់" : "Earn rewards"}
-            </span>
-            <span className="text-sm font-bold text-primary">
-              {lang === "km" ? "អញ្ជើញមិត្ត" : "Invite friends"}
-            </span>
-          </div>
-        </Link>
-        <Link
-          to="/find-material"
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#c87000] px-3 py-3 text-sm font-semibold text-white shadow-card active:opacity-90"
-        >
-          <Sparkles className="h-4 w-4" />
-          {lang === "km" ? "រកសម្ភារៈ" : "Find my material"}
-        </Link>
+      {/* Five primary shortcuts */}
+      <div className="grid grid-cols-5 border-y border-border bg-surface px-2 pb-3 pt-1">
+        {[
+          { to: "/listings" as const, label: lang === "km" ? "រកការងារ" : "Find work", icon: BriefcaseBusiness, tone: "bg-shortcut-blue" },
+          { to: "/listings/new" as const, label: lang === "km" ? "បង្ហោះគម្រោង" : "Post a job", icon: HardHat, tone: "bg-shortcut-green" },
+          { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: Boxes, tone: "bg-shortcut-orange", search: { mode: "shops" as const } },
+          { to: "/suppliers" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: Construction, tone: "bg-shortcut-violet", search: { mode: "rent" as const } },
+          { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: Users, tone: "bg-shortcut-slate" },
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link key={`${item.to}-${item.label}`} to={item.to} search={item.search} className="tap flex min-w-0 flex-col items-center gap-1.5 px-0.5 text-center">
+              <span className={`grid h-12 w-[52px] place-items-center rounded-lg ${item.tone} text-primary-foreground shadow-sm`}>
+                <Icon className="h-6 w-6" strokeWidth={2.2} />
+              </span>
+              <span className="line-clamp-2 min-h-8 text-[10px] font-semibold leading-4 text-foreground">{item.label}</span>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Stories row */}
       <h2 className="sr-only">Stories</h2>
-      <div className="no-scrollbar mt-2 flex gap-3 overflow-x-auto bg-surface px-3 py-3 shadow-card">
+      <div className="no-scrollbar flex gap-2 overflow-x-auto bg-surface px-3 py-3">
         <Link
           to="/story/new"
-          className="flex w-16 shrink-0 flex-col items-center gap-1.5 active:scale-[0.97]"
+          className="tap relative h-36 w-[92px] shrink-0 overflow-hidden rounded-lg bg-muted"
         >
-          <div className="relative h-16 w-16">
-            <Avatar name={profile?.full_name} url={profile?.avatar_url} size={64} />
-            <div className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-surface bg-primary text-primary-foreground">
-              <Plus className="h-3.5 w-3.5" strokeWidth={3} />
-            </div>
-          </div>
-          <span className="line-clamp-1 text-[11px] font-medium text-foreground">{t("create_story")}</span>
+          <img src={storyCreateCover} alt="" className="absolute inset-0 h-full w-full object-cover brightness-[0.72]" />
+          <span className="absolute inset-x-0 bottom-0 h-16 bg-story-fade" />
+          <span className="absolute bottom-9 left-1/2 grid h-8 w-8 -translate-x-1/2 place-items-center rounded-full border-2 border-primary-foreground bg-primary text-primary-foreground">
+            <Plus className="h-4 w-4" strokeWidth={3} />
+          </span>
+          <span className="absolute inset-x-1 bottom-2 text-center text-[10px] font-bold leading-3 text-primary-foreground">{t("create_story")}</span>
         </Link>
         {storiesLoading && stories.length === 0 &&
           Array.from({ length: 5 }).map((_, i) => (
-            <div key={`sk-${i}`} className="flex w-16 shrink-0 flex-col items-center gap-1.5">
-              <div className="h-16 w-16 animate-pulse rounded-full bg-muted" />
-              <div className="h-2.5 w-12 animate-pulse rounded bg-muted" />
+            <div key={`sk-${i}`} className="h-36 w-[92px] shrink-0 animate-pulse rounded-lg bg-muted">
             </div>
           ))}
         {stories.map((s) => (
@@ -805,18 +802,14 @@ function HomePage() {
             to="/story/view"
             search={{ user: s.user_id }}
             onClick={() => void recordStoryOpen(s.id, s.user_id)}
-            className="flex w-16 shrink-0 flex-col items-center gap-1.5 active:scale-[0.97]"
+            className="tap relative h-36 w-[92px] shrink-0 overflow-hidden rounded-lg bg-muted"
           >
-            <div className="rounded-full bg-gradient-to-tr from-pink-500 via-orange-400 to-yellow-400 p-[2px]">
-              <div className="rounded-full border-2 border-surface">
-                <img
-                  src={s.cover}
-                  alt={`Story from ${s.full_name ?? "user"}`}
-                  className="h-[60px] w-[60px] rounded-full object-cover"
-                />
-              </div>
-            </div>
-            <span className="line-clamp-1 w-full text-center text-[11px] font-medium text-foreground">
+            <img src={s.cover} alt={`Story from ${s.full_name ?? "user"}`} className="absolute inset-0 h-full w-full object-cover brightness-[0.72]" />
+            <span className="absolute inset-x-0 bottom-0 h-16 bg-story-fade" />
+            <span className="absolute left-2 top-2 rounded-full border-2 border-accent bg-surface p-0.5">
+              <Avatar name={s.full_name} url={s.avatar_url} size={26} />
+            </span>
+            <span className="absolute inset-x-2 bottom-2 line-clamp-2 text-[10px] font-bold leading-3 text-primary-foreground">
               {s.full_name ?? "User"}
             </span>
           </Link>
@@ -826,7 +819,7 @@ function HomePage() {
 
       {/* Feed */}
       <h2 className="sr-only">Community Feed</h2>
-      <div className="mt-2 space-y-2">
+      <div className="space-y-3 bg-background px-2 py-3">
         {loading && <FeedSkeleton count={3} />}
         {!loading && !focused && posts.length === 0 && (
           <div className="bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
@@ -880,7 +873,7 @@ function HomePage() {
               return (
                 <article
                   key={`r-${r.id}`}
-                  className="block border border-[#7F77DD] bg-surface px-4 py-3 shadow-card"
+                  className="block rounded-lg border border-border bg-surface px-3 py-3 shadow-card"
                 >
                   <Link
                     to="/rentals/$rentalId"
@@ -1005,8 +998,8 @@ function HomePage() {
             <article
               key={p.id}
               id={`post-${p.id}`}
-              className={`relative bg-surface px-4 py-3 shadow-card transition-shadow ${
-                isSupplierLike ? "border-l-4 border-amber-500" : ""
+              className={`relative rounded-lg border border-border bg-surface px-3 py-3 shadow-card transition-shadow ${
+                isSupplierLike ? "border-l-4 border-accent" : ""
               } ${highlightId === p.id ? "ring-2 ring-primary" : ""}`}
             >
               {isAdmin && !isOwner && (
