@@ -125,6 +125,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <img src={logoImg} alt="BuildHub logo" className="h-7 w-7 shrink-0 rounded-md object-cover" />
           <span className="min-w-0">
             <span className="block truncate font-display text-[16px] font-bold leading-none">BuildHub</span>
+            <span className="block truncate text-[9px] leading-tight opacity-80">Work · Workers · Materials</span>
           </span>
         </Link>
         <div className="flex shrink-0 items-center gap-0.5">
