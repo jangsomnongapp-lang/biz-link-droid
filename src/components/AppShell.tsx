@@ -126,7 +126,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </span>
           <span className="min-w-0">
             <span className="block truncate font-display text-[22px] font-bold leading-6">BuildHub</span>
-            <span className="block truncate text-[10px] font-medium leading-4 opacity-85">Build · Work · Supply · Grow</span>
           </span>
         </Link>
         <div className="flex shrink-0 items-center gap-1">
