@@ -1317,361 +1317,41 @@ function HomePage() {
             {t("loading")}
           </div>
         )}
-        {(() => {
-          type FeedItem =
-            | { kind: "post"; created_at: string; data: PostRow }
-            | { kind: "rental"; created_at: string; data: RentalRow };
-          const visiblePosts = focused ? posts.filter((p) => p.id === focusPostId) : posts;
-          const visibleRentals = focused ? [] : rentals;
-          const items: FeedItem[] = [
-            ...visiblePosts.map((p) => ({ kind: "post" as const, created_at: p.created_at, data: p })),
-            ...visibleRentals.map((r) => ({ kind: "rental" as const, created_at: r.created_at, data: r })),
-          ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
-          // Shuffle within blocks of 4 so recent content stays near the top
-          // but the exact order varies on each refresh.
-          if (!focused) {
-            const rand = (n: number) => {
-              const x = Math.sin(shuffleSeed * 9301 + n * 49297) * 233280;
-              return x - Math.floor(x);
-            };
-            const BLOCK = 4;
-            for (let start = 0; start < items.length; start += BLOCK) {
-              const block = items.slice(start, start + BLOCK);
-              block
-                .map((it, i) => ({ it, k: rand(start + i) }))
-                .sort((a, b) => a.k - b.k)
-                .forEach(({ it }, i) => {
-                  items[start + i] = it;
-                });
-            }
-          }
-
-          return items.map((item) => {
-            if (item.kind === "rental") {
-              const r = item.data;
-              const rl = rentalLikes[r.id] ?? { count: 0, mine: false };
-              const rcc = rentalCommentCounts[r.id] ?? 0;
-              return (
-                <article
-                  key={`r-${r.id}`}
-                  className="block rounded-lg border border-border bg-surface px-3 py-3 shadow-card"
-                >
-                  <Link
-                    to="/rentals/$rentalId"
-                    params={{ rentalId: r.id }}
-                    className="block active:opacity-95"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar name={r.profiles?.full_name} url={r.profiles?.avatar_url} size={40} />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                          <span className="truncate">{r.profiles?.full_name ?? "User"}</span>
-                          <span className="rounded-md bg-[#EEEDFE] px-1.5 py-0.5 text-[10px] font-bold text-[#26215C]">
-                            {t("for_rent_badge")}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {timeAgo(r.created_at, t)} · {r.location}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-2 flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate text-sm font-bold text-foreground">{r.title}</h3>
-                        {r.description && (
-                          <p className="line-clamp-2 text-xs text-muted-foreground">{r.description}</p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <div className="text-base font-bold text-[#534AB7]">{formatPrice(r.price_per_day, r.currency)}</div>
-                        <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
-                      </div>
-                    </div>
-                    {r.rental_photos.length > 0 && (
-                      <div className={`mt-3 grid gap-2 ${r.rental_photos.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                        {r.rental_photos.slice(0, 2).map((p, i) => (
-                          <img key={i} src={p.photo_url} alt={`${r.title} — photo ${i + 1}`} loading="lazy" decoding="async" className="aspect-square w-full rounded-lg bg-muted object-cover" />
-                        ))}
-                      </div>
-                    )}
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        {r.availability === "now" ? (
-                          <span className="rounded-pill bg-[#e8f8f0] px-2 py-0.5 text-[10px] font-semibold text-[#27ae60]">
-                            {t("available_now")}
-                          </span>
-                        ) : (
-                          <span className="rounded-pill bg-[#fff8e1] px-2 py-0.5 text-[10px] font-semibold text-[#b07d00]">
-                            {t("booked_until")} {r.available_from ?? ""}
-                          </span>
-                        )}
-                        <span className="rounded-pill bg-[#EEEDFE] px-2 py-0.5 text-[10px] font-semibold text-[#26215C]">
-                          {r.category}
-                        </span>
-                      </div>
-                      {user?.id !== r.user_id && (
-                        <span className="rounded-lg bg-[#534AB7] px-3 py-1.5 text-xs font-semibold text-white">
-                          {t("contact")} →
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-
-                  {(rl.count > 0 || rcc > 0) && (
-                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        {rl.count > 0 && (
-                          <>
-                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#534AB7] text-white">
-                              <ThumbsUp className="h-2.5 w-2.5" strokeWidth={3} />
-                            </span>
-                            {rl.count}
-                          </>
-                        )}
-                      </span>
-                      {rcc > 0 && (
-                        <button
-                          onClick={() => setOpenRentalComments(r.id)}
-                          className="active:underline"
-                        >
-                          {rcc} {t("comments").toLowerCase()}
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  <footer className="mt-2 flex border-t border-border pt-1">
-                    <button
-                      onClick={() => void toggleRentalLike(r.id)}
-                      className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium active:bg-muted ${
-                        rl.mine ? "text-[#534AB7]" : "text-muted-foreground"
-                      }`}
-                    >
-                      <ThumbsUp className="h-4 w-4" fill={rl.mine ? "currentColor" : "none"} />
-                      {t("like")}
-                    </button>
-                    <button
-                      onClick={() => setOpenRentalComments(r.id)}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                      {t("comment")}
-                    </button>
-                    <button
-                      onClick={() => void shareRental(r.id)}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
-                    >
-                      <Share2 className="h-4 w-4" />
-                      {t("share")}
-                    </button>
-                  </footer>
-                </article>
-              );
-            }
-            const p = item.data;
-          const l = likes[p.id] ?? { count: 0, mine: false };
-          const cc = commentCounts[p.id] ?? 0;
-          const supplier = supplierByUser[p.user_id];
-          const isSupplierPost = !!supplier;
-          const isSupplierLike = isSupplierPost || !!p.profiles?.is_supplier;
-          const isOwner = user?.id === p.user_id;
-          return (
-            <article
-              key={p.id}
-              id={`post-${p.id}`}
-              className={`relative rounded-lg border border-border bg-surface px-3 py-3 shadow-card transition-shadow ${
-                isSupplierLike ? "border-l-4 border-accent" : ""
-              } ${highlightId === p.id ? "ring-2 ring-primary" : ""}`}
-            >
-              {isAdmin && !isOwner && (
-                <button
-                  onClick={() => setDeletingPostId(p.id)}
-                  className="absolute -top-1 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-white shadow active:scale-95"
-                  aria-label="Delete"
-                >
-                  <X className="h-4 w-4" strokeWidth={3} />
-                </button>
-              )}
-              <header className="flex items-center gap-3">
-                {isSupplierPost ? (
-                  <Link
-                    to="/suppliers/$storeId"
-                    params={{ storeId: supplier.id }}
-                    className="active:opacity-60"
-                  >
-                    {supplier.logo_url ? (
-                       <img
-                         src={supplier.logo_url}
-                         alt={supplier.name}
-                         loading="lazy"
-                         decoding="async"
-                         className="h-10 w-10 rounded-lg bg-muted object-cover"
-                       />
-                    ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
-                        {supplier.name.slice(0, 2).toUpperCase()}
-                      </div>
-                    )}
-                  </Link>
-                ) : (
-                  <Link to="/users/$userId" params={{ userId: p.user_id }} className="active:opacity-60">
-                    <Avatar name={p.profiles?.full_name} url={p.profiles?.avatar_url} size={40} />
-                  </Link>
-                )}
-                {isSupplierPost ? (
-                  <Link
-                    to="/suppliers/$storeId"
-                    params={{ storeId: supplier.id }}
-                    className="flex-1 active:opacity-60"
-                  >
-                    <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                      <span className="truncate">{supplier.name}</span>
-                      <span className="rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                        {t("supplier_badge")}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {timeAgo(p.created_at, t)}
-                      {supplier.category && <> · {supplier.category}</>}
-                    </div>
-                  </Link>
-                ) : (
-                  <Link to="/users/$userId" params={{ userId: p.user_id }} className="flex-1 active:opacity-60">
-                    <div className="flex items-center gap-1 text-sm font-semibold text-foreground">
-                      <span className="truncate">{p.profiles?.full_name ?? "User"}</span>
-                      {p.profiles?.is_verified && <BadgeCheck className="h-4 w-4 shrink-0 fill-sky-400 text-white" />}
-                      {p.profiles?.is_recruiter && <Briefcase className="h-4 w-4 shrink-0 text-amber-500" />}
-                      {p.profiles?.is_featured && <Sparkles className="h-4 w-4 shrink-0 text-pink-500" />}
-                      {p.profiles?.is_supplier && (
-                        <span className="shrink-0 rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                          {t("supplier_badge")}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{timeAgo(p.created_at, t)}</div>
-                  </Link>
-                )}
-                {isOwner ? (
-                  <OwnerMenu
-                    onEdit={() => setEditingPost(p)}
-                    onDelete={() => setDeletingPostId(p.id)}
-                  />
-                ) : (
-                  <ReportMenu targetKind="post" targetId={p.id} />
-                )}
-              </header>
-              {p.content && <p className="mt-2 text-sm leading-relaxed text-foreground">{p.content}</p>}
-              {(() => {
-                const directVideo =
-                  p.video_url && isDirectVideoUrl(p.video_url) ? p.video_url : null;
-                const media: ViewerMedia[] = [
-                  ...(directVideo ? [{ type: "video" as const, url: directVideo }] : []),
-                  ...p.post_photos.map((ph) => ({ type: "photo" as const, url: ph.photo_url })),
-                ];
-                if (media.length === 0) return null;
-                const total = media.length;
-                return (
-                  <div className={`mt-3 grid gap-2 ${total === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                    {media.slice(0, 4).map((m, i) => {
-                      const extra = i === 3 && total > 4 ? total - 4 : 0;
-                      return (
-                        <button
-                          key={i}
-                          type="button"
-                          onClick={() => setViewer({ items: media, index: i })}
-                          className={`relative block w-full overflow-hidden rounded-lg bg-black ${total === 1 ? "" : "aspect-square"}`}
-                        >
-                          {m.type === "photo" ? (
-                            <img
-                              src={m.url}
-                              loading="lazy"
-                              decoding="async"
-                              className="h-full w-full object-cover brightness-90"
-                              alt={p.content ? `${p.content.slice(0, 80)} — ${i + 1}` : `Post photo ${i + 1}`}
-                            />
-                          ) : (
-                            <AutoplayVideoTile url={m.url} />
-                          )}
-                          {extra > 0 && (
-                            <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
-                              +{extra}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-
-              {p.video_url && !isDirectVideoUrl(p.video_url) && <VideoEmbed url={p.video_url} />}
-
-              {isSupplierLike && !isOwner && (
-                <button
-                  onClick={() => void contactSupplier(p.user_id, supplier?.id, p.id)}
-                  disabled={contactingUser === p.user_id}
-                  className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-500 text-sm font-bold text-white shadow active:scale-[0.98] disabled:opacity-50"
-                >
-                  {t("contact_supplier")} <ArrowRight className="h-4 w-4" />
-                </button>
-              )}
-
-
-              {(l.count > 0 || cc > 0) && (
-                <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    {l.count > 0 && (
-                      <>
-                        <span className="flex items-center -space-x-0.5">
-                          {((l.top && l.top.length > 0) ? l.top : (["like"] as ReactionId[])).map((rid) => (
-                            <span
-                              key={rid}
-                              className="flex h-4 w-4 items-center justify-center rounded-full bg-card text-[10px] leading-none ring-1 ring-border"
-                            >
-                              {reactionMeta(rid)?.emoji ?? "👍"}
-                            </span>
-                          ))}
-                        </span>
-                        {l.count}
-                      </>
-                    )}
-                  </span>
-                  {cc > 0 && (
-                    <button
-                      onClick={() => setOpenComments(p.id)}
-                      className="active:underline"
-                    >
-                      {cc} {t("comments").toLowerCase()}
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <footer className="mt-2 flex border-t border-border pt-1">
-                <ReactionButton
-                  mine={l.reaction}
-                  onReact={(r) => void reactToPost(p.id, r)}
-                  label={t("like")}
-                />
-                <button
-                  onClick={() => setOpenComments(p.id)}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  {t("comment")}
-                </button>
-                <button
-                  onClick={() => void sharePost(p.id)}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-medium text-muted-foreground active:bg-muted"
-                >
-                  <Share2 className="h-4 w-4" />
-                  {t("share")}
-                </button>
-              </footer>
-            </article>
-          );
-        });
-        })()}
+        {feedItems.map((item) =>
+          item.kind === "rental" ? (
+            <RentalFeedCard
+              key={`r-${item.data.id}`}
+              r={item.data}
+              like={rentalLikes[item.data.id] ?? EMPTY_RENTAL_LIKE}
+              commentCount={rentalCommentCounts[item.data.id] ?? 0}
+              isOwner={user?.id === item.data.user_id}
+              t={t}
+              onOpenComments={openRentalCommentsCb}
+              onToggleLike={toggleRentalLikeCb}
+              onShare={shareRentalCb}
+            />
+          ) : (
+            <PostFeedCard
+              key={item.data.id}
+              p={item.data}
+              like={likes[item.data.id] ?? EMPTY_LIKE}
+              commentCount={commentCounts[item.data.id] ?? 0}
+              supplier={supplierByUser[item.data.user_id]}
+              isAdmin={isAdmin}
+              isOwner={user?.id === item.data.user_id}
+              highlighted={highlightId === item.data.id}
+              contacting={contactingUser === item.data.user_id}
+              t={t}
+              onEdit={editPostCb}
+              onDelete={deletePostCb}
+              onOpenComments={openCommentsCb}
+              onReact={reactCb}
+              onShare={sharePostCb}
+              onContact={contactCb}
+              onOpenViewer={openViewerCb}
+            />
+          ),
+        )}
 
         {/* Infinite-scroll sentinel: triggers fetchNextPage when in view */}
         {!focused && feedQuery.hasNextPage && (
