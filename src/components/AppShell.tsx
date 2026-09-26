@@ -125,12 +125,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="block truncate font-display text-[16px] font-bold leading-none">BuildHub</span>
           </span>
         </Link>
-        <div className="flex shrink-0 items-center gap-1">
-          <Link to="/search" className="tap rounded-full p-2 active:bg-primary-foreground/10" aria-label="Search">
-            <Search className="h-6 w-6" />
+        <div className="flex shrink-0 items-center gap-0.5">
+          <Link to="/search" className="tap rounded-full p-1.5 active:bg-primary-foreground/10" aria-label="Search">
+            <Search className="h-5 w-5" />
           </Link>
-          <Link to="/alerts" className="tap relative rounded-full p-2 active:bg-primary-foreground/10" aria-label={t("nav_alerts")}>
-            <Bell className="h-6 w-6" />
+          <Link to="/alerts" className="tap relative rounded-full p-1.5 active:bg-primary-foreground/10" aria-label={t("nav_alerts")}>
+            <Bell className="h-5 w-5" />
             <UnreadBadge count={unreadAlerts} />
           </Link>
         </div>
