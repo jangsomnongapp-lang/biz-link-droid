@@ -1055,9 +1055,9 @@ function HomePage() {
         .insert({ post_id: postId, user_id: user.id, reaction }));
     }
     if (error) setLikes((m) => ({ ...m, [postId]: cur }));
-  }
+  }, [user]);
 
-  async function contactSupplier(ownerId: string, storeId: string | undefined, postId?: string) {
+  const contactSupplier = useCallback(async (ownerId: string, storeId: string | undefined, postId?: string) => {
     if (!user || user.id === ownerId) return;
     setContactingUser(ownerId);
     try {
