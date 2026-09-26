@@ -1189,7 +1189,7 @@ function HomePage() {
                     {l.count > 0 && (
                       <>
                         <span className="flex items-center -space-x-0.5">
-                          {(l.top.length > 0 ? l.top : (["like"] as ReactionId[])).map((rid) => (
+                          {((l.top && l.top.length > 0) ? l.top : (["like"] as ReactionId[])).map((rid) => (
                             <span
                               key={rid}
                               className="flex h-4 w-4 items-center justify-center rounded-full bg-card text-[10px] leading-none ring-1 ring-border"
