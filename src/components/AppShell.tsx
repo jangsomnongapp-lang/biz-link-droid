@@ -119,10 +119,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-30 grid min-h-[58px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-primary px-4 pb-2 pt-safe-top text-primary-foreground shadow-sm">
+      <header className="grid min-h-[44px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 bg-primary px-4 py-1.5 text-primary-foreground shadow-sm">
         <Link to="/home" className="tap flex min-w-0 items-center gap-2.5" aria-label="BuildHub Home">
           <span className="min-w-0">
-            <span className="block truncate font-display text-[20px] font-bold leading-5">BuildHub</span>
+            <span className="block truncate font-display text-[16px] font-bold leading-none">BuildHub</span>
           </span>
         </Link>
         <div className="flex shrink-0 items-center gap-1">
