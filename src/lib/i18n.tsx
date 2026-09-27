@@ -6,7 +6,7 @@ type Dict = Record<string, { km: string; en: string }>;
 
 const dict: Dict = {
   app_name: { km: "ជាងសំណង់", en: "BuildHub" },
-  tagline: { km: "រកគម្រោង · រកអ្នកជំនាញ", en: "Find work · Find workers" },
+  tagline: { km: "ការងារ · ពលករ · សម្ភារៈ", en: "Work · Workers · Materials" },
   register: { km: "ចុះឈ្មោះ", en: "Register" },
   have_account: { km: "មានគណនីរួចហើយ", en: "I already have an account" },
   // steps
