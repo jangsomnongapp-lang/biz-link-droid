@@ -15,6 +15,13 @@
       "when": 1790392970325,
       "tag": "0001_add_reaction_to_post_likes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790479238391,
+      "tag": "0002_allow_users_to_update_own_reaction",
+      "breakpoints": true
     }
   ]
 }
