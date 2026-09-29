@@ -406,6 +406,12 @@ const dict: Dict = {
   // rentals
   tab_shops: { km: "ហាង", en: "Shops" },
   tab_rent: { km: "ជួល", en: "Rent" },
+  tab_retails: { km: "លក់រាយ", en: "Retails" },
+  tab_secondhand: { km: "ទំនិញមួយទឹក", en: "Second hand" },
+  sell_item: { km: "ដាក់លក់ទំនិញ", en: "Sell an item" },
+  item_price: { km: "តម្លៃ", en: "Price" },
+  mark_as_sold: { km: "សម្គាល់ថាលក់រួច", en: "Mark as sold" },
+  sold_badge: { km: "លក់រួច", en: "Sold" },
   looking_for: { km: "ស្វែងរកជួល", en: "Looking for rent" },
   for_rent: { km: "សម្រាប់ជួល", en: "For rent" },
   post_rent_desc: { km: "ប្រកាសអ្វីដែលអ្នកត្រូវជួល", en: "Post what you need to rent" },
