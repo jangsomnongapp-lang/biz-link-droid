@@ -747,7 +747,7 @@ function SuppliersListPage() {
         </>
 
 
-      ) : (
+      ) : mode === "rent" ? (
         <RentMode
           search={search}
           setSearch={setSearch}
@@ -758,6 +758,76 @@ function SuppliersListPage() {
           t={t}
           lang={lang}
         />
+      ) : (
+        <>
+          <div className="mt-2 flex h-11 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
+            <SearchIcon className="h-4 w-4 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={km ? "ស្វែងរកទំនិញ…" : "Search items…"}
+              className="h-full flex-1 bg-transparent text-sm outline-none"
+            />
+          </div>
+          <div className="mt-4">
+            {loadingMarket && <div className="mt-4"><ShopGridSkeleton count={6} /></div>}
+            {!loadingMarket && filteredMarket.length === 0 && (
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                {km ? "មិនទាន់មានទំនិញទេ — ធ្វើជាអ្នកដាក់លក់ដំបូង!" : "No items yet — be the first to sell!"}
+              </p>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              {filteredMarket.map((m, idx) => {
+                const cover = m.marketplace_item_photos[0]?.photo_url ?? null;
+                return (
+                  <Link
+                    key={m.id}
+                    to="/marketplace/$itemId"
+                    params={{ itemId: m.id }}
+                    className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card active:scale-[0.99] [content-visibility:auto] [contain-intrinsic-size:280px]"
+                  >
+                    <div className="relative h-44 w-full flex-shrink-0 bg-muted">
+                      {cover ? (
+                        <img
+                          src={cover}
+                          alt={m.title}
+                          className="h-full w-full object-cover"
+                          loading={idx < 4 ? "eager" : "lazy"}
+                          decoding="async"
+                          fetchPriority={idx < 4 ? "high" : "low"}
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                          {km ? "មិនមានរូប" : "No image"}
+                        </div>
+                      )}
+                      <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        m.kind === "secondhand" ? "bg-violet-100 text-violet-700" : "bg-emerald-100 text-emerald-700"
+                      }`}>
+                        {m.kind === "secondhand" ? t("tab_secondhand") : t("tab_retails")}
+                      </span>
+                    </div>
+                    <div className="flex flex-1 flex-col gap-1 p-2.5">
+                      <p className="line-clamp-2 min-h-[2.5rem] text-xs font-semibold leading-snug text-foreground">{m.title}</p>
+                      {m.price != null && (
+                        <span className="text-sm font-bold text-success">{formatPrice(m.price, m.currency)}</span>
+                      )}
+                      {m.location && (
+                        <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{m.location}</span>
+                        </p>
+                      )}
+                      {m.profiles?.full_name && (
+                        <p className="truncate text-[10px] text-muted-foreground">{m.profiles.full_name}</p>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </>
       )}
 
       {/* Filter Sheet */}
