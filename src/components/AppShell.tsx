@@ -1,9 +1,9 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, BriefcaseBusiness, CirclePlus, Home, Menu, MessageCircle, Search } from "lucide-react";
+import { Bell, BriefcaseBusiness, CirclePlus, Home, KeyRound, Menu, MessageCircle, Search, ShoppingBag, Tag, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import logoImg from "@/assets/logo.jpg";
@@ -27,6 +27,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const path = location.pathname;
   const qc = useQueryClient();
+  const nav = useNavigate();
+  const [postSheetOpen, setPostSheetOpen] = useState(false);
 
   async function handleRefresh() {
     // Only refresh what is on screen right now — other pages keep their data.
@@ -162,6 +164,19 @@ export function AppShell({ children }: { children: ReactNode }) {
             if (active) void handleRefresh();
             else pendingTabRefresh.current = true;
           };
+          if (tab.to === "/announce") {
+            return (
+              <button
+                key={tab.to}
+                type="button"
+                onClick={() => setPostSheetOpen(true)}
+                className="tap relative flex min-w-0 flex-col items-center justify-center gap-0.5 pt-1"
+                aria-label={tab.label}
+              >
+                {content}
+              </button>
+            );
+          }
           return (
             <Link key={tab.to} to={tab.to} onClick={onTabClick} className="tap relative flex min-w-0 flex-col items-center justify-center gap-0.5 pt-1">
               {content}
@@ -169,6 +184,54 @@ export function AppShell({ children }: { children: ReactNode }) {
           );
         })}
       </nav>
+
+      {postSheetOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true" aria-label={t("what_to_post")}>
+          <button
+            type="button"
+            aria-label={t("cancel")}
+            className="absolute inset-0 bg-foreground/40 backdrop-blur-[2px]"
+            onClick={() => setPostSheetOpen(false)}
+          />
+          <div className="ios-sheet relative mx-auto w-full max-w-[480px] rounded-t-3xl bg-surface p-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] shadow-xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-display text-[15px] font-bold">{t("what_to_post")}</h2>
+              <button type="button" onClick={() => setPostSheetOpen(false)} className="tap rounded-full p-1.5 text-muted-foreground active:bg-muted" aria-label={t("cancel")}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="grid gap-2">
+              {([
+                { to: "/posts/new", search: undefined, icon: CirclePlus, label: t("new_post"), desc: t("post_normal_desc") },
+                { to: "/rentals/new", search: undefined, icon: KeyRound, label: t("tab_rent"), desc: t("post_rent_out_desc") },
+                { to: "/marketplace/new", search: { kind: "retail" }, icon: Tag, label: t("tab_retails"), desc: t("post_retail_desc") },
+                { to: "/marketplace/new", search: { kind: "secondhand" }, icon: ShoppingBag, label: t("tab_secondhand"), desc: t("post_secondhand_desc") },
+              ] as const).map((opt) => {
+                const OptIcon = opt.icon;
+                return (
+                  <button
+                    key={`${opt.to}-${opt.search?.kind ?? "x"}`}
+                    type="button"
+                    className="tap flex items-center gap-3 rounded-2xl border border-border bg-background px-3 py-3 text-left active:bg-muted"
+                    onClick={() => {
+                      setPostSheetOpen(false);
+                      void nav({ to: opt.to, search: opt.search });
+                    }}
+                  >
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                      <OptIcon className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[14px] font-semibold">{opt.label}</span>
+                      <span className="block truncate text-[11px] text-muted-foreground">{opt.desc}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 pb-[76px]">
         <PullToRefresh onRefresh={handleRefresh}>
