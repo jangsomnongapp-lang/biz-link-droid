@@ -54,6 +54,7 @@ import { Route as PostsNewRouteImport } from './routes/posts.new'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
 import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
+import { Route as MarketplaceItemIdRouteImport } from './routes/marketplace.$itemId'
 import { Route as ListingsNewRouteImport } from './routes/listings.new'
 import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
 import { Route as GuidesArchitectsRouteImport } from './routes/guides.architects'
@@ -317,6 +318,11 @@ const MarketplaceNewRoute = MarketplaceNewRouteImport.update({
   path: '/marketplace/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketplaceItemIdRoute = MarketplaceItemIdRouteImport.update({
+  id: '/marketplace/$itemId',
+  path: '/marketplace/$itemId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ListingsNewRoute = ListingsNewRouteImport.update({
   id: '/listings/new',
   path: '/listings/new',
@@ -559,6 +565,7 @@ export interface FileRoutesByFullPath {
   '/guides/architects': typeof GuidesArchitectsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
+  '/marketplace/$itemId': typeof MarketplaceItemIdRoute
   '/marketplace/new': typeof MarketplaceNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -642,6 +649,7 @@ export interface FileRoutesByTo {
   '/guides/architects': typeof GuidesArchitectsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
+  '/marketplace/$itemId': typeof MarketplaceItemIdRoute
   '/marketplace/new': typeof MarketplaceNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -726,6 +734,7 @@ export interface FileRoutesById {
   '/guides/architects': typeof GuidesArchitectsRoute
   '/listings/$listingId': typeof ListingsListingIdRoute
   '/listings/new': typeof ListingsNewRoute
+  '/marketplace/$itemId': typeof MarketplaceItemIdRoute
   '/marketplace/new': typeof MarketplaceNewRoute
   '/messages/$threadId': typeof MessagesThreadIdRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -812,6 +821,7 @@ export interface FileRouteTypes {
     | '/guides/architects'
     | '/listings/$listingId'
     | '/listings/new'
+    | '/marketplace/$itemId'
     | '/marketplace/new'
     | '/messages/$threadId'
     | '/posts/$postId'
@@ -895,6 +905,7 @@ export interface FileRouteTypes {
     | '/guides/architects'
     | '/listings/$listingId'
     | '/listings/new'
+    | '/marketplace/$itemId'
     | '/marketplace/new'
     | '/messages/$threadId'
     | '/posts/$postId'
@@ -978,6 +989,7 @@ export interface FileRouteTypes {
     | '/guides/architects'
     | '/listings/$listingId'
     | '/listings/new'
+    | '/marketplace/$itemId'
     | '/marketplace/new'
     | '/messages/$threadId'
     | '/posts/$postId'
@@ -1059,6 +1071,7 @@ export interface RootRouteChildren {
   GuidesArchitectsRoute: typeof GuidesArchitectsRoute
   ListingsListingIdRoute: typeof ListingsListingIdRoute
   ListingsNewRoute: typeof ListingsNewRoute
+  MarketplaceItemIdRoute: typeof MarketplaceItemIdRoute
   MarketplaceNewRoute: typeof MarketplaceNewRoute
   MessagesThreadIdRoute: typeof MessagesThreadIdRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
@@ -1404,6 +1417,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace/new'
       fullPath: '/marketplace/new'
       preLoaderRoute: typeof MarketplaceNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace/$itemId': {
+      id: '/marketplace/$itemId'
+      path: '/marketplace/$itemId'
+      fullPath: '/marketplace/$itemId'
+      preLoaderRoute: typeof MarketplaceItemIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/listings/new': {
@@ -1788,6 +1808,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesArchitectsRoute: GuidesArchitectsRoute,
   ListingsListingIdRoute: ListingsListingIdRoute,
   ListingsNewRoute: ListingsNewRoute,
+  MarketplaceItemIdRoute: MarketplaceItemIdRoute,
   MarketplaceNewRoute: MarketplaceNewRoute,
   MessagesThreadIdRoute: MessagesThreadIdRoute,
   PostsPostIdRoute: PostsPostIdRoute,
