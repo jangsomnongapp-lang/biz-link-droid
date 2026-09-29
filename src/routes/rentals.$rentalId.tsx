@@ -153,7 +153,7 @@ function RentalDetailPage() {
         <button
           onClick={() => {
             if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
-            else void nav({ to: "/suppliers", search: { mode: "rent" } });
+            else void nav({ to: "/market", search: { mode: "rent" } });
           }}
           className="rounded-full p-2 active:bg-white/10"
           aria-label="Back"

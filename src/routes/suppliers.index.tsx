@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, MessageCircle, SlidersHorizontal, X } from "lucide-react";
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/suppliers/")({
   component: () => (
     <RequireAuth>
       <AppShell>
-        <SuppliersListPage />
+        <SuppliersListPage page="suppliers" />
       </AppShell>
     </RequireAuth>
   ),
@@ -126,14 +126,21 @@ const POST_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg:
   liquidacion: { en: "Clearance", km: "បោះតម្លៃ",    bg: "bg-rose-100",    fg: "text-rose-700" },
 };
 
-function SuppliersListPage() {
-  const { q: scannedProduct, mode: modeParam } = Route.useSearch();
+export function SuppliersListPage({ page = "suppliers" }: { page?: "suppliers" | "market" }) {
+  const { q: scannedProduct, mode: modeParam } = useSearch({ strict: false }) as { q?: string; mode?: Mode };
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
-  const mode: Mode = modeParam ?? "shops";
+  // Page one: Shops + Retails. Page two (/market): Rent + Second hand.
+  const modes: Mode[] = page === "suppliers" ? ["shops", "retail"] : ["rent", "secondhand"];
+  const defaultMode: Mode = page === "suppliers" ? "shops" : "rent";
+  const mode: Mode = modeParam && modes.includes(modeParam) ? modeParam : defaultMode;
   const setMode = (m: Mode) => {
-    void nav({ to: "/suppliers", search: (prev) => ({ ...prev, mode: m }), replace: true });
+    void nav({
+      to: page === "suppliers" ? "/suppliers" : "/market",
+      search: (prev) => ({ ...(prev as Record<string, unknown>), mode: m }),
+      replace: true,
+    });
   };
   const [search, setSearch] = useState(scannedProduct ?? "");
   const [isSupplier, setIsSupplier] = useState(false);
@@ -506,8 +513,8 @@ function SuppliersListPage() {
         </Link>
       )}
       {/* Mode toggle */}
-      <div className="mb-3 grid grid-cols-4 gap-1.5">
-        {(["shops", "rent", "retail", "secondhand"] as Mode[]).map((m) => (
+      <div className="mb-3 grid grid-cols-2 gap-1.5">
+        {modes.map((m) => (
           <button
             key={m}
             onClick={() => { setMode(m); setSearch(""); }}

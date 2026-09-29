@@ -21,6 +21,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OnlineOrdersRouteImport } from './routes/online-orders'
 import { Route as MyPostsRouteImport } from './routes/my-posts'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as MarketRouteImport } from './routes/market'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as JoinRouteImport } from './routes/join'
@@ -151,6 +152,11 @@ const MyPostsRoute = MyPostsRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -538,6 +544,7 @@ export interface FileRoutesByFullPath {
   '/join': typeof JoinRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
+  '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
   '/my-posts': typeof MyPostsRoute
   '/online-orders': typeof OnlineOrdersRoute
@@ -622,6 +629,7 @@ export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
+  '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
   '/my-posts': typeof MyPostsRoute
   '/online-orders': typeof OnlineOrdersRoute
@@ -707,6 +715,7 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
+  '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
   '/my-posts': typeof MyPostsRoute
   '/online-orders': typeof OnlineOrdersRoute
@@ -794,6 +803,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/llms.txt'
     | '/login'
+    | '/market'
     | '/mcp'
     | '/my-posts'
     | '/online-orders'
@@ -878,6 +888,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/llms.txt'
     | '/login'
+    | '/market'
     | '/mcp'
     | '/my-posts'
     | '/online-orders'
@@ -962,6 +973,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/llms.txt'
     | '/login'
+    | '/market'
     | '/mcp'
     | '/my-posts'
     | '/online-orders'
@@ -1048,6 +1060,7 @@ export interface RootRouteChildren {
   JoinRoute: typeof JoinRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   LoginRoute: typeof LoginRoute
+  MarketRoute: typeof MarketRoute
   McpRoute: typeof McpRoute
   MyPostsRoute: typeof MyPostsRoute
   OnlineOrdersRoute: typeof OnlineOrdersRoute
@@ -1186,6 +1199,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1784,6 +1804,7 @@ const rootRouteChildren: RootRouteChildren = {
   JoinRoute: JoinRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   LoginRoute: LoginRoute,
+  MarketRoute: MarketRoute,
   McpRoute: McpRoute,
   MyPostsRoute: MyPostsRoute,
   OnlineOrdersRoute: OnlineOrdersRoute,

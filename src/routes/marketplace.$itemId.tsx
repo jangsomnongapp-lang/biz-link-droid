@@ -84,19 +84,21 @@ function MarketplaceItemPage() {
       return;
     }
     toast.success(km ? "បានលុប" : "Deleted");
-    nav({ to: "/suppliers", search: { mode: item.kind === "secondhand" ? "secondhand" : "retail" } });
+    nav(item.kind === "secondhand" ? { to: "/market", search: { mode: "secondhand" } } : { to: "/suppliers", search: { mode: "retail" } });
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 flex h-14 items-center bg-[#1a56a0] px-2 text-white">
-        <Link
-          to="/suppliers"
-          search={{ mode: item?.kind === "secondhand" ? "secondhand" : "retail" }}
-          className="rounded-full p-2 active:bg-white/10"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
+        {item?.kind === "secondhand" ? (
+          <Link to="/market" search={{ mode: "secondhand" }} className="rounded-full p-2 active:bg-white/10">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        ) : (
+          <Link to="/suppliers" search={{ mode: "retail" }} className="rounded-full p-2 active:bg-white/10">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        )}
         <h1 className="flex-1 text-center text-base font-semibold">
           {item?.kind === "secondhand" ? t("tab_secondhand") : t("tab_retails")}
         </h1>
