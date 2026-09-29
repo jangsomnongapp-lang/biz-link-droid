@@ -24,7 +24,7 @@ function topReactions(counts: Record<string, number>): ReactionId[] {
     .slice(0, 3)
     .map(([id]) => id);
 }
-import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play, HardHat, Boxes, Construction, Users, Search, BriefcaseBusiness } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play, HardHat, Boxes, Construction, Users, Search, BriefcaseBusiness, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
@@ -1245,7 +1245,7 @@ function HomePage() {
       <div className="grid grid-cols-5 gap-x-1 border-y border-border bg-surface px-3 py-2.5">
         {[
           { to: "/listings" as const, label: lang === "km" ? "រកការងារ" : "Find work", icon: BriefcaseBusiness, tone: "bg-shortcut-blue" },
-          { to: "/listings/new" as const, label: lang === "km" ? "បង្ហោះគម្រោង" : "Post a job", icon: HardHat, tone: "bg-shortcut-green" },
+          { to: "/listings/new" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: Gift, tone: "bg-shortcut-gold text-foreground" },
           { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: Boxes, tone: "bg-shortcut-orange", search: { mode: "shops" as const } },
           { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: Construction, tone: "bg-shortcut-violet", search: { mode: "rent" as const } },
           { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: Users, tone: "bg-shortcut-slate" },
