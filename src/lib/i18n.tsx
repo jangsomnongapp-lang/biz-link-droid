@@ -401,7 +401,7 @@ const dict: Dict = {
   edit_store: { km: "កែសម្រួលហាង", en: "Edit store" },
   store_updated: { km: "បានធ្វើបច្ចុប្បន្នភាពហាង", en: "Store updated" },
   remove: { km: "យកចេញ", en: "Remove" },
-  my_store: { km: "ហាងរបស់ខ្ញុំ", en: "My store" },
+  my_store: { km: "ហាងរបស់ខ្ញុំ", en: "My Shop" },
   store_phone_ph: { km: "លេខទូរសព្ទហាង (ស្រេចចិត្ត)", en: "Store phone (optional)" },
   // rentals
   tab_shops: { km: "ហាង", en: "Shops" },

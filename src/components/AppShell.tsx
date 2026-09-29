@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, BriefcaseBusiness, CirclePlus, Home, KeyRound, Menu, MessageCircle, Search, ShoppingBag, Tag, X } from "lucide-react";
+import { Bell, BriefcaseBusiness, CirclePlus, Home, KeyRound, Menu, MessageCircle, Search, ShoppingBag, Store, Tag, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import logoImg from "@/assets/logo.jpg";
@@ -86,6 +86,23 @@ export function AppShell({ children }: { children: ReactNode }) {
     },
   });
 
+  const { data: myStore } = useQuery({
+    queryKey: ["my-supplier-store", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 60_000,
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("supplier_stores")
+        .select("id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return (data as { id: string } | null) ?? null;
+    },
+  });
+
   const { data: unreadMessages = 0 } = useQuery({
     queryKey: ["unread-messages", user?.id ?? null],
     enabled: !!user,
@@ -114,10 +131,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const tabs = [
     { to: "/home", label: t("nav_home"), icon: Home, badge: 0, prominent: false },
     { to: "/listings", label: t("nav_listings"), icon: BriefcaseBusiness, badge: 0, prominent: false },
-    { to: "/announce", label: t("nav_announce"), icon: CirclePlus, badge: 0, prominent: true },
+    {
+      to: myStore ? (`/suppliers/${myStore.id}` as const) : "/announce",
+      label: myStore ? t("my_store") : t("nav_announce"),
+      icon: myStore ? Store : CirclePlus,
+      badge: 0,
+      prominent: true,
+    },
     { to: "/messages", label: t("messages"), icon: MessageCircle, badge: unreadMessages, prominent: false },
     { to: "/settings", label: t("menu"), icon: Menu, badge: 0, prominent: false },
-  ] as const;
+  ];
 
 
   return (
@@ -144,17 +167,32 @@ export function AppShell({ children }: { children: ReactNode }) {
       <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto grid h-[68px] max-w-[480px] grid-cols-5 border-t border-border bg-surface px-1 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-4px_16px_color-mix(in_oklab,var(--foreground)_8%,transparent)]">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const active = tab.to === "/home" ? path === "/home" : path.startsWith(tab.to);
+          const big = !!myStore && tab.prominent;
+          const active = big
+            ? path.startsWith(`/suppliers/${myStore.id}`)
+            : tab.to === "/home"
+              ? path === "/home"
+              : path.startsWith(tab.to);
           const content = (
             <>
-              <span className={`relative grid place-items-center ${tab.prominent ? "-mt-5 h-12 w-12 rounded-full border-4 border-surface bg-primary text-primary-foreground shadow-card" : "h-7 w-8"}`}>
+              <span
+                className={`relative grid place-items-center ${
+                  big
+                    ? "-mt-7 h-16 w-16 rounded-full border-4 border-surface bg-primary text-primary-foreground shadow-card"
+                    : tab.prominent
+                      ? "-mt-5 h-12 w-12 rounded-full border-4 border-surface bg-primary text-primary-foreground shadow-card"
+                      : "h-7 w-8"
+                }`}
+              >
                 <Icon
-                  className={`${tab.prominent ? "h-7 w-7" : "h-5 w-5"} transition-transform duration-300 ${active || tab.prominent ? "text-primary" : "text-muted-foreground"} ${tab.prominent ? "text-primary-foreground" : ""}`}
+                  className={`${big ? "h-12 w-12" : tab.prominent ? "h-7 w-7" : "h-5 w-5"} transition-transform duration-300 ${active || tab.prominent ? "text-primary" : "text-muted-foreground"} ${tab.prominent ? "text-primary-foreground" : ""}`}
                   strokeWidth={active ? 2.5 : 2}
                 />
                 <UnreadBadge count={tab.badge} />
               </span>
-              <span className={`text-[10px] font-semibold transition-colors duration-200 ${active ? "text-primary" : "text-muted-foreground"}`}>
+              <span
+                className={`${big ? "text-[11px] font-bold" : "text-[10px] font-semibold"} transition-colors duration-200 ${active ? "text-primary" : "text-muted-foreground"}`}
+              >
                 {tab.label}
               </span>
             </>
@@ -164,6 +202,20 @@ export function AppShell({ children }: { children: ReactNode }) {
             if (active) void handleRefresh();
             else pendingTabRefresh.current = true;
           };
+          if (big) {
+            return (
+              <Link
+                key={tab.to}
+                to="/suppliers/$storeId"
+                params={{ storeId: myStore.id }}
+                onClick={onTabClick}
+                className="tap relative flex min-w-0 flex-col items-center justify-center gap-0.5 pt-1"
+                aria-label={tab.label}
+              >
+                {content}
+              </Link>
+            );
+          }
           if (tab.to === "/announce") {
             return (
               <button
