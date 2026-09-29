@@ -495,24 +495,29 @@ function SuppliersListPage() {
           {lang === "km" ? "បង្ហោះជួល" : "Post my rental"}
         </Link>
       )}
+      {(mode === "retail" || mode === "secondhand") && (
+        <Link
+          to="/marketplace/new"
+          search={{ kind: mode }}
+          className="fixed bottom-20 right-4 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 active:scale-95"
+        >
+          <Plus className="h-5 w-5" />
+          {lang === "km" ? "ដាក់លក់" : "Sell an item"}
+        </Link>
+      )}
       {/* Mode toggle */}
-      <div className="mb-3 grid grid-cols-2 gap-2">
-        <button
-          onClick={() => { setMode("shops"); setSearch(""); }}
-          className={`h-11 rounded-xl text-sm font-bold transition ${
-            mode === "shops" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-          }`}
-        >
-          {t("tab_shops")}
-        </button>
-        <button
-          onClick={() => { setMode("rent"); setSearch(""); }}
-          className={`h-11 rounded-xl text-sm font-bold transition ${
-            mode === "rent" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-          }`}
-        >
-          {t("tab_rent")}
-        </button>
+      <div className="mb-3 grid grid-cols-4 gap-1.5">
+        {(["shops", "rent", "retail", "secondhand"] as Mode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => { setMode(m); setSearch(""); }}
+            className={`h-11 rounded-xl text-[11px] font-bold transition ${
+              mode === m ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
+            }`}
+          >
+            {m === "shops" ? t("tab_shops") : m === "rent" ? t("tab_rent") : m === "retail" ? t("tab_retails") : t("tab_secondhand")}
+          </button>
+        ))}
       </div>
 
       {mode === "shops" ? (
