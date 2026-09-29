@@ -203,7 +203,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="grid gap-2">
               {([
                 { to: "/posts/new", search: undefined, icon: CirclePlus, label: t("new_post"), desc: t("post_normal_desc") },
-                { to: "/rentals/new", search: undefined, icon: KeyRound, label: t("tab_rent"), desc: t("post_rent_desc") },
+                { to: "/rentals/new", search: undefined, icon: KeyRound, label: t("tab_rent"), desc: t("post_rent_out_desc") },
                 { to: "/marketplace/new", search: { kind: "retail" }, icon: Tag, label: t("tab_retails"), desc: t("post_retail_desc") },
                 { to: "/marketplace/new", search: { kind: "secondhand" }, icon: ShoppingBag, label: t("tab_secondhand"), desc: t("post_secondhand_desc") },
               ] as const).map((opt) => {

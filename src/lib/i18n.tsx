@@ -408,7 +408,7 @@ const dict: Dict = {
   tab_rent: { km: "ជួល", en: "Rent" },
   what_to_post: { km: "តើអ្នកចង់បង្ហោះអ្វី?", en: "What do you want to post?" },
   post_normal_desc: { km: "រូបភាព វីដេអូ ឬព័ត៌មានទូទៅ", en: "Photos, videos or general updates" },
-  post_rent_desc: { km: "ដាក់ជួលម៉ាស៊ីន ឧបករណ៍ ឬកន្លែង", en: "Rent out machinery, tools or space" },
+  post_rent_out_desc: { km: "ដាក់ជួលម៉ាស៊ីន ឧបករណ៍ ឬកន្លែង", en: "Rent out machinery, tools or space" },
   post_retail_desc: { km: "លក់ទំនិញថ្មីដែលមិនបានប្រើ", en: "Sell new items you never used" },
   post_secondhand_desc: { km: "លក់របស់ដែលបានប្រើរួច", en: "Sell things you already used" },
   tab_retails: { km: "លក់រាយ", en: "Retails" },
