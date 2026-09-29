@@ -26,9 +26,9 @@ export const Route = createFileRoute("/suppliers/")({
     ],
     links: [{ rel: "canonical", href: "https://buildhubkh.com/suppliers" }],
   }),
-  validateSearch: (params: Record<string, unknown>): { q?: string; mode?: "shops" | "rent" } => ({
+  validateSearch: (params: Record<string, unknown>): { q?: string; mode?: "shops" | "rent" | "retail" | "secondhand" } => ({
     q: typeof params.q === "string" ? params.q.slice(0, 120) : undefined,
-    mode: params.mode === "rent" ? "rent" : params.mode === "shops" ? "shops" : undefined,
+    mode: params.mode === "rent" || params.mode === "retail" || params.mode === "secondhand" ? params.mode : params.mode === "shops" ? "shops" : undefined,
   }),
   component: () => (
     <RequireAuth>
@@ -96,7 +96,21 @@ interface RentalRow {
   rental_photos: { photo_url: string }[];
 }
 
-type Mode = "shops" | "rent";
+type Mode = "shops" | "rent" | "retail" | "secondhand";
+
+interface MarketplaceRow {
+  id: string;
+  user_id: string;
+  kind: string;
+  title: string;
+  description: string | null;
+  price: number | null;
+  currency: string;
+  location: string | null;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  marketplace_item_photos: { photo_url: string }[];
+}
 type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools" | "space";
 type SortMode = "newest" | "price_low" | "price_high";
 const SORT_OPTIONS: { value: SortMode; en: string; km: string }[] = [
@@ -371,6 +385,31 @@ function SuppliersListPage() {
       return (data as RentalRow[] | null) ?? [];
     },
   });
+
+  const marketplaceKind = mode === "retail" || mode === "secondhand" ? mode : null;
+  const { data: marketItems = [], isLoading: loadingMarket } = useQuery({
+    queryKey: ["suppliers:marketplace", marketplaceKind],
+    enabled: marketplaceKind != null,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("marketplace_items")
+        .select("id, user_id, kind, title, description, price, currency, location, created_at, profiles(full_name, avatar_url), marketplace_item_photos(photo_url)")
+        .eq("kind", marketplaceKind!)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(60);
+      return (data as MarketplaceRow[] | null) ?? [];
+    },
+  });
+
+  const filteredMarket = useMemo(() => {
+    if (!search) return marketItems;
+    const qq = search.toLowerCase();
+    return marketItems.filter((m) =>
+      m.title.toLowerCase().includes(qq) || (m.description ?? "").toLowerCase().includes(qq),
+    );
+  }, [marketItems, search]);
 
   const q = search.toLowerCase();
 
