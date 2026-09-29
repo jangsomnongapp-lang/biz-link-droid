@@ -875,6 +875,88 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_item_photos: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          photo_url: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          photo_url: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          photo_url?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_item_photos_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_items: {
+        Row: {
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          kind: string
+          location: string | null
+          price: number | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind: string
+          location?: string | null
+          price?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          location?: string | null
+          price?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       material_request_photos: {
         Row: {
           created_at: string

@@ -26,9 +26,9 @@ export const Route = createFileRoute("/suppliers/")({
     ],
     links: [{ rel: "canonical", href: "https://buildhubkh.com/suppliers" }],
   }),
-  validateSearch: (params: Record<string, unknown>): { q?: string; mode?: "shops" | "rent" } => ({
+  validateSearch: (params: Record<string, unknown>): { q?: string; mode?: "shops" | "rent" | "retail" | "secondhand" } => ({
     q: typeof params.q === "string" ? params.q.slice(0, 120) : undefined,
-    mode: params.mode === "rent" ? "rent" : params.mode === "shops" ? "shops" : undefined,
+    mode: params.mode === "rent" || params.mode === "retail" || params.mode === "secondhand" ? params.mode : params.mode === "shops" ? "shops" : undefined,
   }),
   component: () => (
     <RequireAuth>
@@ -96,7 +96,21 @@ interface RentalRow {
   rental_photos: { photo_url: string }[];
 }
 
-type Mode = "shops" | "rent";
+type Mode = "shops" | "rent" | "retail" | "secondhand";
+
+interface MarketplaceRow {
+  id: string;
+  user_id: string;
+  kind: string;
+  title: string;
+  description: string | null;
+  price: number | null;
+  currency: string;
+  location: string | null;
+  created_at: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  marketplace_item_photos: { photo_url: string }[];
+}
 type RentCat = "all" | "vehicles" | "heavy" | "light" | "tools" | "space";
 type SortMode = "newest" | "price_low" | "price_high";
 const SORT_OPTIONS: { value: SortMode; en: string; km: string }[] = [
@@ -372,6 +386,31 @@ function SuppliersListPage() {
     },
   });
 
+  const marketplaceKind = mode === "retail" || mode === "secondhand" ? mode : null;
+  const { data: marketItems = [], isLoading: loadingMarket } = useQuery({
+    queryKey: ["suppliers:marketplace", marketplaceKind],
+    enabled: marketplaceKind != null,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("marketplace_items")
+        .select("id, user_id, kind, title, description, price, currency, location, created_at, profiles(full_name, avatar_url), marketplace_item_photos(photo_url)")
+        .eq("kind", marketplaceKind!)
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(60);
+      return (data as MarketplaceRow[] | null) ?? [];
+    },
+  });
+
+  const filteredMarket = useMemo(() => {
+    if (!search) return marketItems;
+    const qq = search.toLowerCase();
+    return marketItems.filter((m) =>
+      m.title.toLowerCase().includes(qq) || (m.description ?? "").toLowerCase().includes(qq),
+    );
+  }, [marketItems, search]);
+
   const q = search.toLowerCase();
 
   const filtered = useMemo(() => {
@@ -456,24 +495,29 @@ function SuppliersListPage() {
           {lang === "km" ? "បង្ហោះជួល" : "Post my rental"}
         </Link>
       )}
+      {(mode === "retail" || mode === "secondhand") && (
+        <Link
+          to="/marketplace/new"
+          search={{ kind: mode }}
+          className="fixed bottom-20 right-4 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 active:scale-95"
+        >
+          <Plus className="h-5 w-5" />
+          {lang === "km" ? "ដាក់លក់" : "Sell an item"}
+        </Link>
+      )}
       {/* Mode toggle */}
-      <div className="mb-3 grid grid-cols-2 gap-2">
-        <button
-          onClick={() => { setMode("shops"); setSearch(""); }}
-          className={`h-11 rounded-xl text-sm font-bold transition ${
-            mode === "shops" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-          }`}
-        >
-          {t("tab_shops")}
-        </button>
-        <button
-          onClick={() => { setMode("rent"); setSearch(""); }}
-          className={`h-11 rounded-xl text-sm font-bold transition ${
-            mode === "rent" ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
-          }`}
-        >
-          {t("tab_rent")}
-        </button>
+      <div className="mb-3 grid grid-cols-4 gap-1.5">
+        {(["shops", "rent", "retail", "secondhand"] as Mode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => { setMode(m); setSearch(""); }}
+            className={`h-11 rounded-xl text-[11px] font-bold transition ${
+              mode === m ? "bg-[#1a56a0] text-white" : "bg-surface text-foreground shadow-card"
+            }`}
+          >
+            {m === "shops" ? t("tab_shops") : m === "rent" ? t("tab_rent") : m === "retail" ? t("tab_retails") : t("tab_secondhand")}
+          </button>
+        ))}
       </div>
 
       {mode === "shops" ? (
@@ -703,7 +747,7 @@ function SuppliersListPage() {
         </>
 
 
-      ) : (
+      ) : mode === "rent" ? (
         <RentMode
           search={search}
           setSearch={setSearch}
@@ -714,6 +758,76 @@ function SuppliersListPage() {
           t={t}
           lang={lang}
         />
+      ) : (
+        <>
+          <div className="mt-2 flex h-11 items-center gap-2 rounded-full bg-surface px-4 shadow-card">
+            <SearchIcon className="h-4 w-4 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={km ? "ស្វែងរកទំនិញ…" : "Search items…"}
+              className="h-full flex-1 bg-transparent text-sm outline-none"
+            />
+          </div>
+          <div className="mt-4">
+            {loadingMarket && <div className="mt-4"><ShopGridSkeleton count={6} /></div>}
+            {!loadingMarket && filteredMarket.length === 0 && (
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                {km ? "មិនទាន់មានទំនិញទេ — ធ្វើជាអ្នកដាក់លក់ដំបូង!" : "No items yet — be the first to sell!"}
+              </p>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              {filteredMarket.map((m, idx) => {
+                const cover = m.marketplace_item_photos[0]?.photo_url ?? null;
+                return (
+                  <Link
+                    key={m.id}
+                    to="/marketplace/$itemId"
+                    params={{ itemId: m.id }}
+                    className="flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-card active:scale-[0.99] [content-visibility:auto] [contain-intrinsic-size:280px]"
+                  >
+                    <div className="relative h-44 w-full flex-shrink-0 bg-muted">
+                      {cover ? (
+                        <img
+                          src={cover}
+                          alt={m.title}
+                          className="h-full w-full object-cover"
+                          loading={idx < 4 ? "eager" : "lazy"}
+                          decoding="async"
+                          fetchPriority={idx < 4 ? "high" : "low"}
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                          {km ? "មិនមានរូប" : "No image"}
+                        </div>
+                      )}
+                      <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        m.kind === "secondhand" ? "bg-violet-100 text-violet-700" : "bg-emerald-100 text-emerald-700"
+                      }`}>
+                        {m.kind === "secondhand" ? t("tab_secondhand") : t("tab_retails")}
+                      </span>
+                    </div>
+                    <div className="flex flex-1 flex-col gap-1 p-2.5">
+                      <p className="line-clamp-2 min-h-[2.5rem] text-xs font-semibold leading-snug text-foreground">{m.title}</p>
+                      {m.price != null && (
+                        <span className="text-sm font-bold text-success">{formatPrice(m.price, m.currency)}</span>
+                      )}
+                      {m.location && (
+                        <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{m.location}</span>
+                        </p>
+                      )}
+                      {m.profiles?.full_name && (
+                        <p className="truncate text-[10px] text-muted-foreground">{m.profiles.full_name}</p>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </>
       )}
 
       {/* Filter Sheet */}
