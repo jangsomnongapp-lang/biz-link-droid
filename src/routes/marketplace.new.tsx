@@ -88,7 +88,7 @@ function NewMarketplaceItemPage() {
           .insert(photos.map((url, i) => ({ item_id: data.id, photo_url: url, sort_order: i })));
       }
       toast.success(km ? "បានដាក់លក់រួចរាល់" : "Your item is live");
-      nav({ to: "/suppliers", search: { mode: kind } });
+      nav(kind === "secondhand" ? { to: "/market", search: { mode: "secondhand" } } : { to: "/suppliers", search: { mode: "retail" } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("error_generic"));
     } finally {
@@ -99,9 +99,15 @@ function NewMarketplaceItemPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 flex h-14 items-center bg-[#1a56a0] px-2 text-white">
-        <Link to="/suppliers" search={{ mode: kind }} className="rounded-full p-2 active:bg-white/10">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
+        {kind === "secondhand" ? (
+          <Link to="/market" search={{ mode: "secondhand" }} className="rounded-full p-2 active:bg-white/10">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        ) : (
+          <Link to="/suppliers" search={{ mode: "retail" }} className="rounded-full p-2 active:bg-white/10">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        )}
         <h1 className="flex-1 text-center text-base font-semibold">
           {t("sell_item")} · {kind === "secondhand" ? t("tab_secondhand") : t("tab_retails")}
         </h1>
