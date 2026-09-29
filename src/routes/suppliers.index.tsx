@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search as SearchIcon, MapPin, Store as StoreIcon, Plus, MessageCircle, SlidersHorizontal, X } from "lucide-react";
@@ -127,7 +127,7 @@ const POST_TYPE_LABELS: Record<string, { en: string; km: string; bg: string; fg:
 };
 
 export function SuppliersListPage({ page = "suppliers" }: { page?: "suppliers" | "market" }) {
-  const { q: scannedProduct, mode: modeParam } = Route.useSearch();
+  const { q: scannedProduct, mode: modeParam } = useSearch({ strict: false }) as { q?: string; mode?: Mode };
   const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
