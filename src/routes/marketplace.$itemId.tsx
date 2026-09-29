@@ -201,7 +201,7 @@ function MarketplaceItemPage() {
 
       <ConfirmDialog
         open={confirmDelete}
-        onOpenChange={setConfirmDelete}
+        onCancel={() => setConfirmDelete(false)}
         title={km ? "លុបទំនិញនេះ?" : "Delete this item?"}
         description={km ? "សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ" : "This cannot be undone."}
         confirmLabel={km ? "លុប" : "Delete"}
