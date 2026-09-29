@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, BriefcaseBusiness, CirclePlus, Home, KeyRound, Menu, MessageCircle, Search, ShoppingBag, Tag, X } from "lucide-react";
+import { Bell, BriefcaseBusiness, CirclePlus, Home, KeyRound, Menu, MessageCircle, Search, ShoppingBag, Store, Tag, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import logoImg from "@/assets/logo.jpg";
@@ -83,6 +83,23 @@ export function AppShell({ children }: { children: ReactNode }) {
         .eq("user_id", user.id)
         .is("read_at", null);
       return count ?? 0;
+    },
+  });
+
+  const { data: myStore } = useQuery({
+    queryKey: ["my-supplier-store", user?.id ?? null],
+    enabled: !!user,
+    staleTime: 60_000,
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("supplier_stores")
+        .select("id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return (data as { id: string } | null) ?? null;
     },
   });
 
