@@ -220,12 +220,12 @@ function FindWorkerPage() {
       </div>
 
       <div className="flex flex-col gap-2 px-3">
-        {!loading && workers.length === 0 && (
+        {!loading && visibleWorkers.length === 0 && (
           <div className="rounded-xl bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
             {t("no_workers_found")}
           </div>
         )}
-        {workers.map((w) => {
+        {visibleWorkers.map((w) => {
           const cats = workerCats[w.id] ?? [];
           return (
             <Link
