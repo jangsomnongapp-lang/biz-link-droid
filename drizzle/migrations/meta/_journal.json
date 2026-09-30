@@ -29,6 +29,13 @@
       "when": 1790642084814,
       "tag": "0003_create_marketplace_items",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790761394224,
+      "tag": "0004_bulk_today_availability",
+      "breakpoints": true
     }
   ]
 }

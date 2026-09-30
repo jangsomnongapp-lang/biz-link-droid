@@ -2688,6 +2688,13 @@ export type Database = {
       }
       get_supplier_store_phone: { Args: { _store_id: string }; Returns: string }
       get_today_availability: { Args: { _uid: string }; Returns: string }
+      get_today_availability_bulk: {
+        Args: { _uids: string[] }
+        Returns: {
+          status: string
+          user_id: string
+        }[]
+      }
       get_user_phone: { Args: { _uid: string }; Returns: string }
       get_user_reviews: {
         Args: { _rated_id: string }
