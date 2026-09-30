@@ -11,10 +11,9 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { MapPin, SlidersHorizontal, X } from "lucide-react";
+import { MapPin, Tag, Banknote, X } from "lucide-react";
 import { toast } from "sonner";
 import { ListingListSkeleton } from "@/components/SkeletonFeed";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { CAMBODIA_PROVINCES } from "@/components/ProvinceSelect";
 import { formatPrice } from "@/lib/price";
 
@@ -117,9 +116,7 @@ function ListingsPage() {
   const appliedIds = new Set<string>(data?.appliedIds ?? []);
   const [editTarget, setEditTarget] = useState<ListingRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ListingRow | null>(null);
-  const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
 
   const activeCount =
     (filters.location ? 1 : 0) +
