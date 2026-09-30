@@ -366,6 +366,8 @@ function ListingsPage() {
                 )}
               </div>
             </Link>
+            {i === 0 && buttonsRow}
+            </div>
           );
         })}
       </div>
