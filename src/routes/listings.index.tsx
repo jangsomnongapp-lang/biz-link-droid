@@ -11,10 +11,9 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { MapPin, SlidersHorizontal, X } from "lucide-react";
+import { MapPin, Tag, Banknote, X } from "lucide-react";
 import { toast } from "sonner";
 import { ListingListSkeleton } from "@/components/SkeletonFeed";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { CAMBODIA_PROVINCES } from "@/components/ProvinceSelect";
 import { formatPrice } from "@/lib/price";
 
@@ -117,9 +116,7 @@ function ListingsPage() {
   const appliedIds = new Set<string>(data?.appliedIds ?? []);
   const [editTarget, setEditTarget] = useState<ListingRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ListingRow | null>(null);
-  const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
 
   const activeCount =
     (filters.location ? 1 : 0) +
@@ -197,52 +194,108 @@ function ListingsPage() {
     if (user) qc.invalidateQueries({ queryKey: ["listings:index", user.id] });
   }
 
-  function openFilter() {
-    setDraft(filters);
-    setFilterOpen(true);
-  }
-  function applyFilter() {
-    setFilters(draft);
-    setFilterOpen(false);
-  }
-  function clearFilter() {
-    setDraft(EMPTY_FILTERS);
-    setFilters(EMPTY_FILTERS);
-    setFilterOpen(false);
-  }
+  const PRICE_PRESETS = [
+    { min: "", max: "100", label: "< $100" },
+    { min: "100", max: "500", label: "$100–500" },
+    { min: "500", max: "1000", label: "$500–1k" },
+    { min: "1000", max: "", label: "$1k+" },
+  ];
+  const priceValue =
+    PRICE_PRESETS.find((p) => p.min === filters.minPrice && p.max === filters.maxPrice)?.label ?? "";
 
   const km = lang === "km";
-  const locationLabel = km ? "ទីតាំង" : "Location";
-  const priceLabel = km ? "តម្លៃ" : "Price";
-  const categoryLabel = km ? "ប្រភេទ" : "Category";
-  const filterTitle = km ? "តម្រង" : "Filters";
-  const applyLabel = km ? "អនុវត្ត" : "Apply";
-  const clearLabel = km ? "សម្អាត" : "Clear";
-  const allLabel = km ? "ទាំងអស់" : "All";
+  const allLocLabel = km ? "ទីតាំងទាំងអស់" : "All locations";
+  const allCatLabel = km ? "ប្រភេទទាំងអស់" : "All categories";
+  const allPriceLabel = km ? "តម្លៃទាំងអស់" : "All prices";
 
   return (
     <div className="px-3 pt-3">
       <h1 className="sr-only">Construction Project Marketplace in Cambodia</h1>
-      <div className="mb-3 grid grid-cols-2 gap-2">
+      <div className="mb-3 space-y-2">
         <Link
           to="/listings/new"
           className="tap flex h-12 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground"
         >
           {t("new_listing")}
         </Link>
-        <button
-          onClick={openFilter}
-          aria-label={filterTitle}
-          className="tap relative flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-surface text-sm font-semibold text-foreground shadow-card"
-        >
-          <SlidersHorizontal className="h-5 w-5" />
-          {filterTitle}
-          {activeCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-              {activeCount}
-            </span>
+
+        <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
+          <MapPin className="ml-2 h-4 w-4 text-destructive" />
+          <select
+            value={filters.location}
+            onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+            className={`h-full flex-1 bg-transparent px-2 text-sm outline-none ${filters.location ? "text-foreground" : "text-muted-foreground"}`}
+          >
+            <option value="">{allLocLabel}</option>
+            {CAMBODIA_PROVINCES.map((p) => (
+              <option key={p.en} value={p.en}>
+                {km ? p.km : p.en}
+              </option>
+            ))}
+          </select>
+          {filters.location && (
+            <button
+              onClick={() => setFilters({ ...filters, location: "" })}
+              aria-label="Clear location filter"
+              className="mr-2 rounded-full p-1 text-muted-foreground active:bg-muted"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
           )}
-        </button>
+        </div>
+
+        <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
+          <Tag className="ml-2 h-4 w-4 text-destructive" />
+          <select
+            value={filters.categoryId}
+            onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
+            className={`h-full flex-1 bg-transparent px-2 text-sm outline-none ${filters.categoryId ? "text-foreground" : "text-muted-foreground"}`}
+          >
+            <option value="">{allCatLabel}</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {km ? c.name_km : c.name_en}
+              </option>
+            ))}
+          </select>
+          {filters.categoryId && (
+            <button
+              onClick={() => setFilters({ ...filters, categoryId: "" })}
+              aria-label="Clear category filter"
+              className="mr-2 rounded-full p-1 text-muted-foreground active:bg-muted"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+
+        <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
+          <Banknote className="ml-2 h-4 w-4 text-destructive" />
+          <select
+            value={priceValue}
+            onChange={(e) => {
+              const p = PRICE_PRESETS.find((x) => x.label === e.target.value);
+              setFilters({ ...filters, minPrice: p?.min ?? "", maxPrice: p?.max ?? "" });
+            }}
+            className={`h-full flex-1 bg-transparent px-2 text-sm outline-none ${priceValue ? "text-foreground" : "text-muted-foreground"}`}
+          >
+            <option value="">{allPriceLabel}</option>
+            {PRICE_PRESETS.map((p) => (
+              <option key={p.label} value={p.label}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          {priceValue && (
+            <button
+              onClick={() => setFilters({ ...filters, minPrice: "", maxPrice: "" })}
+              aria-label="Clear price filter"
+              className="mr-2 rounded-full p-1 text-muted-foreground active:bg-muted"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {activeCount > 0 && (
@@ -258,7 +311,7 @@ function ListingsPage() {
               label={
                 (() => {
                   const c = categories.find((c) => c.id === filters.categoryId);
-                  return c ? (km ? c.name_km : c.name_en) : categoryLabel;
+                  return c ? (km ? c.name_km : c.name_en) : allCatLabel;
                 })()
               }
               onClear={() => setFilters({ ...filters, categoryId: "" })}
@@ -363,104 +416,6 @@ function ListingsPage() {
         })}
       </div>
 
-      <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl p-0">
-          <SheetHeader className="border-b border-border px-4 py-3 text-left">
-            <SheetTitle className="text-base font-semibold">{filterTitle}</SheetTitle>
-          </SheetHeader>
-
-          <div className="space-y-4 p-4">
-            <section>
-              <h4 className="mb-2 text-sm font-semibold text-foreground">{locationLabel}</h4>
-              <div className="grid grid-cols-2 gap-2">
-                <Chip
-                  active={!draft.location}
-                  onClick={() => setDraft({ ...draft, location: "" })}
-                  label={allLabel}
-                />
-                {CAMBODIA_PROVINCES.map((p) => (
-                  <Chip
-                    key={p.en}
-                    active={draft.location === p.en}
-                    onClick={() => setDraft({ ...draft, location: p.en })}
-                    label={km ? p.km : p.en}
-                  />
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <h4 className="mb-2 text-sm font-semibold text-foreground">{categoryLabel}</h4>
-              <div className="grid grid-cols-2 gap-2">
-                <Chip
-                  active={!draft.categoryId}
-                  onClick={() => setDraft({ ...draft, categoryId: "" })}
-                  label={allLabel}
-                />
-                {categories.map((c) => (
-                  <Chip
-                    key={c.id}
-                    active={draft.categoryId === c.id}
-                    onClick={() => setDraft({ ...draft, categoryId: c.id })}
-                    label={km ? c.name_km : c.name_en}
-                  />
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <h4 className="mb-2 text-sm font-semibold text-foreground">{priceLabel}</h4>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  value={draft.minPrice}
-                  onChange={(e) => setDraft({ ...draft, minPrice: e.target.value.replace(/[^0-9.]/g, "") })}
-                  inputMode="decimal"
-                  placeholder={km ? "អប្បបរមា" : "Min"}
-                  className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
-                />
-                <input
-                  value={draft.maxPrice}
-                  onChange={(e) => setDraft({ ...draft, maxPrice: e.target.value.replace(/[^0-9.]/g, "") })}
-                  inputMode="decimal"
-                  placeholder={km ? "អតិបរមា" : "Max"}
-                  className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
-                />
-              </div>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {[
-                  { min: "", max: "100", label: "< $100" },
-                  { min: "100", max: "500", label: "$100–500" },
-                  { min: "500", max: "1000", label: "$500–1k" },
-                  { min: "1000", max: "", label: "$1k+" },
-                ].map((p) => (
-                  <Chip
-                    key={p.label}
-                    active={draft.minPrice === p.min && draft.maxPrice === p.max}
-                    onClick={() => setDraft({ ...draft, minPrice: p.min, maxPrice: p.max })}
-                    label={p.label}
-                  />
-                ))}
-              </div>
-            </section>
-          </div>
-
-          <SheetFooter className="sticky bottom-0 flex-row gap-2 border-t border-border bg-surface p-3">
-            <button
-              onClick={clearFilter}
-              className="h-11 flex-1 rounded-xl border border-border bg-background text-sm font-semibold text-foreground active:scale-[0.99]"
-            >
-              {clearLabel}
-            </button>
-            <button
-              onClick={applyFilter}
-              className="h-11 flex-[2] rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]"
-            >
-              {applyLabel}
-            </button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-
       <EditTextDialog
         open={!!editTarget}
         title={t("edit") + " · " + t("project_detail")}
@@ -484,20 +439,6 @@ function ListingsPage() {
   );
 }
 
-function Chip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full truncate rounded-pill border px-3.5 py-2 text-xs font-medium transition ${
-        active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-background text-foreground"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
 
 function FilterChip({ label, onClear }: { label: string; onClear: () => void }) {
   return (
