@@ -200,8 +200,23 @@ function FindWorkerPage() {
         </div>
       </div>
 
+      <div className="border-b border-border bg-surface px-3 pb-2">
+        <div className="flex gap-2 py-2">
+          <Chip
+            active={availFilter === "all"}
+            onClick={() => setAvailFilter("all")}
+            label={t("all")}
+          />
+          <Chip
+            active={availFilter === "available"}
+            onClick={() => setAvailFilter("available")}
+            label={t("available_today_filter")}
+          />
+        </div>
+      </div>
+
       <div className="px-3 py-2 text-xs text-muted-foreground">
-        {loading ? t("loading") : t("workers_found", { n: workers.length })}
+        {loading ? t("loading") : t("workers_found", { n: visibleWorkers.length })}
       </div>
 
       <div className="flex flex-col gap-2 px-3">
