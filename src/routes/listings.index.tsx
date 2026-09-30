@@ -220,9 +220,8 @@ function ListingsPage() {
   const clearLabel = km ? "សម្អាត" : "Clear";
   const allLabel = km ? "ទាំងអស់" : "All";
 
-  return (
-    <div className="px-3 pt-3">
-      <h1 className="sr-only">Construction Project Marketplace in Cambodia</h1>
+  const buttonsRow = (
+    <>
       <div className="mb-3 grid grid-cols-2 gap-2">
         <Link
           to="/listings/new"
@@ -272,6 +271,14 @@ function ListingsPage() {
           )}
         </div>
       )}
+    </>
+  );
+
+  return (
+    <div className="px-3 pt-3">
+      <h1 className="sr-only">Construction Project Marketplace in Cambodia</h1>
+
+      {(loading || filtered.length === 0) && buttonsRow}
 
       {loading && <div className="mt-3"><ListingListSkeleton count={3} /></div>}
       {!loading && filtered.length === 0 && (
