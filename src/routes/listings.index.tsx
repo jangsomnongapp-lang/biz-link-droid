@@ -223,19 +223,20 @@ function ListingsPage() {
   return (
     <div className="px-3 pt-3">
       <h1 className="sr-only">Construction Project Marketplace in Cambodia</h1>
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 grid grid-cols-2 gap-2">
         <Link
           to="/listings/new"
-          className="flex h-12 flex-1 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]"
+          className="flex h-12 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]"
         >
           {t("new_listing")}
         </Link>
         <button
           onClick={openFilter}
           aria-label={filterTitle}
-          className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-surface text-foreground shadow-card active:scale-[0.97]"
+          className="relative flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-surface text-sm font-semibold text-foreground shadow-card active:scale-[0.97]"
         >
-          <SlidersHorizontal className="h-5 w-5" />
+          <SlidersHorizontal className="h-4 w-4" />
+          {filterTitle}
           {activeCount > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
               {activeCount}
@@ -282,7 +283,7 @@ function ListingsPage() {
       )}
 
       <h2 className="sr-only">{km ? "គម្រោងសកម្ម" : "Active Projects"}</h2>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex flex-col gap-3">
         {filtered.map((l) => {
           const applied = appliedIds.has(l.id);
           const isOwn = user?.id === l.user_id;
