@@ -219,82 +219,84 @@ function ListingsPage() {
           {t("new_listing")}
         </Link>
 
-        <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-          <MapPin className="ml-2 h-4 w-4 text-destructive" />
-          <select
-            value={filters.location}
-            onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-            className={`h-full flex-1 bg-transparent px-2 text-sm outline-none ${filters.location ? "text-foreground" : "text-muted-foreground"}`}
-          >
-            <option value="">{allLocLabel}</option>
-            {CAMBODIA_PROVINCES.map((p) => (
-              <option key={p.en} value={p.en}>
-                {km ? p.km : p.en}
-              </option>
-            ))}
-          </select>
-          {filters.location && (
-            <button
-              onClick={() => setFilters({ ...filters, location: "" })}
-              aria-label="Clear location filter"
-              className="mr-2 rounded-full p-1 text-muted-foreground active:bg-muted"
+        <div className="grid grid-cols-3 gap-2">
+          <div className="flex h-10 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
+            <MapPin className="ml-1.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+            <select
+              value={filters.location}
+              onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+              className={`h-full min-w-0 flex-1 truncate bg-transparent px-1 text-xs outline-none ${filters.location ? "text-foreground" : "text-muted-foreground"}`}
             >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
-        </div>
+              <option value="">{allLocLabel}</option>
+              {CAMBODIA_PROVINCES.map((p) => (
+                <option key={p.en} value={p.en}>
+                  {km ? p.km : p.en}
+                </option>
+              ))}
+            </select>
+            {filters.location && (
+              <button
+                onClick={() => setFilters({ ...filters, location: "" })}
+                aria-label="Clear location filter"
+                className="mr-1 shrink-0 rounded-full p-0.5 text-muted-foreground active:bg-muted"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
 
-        <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-          <Tag className="ml-2 h-4 w-4 text-destructive" />
-          <select
-            value={filters.categoryId}
-            onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
-            className={`h-full flex-1 bg-transparent px-2 text-sm outline-none ${filters.categoryId ? "text-foreground" : "text-muted-foreground"}`}
-          >
-            <option value="">{allCatLabel}</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {km ? c.name_km : c.name_en}
-              </option>
-            ))}
-          </select>
-          {filters.categoryId && (
-            <button
-              onClick={() => setFilters({ ...filters, categoryId: "" })}
-              aria-label="Clear category filter"
-              className="mr-2 rounded-full p-1 text-muted-foreground active:bg-muted"
+          <div className="flex h-10 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
+            <Tag className="ml-1.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+            <select
+              value={filters.categoryId}
+              onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
+              className={`h-full min-w-0 flex-1 truncate bg-transparent px-1 text-xs outline-none ${filters.categoryId ? "text-foreground" : "text-muted-foreground"}`}
             >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
-        </div>
+              <option value="">{allCatLabel}</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {km ? c.name_km : c.name_en}
+                </option>
+              ))}
+            </select>
+            {filters.categoryId && (
+              <button
+                onClick={() => setFilters({ ...filters, categoryId: "" })}
+                aria-label="Clear category filter"
+                className="mr-1 shrink-0 rounded-full p-0.5 text-muted-foreground active:bg-muted"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
 
-        <div className="flex h-11 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-          <Banknote className="ml-2 h-4 w-4 text-destructive" />
-          <select
-            value={priceValue}
-            onChange={(e) => {
-              const p = PRICE_PRESETS.find((x) => x.label === e.target.value);
-              setFilters({ ...filters, minPrice: p?.min ?? "", maxPrice: p?.max ?? "" });
-            }}
-            className={`h-full flex-1 bg-transparent px-2 text-sm outline-none ${priceValue ? "text-foreground" : "text-muted-foreground"}`}
-          >
-            <option value="">{allPriceLabel}</option>
-            {PRICE_PRESETS.map((p) => (
-              <option key={p.label} value={p.label}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-          {priceValue && (
-            <button
-              onClick={() => setFilters({ ...filters, minPrice: "", maxPrice: "" })}
-              aria-label="Clear price filter"
-              className="mr-2 rounded-full p-1 text-muted-foreground active:bg-muted"
+          <div className="flex h-10 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
+            <Banknote className="ml-1.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+            <select
+              value={priceValue}
+              onChange={(e) => {
+                const p = PRICE_PRESETS.find((x) => x.label === e.target.value);
+                setFilters({ ...filters, minPrice: p?.min ?? "", maxPrice: p?.max ?? "" });
+              }}
+              className={`h-full min-w-0 flex-1 truncate bg-transparent px-1 text-xs outline-none ${priceValue ? "text-foreground" : "text-muted-foreground"}`}
             >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
+              <option value="">{allPriceLabel}</option>
+              {PRICE_PRESETS.map((p) => (
+                <option key={p.label} value={p.label}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+            {priceValue && (
+              <button
+                onClick={() => setFilters({ ...filters, minPrice: "", maxPrice: "" })}
+                aria-label="Clear price filter"
+                className="mr-1 shrink-0 rounded-full p-0.5 text-muted-foreground active:bg-muted"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
