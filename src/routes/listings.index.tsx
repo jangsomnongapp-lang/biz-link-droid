@@ -204,13 +204,9 @@ function ListingsPage() {
     PRICE_PRESETS.find((p) => p.min === filters.minPrice && p.max === filters.maxPrice)?.label ?? "";
 
   const km = lang === "km";
-  const locationLabel = km ? "ទីតាំង" : "Location";
-  const priceLabel = km ? "តម្លៃ" : "Price";
-  const categoryLabel = km ? "ប្រភេទ" : "Category";
-  const filterTitle = km ? "តម្រង" : "Filters";
-  const applyLabel = km ? "អនុវត្ត" : "Apply";
-  const clearLabel = km ? "សម្អាត" : "Clear";
-  const allLabel = km ? "ទាំងអស់" : "All";
+  const allLocLabel = km ? "ទីតាំងទាំងអស់" : "All locations";
+  const allCatLabel = km ? "ប្រភេទទាំងអស់" : "All categories";
+  const allPriceLabel = km ? "តម្លៃទាំងអស់" : "All prices";
 
   return (
     <div className="px-3 pt-3">
