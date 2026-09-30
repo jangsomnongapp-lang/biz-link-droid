@@ -372,7 +372,7 @@ function ListingsPage() {
           <div className="space-y-4 p-4">
             <section>
               <h4 className="mb-2 text-sm font-semibold text-foreground">{locationLabel}</h4>
-              <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+              <div className="grid grid-cols-2 gap-2">
                 <Chip
                   active={!draft.location}
                   onClick={() => setDraft({ ...draft, location: "" })}
@@ -391,7 +391,7 @@ function ListingsPage() {
 
             <section>
               <h4 className="mb-2 text-sm font-semibold text-foreground">{categoryLabel}</h4>
-              <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+              <div className="grid grid-cols-2 gap-2">
                 <Chip
                   active={!draft.categoryId}
                   onClick={() => setDraft({ ...draft, categoryId: "" })}
@@ -426,7 +426,7 @@ function ListingsPage() {
                   className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
                 />
               </div>
-              <div className="no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1">
+              <div className="mt-2 grid grid-cols-2 gap-2">
                 {[
                   { min: "", max: "100", label: "< $100" },
                   { min: "100", max: "500", label: "$100–500" },
@@ -488,7 +488,7 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
   return (
     <button
       onClick={onClick}
-      className={`rounded-pill border px-3.5 py-1.5 text-xs font-medium transition ${
+      className={`w-full truncate rounded-pill border px-3.5 py-2 text-xs font-medium transition ${
         active
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-background text-foreground"
