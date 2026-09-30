@@ -194,19 +194,14 @@ function ListingsPage() {
     if (user) qc.invalidateQueries({ queryKey: ["listings:index", user.id] });
   }
 
-  function openFilter() {
-    setDraft(filters);
-    setFilterOpen(true);
-  }
-  function applyFilter() {
-    setFilters(draft);
-    setFilterOpen(false);
-  }
-  function clearFilter() {
-    setDraft(EMPTY_FILTERS);
-    setFilters(EMPTY_FILTERS);
-    setFilterOpen(false);
-  }
+  const PRICE_PRESETS = [
+    { min: "", max: "100", label: "< $100" },
+    { min: "100", max: "500", label: "$100–500" },
+    { min: "500", max: "1000", label: "$500–1k" },
+    { min: "1000", max: "", label: "$1k+" },
+  ];
+  const priceValue =
+    PRICE_PRESETS.find((p) => p.min === filters.minPrice && p.max === filters.maxPrice)?.label ?? "";
 
   const km = lang === "km";
   const locationLabel = km ? "ទីតាំង" : "Location";
