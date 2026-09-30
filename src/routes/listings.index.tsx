@@ -282,7 +282,7 @@ function ListingsPage() {
       )}
 
       <h2 className="sr-only">{km ? "គម្រោងសកម្ម" : "Active Projects"}</h2>
-      <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
         {filtered.map((l) => {
           const applied = appliedIds.has(l.id);
           const isOwn = user?.id === l.user_id;
@@ -291,17 +291,16 @@ function ListingsPage() {
               key={l.id}
               to="/listings/$listingId"
               params={{ listingId: l.id }}
-              className="block rounded-xl bg-surface p-3 shadow-card active:scale-[0.99]"
+              className="flex flex-col rounded-xl bg-surface p-3 shadow-card active:scale-[0.99]"
             >
               <div className="flex items-center gap-2">
-                <Avatar name={l.profiles?.full_name} url={l.profiles?.avatar_url} size={36} />
+                <Avatar name={l.profiles?.full_name} url={l.profiles?.avatar_url} size={28} />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold text-foreground">
+                  <div className="truncate text-xs font-semibold text-foreground">
                     {l.profiles?.full_name ?? "User"}
                   </div>
-                  <div className="truncate text-xs text-muted-foreground">
+                  <div className="truncate text-[10px] text-muted-foreground">
                     {timeAgo(l.created_at, t)}
-                    {l.location ? ` · ${l.location}` : ""}
                   </div>
                 </div>
                 {isOwn && (
@@ -313,32 +312,31 @@ function ListingsPage() {
                   </div>
                 )}
               </div>
-              <h3 className="mt-2 text-base font-semibold text-foreground">{l.title}</h3>
+              <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold text-foreground">{l.title}</h3>
               {l.description && (
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{l.description}</p>
+                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{l.description}</p>
               )}
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {l.listing_categories.slice(0, 3).map((lc, i) =>
+              <div className="mt-1.5 flex flex-wrap gap-1">
+                {l.listing_categories.slice(0, 2).map((lc, i) =>
                   lc.categories ? (
                     <span
                       key={i}
-                      className="rounded-pill bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+                      className="rounded-pill bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary"
                     >
                       {lang === "km" ? lc.categories.name_km : lc.categories.name_en}
                     </span>
                   ) : null
                 )}
               </div>
-              <div className="mt-3 flex items-center justify-between">
-                <div className="flex items-center gap-3 text-xs">
-                  {l.location && (
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5 text-destructive" /> {l.location}
-                    </span>
-                  )}
-                  <span className="font-semibold text-success">
-                    {l.budget ? formatPrice(l.budget, l.currency) : t("to_discuss")}
+              <div className="mt-auto pt-2">
+                {l.location && (
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <MapPin className="h-3 w-3 shrink-0 text-destructive" />
+                    <span className="truncate">{l.location}</span>
                   </span>
+                )}
+                <div className="mt-0.5 text-sm font-bold text-success">
+                  {l.budget ? formatPrice(l.budget, l.currency) : t("to_discuss")}
                 </div>
                 {!isOwn && (
                   <button
@@ -347,7 +345,7 @@ function ListingsPage() {
                       if (!applied) void apply(l.id);
                     }}
                     disabled={applied}
-                    className={`rounded-pill px-4 py-1.5 text-xs font-semibold ${
+                    className={`mt-2 w-full rounded-pill px-3 py-1.5 text-xs font-semibold ${
                       applied
                         ? "bg-muted text-muted-foreground"
                         : "bg-primary text-primary-foreground active:scale-95"
@@ -371,7 +369,7 @@ function ListingsPage() {
           <div className="space-y-5 p-4">
             <section>
               <h4 className="mb-2 text-sm font-semibold text-foreground">{locationLabel}</h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <Chip
                   active={!draft.location}
                   onClick={() => setDraft({ ...draft, location: "" })}
@@ -406,7 +404,7 @@ function ListingsPage() {
                   className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
                 />
               </div>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="mt-2 grid grid-cols-3 gap-2">
                 {[
                   { min: "", max: "100", label: "< $100" },
                   { min: "100", max: "500", label: "$100–500" },
@@ -425,7 +423,7 @@ function ListingsPage() {
 
             <section>
               <h4 className="mb-2 text-sm font-semibold text-foreground">{categoryLabel}</h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <Chip
                   active={!draft.categoryId}
                   onClick={() => setDraft({ ...draft, categoryId: "" })}
@@ -487,7 +485,7 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
   return (
     <button
       onClick={onClick}
-      className={`rounded-pill border px-3.5 py-1.5 text-xs font-medium transition ${
+      className={`rounded-pill border px-2 py-1.5 text-center text-xs font-medium transition ${
         active
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-background text-foreground"
