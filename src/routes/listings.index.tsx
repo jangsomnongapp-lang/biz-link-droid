@@ -11,7 +11,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { MapPin, Tag, Banknote, X } from "lucide-react";
+import { MapPin, X } from "lucide-react";
 import { toast } from "sonner";
 import { ListingListSkeleton } from "@/components/SkeletonFeed";
 import { CAMBODIA_PROVINCES } from "@/components/ProvinceSelect";
