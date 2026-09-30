@@ -107,6 +107,16 @@ function FindWorkerPage() {
 
       if (list.length > 0) {
         const ids = list.map((w) => w.id);
+        void supabase
+          .rpc("get_today_availability_bulk", { _uids: ids })
+          .then(({ data: avail }) => {
+            if (cancelled) return;
+            const set = new Set<string>();
+            for (const row of (avail ?? []) as { user_id: string; status: string }[]) {
+              if (row.status === "available") set.add(row.user_id);
+            }
+            setAvailableIds(set);
+          });
         const { data: ucs } = await supabase
           .from("user_categories")
           .select("user_id, categories(id, name_en, name_km)")
@@ -138,6 +148,14 @@ function FindWorkerPage() {
       .join(" · ");
 
   const visibleCats = useMemo(() => categories.slice(0, 30), [categories]);
+
+  const visibleWorkers = useMemo(
+    () =>
+      availFilter === "all"
+        ? workers
+        : workers.filter((w) => availableIds.has(w.id)),
+    [workers, availFilter, availableIds],
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-10">
