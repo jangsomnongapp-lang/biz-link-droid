@@ -50,6 +50,8 @@ function FindWorkerPage() {
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [workers, setWorkers] = useState<WorkerProfile[]>([]);
   const [workerCats, setWorkerCats] = useState<Record<string, Category[]>>({});
+  const [availFilter, setAvailFilter] = useState<"all" | "available">("all");
+  const [availableIds, setAvailableIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
