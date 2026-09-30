@@ -50,6 +50,8 @@ function FindWorkerPage() {
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [workers, setWorkers] = useState<WorkerProfile[]>([]);
   const [workerCats, setWorkerCats] = useState<Record<string, Category[]>>({});
+  const [availFilter, setAvailFilter] = useState<"all" | "available">("all");
+  const [availableIds, setAvailableIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -105,6 +107,16 @@ function FindWorkerPage() {
 
       if (list.length > 0) {
         const ids = list.map((w) => w.id);
+        void supabase
+          .rpc("get_today_availability_bulk", { _uids: ids })
+          .then(({ data: avail }) => {
+            if (cancelled) return;
+            const set = new Set<string>();
+            for (const row of (avail ?? []) as { user_id: string; status: string }[]) {
+              if (row.status === "available") set.add(row.user_id);
+            }
+            setAvailableIds(set);
+          });
         const { data: ucs } = await supabase
           .from("user_categories")
           .select("user_id, categories(id, name_en, name_km)")
@@ -136,6 +148,14 @@ function FindWorkerPage() {
       .join(" · ");
 
   const visibleCats = useMemo(() => categories.slice(0, 30), [categories]);
+
+  const visibleWorkers = useMemo(
+    () =>
+      availFilter === "all"
+        ? workers
+        : workers.filter((w) => availableIds.has(w.id)),
+    [workers, availFilter, availableIds],
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-10">
@@ -180,17 +200,32 @@ function FindWorkerPage() {
         </div>
       </div>
 
+      <div className="border-b border-border bg-surface px-3 pb-2">
+        <div className="flex gap-2 py-2">
+          <Chip
+            active={availFilter === "all"}
+            onClick={() => setAvailFilter("all")}
+            label={t("all")}
+          />
+          <Chip
+            active={availFilter === "available"}
+            onClick={() => setAvailFilter("available")}
+            label={t("available_today_filter")}
+          />
+        </div>
+      </div>
+
       <div className="px-3 py-2 text-xs text-muted-foreground">
-        {loading ? t("loading") : t("workers_found", { n: workers.length })}
+        {loading ? t("loading") : t("workers_found", { n: visibleWorkers.length })}
       </div>
 
       <div className="flex flex-col gap-2 px-3">
-        {!loading && workers.length === 0 && (
+        {!loading && visibleWorkers.length === 0 && (
           <div className="rounded-xl bg-surface p-8 text-center text-sm text-muted-foreground shadow-card">
             {t("no_workers_found")}
           </div>
         )}
-        {workers.map((w) => {
+        {visibleWorkers.map((w) => {
           const cats = workerCats[w.id] ?? [];
           return (
             <Link
