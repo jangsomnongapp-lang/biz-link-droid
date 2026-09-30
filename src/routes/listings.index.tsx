@@ -11,7 +11,7 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { timeAgo } from "@/lib/format";
-import { MapPin, Tag, Banknote, X } from "lucide-react";
+import { MapPin, X } from "lucide-react";
 import { toast } from "sonner";
 import { ListingListSkeleton } from "@/components/SkeletonFeed";
 import { CAMBODIA_PROVINCES } from "@/components/ProvinceSelect";
@@ -204,9 +204,9 @@ function ListingsPage() {
     PRICE_PRESETS.find((p) => p.min === filters.minPrice && p.max === filters.maxPrice)?.label ?? "";
 
   const km = lang === "km";
-  const allLocLabel = km ? "ទីតាំងទាំងអស់" : "All locations";
-  const allCatLabel = km ? "ប្រភេទទាំងអស់" : "All categories";
-  const allPriceLabel = km ? "តម្លៃទាំងអស់" : "All prices";
+  const allLocLabel = km ? "ទីតាំង" : "Location";
+  const allCatLabel = km ? "ប្រភេទ" : "Categories";
+  const allPriceLabel = km ? "តម្លៃ" : "Price";
 
   return (
     <div className="px-3 pt-3">
@@ -219,9 +219,8 @@ function ListingsPage() {
           {t("new_listing")}
         </Link>
 
-        <div className="grid grid-cols-3 gap-2">
-          <div className="flex h-10 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-            <MapPin className="ml-1.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+        <div className="grid grid-cols-3">
+          <div className="flex h-10 items-center overflow-hidden rounded-l-lg border border-border bg-background focus-within:border-primary">
             <select
               value={filters.location}
               onChange={(e) => setFilters({ ...filters, location: e.target.value })}
@@ -245,8 +244,7 @@ function ListingsPage() {
             )}
           </div>
 
-          <div className="flex h-10 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-            <Tag className="ml-1.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+          <div className="flex h-10 items-center overflow-hidden rounded-none border border-border bg-background focus-within:border-primary -ml-px">
             <select
               value={filters.categoryId}
               onChange={(e) => setFilters({ ...filters, categoryId: e.target.value })}
@@ -270,8 +268,7 @@ function ListingsPage() {
             )}
           </div>
 
-          <div className="flex h-10 items-center overflow-hidden rounded-lg border border-border bg-background focus-within:border-primary">
-            <Banknote className="ml-1.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+          <div className="flex h-10 items-center overflow-hidden rounded-r-lg border border-border bg-background focus-within:border-primary -ml-px">
             <select
               value={priceValue}
               onChange={(e) => {
