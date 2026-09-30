@@ -14,6 +14,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as RewardsRouteImport } from './routes/rewards'
+import { Route as RewardResultsRouteImport } from './routes/reward-results'
 import { Route as ReportRouteImport } from './routes/report'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -117,6 +118,11 @@ const SearchRoute = SearchRouteImport.update({
 const RewardsRoute = RewardsRouteImport.update({
   id: '/rewards',
   path: '/rewards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RewardResultsRoute = RewardResultsRouteImport.update({
+  id: '/reward-results',
+  path: '/reward-results',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportRoute = ReportRouteImport.update({
@@ -552,6 +558,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
+  '/reward-results': typeof RewardResultsRoute
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
@@ -637,6 +644,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
+  '/reward-results': typeof RewardResultsRoute
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
@@ -723,6 +731,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
+  '/reward-results': typeof RewardResultsRoute
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
@@ -811,6 +820,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/report'
+    | '/reward-results'
     | '/rewards'
     | '/search'
     | '/settings'
@@ -896,6 +906,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/report'
+    | '/reward-results'
     | '/rewards'
     | '/search'
     | '/settings'
@@ -981,6 +992,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/report'
+    | '/reward-results'
     | '/rewards'
     | '/search'
     | '/settings'
@@ -1068,6 +1080,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   ReportRoute: typeof ReportRoute
+  RewardResultsRoute: typeof RewardResultsRoute
   RewardsRoute: typeof RewardsRoute
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
@@ -1150,6 +1163,13 @@ declare module '@tanstack/react-router' {
       path: '/rewards'
       fullPath: '/rewards'
       preLoaderRoute: typeof RewardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reward-results': {
+      id: '/reward-results'
+      path: '/reward-results'
+      fullPath: '/reward-results'
+      preLoaderRoute: typeof RewardResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/report': {
@@ -1812,6 +1832,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRouteWithChildren,
   RegisterRoute: RegisterRoute,
   ReportRoute: ReportRoute,
+  RewardResultsRoute: RewardResultsRoute,
   RewardsRoute: RewardsRoute,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
