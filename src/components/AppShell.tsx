@@ -130,7 +130,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const tabs = [
     { to: "/home", label: t("nav_home"), icon: Home, badge: 0, prominent: false },
-    { to: "/listings", label: t("nav_listings"), icon: BriefcaseBusiness, badge: 0, prominent: false },
+    { to: "/listings/new", label: t("nav_listings"), icon: BriefcaseBusiness, badge: 0, prominent: false },
     {
       to: myStore ? (`/suppliers/${myStore.id}` as const) : "/announce",
       label: myStore ? t("my_store") : t("nav_announce"),
