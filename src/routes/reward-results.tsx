@@ -5,7 +5,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/rewards/results")({
+export const Route = createFileRoute("/reward-results")({
   head: () => ({
     meta: [
       { title: "Draw results — BuildHub" },

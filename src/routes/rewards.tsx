@@ -158,7 +158,7 @@ function RewardsPage() {
               {lang === "km" ? "ការបន្តប្រចាំថ្ងៃ" : "Streak"}
             </div>
             <button
-              onClick={() => nav({ to: "/rewards/results" })}
+              onClick={() => nav({ to: "/reward-results" })}
               className="mt-2 flex w-full items-center justify-between rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-bold text-white shadow active:bg-orange-600"
             >
               <span>{lang === "km" ? "លទ្ធផល" : "Result"}</span>

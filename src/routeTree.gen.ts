@@ -46,6 +46,7 @@ import { Route as SuppliersStoreIdRouteImport } from './routes/suppliers.$storeI
 import { Route as SuperuserPanelRouteImport } from './routes/superuser.panel'
 import { Route as StoryViewRouteImport } from './routes/story.view'
 import { Route as StoryNewRouteImport } from './routes/story.new'
+import { Route as RewardsResultsRouteImport } from './routes/rewards.results'
 import { Route as RentalsNewRouteImport } from './routes/rentals.new'
 import { Route as RentalsRentalIdRouteImport } from './routes/rentals.$rentalId'
 import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
@@ -278,6 +279,11 @@ const StoryNewRoute = StoryNewRouteImport.update({
   id: '/story/new',
   path: '/story/new',
   getParentRoute: () => rootRouteImport,
+} as any)
+const RewardsResultsRoute = RewardsResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => RewardsRoute,
 } as any)
 const RentalsNewRoute = RentalsNewRouteImport.update({
   id: '/rentals/new',
@@ -552,7 +558,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
-  '/rewards': typeof RewardsRoute
+  '/rewards': typeof RewardsRouteWithChildren
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -582,6 +588,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/rentals/$rentalId': typeof RentalsRentalIdRoute
   '/rentals/new': typeof RentalsNewRoute
+  '/rewards/results': typeof RewardsResultsRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
   '/superuser/panel': typeof SuperuserPanelRoute
@@ -637,7 +644,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
-  '/rewards': typeof RewardsRoute
+  '/rewards': typeof RewardsRouteWithChildren
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -667,6 +674,7 @@ export interface FileRoutesByTo {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/rentals/$rentalId': typeof RentalsRentalIdRoute
   '/rentals/new': typeof RentalsNewRoute
+  '/rewards/results': typeof RewardsResultsRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
   '/superuser/panel': typeof SuperuserPanelRoute
@@ -723,7 +731,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRouteWithChildren
   '/register': typeof RegisterRoute
   '/report': typeof ReportRoute
-  '/rewards': typeof RewardsRoute
+  '/rewards': typeof RewardsRouteWithChildren
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -753,6 +761,7 @@ export interface FileRoutesById {
   '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/rentals/$rentalId': typeof RentalsRentalIdRoute
   '/rentals/new': typeof RentalsNewRoute
+  '/rewards/results': typeof RewardsResultsRoute
   '/story/new': typeof StoryNewRoute
   '/story/view': typeof StoryViewRoute
   '/superuser/panel': typeof SuperuserPanelRoute
@@ -841,6 +850,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/rentals/$rentalId'
     | '/rentals/new'
+    | '/rewards/results'
     | '/story/new'
     | '/story/view'
     | '/superuser/panel'
@@ -926,6 +936,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/rentals/$rentalId'
     | '/rentals/new'
+    | '/rewards/results'
     | '/story/new'
     | '/story/view'
     | '/superuser/panel'
@@ -1011,6 +1022,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId'
     | '/rentals/$rentalId'
     | '/rentals/new'
+    | '/rewards/results'
     | '/story/new'
     | '/story/view'
     | '/superuser/panel'
@@ -1068,7 +1080,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   ReportRoute: typeof ReportRoute
-  RewardsRoute: typeof RewardsRoute
+  RewardsRoute: typeof RewardsRouteWithChildren
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -1375,6 +1387,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/story/new'
       preLoaderRoute: typeof StoryNewRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/rewards/results': {
+      id: '/rewards/results'
+      path: '/results'
+      fullPath: '/rewards/results'
+      preLoaderRoute: typeof RewardsResultsRouteImport
+      parentRoute: typeof RewardsRoute
     }
     '/rentals/new': {
       id: '/rentals/new'
@@ -1749,6 +1768,17 @@ const ProfileRouteChildren: ProfileRouteChildren = {
 const ProfileRouteWithChildren =
   ProfileRoute._addFileChildren(ProfileRouteChildren)
 
+interface RewardsRouteChildren {
+  RewardsResultsRoute: typeof RewardsResultsRoute
+}
+
+const RewardsRouteChildren: RewardsRouteChildren = {
+  RewardsResultsRoute: RewardsResultsRoute,
+}
+
+const RewardsRouteWithChildren =
+  RewardsRoute._addFileChildren(RewardsRouteChildren)
+
 interface SuppliersStoreIdCatalogRouteChildren {
   SuppliersStoreIdCatalogImportRoute: typeof SuppliersStoreIdCatalogImportRoute
   SuppliersStoreIdCatalogListRoute: typeof SuppliersStoreIdCatalogListRoute
@@ -1812,7 +1842,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRouteWithChildren,
   RegisterRoute: RegisterRoute,
   ReportRoute: ReportRoute,
-  RewardsRoute: RewardsRoute,
+  RewardsRoute: RewardsRouteWithChildren,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
