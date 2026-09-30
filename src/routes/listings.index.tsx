@@ -220,8 +220,9 @@ function ListingsPage() {
   const clearLabel = km ? "សម្អាត" : "Clear";
   const allLabel = km ? "ទាំងអស់" : "All";
 
-  const buttonsRow = (
-    <>
+  return (
+    <div className="px-3 pt-3">
+      <h1 className="sr-only">Construction Project Marketplace in Cambodia</h1>
       <div className="mb-3 grid grid-cols-2 gap-2">
         <Link
           to="/listings/new"
@@ -271,14 +272,6 @@ function ListingsPage() {
           )}
         </div>
       )}
-    </>
-  );
-
-  return (
-    <div className="px-3 pt-3">
-      <h1 className="sr-only">Construction Project Marketplace in Cambodia</h1>
-
-      {(loading || filtered.length === 0) && buttonsRow}
 
       {loading && <div className="mt-3"><ListingListSkeleton count={3} /></div>}
       {!loading && filtered.length === 0 && (
@@ -291,12 +284,12 @@ function ListingsPage() {
 
       <h2 className="sr-only">{km ? "គម្រោងសកម្ម" : "Active Projects"}</h2>
       <div className="space-y-3">
-        {filtered.map((l, i) => {
+        {filtered.map((l) => {
           const applied = appliedIds.has(l.id);
           const isOwn = user?.id === l.user_id;
           return (
-            <div key={l.id}>
             <Link
+              key={l.id}
               to="/listings/$listingId"
               params={{ listingId: l.id }}
               className="block rounded-xl bg-surface p-3 shadow-card active:scale-[0.99]"
@@ -366,8 +359,6 @@ function ListingsPage() {
                 )}
               </div>
             </Link>
-            {i === 0 && buttonsRow}
-            </div>
           );
         })}
       </div>
