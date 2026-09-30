@@ -439,20 +439,6 @@ function ListingsPage() {
   );
 }
 
-function Chip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full truncate rounded-pill border px-3.5 py-2 text-xs font-medium transition ${
-        active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-background text-foreground"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
 
 function FilterChip({ label, onClear }: { label: string; onClear: () => void }) {
   return (
