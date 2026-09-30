@@ -291,12 +291,12 @@ function ListingsPage() {
 
       <h2 className="sr-only">{km ? "គម្រោងសកម្ម" : "Active Projects"}</h2>
       <div className="space-y-3">
-        {filtered.map((l) => {
+        {filtered.map((l, i) => {
           const applied = appliedIds.has(l.id);
           const isOwn = user?.id === l.user_id;
           return (
+            <div key={l.id}>
             <Link
-              key={l.id}
               to="/listings/$listingId"
               params={{ listingId: l.id }}
               className="block rounded-xl bg-surface p-3 shadow-card active:scale-[0.99]"
