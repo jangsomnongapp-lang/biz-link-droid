@@ -2677,6 +2677,18 @@ export type Database = {
           master_account_id: string
         }[]
       }
+      get_recent_draw_results: {
+        Args: never
+        Returns: {
+          draw_date: string
+          draw_id: string
+          draw_type: string
+          drawn_at: string
+          prize_title: string
+          ticket_number: number
+          winner_name: string
+        }[]
+      }
       get_rewards_user_id: { Args: never; Returns: string }
       get_supplier_invite_by_token: {
         Args: { _token: string }
