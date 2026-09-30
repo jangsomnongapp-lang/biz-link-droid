@@ -223,19 +223,20 @@ function ListingsPage() {
   return (
     <div className="px-3 pt-3">
       <h1 className="sr-only">Construction Project Marketplace in Cambodia</h1>
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 grid grid-cols-2 gap-2">
         <Link
           to="/listings/new"
-          className="flex h-12 flex-1 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground active:scale-[0.99]"
+          className="tap flex h-12 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground"
         >
           {t("new_listing")}
         </Link>
         <button
           onClick={openFilter}
           aria-label={filterTitle}
-          className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-surface text-foreground shadow-card active:scale-[0.97]"
+          className="tap relative flex h-12 items-center justify-center gap-2 rounded-xl border border-border bg-surface text-sm font-semibold text-foreground shadow-card"
         >
           <SlidersHorizontal className="h-5 w-5" />
+          {filterTitle}
           {activeCount > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
               {activeCount}
@@ -368,10 +369,10 @@ function ListingsPage() {
             <SheetTitle className="text-base font-semibold">{filterTitle}</SheetTitle>
           </SheetHeader>
 
-          <div className="space-y-5 p-4">
+          <div className="space-y-4 p-4">
             <section>
               <h4 className="mb-2 text-sm font-semibold text-foreground">{locationLabel}</h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
                 <Chip
                   active={!draft.location}
                   onClick={() => setDraft({ ...draft, location: "" })}
@@ -383,6 +384,25 @@ function ListingsPage() {
                     active={draft.location === p.en}
                     onClick={() => setDraft({ ...draft, location: p.en })}
                     label={km ? p.km : p.en}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{categoryLabel}</h4>
+              <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+                <Chip
+                  active={!draft.categoryId}
+                  onClick={() => setDraft({ ...draft, categoryId: "" })}
+                  label={allLabel}
+                />
+                {categories.map((c) => (
+                  <Chip
+                    key={c.id}
+                    active={draft.categoryId === c.id}
+                    onClick={() => setDraft({ ...draft, categoryId: c.id })}
+                    label={km ? c.name_km : c.name_en}
                   />
                 ))}
               </div>
@@ -406,7 +426,7 @@ function ListingsPage() {
                   className="h-11 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
                 />
               </div>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1">
                 {[
                   { min: "", max: "100", label: "< $100" },
                   { min: "100", max: "500", label: "$100–500" },
@@ -418,25 +438,6 @@ function ListingsPage() {
                     active={draft.minPrice === p.min && draft.maxPrice === p.max}
                     onClick={() => setDraft({ ...draft, minPrice: p.min, maxPrice: p.max })}
                     label={p.label}
-                  />
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <h4 className="mb-2 text-sm font-semibold text-foreground">{categoryLabel}</h4>
-              <div className="flex flex-wrap gap-2">
-                <Chip
-                  active={!draft.categoryId}
-                  onClick={() => setDraft({ ...draft, categoryId: "" })}
-                  label={allLabel}
-                />
-                {categories.map((c) => (
-                  <Chip
-                    key={c.id}
-                    active={draft.categoryId === c.id}
-                    onClick={() => setDraft({ ...draft, categoryId: c.id })}
-                    label={km ? c.name_km : c.name_en}
                   />
                 ))}
               </div>
