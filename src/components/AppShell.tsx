@@ -203,17 +203,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             else pendingTabRefresh.current = true;
           };
           if (big) {
+            // Shop owners keep the post menu here too — the sheet also links to their shop.
             return (
-              <Link
+              <button
                 key={tab.to}
-                to="/suppliers/$storeId"
-                params={{ storeId: myStore.id }}
-                onClick={onTabClick}
+                type="button"
+                onClick={() => setPostSheetOpen(true)}
                 className="tap relative flex min-w-0 flex-col items-center justify-center gap-0.5 pt-1"
                 aria-label={tab.label}
               >
                 {content}
-              </Link>
+              </button>
             );
           }
           if (tab.to === "/announce") {
@@ -254,10 +254,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <div className="grid gap-2">
               {([
-                { to: "/posts/new", search: undefined, icon: CirclePlus, label: t("new_post"), desc: t("post_normal_desc") },
-                { to: "/rentals/new", search: undefined, icon: KeyRound, label: t("tab_rent"), desc: t("post_rent_out_desc") },
-                { to: "/marketplace/new", search: { kind: "retail" }, icon: Tag, label: t("tab_retails"), desc: t("post_retail_desc") },
-                { to: "/marketplace/new", search: { kind: "secondhand" }, icon: ShoppingBag, label: t("tab_secondhand"), desc: t("post_secondhand_desc") },
+                ...(myStore
+                  ? [{ to: "/suppliers/$storeId" as const, params: { storeId: myStore.id }, search: undefined, icon: Store, label: t("my_store"), desc: t("my_store_desc") }]
+                  : []),
+                { to: "/posts/new", params: undefined, search: undefined, icon: CirclePlus, label: t("new_post"), desc: t("post_normal_desc") },
+                { to: "/rentals/new", params: undefined, search: undefined, icon: KeyRound, label: t("tab_rent"), desc: t("post_rent_out_desc") },
+                { to: "/marketplace/new", params: undefined, search: { kind: "retail" }, icon: Tag, label: t("tab_retails"), desc: t("post_retail_desc") },
+                { to: "/marketplace/new", params: undefined, search: { kind: "secondhand" }, icon: ShoppingBag, label: t("tab_secondhand"), desc: t("post_secondhand_desc") },
               ] as const).map((opt) => {
                 const OptIcon = opt.icon;
                 return (
@@ -267,7 +270,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     className="tap flex items-center gap-3 rounded-2xl border border-border bg-background px-3 py-3 text-left active:bg-muted"
                     onClick={() => {
                       setPostSheetOpen(false);
-                      void nav({ to: opt.to, search: opt.search });
+                      void nav({ to: opt.to, params: opt.params, search: opt.search });
                     }}
                   >
                     <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">

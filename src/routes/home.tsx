@@ -1248,7 +1248,7 @@ function HomePage() {
           { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: Boxes, tone: "bg-shortcut-orange text-primary-foreground", search: { mode: "shops" as const } },
           { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: Construction, tone: "bg-shortcut-violet text-primary-foreground", search: { mode: "rent" as const } },
           { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: Users, tone: "bg-shortcut-slate text-primary-foreground" },
-          { to: "/listings/new" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: Gift, tone: "bg-shortcut-gold text-primary-foreground" },
+          { to: "/rewards" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: Gift, tone: "bg-shortcut-gold text-primary-foreground" },
         ].map((item) => {
           const Icon = item.icon;
           return (
