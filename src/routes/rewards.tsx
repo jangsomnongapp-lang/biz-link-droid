@@ -157,6 +157,13 @@ function RewardsPage() {
             <div className="mt-5 text-[12px] text-zinc-500 font-bold uppercase tracking-wider">
               {lang === "km" ? "ការបន្តប្រចាំថ្ងៃ" : "Streak"}
             </div>
+            <button
+              onClick={() => nav({ to: "/rewards/results" })}
+              className="mt-2 flex w-full items-center justify-between rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-bold text-white shadow active:bg-orange-600"
+            >
+              <span>{lang === "km" ? "លទ្ធផល" : "Result"}</span>
+              <ChevronRight className="h-4 w-4" />
+            </button>
 
             {/* Lottery ticket (yellow) */}
             <div className="mt-2 overflow-hidden rounded-2xl bg-yellow-300 text-zinc-900 shadow-lg ring-1 ring-orange-200">
