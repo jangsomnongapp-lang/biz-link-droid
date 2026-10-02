@@ -47,7 +47,7 @@ function NewMarketplaceItemPage() {
     }
     try {
       const ext = file.name.split(".").pop() || "jpg";
-      const path = `marketplace/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const path = `${user.id}/marketplace/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("rental-photos")
         .upload(path, file, { contentType: file.type, upsert: false });
