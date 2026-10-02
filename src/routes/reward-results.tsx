@@ -117,6 +117,16 @@ function ResultsPage() {
                     : (lang === "km" ? "លេខសំបុត្រឈ្នះ" : "Winning ticket")}
                 </div>
                 <div className="font-mono text-lg font-black text-orange-600">#{r.ticket_number ?? "—"}</div>
+                {myNum !== null && (
+                  <div className="mt-1 border-t border-dashed border-orange-200 pt-1">
+                    <div className="text-[9px] font-bold text-zinc-400">
+                      {lang === "km" ? "សំបុត្ររបស់អ្នក" : "Your ticket"}
+                    </div>
+                    <div className="font-mono text-sm font-bold text-zinc-400 line-through">
+                      #{String(myNum).padStart(4, "0")}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           );
