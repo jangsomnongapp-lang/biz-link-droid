@@ -119,9 +119,9 @@
     }
   },
   "overrides": {
-    "seroval": "^1.6.0"
+    "seroval": "1.6.8"
   },
   "resolutions": {
-    "seroval": "^1.6.0"
+    "seroval": "1.6.8"
   }
 }
