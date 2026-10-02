@@ -44,6 +44,37 @@ function ResultsPage() {
     },
   });
 
+  // Viewer's own tickets, so their (wrong) number can be shown crossed out next to each winner
+  const { data: myTickets } = useQuery({
+    queryKey: ["my-tickets-results", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("lottery_tickets")
+        .select("ticket_type, ticket_number, draw_period_start")
+        .eq("user_id", user!.id);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const parseDay = (s: string) => new Date(`${s}T00:00:00`);
+  function myTicketForDraw(drawType: string, drawDate: string): number | null {
+    const list = (myTickets ?? []).filter((t) => t.ticket_type === drawType && t.ticket_number !== null);
+    const d = parseDay(drawDate);
+    const hit = list.find((t) => {
+      const p = parseDay(t.draw_period_start);
+      if (drawType === "daily") return d.getTime() === p.getTime();
+      if (drawType === "weekly") {
+        const end = new Date(p);
+        end.setDate(end.getDate() + 6);
+        return d >= p && d <= end;
+      }
+      return d.getFullYear() === p.getFullYear() && d.getMonth() === p.getMonth();
+    });
+    return hit?.ticket_number ?? null;
+  }
+
   return (
     <div className="min-h-screen bg-white p-4 text-zinc-900">
       <div className="flex items-center gap-2">
@@ -69,6 +100,7 @@ function ResultsPage() {
         )}
         {data?.map((r) => {
           const isMine = r.winner_user_id === user?.id;
+          const myNum = isMine ? null : myTicketForDraw(r.draw_type, r.draw_date);
           return (
             <div key={r.draw_id} className={`flex items-center gap-3 rounded-xl p-3 ring-1 ${isMine ? "bg-orange-100 ring-orange-400" : "bg-yellow-50 ring-orange-200"}`}>
               <Trophy className="h-5 w-5 shrink-0 text-orange-500" />
@@ -85,6 +117,16 @@ function ResultsPage() {
                     : (lang === "km" ? "លេខសំបុត្រឈ្នះ" : "Winning ticket")}
                 </div>
                 <div className="font-mono text-lg font-black text-orange-600">#{r.ticket_number ?? "—"}</div>
+                {myNum !== null && (
+                  <div className="mt-1 border-t border-dashed border-orange-200 pt-1">
+                    <div className="text-[9px] font-bold text-zinc-400">
+                      {lang === "km" ? "សំបុត្ររបស់អ្នក" : "Your ticket"}
+                    </div>
+                    <div className="font-mono text-sm font-bold text-zinc-400 line-through">
+                      #{String(myNum).padStart(4, "0")}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           );
