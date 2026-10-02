@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Trophy } from "lucide-react";
 import { RequireAuth } from "@/components/RequireAuth";
+import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -31,12 +32,13 @@ const TYPE_LABEL: Record<string, { km: string; en: string }> = {
 };
 
 function ResultsPage() {
+  const { user } = useAuth();
   const { lang } = useI18n();
   const nav = useNavigate();
   const { data, isLoading } = useQuery({
-    queryKey: ["draw-results-week"],
+    queryKey: ["draw-results-week", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_recent_draw_results");
+      const { data, error } = await supabase.rpc("get_recent_draw_results_with_winner");
       if (error) throw error;
       return data ?? [];
     },
@@ -65,18 +67,28 @@ function ResultsPage() {
             {lang === "km" ? "មិនទាន់មានអ្នកឈ្នះទេ" : "No winners yet"}
           </div>
         )}
-        {data?.map((r) => (
-          <div key={r.draw_id} className="flex items-center gap-3 rounded-xl bg-yellow-50 p-3 ring-1 ring-orange-200">
-            <Trophy className="h-5 w-5 shrink-0 text-orange-500" />
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-bold">{r.winner_name ?? (lang === "km" ? "អ្នកឈ្នះ" : "Winner")}</div>
-              <div className="text-[11px] text-zinc-600">
-                {(TYPE_LABEL[r.draw_type]?.[lang === "km" ? "km" : "en"] ?? r.draw_type)} · {r.draw_date}
+        {data?.map((r) => {
+          const isMine = r.winner_user_id === user?.id;
+          return (
+            <div key={r.draw_id} className={`flex items-center gap-3 rounded-xl p-3 ring-1 ${isMine ? "bg-orange-100 ring-orange-400" : "bg-yellow-50 ring-orange-200"}`}>
+              <Trophy className="h-5 w-5 shrink-0 text-orange-500" />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-bold">{r.winner_name ?? (lang === "km" ? "អ្នកឈ្នះ" : "Winner")}</div>
+                <div className="text-[11px] text-zinc-600">
+                  {(TYPE_LABEL[r.draw_type]?.[lang === "km" ? "km" : "en"] ?? r.draw_type)} · {r.draw_date}
+                </div>
+              </div>
+              <div className="shrink-0 text-right">
+                <div className={`text-[10px] font-bold ${isMine ? "text-orange-700" : "text-zinc-500"}`}>
+                  {isMine
+                    ? (lang === "km" ? "សំបុត្ររបស់អ្នក" : "Your ticket")
+                    : (lang === "km" ? "លេខសំបុត្រឈ្នះ" : "Winning ticket")}
+                </div>
+                <div className="font-mono text-lg font-black text-orange-600">#{r.ticket_number ?? "—"}</div>
               </div>
             </div>
-            <div className="font-mono text-lg font-black text-orange-600">#{r.ticket_number ?? "—"}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
