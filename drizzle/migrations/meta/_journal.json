@@ -50,6 +50,13 @@
       "when": 1790765464040,
       "tag": "0006_recent_draw_results",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790903280111,
+      "tag": "0007_recent_draw_results_with_winner_identity",
+      "breakpoints": true
     }
   ]
 }
