@@ -4,7 +4,31 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Search, MapPin, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Search,
+  MapPin,
+  ChevronRight,
+  BrickWall,
+  Layers,
+  Waves,
+  Tractor,
+  Zap,
+  Droplets,
+  Wind,
+  Flame,
+  Paintbrush,
+  Grid3x3,
+  Hammer,
+  Home,
+  Leaf,
+  PanelsTopLeft,
+  Shapes,
+  Signpost,
+  HardHat,
+  PenTool,
+  type LucideIcon,
+} from "lucide-react";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 
 export const Route = createFileRoute("/find-worker")({
@@ -40,6 +64,48 @@ interface Category {
   id: string;
   name_en: string;
   name_km: string;
+}
+
+const CATEGORY_COLORS = [
+  "bg-shortcut-blue",
+  "bg-shortcut-green",
+  "bg-shortcut-orange",
+  "bg-shortcut-violet",
+  "bg-shortcut-slate",
+  "bg-shortcut-gold",
+] as const;
+
+const CATEGORY_ICON_RULES: { match: RegExp; Icon: LucideIcon }[] = [
+  { match: /brick/i, Icon: BrickWall },
+  { match: /formwork|steel fixer/i, Icon: Layers },
+  { match: /swimming|pool/i, Icon: Waves },
+  { match: /machinery|operator/i, Icon: Tractor },
+  { match: /electric/i, Icon: Zap },
+  { match: /plumb/i, Icon: Droplets },
+  { match: /ac|ventilat/i, Icon: Wind },
+  { match: /weld/i, Icon: Flame },
+  { match: /paint/i, Icon: Paintbrush },
+  { match: /tiler|tile/i, Icon: Grid3x3 },
+  { match: /carpent/i, Icon: Hammer },
+  { match: /roof/i, Icon: Home },
+  { match: /landsca/i, Icon: Leaf },
+  { match: /glass|alumin/i, Icon: PanelsTopLeft },
+  { match: /other/i, Icon: Shapes },
+  { match: /signage/i, Icon: Signpost },
+  { match: /full project/i, Icon: HardHat },
+  { match: /design/i, Icon: PenTool },
+];
+
+function categoryVisual(nameEn: string, fallbackIndex: number) {
+  const rule = CATEGORY_ICON_RULES.find((r) => r.match.test(nameEn));
+  return {
+    Icon: rule?.Icon ?? Shapes,
+    color: CATEGORY_COLORS[
+      rule
+        ? CATEGORY_ICON_RULES.indexOf(rule) % CATEGORY_COLORS.length
+        : fallbackIndex % CATEGORY_COLORS.length
+    ],
+  };
 }
 
 function FindWorkerPage() {
@@ -182,21 +248,28 @@ function FindWorkerPage() {
         </div>
       </header>
 
-      <div className="overflow-x-auto border-b border-border bg-surface">
-        <div className="flex gap-2 px-3 py-2">
-          <Chip
+      <div className="border-b border-border bg-surface px-3 py-3">
+        <div className="grid grid-cols-4 gap-2">
+          <CategoryTile
             active={selectedCat === null}
             onClick={() => setSelectedCat(null)}
             label={t("all")}
+            Icon={Shapes}
+            color="bg-shortcut-slate"
           />
-          {visibleCats.map((c) => (
-            <Chip
-              key={c.id}
-              active={selectedCat === c.id}
-              onClick={() => setSelectedCat(c.id)}
-              label={lang === "km" ? c.name_km : c.name_en}
-            />
-          ))}
+          {visibleCats.map((c, i) => {
+            const { Icon, color } = categoryVisual(c.name_en, i);
+            return (
+              <CategoryTile
+                key={c.id}
+                active={selectedCat === c.id}
+                onClick={() => setSelectedCat(c.id)}
+                label={lang === "km" ? c.name_km : c.name_en}
+                Icon={Icon}
+                color={color}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -269,6 +342,38 @@ function FindWorkerPage() {
         })}
       </div>
     </div>
+  );
+}
+
+function CategoryTile({
+  active,
+  onClick,
+  label,
+  Icon,
+  color,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  Icon: LucideIcon;
+  color: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex flex-col items-center gap-1.5 rounded-xl p-2 text-center transition-colors ${
+        active
+          ? "bg-primary/10 ring-2 ring-primary"
+          : "bg-background shadow-card active:bg-muted"
+      }`}
+    >
+      <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
+        <Icon className="h-5 w-5 text-white" strokeWidth={2.2} />
+      </span>
+      <span className="line-clamp-2 text-[10px] font-semibold leading-tight text-foreground">
+        {label}
+      </span>
+    </button>
   );
 }
 
