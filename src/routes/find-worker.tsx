@@ -199,19 +199,15 @@ function FindWorkerPage() {
             Icon={Shapes}
             color="bg-shortcut-slate"
           />
-          {visibleCats.map((c, i) => {
-            const { Icon, color } = categoryVisual(c.name_en, i);
-            return (
-              <CategoryTile
-                key={c.id}
-                active={selectedCat === c.id}
-                onClick={() => setSelectedCat(c.id)}
-                label={lang === "km" ? c.name_km : c.name_en}
-                Icon={Icon}
-                color={color}
-              />
-            );
-          })}
+          {visibleCats.map((c) => (
+            <CategoryTile
+              key={c.id}
+              active={selectedCat === c.id}
+              onClick={() => setSelectedCat(c.id)}
+              label={lang === "km" ? c.name_km : c.name_en}
+              code={c.code}
+            />
+          ))}
         </div>
       </div>
 
