@@ -9,27 +9,11 @@ import {
   Search,
   MapPin,
   ChevronRight,
-  BrickWall,
-  Layers,
-  Waves,
-  Tractor,
-  Zap,
-  Droplets,
-  Wind,
-  Flame,
-  Paintbrush,
-  Grid3x3,
-  Hammer,
-  Home,
-  Leaf,
-  PanelsTopLeft,
   Shapes,
-  Signpost,
-  HardHat,
-  PenTool,
   type LucideIcon,
 } from "lucide-react";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
+import { CategoryImage, hasCategoryImage } from "@/components/CategoryImage";
 
 export const Route = createFileRoute("/find-worker")({
   head: () => ({
@@ -62,50 +46,9 @@ interface WorkerProfile {
 
 interface Category {
   id: string;
+  code: string;
   name_en: string;
   name_km: string;
-}
-
-const CATEGORY_COLORS = [
-  "bg-shortcut-blue",
-  "bg-shortcut-green",
-  "bg-shortcut-orange",
-  "bg-shortcut-violet",
-  "bg-shortcut-slate",
-  "bg-shortcut-gold",
-] as const;
-
-const CATEGORY_ICON_RULES: { match: RegExp; Icon: LucideIcon }[] = [
-  { match: /brick/i, Icon: BrickWall },
-  { match: /formwork|steel fixer/i, Icon: Layers },
-  { match: /swimming|pool/i, Icon: Waves },
-  { match: /machinery|operator/i, Icon: Tractor },
-  { match: /electric/i, Icon: Zap },
-  { match: /plumb/i, Icon: Droplets },
-  { match: /ac|ventilat/i, Icon: Wind },
-  { match: /weld/i, Icon: Flame },
-  { match: /paint/i, Icon: Paintbrush },
-  { match: /tiler|tile/i, Icon: Grid3x3 },
-  { match: /carpent/i, Icon: Hammer },
-  { match: /roof/i, Icon: Home },
-  { match: /landsca/i, Icon: Leaf },
-  { match: /glass|alumin/i, Icon: PanelsTopLeft },
-  { match: /other/i, Icon: Shapes },
-  { match: /signage/i, Icon: Signpost },
-  { match: /full project/i, Icon: HardHat },
-  { match: /design/i, Icon: PenTool },
-];
-
-function categoryVisual(nameEn: string, fallbackIndex: number) {
-  const rule = CATEGORY_ICON_RULES.find((r) => r.match.test(nameEn));
-  return {
-    Icon: rule?.Icon ?? Shapes,
-    color: CATEGORY_COLORS[
-      rule
-        ? CATEGORY_ICON_RULES.indexOf(rule) % CATEGORY_COLORS.length
-        : fallbackIndex % CATEGORY_COLORS.length
-    ],
-  };
 }
 
 function FindWorkerPage() {
@@ -123,7 +66,7 @@ function FindWorkerPage() {
   useEffect(() => {
     void supabase
       .from("categories")
-      .select("id, name_en, name_km")
+      .select("id, code, name_en, name_km")
       .eq("is_active", true)
       .order("sort_order")
       .then(({ data }) => setCategories((data ?? []) as Category[]));
@@ -257,19 +200,17 @@ function FindWorkerPage() {
             Icon={Shapes}
             color="bg-shortcut-slate"
           />
-          {visibleCats.map((c, i) => {
-            const { Icon, color } = categoryVisual(c.name_en, i);
-            return (
-              <CategoryTile
-                key={c.id}
-                active={selectedCat === c.id}
-                onClick={() => setSelectedCat(c.id)}
-                label={lang === "km" ? c.name_km : c.name_en}
-                Icon={Icon}
-                color={color}
-              />
-            );
-          })}
+          {visibleCats.map((c) => (
+            <CategoryTile
+              key={c.id}
+              active={selectedCat === c.id}
+              onClick={() => setSelectedCat(c.id)}
+              label={lang === "km" ? c.name_km : c.name_en}
+              code={hasCategoryImage(c.code) ? c.code : undefined}
+              Icon={hasCategoryImage(c.code) ? undefined : Shapes}
+              color="bg-shortcut-slate"
+            />
+          ))}
         </div>
       </div>
 
@@ -349,14 +290,16 @@ function CategoryTile({
   active,
   onClick,
   label,
+  code,
   Icon,
   color,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
-  Icon: LucideIcon;
-  color: string;
+  code?: string;
+  Icon?: LucideIcon;
+  color?: string;
 }) {
   return (
     <button
@@ -367,9 +310,17 @@ function CategoryTile({
           : "bg-background shadow-card active:bg-muted"
       }`}
     >
-      <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
-        <Icon className="h-5 w-5 text-white" strokeWidth={2.2} />
-      </span>
+      {code ? (
+        <span className="block h-10 w-10 overflow-hidden rounded-lg">
+          <CategoryImage code={code} name={label} />
+        </span>
+      ) : (
+        <span
+          className={`flex h-10 w-10 items-center justify-center rounded-lg ${color ?? "bg-shortcut-slate"}`}
+        >
+          {Icon ? <Icon className="h-5 w-5 text-white" strokeWidth={2.2} /> : null}
+        </span>
+      )}
       <span className="line-clamp-2 text-[10px] font-semibold leading-tight text-foreground">
         {label}
       </span>

@@ -36,6 +36,10 @@ const categoryImages: Record<string, string> = {
   E2: design2d3d,
 };
 
+export function hasCategoryImage(code: string) {
+  return code in categoryImages;
+}
+
 export function CategoryImage({ code, name }: { code: string; name: string }) {
   const src = categoryImages[code];
   if (!src) return null;
