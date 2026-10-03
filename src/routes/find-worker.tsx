@@ -193,7 +193,7 @@ function FindWorkerPage() {
       </header>
 
       <div className="border-b border-border bg-surface px-3 py-3">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <CategoryTile
             active={selectedCat === null}
             onClick={() => setSelectedCat(null)}
@@ -305,7 +305,7 @@ function CategoryTile({
   return (
     <button
       onClick={onClick}
-      className={`relative aspect-[4/5] overflow-hidden rounded-2xl border transition active:scale-[0.98] ${
+      className={`relative aspect-[4/5] w-16 shrink-0 overflow-hidden rounded-xl border transition active:scale-[0.98] ${
         active ? "border-primary ring-2 ring-primary/30" : "border-border"
       }`}
     >
@@ -317,16 +317,16 @@ function CategoryTile({
         <span
           className={`absolute inset-0 flex items-center justify-center ${color ?? "bg-shortcut-slate"}`}
         >
-          {Icon ? <Icon className="h-8 w-8 text-white" strokeWidth={2.2} /> : null}
+          {Icon ? <Icon className="h-6 w-6 text-white" strokeWidth={2.2} /> : null}
         </span>
       )}
       {active && (
-        <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
-          <Check className="h-3 w-3" strokeWidth={3} />
+        <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
+          <Check className="h-2.5 w-2.5" strokeWidth={3} />
         </span>
       )}
-      <span className="absolute inset-x-1.5 bottom-1.5">
-        <span className="block w-full rounded-full bg-surface/90 px-2 py-1 text-center text-[10px] font-semibold leading-tight text-foreground shadow-sm backdrop-blur-sm line-clamp-2">
+      <span className="absolute inset-x-1 bottom-1">
+        <span className="block w-full rounded-full bg-surface/90 px-1 py-0.5 text-center text-[9px] font-semibold leading-tight text-foreground shadow-sm backdrop-blur-sm line-clamp-2">
           {label}
         </span>
       </span>
