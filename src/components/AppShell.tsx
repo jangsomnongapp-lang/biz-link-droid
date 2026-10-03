@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, BriefcaseBusiness, CirclePlus, Home, KeyRound, Menu, MessageCircle, Search, ShoppingBag, Store, Tag, X } from "lucide-react";
+import { AlertCircle, Bell, Box, BriefcaseBusiness, CirclePlus, Home, KeyRound, LayoutGrid, Menu, MessageCircle, Package, Percent, Search, ShoppingBag, Sparkles, Store, Tag, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import logoImg from "@/assets/logo.jpg";
@@ -255,9 +255,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="grid gap-2">
               {([
                 ...(myStore
-                  ? [{ to: "/suppliers/$storeId" as const, params: { storeId: myStore.id }, search: undefined, icon: Store, label: t("my_store"), desc: t("my_store_desc") }]
-                  : []),
-                { to: "/posts/new", params: undefined, search: undefined, icon: CirclePlus, label: t("new_post"), desc: t("post_normal_desc") },
+                  ? [
+                      { to: "/suppliers/$storeId" as const, params: { storeId: myStore.id }, search: undefined, icon: Store, label: t("my_store"), desc: t("my_store_desc") },
+                      { to: "/suppliers/$storeId/catalog" as const, params: { storeId: myStore.id }, search: undefined, icon: LayoutGrid, label: t("catalog"), desc: t("catalog_desc") },
+                      { to: "/posts/new" as const, params: undefined, search: { type: "general" }, icon: Package, label: t("post_product"), desc: t("post_product_desc") },
+                      { to: "/posts/new" as const, params: undefined, search: { type: "novedad" }, icon: Sparkles, label: t("post_new_arrival"), desc: t("post_new_arrival_desc") },
+                      { to: "/posts/new" as const, params: undefined, search: { type: "stock" }, icon: Box, label: t("post_stock"), desc: t("post_stock_desc") },
+                      { to: "/posts/new" as const, params: undefined, search: { type: "oferta" }, icon: Percent, label: t("post_offer"), desc: t("post_offer_desc") },
+                      { to: "/posts/new" as const, params: undefined, search: { type: "liquidacion" }, icon: AlertCircle, label: t("post_clearance"), desc: t("post_clearance_desc") },
+                    ]
+                  : [{ to: "/posts/new" as const, params: undefined, search: undefined, icon: CirclePlus, label: t("new_post"), desc: t("post_normal_desc") }]),
                 { to: "/rentals/new", params: undefined, search: undefined, icon: KeyRound, label: t("tab_rent"), desc: t("post_rent_out_desc") },
                 { to: "/marketplace/new", params: undefined, search: { kind: "retail" }, icon: Tag, label: t("tab_retails"), desc: t("post_retail_desc") },
                 { to: "/marketplace/new", params: undefined, search: { kind: "secondhand" }, icon: ShoppingBag, label: t("tab_secondhand"), desc: t("post_secondhand_desc") },
