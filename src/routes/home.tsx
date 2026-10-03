@@ -1214,7 +1214,7 @@ function HomePage() {
       
       
       {focused && (
-        <div className="sticky top-[7.25rem] z-10 flex items-center gap-2 border-b border-border bg-surface px-3 py-2 shadow-card">
+        <div className="flex items-center gap-2 border-b border-border bg-surface px-3 py-2 shadow-card">
           <button
             onClick={() => nav({ to: "/home", search: {} })}
             className="flex h-9 w-9 items-center justify-center rounded-full text-foreground active:bg-muted"
