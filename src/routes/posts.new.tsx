@@ -13,6 +13,9 @@ import { VideoTrimmer } from "@/components/VideoTrimmer";
 import { isDirectVideoUrl } from "@/components/FeedVideo";
 
 export const Route = createFileRoute("/posts/new")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    type: typeof search.type === "string" ? search.type : undefined,
+  }),
   component: () => (
     <RequireAuth>
       <NewProductPage />
