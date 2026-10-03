@@ -13,6 +13,8 @@ import { VideoTrimmer } from "@/components/VideoTrimmer";
 import { isDirectVideoUrl } from "@/components/FeedVideo";
 
 export const Route = createFileRoute("/posts/new")({
+  validateSearch: (search: Record<string, unknown>): { type?: string } =>
+    typeof search.type === "string" ? { type: search.type } : {},
   component: () => (
     <RequireAuth>
       <NewProductPage />
@@ -112,7 +114,10 @@ function NewProductPage() {
   const { lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
-  const [type, setType] = useState<PostType | null>(null);
+  const search = Route.useSearch();
+  const [type, setType] = useState<PostType | null>(() =>
+    TYPES.some((tp) => tp.id === search.type) ? (search.type as PostType) : null,
+  );
   const [title, setTitle] = useState("");
   const [currency, setCurrency] = useState<"USD" | "KHR">("USD");
   const [price, setPrice] = useState("");
