@@ -272,7 +272,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 const OptIcon = opt.icon;
                 return (
                   <button
-                    key={`${opt.to}-${opt.search?.kind ?? opt.search?.type ?? "x"}`}
+                    key={`${opt.to}-${opt.label}`}
                     type="button"
                     className="tap flex items-center gap-3 rounded-2xl border border-border bg-background px-3 py-3 text-left active:bg-muted"
                     onClick={() => {
