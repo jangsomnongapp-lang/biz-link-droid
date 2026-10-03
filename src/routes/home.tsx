@@ -1228,7 +1228,9 @@ function HomePage() {
       {!focused && (<>
       {/* Search and create */}
       <div className="flex items-center gap-2 bg-surface px-3 py-3">
-        <Avatar name={profile?.full_name} url={profile?.avatar_url} size={36} />
+        <Link to="/profile" className="shrink-0 active:opacity-60" aria-label="My profile">
+          <Avatar name={profile?.full_name} url={profile?.avatar_url} size={36} />
+        </Link>
         <Link
           to="/search"
           className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-surface px-3 text-sm text-muted-foreground shadow-sm active:bg-muted"
