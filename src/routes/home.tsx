@@ -24,7 +24,20 @@ function topReactions(counts: Record<string, number>): ReactionId[] {
     .slice(0, 3)
     .map(([id]) => id);
 }
-import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play, HardHat, Boxes, Construction, Users, Search, BriefcaseBusiness, Gift } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play, HardHat, Boxes, Users, Search, BriefcaseBusiness, Gift } from "lucide-react";
+
+/** Excavator icon (lucide has none) for the Machinery & Tools shortcut. */
+function ExcavatorIcon({ className, strokeWidth = 2.2 }: { className?: string; strokeWidth?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <rect x="3" y="15.5" width="10" height="4.5" rx="2.25" />
+      <path d="M5.5 15.5V11.5A1.5 1.5 0 0 1 7 10h3.5a1.5 1.5 0 0 1 1.5 1.5v4" />
+      <path d="M10.5 10 15.5 4.5" />
+      <path d="M15.5 4.5 19 8" />
+      <path d="m19 8 2.5 2.6-2.3 3-2.4-3.1" />
+    </svg>
+  );
+}
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
@@ -1248,7 +1261,7 @@ function HomePage() {
         {[
           { to: "/listings" as const, label: lang === "km" ? "រកការងារ" : "Find work", icon: BriefcaseBusiness, tone: "bg-shortcut-blue text-primary-foreground" },
           { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: Boxes, tone: "bg-shortcut-orange text-primary-foreground", search: { mode: "shops" as const } },
-          { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: Construction, tone: "bg-shortcut-violet text-primary-foreground", search: { mode: "rent" as const } },
+          { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: ExcavatorIcon, tone: "bg-shortcut-violet text-primary-foreground", search: { mode: "rent" as const } },
           { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: Users, tone: "bg-shortcut-slate text-primary-foreground" },
           { to: "/rewards" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: Gift, tone: "bg-shortcut-gold text-primary-foreground" },
         ].map((item) => {
