@@ -252,7 +252,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="grid gap-2">
+            <div className="grid gap-2 overflow-y-auto overscroll-contain">
               {([
                 ...(myStore
                   ? [
