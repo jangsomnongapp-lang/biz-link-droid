@@ -9,27 +9,10 @@ import {
   Search,
   MapPin,
   ChevronRight,
-  BrickWall,
-  Layers,
-  Waves,
-  Tractor,
-  Zap,
-  Droplets,
-  Wind,
-  Flame,
-  Paintbrush,
-  Grid3x3,
-  Hammer,
-  Home,
-  Leaf,
-  PanelsTopLeft,
   Shapes,
-  Signpost,
-  HardHat,
-  PenTool,
-  type LucideIcon,
 } from "lucide-react";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
+import { CategoryImage } from "@/components/CategoryImage";
 
 export const Route = createFileRoute("/find-worker")({
   head: () => ({
@@ -62,50 +45,9 @@ interface WorkerProfile {
 
 interface Category {
   id: string;
+  code: string;
   name_en: string;
   name_km: string;
-}
-
-const CATEGORY_COLORS = [
-  "bg-shortcut-blue",
-  "bg-shortcut-green",
-  "bg-shortcut-orange",
-  "bg-shortcut-violet",
-  "bg-shortcut-slate",
-  "bg-shortcut-gold",
-] as const;
-
-const CATEGORY_ICON_RULES: { match: RegExp; Icon: LucideIcon }[] = [
-  { match: /brick/i, Icon: BrickWall },
-  { match: /formwork|steel fixer/i, Icon: Layers },
-  { match: /swimming|pool/i, Icon: Waves },
-  { match: /machinery|operator/i, Icon: Tractor },
-  { match: /electric/i, Icon: Zap },
-  { match: /plumb/i, Icon: Droplets },
-  { match: /ac|ventilat/i, Icon: Wind },
-  { match: /weld/i, Icon: Flame },
-  { match: /paint/i, Icon: Paintbrush },
-  { match: /tiler|tile/i, Icon: Grid3x3 },
-  { match: /carpent/i, Icon: Hammer },
-  { match: /roof/i, Icon: Home },
-  { match: /landsca/i, Icon: Leaf },
-  { match: /glass|alumin/i, Icon: PanelsTopLeft },
-  { match: /other/i, Icon: Shapes },
-  { match: /signage/i, Icon: Signpost },
-  { match: /full project/i, Icon: HardHat },
-  { match: /design/i, Icon: PenTool },
-];
-
-function categoryVisual(nameEn: string, fallbackIndex: number) {
-  const rule = CATEGORY_ICON_RULES.find((r) => r.match.test(nameEn));
-  return {
-    Icon: rule?.Icon ?? Shapes,
-    color: CATEGORY_COLORS[
-      rule
-        ? CATEGORY_ICON_RULES.indexOf(rule) % CATEGORY_COLORS.length
-        : fallbackIndex % CATEGORY_COLORS.length
-    ],
-  };
 }
 
 function FindWorkerPage() {
@@ -123,7 +65,7 @@ function FindWorkerPage() {
   useEffect(() => {
     void supabase
       .from("categories")
-      .select("id, name_en, name_km")
+      .select("id, code, name_en, name_km")
       .eq("is_active", true)
       .order("sort_order")
       .then(({ data }) => setCategories((data ?? []) as Category[]));
