@@ -248,21 +248,28 @@ function FindWorkerPage() {
         </div>
       </header>
 
-      <div className="overflow-x-auto border-b border-border bg-surface">
-        <div className="flex gap-2 px-3 py-2">
-          <Chip
+      <div className="border-b border-border bg-surface px-3 py-3">
+        <div className="grid grid-cols-4 gap-2">
+          <CategoryTile
             active={selectedCat === null}
             onClick={() => setSelectedCat(null)}
             label={t("all")}
+            Icon={Shapes}
+            color="bg-shortcut-slate"
           />
-          {visibleCats.map((c) => (
-            <Chip
-              key={c.id}
-              active={selectedCat === c.id}
-              onClick={() => setSelectedCat(c.id)}
-              label={lang === "km" ? c.name_km : c.name_en}
-            />
-          ))}
+          {visibleCats.map((c, i) => {
+            const { Icon, color } = categoryVisual(c.name_en, i);
+            return (
+              <CategoryTile
+                key={c.id}
+                active={selectedCat === c.id}
+                onClick={() => setSelectedCat(c.id)}
+                label={lang === "km" ? c.name_km : c.name_en}
+                Icon={Icon}
+                color={color}
+              />
+            );
+          })}
         </div>
       </div>
 
