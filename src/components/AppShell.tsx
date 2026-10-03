@@ -245,7 +245,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="absolute inset-0 bg-foreground/40 backdrop-blur-[2px]"
             onClick={() => setPostSheetOpen(false)}
           />
-          <div className="ios-sheet relative mx-auto w-full max-w-[480px] rounded-t-3xl bg-surface p-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] shadow-xl">
+          <div className="ios-sheet relative mx-auto flex max-h-[82vh] w-full max-w-[480px] flex-col rounded-t-3xl bg-surface p-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] shadow-xl">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-[15px] font-bold">{t("what_to_post")}</h2>
               <button type="button" onClick={() => setPostSheetOpen(false)} className="tap rounded-full p-1.5 text-muted-foreground active:bg-muted" aria-label={t("cancel")}>
