@@ -287,14 +287,16 @@ function CategoryTile({
   active,
   onClick,
   label,
+  code,
   Icon,
   color,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
-  Icon: LucideIcon;
-  color: string;
+  code?: string;
+  Icon?: LucideIcon;
+  color?: string;
 }) {
   return (
     <button
@@ -305,9 +307,17 @@ function CategoryTile({
           : "bg-background shadow-card active:bg-muted"
       }`}
     >
-      <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
-        <Icon className="h-5 w-5 text-white" strokeWidth={2.2} />
-      </span>
+      {code ? (
+        <span className="block h-10 w-10 overflow-hidden rounded-lg">
+          <CategoryImage code={code} name={label} />
+        </span>
+      ) : (
+        <span
+          className={`flex h-10 w-10 items-center justify-center rounded-lg ${color ?? "bg-shortcut-slate"}`}
+        >
+          {Icon ? <Icon className="h-5 w-5 text-white" strokeWidth={2.2} /> : null}
+        </span>
+      )}
       <span className="line-clamp-2 text-[10px] font-semibold leading-tight text-foreground">
         {label}
       </span>
