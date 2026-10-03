@@ -192,7 +192,7 @@ function FindWorkerPage() {
       </header>
 
       <div className="border-b border-border bg-surface px-3 py-3">
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <CategoryTile
             active={selectedCat === null}
             onClick={() => setSelectedCat(null)}
@@ -304,25 +304,30 @@ function CategoryTile({
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center gap-1.5 rounded-xl p-2 text-center transition-colors ${
-        active
-          ? "bg-primary/10 ring-2 ring-primary"
-          : "bg-background shadow-card active:bg-muted"
+      className={`relative aspect-[4/5] overflow-hidden rounded-2xl border transition active:scale-[0.98] ${
+        active ? "border-primary ring-2 ring-primary/30" : "border-border"
       }`}
     >
       {code ? (
-        <span className="block h-10 w-10 overflow-hidden rounded-lg">
+        <span className="absolute inset-0 block">
           <CategoryImage code={code} name={label} />
         </span>
       ) : (
         <span
-          className={`flex h-10 w-10 items-center justify-center rounded-lg ${color ?? "bg-shortcut-slate"}`}
+          className={`absolute inset-0 flex items-center justify-center ${color ?? "bg-shortcut-slate"}`}
         >
-          {Icon ? <Icon className="h-5 w-5 text-white" strokeWidth={2.2} /> : null}
+          {Icon ? <Icon className="h-8 w-8 text-white" strokeWidth={2.2} /> : null}
         </span>
       )}
-      <span className="line-clamp-2 text-[10px] font-semibold leading-tight text-foreground">
-        {label}
+      {active && (
+        <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-card">
+          <Check className="h-3 w-3" strokeWidth={3} />
+        </span>
+      )}
+      <span className="absolute inset-x-1.5 bottom-1.5">
+        <span className="block w-full rounded-full bg-surface/90 px-2 py-1 text-center text-[10px] font-semibold leading-tight text-foreground shadow-sm backdrop-blur-sm line-clamp-2">
+          {label}
+        </span>
       </span>
     </button>
   );
