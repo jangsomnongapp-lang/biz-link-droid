@@ -345,6 +345,38 @@ function FindWorkerPage() {
   );
 }
 
+function CategoryTile({
+  active,
+  onClick,
+  label,
+  Icon,
+  color,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  Icon: LucideIcon;
+  color: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex flex-col items-center gap-1.5 rounded-xl p-2 text-center transition-colors ${
+        active
+          ? "bg-primary/10 ring-2 ring-primary"
+          : "bg-background shadow-card active:bg-muted"
+      }`}
+    >
+      <span className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
+        <Icon className="h-5 w-5 text-white" strokeWidth={2.2} />
+      </span>
+      <span className="line-clamp-2 text-[10px] font-semibold leading-tight text-foreground">
+        {label}
+      </span>
+    </button>
+  );
+}
+
 function Chip({
   active,
   onClick,
