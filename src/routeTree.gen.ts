@@ -9,225 +9,95 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AiSearchRouteImport } from './routes/ai-search'
-import { Route as AlertsRouteImport } from './routes/alerts'
-import { Route as AnnounceRouteImport } from './routes/announce'
-import { Route as BlogRouteImport } from './routes/blog'
-import { Route as ConnectRouteImport } from './routes/connect'
-import { Route as FindMaterialRouteImport } from './routes/find-material'
-import { Route as FindWorkerRouteImport } from './routes/find-worker'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as HelpRouteImport } from './routes/help'
-import { Route as HomeRouteImport } from './routes/home'
-import { Route as InvitationsRouteImport } from './routes/invitations'
-import { Route as JoinRouteImport } from './routes/join'
-import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as MarketRouteImport } from './routes/market'
-import { Route as McpRouteImport } from './routes/mcp'
-import { Route as MyPostsRouteImport } from './routes/my-posts'
-import { Route as OnlineOrdersRouteImport } from './routes/online-orders'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as ReportRouteImport } from './routes/report'
-import { Route as RewardResultsRouteImport } from './routes/reward-results'
-import { Route as RewardsRouteImport } from './routes/rewards'
-import { Route as SearchRouteImport } from './routes/search'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
-import { Route as AdminDrawsRouteImport } from './routes/admin.draws'
-import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
-import { Route as AdminPostsRouteImport } from './routes/admin.posts'
-import { Route as AdminReportsRouteImport } from './routes/admin.reports'
-import { Route as AdminSuppliersRouteImport } from './routes/admin.suppliers'
-import { Route as AdminTelegramRouteImport } from './routes/admin.telegram'
-import { Route as BlogIndexRouteImport } from './routes/blog.index'
-import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
-import { Route as FindMaterialMineRouteImport } from './routes/find-material.mine'
-import { Route as FindMaterialNewRouteImport } from './routes/find-material.new'
-import { Route as FindMaterialResultsRouteImport } from './routes/find-material.results'
-import { Route as GuidesArchitectsRouteImport } from './routes/guides.architects'
-import { Route as ListingsIndexRouteImport } from './routes/listings.index'
-import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
-import { Route as ListingsNewRouteImport } from './routes/listings.new'
-import { Route as MarketplaceItemIdRouteImport } from './routes/marketplace.$itemId'
-import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
-import { Route as MessagesIndexRouteImport } from './routes/messages.index'
-import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
-import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
-import { Route as PostsNewRouteImport } from './routes/posts.new'
-import { Route as ProfileEditRouteImport } from './routes/profile.edit'
-import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
-import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
-import { Route as RentalsRentalIdRouteImport } from './routes/rentals.$rentalId'
-import { Route as RentalsNewRouteImport } from './routes/rentals.new'
-import { Route as StoryNewRouteImport } from './routes/story.new'
-import { Route as StoryViewRouteImport } from './routes/story.view'
-import { Route as SuperuserPanelRouteImport } from './routes/superuser.panel'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as RewardsRouteImport } from './routes/rewards'
+import { Route as RewardResultsRouteImport } from './routes/reward-results'
+import { Route as ReportRouteImport } from './routes/report'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as OnlineOrdersRouteImport } from './routes/online-orders'
+import { Route as MyPostsRouteImport } from './routes/my-posts'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as MarketRouteImport } from './routes/market'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as JoinRouteImport } from './routes/join'
+import { Route as InvitationsRouteImport } from './routes/invitations'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as FindWorkerRouteImport } from './routes/find-worker'
+import { Route as FindMaterialRouteImport } from './routes/find-material'
+import { Route as ConnectRouteImport } from './routes/connect'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AnnounceRouteImport } from './routes/announce'
+import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AiSearchRouteImport } from './routes/ai-search'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as SuppliersIndexRouteImport } from './routes/suppliers.index'
-import { Route as SuppliersStoreIdRouteImport } from './routes/suppliers.$storeId'
+import { Route as MessagesIndexRouteImport } from './routes/messages.index'
+import { Route as ListingsIndexRouteImport } from './routes/listings.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
-import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
-import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
-import { Route as ApiPublicExpoSendRouteImport } from './routes/api/public/expo-send'
-import { Route as ApiPublicFcmSendRouteImport } from './routes/api/public/fcm-send'
-import { Route as ApiPublicProcessPushQueueRouteImport } from './routes/api/public/process-push-queue'
-import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
-import { Route as ApiPublicTelegramPasswordResetRouteImport } from './routes/api/public/telegram-password-reset'
-import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
-import { Route as RentalsRequestNewRouteImport } from './routes/rentals.request.new'
-import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
-import { Route as SuppliersStoreIdCatalogRouteImport } from './routes/suppliers.$storeId.catalog'
+import { Route as SuppliersStoreIdRouteImport } from './routes/suppliers.$storeId'
+import { Route as SuperuserPanelRouteImport } from './routes/superuser.panel'
+import { Route as StoryViewRouteImport } from './routes/story.view'
+import { Route as StoryNewRouteImport } from './routes/story.new'
+import { Route as RentalsNewRouteImport } from './routes/rentals.new'
+import { Route as RentalsRentalIdRouteImport } from './routes/rentals.$rentalId'
+import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
+import { Route as ProfilePortfolioRouteImport } from './routes/profile.portfolio'
+import { Route as ProfileEditRouteImport } from './routes/profile.edit'
+import { Route as PostsNewRouteImport } from './routes/posts.new'
+import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
+import { Route as MessagesThreadIdRouteImport } from './routes/messages.$threadId'
+import { Route as MarketplaceNewRouteImport } from './routes/marketplace.new'
+import { Route as MarketplaceItemIdRouteImport } from './routes/marketplace.$itemId'
+import { Route as ListingsNewRouteImport } from './routes/listings.new'
+import { Route as ListingsListingIdRouteImport } from './routes/listings.$listingId'
+import { Route as GuidesArchitectsRouteImport } from './routes/guides.architects'
+import { Route as FindMaterialResultsRouteImport } from './routes/find-material.results'
+import { Route as FindMaterialNewRouteImport } from './routes/find-material.new'
+import { Route as FindMaterialMineRouteImport } from './routes/find-material.mine'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AdminTelegramRouteImport } from './routes/admin.telegram'
+import { Route as AdminSuppliersRouteImport } from './routes/admin.suppliers'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminPostsRouteImport } from './routes/admin.posts'
+import { Route as AdminInvitationsRouteImport } from './routes/admin.invitations'
+import { Route as AdminDrawsRouteImport } from './routes/admin.draws'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as SuppliersStoreIdEditRouteImport } from './routes/suppliers.$storeId.edit'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
-import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as SuppliersStoreIdCatalogRouteImport } from './routes/suppliers.$storeId.catalog'
+import { Route as SupplierJoinTokenRouteImport } from './routes/supplier.join.$token'
+import { Route as RentalsRequestNewRouteImport } from './routes/rentals.request.new'
+import { Route as ProjectsNewWorkerIdRouteImport } from './routes/projects.new.$workerId'
+import { Route as ApiPublicTelegramPasswordResetRouteImport } from './routes/api/public/telegram-password-reset'
+import { Route as ApiPublicTelegramNotifyRouteImport } from './routes/api/public/telegram-notify'
+import { Route as ApiPublicProcessPushQueueRouteImport } from './routes/api/public/process-push-queue'
+import { Route as ApiPublicFcmSendRouteImport } from './routes/api/public/fcm-send'
+import { Route as ApiPublicExpoSendRouteImport } from './routes/api/public/expo-send'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as SuppliersStoreIdCatalogIndexRouteImport } from './routes/suppliers.$storeId.catalog.index'
-import { Route as SuppliersStoreIdCatalogImportRouteImport } from './routes/suppliers.$storeId.catalog.import'
-import { Route as SuppliersStoreIdCatalogListRouteImport } from './routes/suppliers.$storeId.catalog.list'
-import { Route as SuppliersStoreIdCatalogManageRouteImport } from './routes/suppliers.$storeId.catalog.manage'
-import { Route as SuppliersStoreIdCatalogPhotoRouteImport } from './routes/suppliers.$storeId.catalog.photo'
-import { Route as SuppliersStoreIdCatalogProductsRouteImport } from './routes/suppliers.$storeId.catalog.products'
 import { Route as SuppliersStoreIdCatalogStatsRouteImport } from './routes/suppliers.$storeId.catalog.stats'
+import { Route as SuppliersStoreIdCatalogProductsRouteImport } from './routes/suppliers.$storeId.catalog.products'
+import { Route as SuppliersStoreIdCatalogPhotoRouteImport } from './routes/suppliers.$storeId.catalog.photo'
+import { Route as SuppliersStoreIdCatalogManageRouteImport } from './routes/suppliers.$storeId.catalog.manage'
+import { Route as SuppliersStoreIdCatalogListRouteImport } from './routes/suppliers.$storeId.catalog.list'
+import { Route as SuppliersStoreIdCatalogImportRouteImport } from './routes/suppliers.$storeId.catalog.import'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AiSearchRoute = AiSearchRouteImport.update({
-  id: '/ai-search',
-  path: '/ai-search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AlertsRoute = AlertsRouteImport.update({
-  id: '/alerts',
-  path: '/alerts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AnnounceRoute = AnnounceRouteImport.update({
-  id: '/announce',
-  path: '/announce',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogRoute = BlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConnectRoute = ConnectRouteImport.update({
-  id: '/connect',
-  path: '/connect',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FindMaterialRoute = FindMaterialRouteImport.update({
-  id: '/find-material',
-  path: '/find-material',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FindWorkerRoute = FindWorkerRouteImport.update({
-  id: '/find-worker',
-  path: '/find-worker',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HelpRoute = HelpRouteImport.update({
-  id: '/help',
-  path: '/help',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InvitationsRoute = InvitationsRouteImport.update({
-  id: '/invitations',
-  path: '/invitations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const JoinRoute = JoinRouteImport.update({
-  id: '/join',
-  path: '/join',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
-  id: '/llms.txt',
-  path: '/llms.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketRoute = MarketRouteImport.update({
-  id: '/market',
-  path: '/market',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const McpRoute = McpRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MyPostsRoute = MyPostsRouteImport.update({
-  id: '/my-posts',
-  path: '/my-posts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnlineOrdersRoute = OnlineOrdersRouteImport.update({
-  id: '/online-orders',
-  path: '/online-orders',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReportRoute = ReportRouteImport.update({
-  id: '/report',
-  path: '/report',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RewardResultsRoute = RewardResultsRouteImport.update({
-  id: '/reward-results',
-  path: '/reward-results',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RewardsRoute = RewardsRouteImport.update({
-  id: '/rewards',
-  path: '/rewards',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SearchRoute = SearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -235,166 +105,139 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Char91DotmcpChar93ListToolsRoute =
-  Char91DotmcpChar93ListToolsRouteImport.update({
-    id: '/.mcp/list-tools',
-    path: '/.mcp/list-tools',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const Char91DotwellKnownChar93OauthProtectedResourceRoute =
-  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
-    id: '/.well-known/oauth-protected-resource',
-    path: '/.well-known/oauth-protected-resource',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AdminDrawsRoute = AdminDrawsRouteImport.update({
-  id: '/admin/draws',
-  path: '/admin/draws',
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminInvitationsRoute = AdminInvitationsRouteImport.update({
-  id: '/admin/invitations',
-  path: '/admin/invitations',
+const RewardsRoute = RewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminPostsRoute = AdminPostsRouteImport.update({
-  id: '/admin/posts',
-  path: '/admin/posts',
+const RewardResultsRoute = RewardResultsRouteImport.update({
+  id: '/reward-results',
+  path: '/reward-results',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminReportsRoute = AdminReportsRouteImport.update({
-  id: '/admin/reports',
-  path: '/admin/reports',
+const ReportRoute = ReportRouteImport.update({
+  id: '/report',
+  path: '/report',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminSuppliersRoute = AdminSuppliersRouteImport.update({
-  id: '/admin/suppliers',
-  path: '/admin/suppliers',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminTelegramRoute = AdminTelegramRouteImport.update({
-  id: '/admin/telegram',
-  path: '/admin/telegram',
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BlogIndexRoute = BlogIndexRouteImport.update({
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnlineOrdersRoute = OnlineOrdersRouteImport.update({
+  id: '/online-orders',
+  path: '/online-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyPostsRoute = MyPostsRouteImport.update({
+  id: '/my-posts',
+  path: '/my-posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvitationsRoute = InvitationsRouteImport.update({
+  id: '/invitations',
+  path: '/invitations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindWorkerRoute = FindWorkerRouteImport.update({
+  id: '/find-worker',
+  path: '/find-worker',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindMaterialRoute = FindMaterialRouteImport.update({
+  id: '/find-material',
+  path: '/find-material',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectRoute = ConnectRouteImport.update({
+  id: '/connect',
+  path: '/connect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnounceRoute = AnnounceRouteImport.update({
+  id: '/announce',
+  path: '/announce',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiSearchRoute = AiSearchRouteImport.update({
+  id: '/ai-search',
+  path: '/ai-search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => BlogRoute,
-} as any)
-const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BlogRoute,
-} as any)
-const FindMaterialMineRoute = FindMaterialMineRouteImport.update({
-  id: '/mine',
-  path: '/mine',
-  getParentRoute: () => FindMaterialRoute,
-} as any)
-const FindMaterialNewRoute = FindMaterialNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => FindMaterialRoute,
-} as any)
-const FindMaterialResultsRoute = FindMaterialResultsRouteImport.update({
-  id: '/results',
-  path: '/results',
-  getParentRoute: () => FindMaterialRoute,
-} as any)
-const GuidesArchitectsRoute = GuidesArchitectsRouteImport.update({
-  id: '/guides/architects',
-  path: '/guides/architects',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ListingsIndexRoute = ListingsIndexRouteImport.update({
-  id: '/listings/',
-  path: '/listings/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
-  id: '/listings/$listingId',
-  path: '/listings/$listingId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ListingsNewRoute = ListingsNewRouteImport.update({
-  id: '/listings/new',
-  path: '/listings/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketplaceItemIdRoute = MarketplaceItemIdRouteImport.update({
-  id: '/marketplace/$itemId',
-  path: '/marketplace/$itemId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketplaceNewRoute = MarketplaceNewRouteImport.update({
-  id: '/marketplace/new',
-  path: '/marketplace/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MessagesIndexRoute = MessagesIndexRouteImport.update({
-  id: '/messages/',
-  path: '/messages/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MessagesThreadIdRoute = MessagesThreadIdRouteImport.update({
-  id: '/messages/$threadId',
-  path: '/messages/$threadId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostsPostIdRoute = PostsPostIdRouteImport.update({
-  id: '/posts/$postId',
-  path: '/posts/$postId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostsNewRoute = PostsNewRouteImport.update({
-  id: '/posts/new',
-  path: '/posts/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileEditRoute = ProfileEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => ProfileRoute,
-} as any)
-const ProfilePortfolioRoute = ProfilePortfolioRouteImport.update({
-  id: '/portfolio',
-  path: '/portfolio',
-  getParentRoute: () => ProfileRoute,
-} as any)
-const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
-  id: '/projects/$projectId',
-  path: '/projects/$projectId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RentalsRentalIdRoute = RentalsRentalIdRouteImport.update({
-  id: '/rentals/$rentalId',
-  path: '/rentals/$rentalId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RentalsNewRoute = RentalsNewRouteImport.update({
-  id: '/rentals/new',
-  path: '/rentals/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StoryNewRoute = StoryNewRouteImport.update({
-  id: '/story/new',
-  path: '/story/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StoryViewRoute = StoryViewRouteImport.update({
-  id: '/story/view',
-  path: '/story/view',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SuperuserPanelRoute = SuperuserPanelRouteImport.update({
-  id: '/superuser/panel',
-  path: '/superuser/panel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SuppliersIndexRoute = SuppliersIndexRouteImport.update({
@@ -402,46 +245,196 @@ const SuppliersIndexRoute = SuppliersIndexRouteImport.update({
   path: '/suppliers/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SuppliersStoreIdRoute = SuppliersStoreIdRouteImport.update({
-  id: '/suppliers/$storeId',
-  path: '/suppliers/$storeId',
+const MessagesIndexRoute = MessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ListingsIndexRoute = ListingsIndexRouteImport.update({
+  id: '/listings/',
+  path: '/listings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
 } as any)
 const UsersUserIdRoute = UsersUserIdRouteImport.update({
   id: '/users/$userId',
   path: '/users/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
-  id: '/.lovable/oauth/consent',
-  path: '/.lovable/oauth/consent',
+const SuppliersStoreIdRoute = SuppliersStoreIdRouteImport.update({
+  id: '/suppliers/$storeId',
+  path: '/suppliers/$storeId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Char91DotmcpChar93InvokeToolToolRoute =
-  Char91DotmcpChar93InvokeToolToolRouteImport.update({
-    id: '/.mcp/invoke-tool/$tool',
-    path: '/.mcp/invoke-tool/$tool',
+const SuperuserPanelRoute = SuperuserPanelRouteImport.update({
+  id: '/superuser/panel',
+  path: '/superuser/panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoryViewRoute = StoryViewRouteImport.update({
+  id: '/story/view',
+  path: '/story/view',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoryNewRoute = StoryNewRouteImport.update({
+  id: '/story/new',
+  path: '/story/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RentalsNewRoute = RentalsNewRouteImport.update({
+  id: '/rentals/new',
+  path: '/rentals/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RentalsRentalIdRoute = RentalsRentalIdRouteImport.update({
+  id: '/rentals/$rentalId',
+  path: '/rentals/$rentalId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
+  id: '/projects/$projectId',
+  path: '/projects/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilePortfolioRoute = ProfilePortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => ProfileRoute,
+} as any)
+const ProfileEditRoute = ProfileEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ProfileRoute,
+} as any)
+const PostsNewRoute = PostsNewRouteImport.update({
+  id: '/posts/new',
+  path: '/posts/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsPostIdRoute = PostsPostIdRouteImport.update({
+  id: '/posts/$postId',
+  path: '/posts/$postId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesThreadIdRoute = MessagesThreadIdRouteImport.update({
+  id: '/messages/$threadId',
+  path: '/messages/$threadId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceNewRoute = MarketplaceNewRouteImport.update({
+  id: '/marketplace/new',
+  path: '/marketplace/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceItemIdRoute = MarketplaceItemIdRouteImport.update({
+  id: '/marketplace/$itemId',
+  path: '/marketplace/$itemId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListingsNewRoute = ListingsNewRouteImport.update({
+  id: '/listings/new',
+  path: '/listings/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListingsListingIdRoute = ListingsListingIdRouteImport.update({
+  id: '/listings/$listingId',
+  path: '/listings/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesArchitectsRoute = GuidesArchitectsRouteImport.update({
+  id: '/guides/architects',
+  path: '/guides/architects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FindMaterialResultsRoute = FindMaterialResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => FindMaterialRoute,
+} as any)
+const FindMaterialNewRoute = FindMaterialNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => FindMaterialRoute,
+} as any)
+const FindMaterialMineRoute = FindMaterialMineRouteImport.update({
+  id: '/mine',
+  path: '/mine',
+  getParentRoute: () => FindMaterialRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
+const AdminTelegramRoute = AdminTelegramRouteImport.update({
+  id: '/admin/telegram',
+  path: '/admin/telegram',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSuppliersRoute = AdminSuppliersRouteImport.update({
+  id: '/admin/suppliers',
+  path: '/admin/suppliers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/admin/reports',
+  path: '/admin/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPostsRoute = AdminPostsRouteImport.update({
+  id: '/admin/posts',
+  path: '/admin/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminInvitationsRoute = AdminInvitationsRouteImport.update({
+  id: '/admin/invitations',
+  path: '/admin/invitations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDrawsRoute = AdminDrawsRouteImport.update({
+  id: '/admin/draws',
+  path: '/admin/draws',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicExpoSendRoute = ApiPublicExpoSendRouteImport.update({
-  id: '/api/public/expo-send',
-  path: '/api/public/expo-send',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicFcmSendRoute = ApiPublicFcmSendRouteImport.update({
-  id: '/api/public/fcm-send',
-  path: '/api/public/fcm-send',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicProcessPushQueueRoute =
-  ApiPublicProcessPushQueueRouteImport.update({
-    id: '/api/public/process-push-queue',
-    path: '/api/public/process-push-queue',
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicTelegramNotifyRoute = ApiPublicTelegramNotifyRouteImport.update({
-  id: '/api/public/telegram-notify',
-  path: '/api/public/telegram-notify',
+const SuppliersStoreIdEditRoute = SuppliersStoreIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => SuppliersStoreIdRoute,
+} as any)
+const SuppliersStoreIdCatalogRoute = SuppliersStoreIdCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
+  getParentRoute: () => SuppliersStoreIdRoute,
+} as any)
+const SupplierJoinTokenRoute = SupplierJoinTokenRouteImport.update({
+  id: '/supplier/join/$token',
+  path: '/supplier/join/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RentalsRequestNewRoute = RentalsRequestNewRouteImport.update({
+  id: '/rentals/request/new',
+  path: '/rentals/request/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsNewWorkerIdRoute = ProjectsNewWorkerIdRouteImport.update({
+  id: '/projects/new/$workerId',
+  path: '/projects/new/$workerId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicTelegramPasswordResetRoute =
@@ -450,81 +443,42 @@ const ApiPublicTelegramPasswordResetRoute =
     path: '/api/public/telegram-password-reset',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ProjectsNewWorkerIdRoute = ProjectsNewWorkerIdRouteImport.update({
-  id: '/projects/new/$workerId',
-  path: '/projects/new/$workerId',
+const ApiPublicTelegramNotifyRoute = ApiPublicTelegramNotifyRouteImport.update({
+  id: '/api/public/telegram-notify',
+  path: '/api/public/telegram-notify',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RentalsRequestNewRoute = RentalsRequestNewRouteImport.update({
-  id: '/rentals/request/new',
-  path: '/rentals/request/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SupplierJoinTokenRoute = SupplierJoinTokenRouteImport.update({
-  id: '/supplier/join/$token',
-  path: '/supplier/join/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SuppliersStoreIdCatalogRoute = SuppliersStoreIdCatalogRouteImport.update({
-  id: '/catalog',
-  path: '/catalog',
-  getParentRoute: () => SuppliersStoreIdRoute,
-} as any)
-const SuppliersStoreIdEditRoute = SuppliersStoreIdEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => SuppliersStoreIdRoute,
-} as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailQueueProcessRoute =
-  LovableEmailQueueProcessRouteImport.update({
-    id: '/lovable/email/queue/process',
-    path: '/lovable/email/queue/process',
+const ApiPublicProcessPushQueueRoute =
+  ApiPublicProcessPushQueueRouteImport.update({
+    id: '/api/public/process-push-queue',
+    path: '/api/public/process-push-queue',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicFcmSendRoute = ApiPublicFcmSendRouteImport.update({
+  id: '/api/public/fcm-send',
+  path: '/api/public/fcm-send',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicExpoSendRoute = ApiPublicExpoSendRouteImport.update({
+  id: '/api/public/expo-send',
+  path: '/api/public/expo-send',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SuppliersStoreIdCatalogIndexRoute =
   SuppliersStoreIdCatalogIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => SuppliersStoreIdCatalogRoute,
-  } as any)
-const SuppliersStoreIdCatalogImportRoute =
-  SuppliersStoreIdCatalogImportRouteImport.update({
-    id: '/import',
-    path: '/import',
-    getParentRoute: () => SuppliersStoreIdCatalogRoute,
-  } as any)
-const SuppliersStoreIdCatalogListRoute =
-  SuppliersStoreIdCatalogListRouteImport.update({
-    id: '/list',
-    path: '/list',
-    getParentRoute: () => SuppliersStoreIdCatalogRoute,
-  } as any)
-const SuppliersStoreIdCatalogManageRoute =
-  SuppliersStoreIdCatalogManageRouteImport.update({
-    id: '/manage',
-    path: '/manage',
-    getParentRoute: () => SuppliersStoreIdCatalogRoute,
-  } as any)
-const SuppliersStoreIdCatalogPhotoRoute =
-  SuppliersStoreIdCatalogPhotoRouteImport.update({
-    id: '/photo',
-    path: '/photo',
-    getParentRoute: () => SuppliersStoreIdCatalogRoute,
-  } as any)
-const SuppliersStoreIdCatalogProductsRoute =
-  SuppliersStoreIdCatalogProductsRouteImport.update({
-    id: '/products',
-    path: '/products',
     getParentRoute: () => SuppliersStoreIdCatalogRoute,
   } as any)
 const SuppliersStoreIdCatalogStatsRoute =
@@ -533,6 +487,52 @@ const SuppliersStoreIdCatalogStatsRoute =
     path: '/stats',
     getParentRoute: () => SuppliersStoreIdCatalogRoute,
   } as any)
+const SuppliersStoreIdCatalogProductsRoute =
+  SuppliersStoreIdCatalogProductsRouteImport.update({
+    id: '/products',
+    path: '/products',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
+const SuppliersStoreIdCatalogPhotoRoute =
+  SuppliersStoreIdCatalogPhotoRouteImport.update({
+    id: '/photo',
+    path: '/photo',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
+const SuppliersStoreIdCatalogManageRoute =
+  SuppliersStoreIdCatalogManageRouteImport.update({
+    id: '/manage',
+    path: '/manage',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
+const SuppliersStoreIdCatalogListRoute =
+  SuppliersStoreIdCatalogListRouteImport.update({
+    id: '/list',
+    path: '/list',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
+const SuppliersStoreIdCatalogImportRoute =
+  SuppliersStoreIdCatalogImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => SuppliersStoreIdCatalogRoute,
+  } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -1130,193 +1130,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ai-search': {
-      id: '/ai-search'
-      path: '/ai-search'
-      fullPath: '/ai-search'
-      preLoaderRoute: typeof AiSearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/alerts': {
-      id: '/alerts'
-      path: '/alerts'
-      fullPath: '/alerts'
-      preLoaderRoute: typeof AlertsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/announce': {
-      id: '/announce'
-      path: '/announce'
-      fullPath: '/announce'
-      preLoaderRoute: typeof AnnounceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/connect': {
-      id: '/connect'
-      path: '/connect'
-      fullPath: '/connect'
-      preLoaderRoute: typeof ConnectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/find-material': {
-      id: '/find-material'
-      path: '/find-material'
-      fullPath: '/find-material'
-      preLoaderRoute: typeof FindMaterialRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/find-worker': {
-      id: '/find-worker'
-      path: '/find-worker'
-      fullPath: '/find-worker'
-      preLoaderRoute: typeof FindWorkerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/help': {
-      id: '/help'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof HelpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/invitations': {
-      id: '/invitations'
-      path: '/invitations'
-      fullPath: '/invitations'
-      preLoaderRoute: typeof InvitationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/join': {
-      id: '/join'
-      path: '/join'
-      fullPath: '/join'
-      preLoaderRoute: typeof JoinRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/llms.txt': {
-      id: '/llms.txt'
-      path: '/llms.txt'
-      fullPath: '/llms.txt'
-      preLoaderRoute: typeof LlmsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market': {
-      id: '/market'
-      path: '/market'
-      fullPath: '/market'
-      preLoaderRoute: typeof MarketRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/my-posts': {
-      id: '/my-posts'
-      path: '/my-posts'
-      fullPath: '/my-posts'
-      preLoaderRoute: typeof MyPostsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/online-orders': {
-      id: '/online-orders'
-      path: '/online-orders'
-      fullPath: '/online-orders'
-      preLoaderRoute: typeof OnlineOrdersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/report': {
-      id: '/report'
-      path: '/report'
-      fullPath: '/report'
-      preLoaderRoute: typeof ReportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reward-results': {
-      id: '/reward-results'
-      path: '/reward-results'
-      fullPath: '/reward-results'
-      preLoaderRoute: typeof RewardResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rewards': {
-      id: '/rewards'
-      path: '/rewards'
-      fullPath: '/rewards'
-      preLoaderRoute: typeof RewardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/search': {
-      id: '/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -1326,228 +1144,193 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.mcp/list-tools': {
-      id: '/.mcp/list-tools'
-      path: '/.mcp/list-tools'
-      fullPath: '/.mcp/list-tools'
-      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.well-known/oauth-protected-resource': {
-      id: '/.well-known/oauth-protected-resource'
-      path: '/.well-known/oauth-protected-resource'
-      fullPath: '/.well-known/oauth-protected-resource'
-      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+    '/rewards': {
+      id: '/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof RewardsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/draws': {
-      id: '/admin/draws'
-      path: '/admin/draws'
-      fullPath: '/admin/draws'
-      preLoaderRoute: typeof AdminDrawsRouteImport
+    '/reward-results': {
+      id: '/reward-results'
+      path: '/reward-results'
+      fullPath: '/reward-results'
+      preLoaderRoute: typeof RewardResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/invitations': {
-      id: '/admin/invitations'
-      path: '/admin/invitations'
-      fullPath: '/admin/invitations'
-      preLoaderRoute: typeof AdminInvitationsRouteImport
+    '/report': {
+      id: '/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof ReportRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/posts': {
-      id: '/admin/posts'
-      path: '/admin/posts'
-      fullPath: '/admin/posts'
-      preLoaderRoute: typeof AdminPostsRouteImport
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/reports': {
-      id: '/admin/reports'
-      path: '/admin/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AdminReportsRouteImport
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/suppliers': {
-      id: '/admin/suppliers'
-      path: '/admin/suppliers'
-      fullPath: '/admin/suppliers'
-      preLoaderRoute: typeof AdminSuppliersRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/telegram': {
-      id: '/admin/telegram'
-      path: '/admin/telegram'
-      fullPath: '/admin/telegram'
-      preLoaderRoute: typeof AdminTelegramRouteImport
+    '/online-orders': {
+      id: '/online-orders'
+      path: '/online-orders'
+      fullPath: '/online-orders'
+      preLoaderRoute: typeof OnlineOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/blog/': {
-      id: '/blog/'
+    '/my-posts': {
+      id: '/my-posts'
+      path: '/my-posts'
+      fullPath: '/my-posts'
+      preLoaderRoute: typeof MyPostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invitations': {
+      id: '/invitations'
+      path: '/invitations'
+      fullPath: '/invitations'
+      preLoaderRoute: typeof InvitationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find-worker': {
+      id: '/find-worker'
+      path: '/find-worker'
+      fullPath: '/find-worker'
+      preLoaderRoute: typeof FindWorkerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find-material': {
+      id: '/find-material'
+      path: '/find-material'
+      fullPath: '/find-material'
+      preLoaderRoute: typeof FindMaterialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connect': {
+      id: '/connect'
+      path: '/connect'
+      fullPath: '/connect'
+      preLoaderRoute: typeof ConnectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/announce': {
+      id: '/announce'
+      path: '/announce'
+      fullPath: '/announce'
+      preLoaderRoute: typeof AnnounceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-search': {
+      id: '/ai-search'
+      path: '/ai-search'
+      fullPath: '/ai-search'
+      preLoaderRoute: typeof AiSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
       path: '/'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof BlogIndexRouteImport
-      parentRoute: typeof BlogRoute
-    }
-    '/blog/$slug': {
-      id: '/blog/$slug'
-      path: '/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof BlogRoute
-    }
-    '/find-material/mine': {
-      id: '/find-material/mine'
-      path: '/mine'
-      fullPath: '/find-material/mine'
-      preLoaderRoute: typeof FindMaterialMineRouteImport
-      parentRoute: typeof FindMaterialRoute
-    }
-    '/find-material/new': {
-      id: '/find-material/new'
-      path: '/new'
-      fullPath: '/find-material/new'
-      preLoaderRoute: typeof FindMaterialNewRouteImport
-      parentRoute: typeof FindMaterialRoute
-    }
-    '/find-material/results': {
-      id: '/find-material/results'
-      path: '/results'
-      fullPath: '/find-material/results'
-      preLoaderRoute: typeof FindMaterialResultsRouteImport
-      parentRoute: typeof FindMaterialRoute
-    }
-    '/guides/architects': {
-      id: '/guides/architects'
-      path: '/guides/architects'
-      fullPath: '/guides/architects'
-      preLoaderRoute: typeof GuidesArchitectsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/listings/': {
-      id: '/listings/'
-      path: '/listings'
-      fullPath: '/listings/'
-      preLoaderRoute: typeof ListingsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/listings/$listingId': {
-      id: '/listings/$listingId'
-      path: '/listings/$listingId'
-      fullPath: '/listings/$listingId'
-      preLoaderRoute: typeof ListingsListingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/listings/new': {
-      id: '/listings/new'
-      path: '/listings/new'
-      fullPath: '/listings/new'
-      preLoaderRoute: typeof ListingsNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketplace/$itemId': {
-      id: '/marketplace/$itemId'
-      path: '/marketplace/$itemId'
-      fullPath: '/marketplace/$itemId'
-      preLoaderRoute: typeof MarketplaceItemIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketplace/new': {
-      id: '/marketplace/new'
-      path: '/marketplace/new'
-      fullPath: '/marketplace/new'
-      preLoaderRoute: typeof MarketplaceNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages/': {
-      id: '/messages/'
-      path: '/messages'
-      fullPath: '/messages/'
-      preLoaderRoute: typeof MessagesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages/$threadId': {
-      id: '/messages/$threadId'
-      path: '/messages/$threadId'
-      fullPath: '/messages/$threadId'
-      preLoaderRoute: typeof MessagesThreadIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/posts/$postId': {
-      id: '/posts/$postId'
-      path: '/posts/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof PostsPostIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/posts/new': {
-      id: '/posts/new'
-      path: '/posts/new'
-      fullPath: '/posts/new'
-      preLoaderRoute: typeof PostsNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile/edit': {
-      id: '/profile/edit'
-      path: '/edit'
-      fullPath: '/profile/edit'
-      preLoaderRoute: typeof ProfileEditRouteImport
-      parentRoute: typeof ProfileRoute
-    }
-    '/profile/portfolio': {
-      id: '/profile/portfolio'
-      path: '/portfolio'
-      fullPath: '/profile/portfolio'
-      preLoaderRoute: typeof ProfilePortfolioRouteImport
-      parentRoute: typeof ProfileRoute
-    }
-    '/projects/$projectId': {
-      id: '/projects/$projectId'
-      path: '/projects/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof ProjectsProjectIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rentals/$rentalId': {
-      id: '/rentals/$rentalId'
-      path: '/rentals/$rentalId'
-      fullPath: '/rentals/$rentalId'
-      preLoaderRoute: typeof RentalsRentalIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rentals/new': {
-      id: '/rentals/new'
-      path: '/rentals/new'
-      fullPath: '/rentals/new'
-      preLoaderRoute: typeof RentalsNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/story/new': {
-      id: '/story/new'
-      path: '/story/new'
-      fullPath: '/story/new'
-      preLoaderRoute: typeof StoryNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/story/view': {
-      id: '/story/view'
-      path: '/story/view'
-      fullPath: '/story/view'
-      preLoaderRoute: typeof StoryViewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/superuser/panel': {
-      id: '/superuser/panel'
-      path: '/superuser/panel'
-      fullPath: '/superuser/panel'
-      preLoaderRoute: typeof SuperuserPanelRouteImport
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/suppliers/': {
@@ -1557,12 +1340,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuppliersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/suppliers/$storeId': {
-      id: '/suppliers/$storeId'
-      path: '/suppliers/$storeId'
-      fullPath: '/suppliers/$storeId'
-      preLoaderRoute: typeof SuppliersStoreIdRouteImport
+    '/messages/': {
+      id: '/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof MessagesIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/listings/': {
+      id: '/listings/'
+      path: '/listings'
+      fullPath: '/listings/'
+      preLoaderRoute: typeof ListingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/users/$userId': {
       id: '/users/$userId'
@@ -1571,60 +1368,228 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.lovable/oauth/consent': {
-      id: '/.lovable/oauth/consent'
-      path: '/.lovable/oauth/consent'
-      fullPath: '/.lovable/oauth/consent'
-      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+    '/suppliers/$storeId': {
+      id: '/suppliers/$storeId'
+      path: '/suppliers/$storeId'
+      fullPath: '/suppliers/$storeId'
+      preLoaderRoute: typeof SuppliersStoreIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.mcp/invoke-tool/$tool': {
-      id: '/.mcp/invoke-tool/$tool'
-      path: '/.mcp/invoke-tool/$tool'
-      fullPath: '/.mcp/invoke-tool/$tool'
-      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+    '/superuser/panel': {
+      id: '/superuser/panel'
+      path: '/superuser/panel'
+      fullPath: '/superuser/panel'
+      preLoaderRoute: typeof SuperuserPanelRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/expo-send': {
-      id: '/api/public/expo-send'
-      path: '/api/public/expo-send'
-      fullPath: '/api/public/expo-send'
-      preLoaderRoute: typeof ApiPublicExpoSendRouteImport
+    '/story/view': {
+      id: '/story/view'
+      path: '/story/view'
+      fullPath: '/story/view'
+      preLoaderRoute: typeof StoryViewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/fcm-send': {
-      id: '/api/public/fcm-send'
-      path: '/api/public/fcm-send'
-      fullPath: '/api/public/fcm-send'
-      preLoaderRoute: typeof ApiPublicFcmSendRouteImport
+    '/story/new': {
+      id: '/story/new'
+      path: '/story/new'
+      fullPath: '/story/new'
+      preLoaderRoute: typeof StoryNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/process-push-queue': {
-      id: '/api/public/process-push-queue'
-      path: '/api/public/process-push-queue'
-      fullPath: '/api/public/process-push-queue'
-      preLoaderRoute: typeof ApiPublicProcessPushQueueRouteImport
+    '/rentals/new': {
+      id: '/rentals/new'
+      path: '/rentals/new'
+      fullPath: '/rentals/new'
+      preLoaderRoute: typeof RentalsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/telegram-notify': {
-      id: '/api/public/telegram-notify'
-      path: '/api/public/telegram-notify'
-      fullPath: '/api/public/telegram-notify'
-      preLoaderRoute: typeof ApiPublicTelegramNotifyRouteImport
+    '/rentals/$rentalId': {
+      id: '/rentals/$rentalId'
+      path: '/rentals/$rentalId'
+      fullPath: '/rentals/$rentalId'
+      preLoaderRoute: typeof RentalsRentalIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/telegram-password-reset': {
-      id: '/api/public/telegram-password-reset'
-      path: '/api/public/telegram-password-reset'
-      fullPath: '/api/public/telegram-password-reset'
-      preLoaderRoute: typeof ApiPublicTelegramPasswordResetRouteImport
+    '/projects/$projectId': {
+      id: '/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof ProjectsProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/new/$workerId': {
-      id: '/projects/new/$workerId'
-      path: '/projects/new/$workerId'
-      fullPath: '/projects/new/$workerId'
-      preLoaderRoute: typeof ProjectsNewWorkerIdRouteImport
+    '/profile/portfolio': {
+      id: '/profile/portfolio'
+      path: '/portfolio'
+      fullPath: '/profile/portfolio'
+      preLoaderRoute: typeof ProfilePortfolioRouteImport
+      parentRoute: typeof ProfileRoute
+    }
+    '/profile/edit': {
+      id: '/profile/edit'
+      path: '/edit'
+      fullPath: '/profile/edit'
+      preLoaderRoute: typeof ProfileEditRouteImport
+      parentRoute: typeof ProfileRoute
+    }
+    '/posts/new': {
+      id: '/posts/new'
+      path: '/posts/new'
+      fullPath: '/posts/new'
+      preLoaderRoute: typeof PostsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/posts/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages/$threadId': {
+      id: '/messages/$threadId'
+      path: '/messages/$threadId'
+      fullPath: '/messages/$threadId'
+      preLoaderRoute: typeof MessagesThreadIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace/new': {
+      id: '/marketplace/new'
+      path: '/marketplace/new'
+      fullPath: '/marketplace/new'
+      preLoaderRoute: typeof MarketplaceNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace/$itemId': {
+      id: '/marketplace/$itemId'
+      path: '/marketplace/$itemId'
+      fullPath: '/marketplace/$itemId'
+      preLoaderRoute: typeof MarketplaceItemIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listings/new': {
+      id: '/listings/new'
+      path: '/listings/new'
+      fullPath: '/listings/new'
+      preLoaderRoute: typeof ListingsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listings/$listingId': {
+      id: '/listings/$listingId'
+      path: '/listings/$listingId'
+      fullPath: '/listings/$listingId'
+      preLoaderRoute: typeof ListingsListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/architects': {
+      id: '/guides/architects'
+      path: '/guides/architects'
+      fullPath: '/guides/architects'
+      preLoaderRoute: typeof GuidesArchitectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/find-material/results': {
+      id: '/find-material/results'
+      path: '/results'
+      fullPath: '/find-material/results'
+      preLoaderRoute: typeof FindMaterialResultsRouteImport
+      parentRoute: typeof FindMaterialRoute
+    }
+    '/find-material/new': {
+      id: '/find-material/new'
+      path: '/new'
+      fullPath: '/find-material/new'
+      preLoaderRoute: typeof FindMaterialNewRouteImport
+      parentRoute: typeof FindMaterialRoute
+    }
+    '/find-material/mine': {
+      id: '/find-material/mine'
+      path: '/mine'
+      fullPath: '/find-material/mine'
+      preLoaderRoute: typeof FindMaterialMineRouteImport
+      parentRoute: typeof FindMaterialRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/admin/telegram': {
+      id: '/admin/telegram'
+      path: '/admin/telegram'
+      fullPath: '/admin/telegram'
+      preLoaderRoute: typeof AdminTelegramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/suppliers': {
+      id: '/admin/suppliers'
+      path: '/admin/suppliers'
+      fullPath: '/admin/suppliers'
+      preLoaderRoute: typeof AdminSuppliersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/posts': {
+      id: '/admin/posts'
+      path: '/admin/posts'
+      fullPath: '/admin/posts'
+      preLoaderRoute: typeof AdminPostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/invitations': {
+      id: '/admin/invitations'
+      path: '/admin/invitations'
+      fullPath: '/admin/invitations'
+      preLoaderRoute: typeof AdminInvitationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/draws': {
+      id: '/admin/draws'
+      path: '/admin/draws'
+      fullPath: '/admin/draws'
+      preLoaderRoute: typeof AdminDrawsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suppliers/$storeId/edit': {
+      id: '/suppliers/$storeId/edit'
+      path: '/edit'
+      fullPath: '/suppliers/$storeId/edit'
+      preLoaderRoute: typeof SuppliersStoreIdEditRouteImport
+      parentRoute: typeof SuppliersStoreIdRoute
+    }
+    '/suppliers/$storeId/catalog': {
+      id: '/suppliers/$storeId/catalog'
+      path: '/catalog'
+      fullPath: '/suppliers/$storeId/catalog'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogRouteImport
+      parentRoute: typeof SuppliersStoreIdRoute
+    }
+    '/supplier/join/$token': {
+      id: '/supplier/join/$token'
+      path: '/supplier/join/$token'
+      fullPath: '/supplier/join/$token'
+      preLoaderRoute: typeof SupplierJoinTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rentals/request/new': {
@@ -1634,46 +1599,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RentalsRequestNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/supplier/join/$token': {
-      id: '/supplier/join/$token'
-      path: '/supplier/join/$token'
-      fullPath: '/supplier/join/$token'
-      preLoaderRoute: typeof SupplierJoinTokenRouteImport
+    '/projects/new/$workerId': {
+      id: '/projects/new/$workerId'
+      path: '/projects/new/$workerId'
+      fullPath: '/projects/new/$workerId'
+      preLoaderRoute: typeof ProjectsNewWorkerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/suppliers/$storeId/catalog': {
-      id: '/suppliers/$storeId/catalog'
-      path: '/catalog'
-      fullPath: '/suppliers/$storeId/catalog'
-      preLoaderRoute: typeof SuppliersStoreIdCatalogRouteImport
-      parentRoute: typeof SuppliersStoreIdRoute
-    }
-    '/suppliers/$storeId/edit': {
-      id: '/suppliers/$storeId/edit'
-      path: '/edit'
-      fullPath: '/suppliers/$storeId/edit'
-      preLoaderRoute: typeof SuppliersStoreIdEditRouteImport
-      parentRoute: typeof SuppliersStoreIdRoute
-    }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+    '/api/public/telegram-password-reset': {
+      id: '/api/public/telegram-password-reset'
+      path: '/api/public/telegram-password-reset'
+      fullPath: '/api/public/telegram-password-reset'
+      preLoaderRoute: typeof ApiPublicTelegramPasswordResetRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+    '/api/public/telegram-notify': {
+      id: '/api/public/telegram-notify'
+      path: '/api/public/telegram-notify'
+      fullPath: '/api/public/telegram-notify'
+      preLoaderRoute: typeof ApiPublicTelegramNotifyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+    '/api/public/process-push-queue': {
+      id: '/api/public/process-push-queue'
+      path: '/api/public/process-push-queue'
+      fullPath: '/api/public/process-push-queue'
+      preLoaderRoute: typeof ApiPublicProcessPushQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/fcm-send': {
+      id: '/api/public/fcm-send'
+      path: '/api/public/fcm-send'
+      fullPath: '/api/public/fcm-send'
+      preLoaderRoute: typeof ApiPublicFcmSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/expo-send': {
+      id: '/api/public/expo-send'
+      path: '/api/public/expo-send'
+      fullPath: '/api/public/expo-send'
+      preLoaderRoute: typeof ApiPublicExpoSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/suppliers/$storeId/catalog/': {
@@ -1683,32 +1662,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuppliersStoreIdCatalogIndexRouteImport
       parentRoute: typeof SuppliersStoreIdCatalogRoute
     }
-    '/suppliers/$storeId/catalog/import': {
-      id: '/suppliers/$storeId/catalog/import'
-      path: '/import'
-      fullPath: '/suppliers/$storeId/catalog/import'
-      preLoaderRoute: typeof SuppliersStoreIdCatalogImportRouteImport
-      parentRoute: typeof SuppliersStoreIdCatalogRoute
-    }
-    '/suppliers/$storeId/catalog/list': {
-      id: '/suppliers/$storeId/catalog/list'
-      path: '/list'
-      fullPath: '/suppliers/$storeId/catalog/list'
-      preLoaderRoute: typeof SuppliersStoreIdCatalogListRouteImport
-      parentRoute: typeof SuppliersStoreIdCatalogRoute
-    }
-    '/suppliers/$storeId/catalog/manage': {
-      id: '/suppliers/$storeId/catalog/manage'
-      path: '/manage'
-      fullPath: '/suppliers/$storeId/catalog/manage'
-      preLoaderRoute: typeof SuppliersStoreIdCatalogManageRouteImport
-      parentRoute: typeof SuppliersStoreIdCatalogRoute
-    }
-    '/suppliers/$storeId/catalog/photo': {
-      id: '/suppliers/$storeId/catalog/photo'
-      path: '/photo'
-      fullPath: '/suppliers/$storeId/catalog/photo'
-      preLoaderRoute: typeof SuppliersStoreIdCatalogPhotoRouteImport
+    '/suppliers/$storeId/catalog/stats': {
+      id: '/suppliers/$storeId/catalog/stats'
+      path: '/stats'
+      fullPath: '/suppliers/$storeId/catalog/stats'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogStatsRouteImport
       parentRoute: typeof SuppliersStoreIdCatalogRoute
     }
     '/suppliers/$storeId/catalog/products': {
@@ -1718,12 +1676,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuppliersStoreIdCatalogProductsRouteImport
       parentRoute: typeof SuppliersStoreIdCatalogRoute
     }
-    '/suppliers/$storeId/catalog/stats': {
-      id: '/suppliers/$storeId/catalog/stats'
-      path: '/stats'
-      fullPath: '/suppliers/$storeId/catalog/stats'
-      preLoaderRoute: typeof SuppliersStoreIdCatalogStatsRouteImport
+    '/suppliers/$storeId/catalog/photo': {
+      id: '/suppliers/$storeId/catalog/photo'
+      path: '/photo'
+      fullPath: '/suppliers/$storeId/catalog/photo'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogPhotoRouteImport
       parentRoute: typeof SuppliersStoreIdCatalogRoute
+    }
+    '/suppliers/$storeId/catalog/manage': {
+      id: '/suppliers/$storeId/catalog/manage'
+      path: '/manage'
+      fullPath: '/suppliers/$storeId/catalog/manage'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogManageRouteImport
+      parentRoute: typeof SuppliersStoreIdCatalogRoute
+    }
+    '/suppliers/$storeId/catalog/list': {
+      id: '/suppliers/$storeId/catalog/list'
+      path: '/list'
+      fullPath: '/suppliers/$storeId/catalog/list'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogListRouteImport
+      parentRoute: typeof SuppliersStoreIdCatalogRoute
+    }
+    '/suppliers/$storeId/catalog/import': {
+      id: '/suppliers/$storeId/catalog/import'
+      path: '/import'
+      fullPath: '/suppliers/$storeId/catalog/import'
+      preLoaderRoute: typeof SuppliersStoreIdCatalogImportRouteImport
+      parentRoute: typeof SuppliersStoreIdCatalogRoute
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
