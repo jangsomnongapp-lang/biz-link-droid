@@ -13,7 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
-import { CategoryImage } from "@/components/CategoryImage";
+import { CategoryImage, hasCategoryImage } from "@/components/CategoryImage";
 
 export const Route = createFileRoute("/find-worker")({
   head: () => ({
@@ -206,7 +206,9 @@ function FindWorkerPage() {
               active={selectedCat === c.id}
               onClick={() => setSelectedCat(c.id)}
               label={lang === "km" ? c.name_km : c.name_en}
-              code={c.code}
+              code={hasCategoryImage(c.code) ? c.code : undefined}
+              Icon={hasCategoryImage(c.code) ? undefined : Shapes}
+              color="bg-shortcut-slate"
             />
           ))}
         </div>
