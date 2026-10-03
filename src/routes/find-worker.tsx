@@ -10,6 +10,7 @@ import {
   MapPin,
   ChevronRight,
   Shapes,
+  Check,
   type LucideIcon,
 } from "lucide-react";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
