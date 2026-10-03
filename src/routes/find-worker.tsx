@@ -4,7 +4,31 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Search, MapPin, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Search,
+  MapPin,
+  ChevronRight,
+  BrickWall,
+  Layers,
+  Waves,
+  Tractor,
+  Zap,
+  Droplets,
+  Wind,
+  Flame,
+  Paintbrush,
+  Grid3x3,
+  Hammer,
+  Home,
+  Leaf,
+  PanelsTopLeft,
+  Shapes,
+  Signpost,
+  HardHat,
+  PenTool,
+  type LucideIcon,
+} from "lucide-react";
 import { AvailabilityBadge } from "@/components/AvailabilityBadge";
 
 export const Route = createFileRoute("/find-worker")({
