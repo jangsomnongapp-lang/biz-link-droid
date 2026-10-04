@@ -1300,8 +1300,8 @@ function HomePage() {
           const Icon = item.icon;
           return (
             <Link key={`${item.to}-${item.label}`} to={item.to} search={item.search} className="tap flex min-w-0 flex-col items-center gap-1 text-center">
-              <span className={`grid h-12 w-[50px] place-items-center rounded-lg ${item.tone} shadow-sm`}>
-                <Icon className="h-6 w-6" strokeWidth={2.2} />
+              <span className={`grid h-14 w-[58px] place-items-center rounded-xl ${item.tone} shadow-sm`}>
+                <Icon className={item.iconClass} strokeWidth={2.2} />
               </span>
               <span className="line-clamp-2 text-[10px] font-semibold leading-3.5 text-foreground">{item.label}</span>
             </Link>
