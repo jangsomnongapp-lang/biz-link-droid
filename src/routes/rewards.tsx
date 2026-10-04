@@ -159,7 +159,7 @@ function RewardsPage() {
             </div>
             <button
               onClick={() => nav({ to: "/reward-results" })}
-              className="mt-2 flex w-full items-center justify-between rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-bold text-white shadow active:bg-orange-600"
+              className="mt-2 flex w-full items-center justify-between rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg active:bg-emerald-700"
             >
               <span>{lang === "km" ? "លទ្ធផល" : "Result"}</span>
               <ChevronRight className="h-4 w-4" />
