@@ -60,8 +60,10 @@ function FindWorkerPage() {
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [workers, setWorkers] = useState<WorkerProfile[]>([]);
   const [workerCats, setWorkerCats] = useState<Record<string, Category[]>>({});
-  const [availFilter, setAvailFilter] = useState<"all" | "available">("all");
-  const [availableIds, setAvailableIds] = useState<Set<string>>(new Set());
+  const [availFilter, setAvailFilter] = useState<
+    "all" | "available" | "busy" | "available_soon"
+  >("all");
+  const [statusMap, setStatusMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -121,11 +123,14 @@ function FindWorkerPage() {
           .rpc("get_today_availability_bulk", { _uids: ids })
           .then(({ data: avail }) => {
             if (cancelled) return;
-            const set = new Set<string>();
-            for (const row of (avail ?? []) as { user_id: string; status: string }[]) {
-              if (row.status === "available") set.add(row.user_id);
+            const map: Record<string, string> = {};
+            for (const row of (avail ?? []) as {
+              user_id: string;
+              status: string;
+            }[]) {
+              map[row.user_id] = row.status;
             }
-            setAvailableIds(set);
+            setStatusMap(map);
           });
         const { data: ucs } = await supabase
           .from("user_categories")
