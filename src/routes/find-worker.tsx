@@ -168,8 +168,8 @@ function FindWorkerPage() {
     () =>
       availFilter === "all"
         ? workers
-        : workers.filter((w) => availableIds.has(w.id)),
-    [workers, availFilter, availableIds],
+        : workers.filter((w) => statusMap[w.id] === availFilter),
+    [workers, availFilter, statusMap],
   );
 
   return (
@@ -231,6 +231,16 @@ function FindWorkerPage() {
             active={availFilter === "available"}
             onClick={() => setAvailFilter("available")}
             label={t("available_today_filter")}
+          />
+          <Chip
+            active={availFilter === "available_soon"}
+            onClick={() => setAvailFilter("available_soon")}
+            label={t("available_soon_filter")}
+          />
+          <Chip
+            active={availFilter === "busy"}
+            onClick={() => setAvailFilter("busy")}
+            label={t("busy_today_filter")}
           />
         </div>
       </div>
