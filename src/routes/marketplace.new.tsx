@@ -37,6 +37,26 @@ function NewMarketplaceItemPage() {
   const [submitting, setSubmitting] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
+  // Make sure the request goes out with a valid, fresh login. On phones the
+  // app can sit in the background long enough for the token to expire; if the
+  // refresh silently fails, uploads go out as a guest and the photo storage
+  // rejects them with "new row violates row-level security policy".
+  async function getVerifiedUserId(): Promise<string | null> {
+    const { data: sess } = await supabase.auth.getSession();
+    let session = sess.session;
+    const expiresSoon = !session?.expires_at || session.expires_at * 1000 - Date.now() < 60_000;
+    if (!session || expiresSoon) {
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      session = refreshed.session;
+    }
+    if (!session?.user?.id) {
+      toast.error(km ? "សូមចូលគណនីម្តងទៀត" : "Your login expired — please sign in again");
+      nav({ to: "/login" });
+      return null;
+    }
+    return session.user.id;
+  }
+
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -46,11 +66,13 @@ function NewMarketplaceItemPage() {
       return;
     }
     try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/marketplace/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const uid = await getVerifiedUserId();
+      if (!uid) return;
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${uid}/marketplace/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("rental-photos")
-        .upload(path, file, { contentType: file.type, upsert: false });
+        .upload(path, file, { contentType: file.type || "image/jpeg", upsert: false });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from("rental-photos").getPublicUrl(path);
       setPhotos((p) => [...p, pub.publicUrl]);
@@ -67,10 +89,12 @@ function NewMarketplaceItemPage() {
     }
     setSubmitting(true);
     try {
+      const uid = await getVerifiedUserId();
+      if (!uid) return;
       const { data, error } = await supabase
         .from("marketplace_items")
         .insert({
-          user_id: user.id,
+          user_id: uid,
           kind,
           title: title.trim(),
           description: description.trim() || null,
