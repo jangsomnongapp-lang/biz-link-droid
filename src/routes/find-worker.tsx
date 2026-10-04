@@ -221,7 +221,7 @@ function FindWorkerPage() {
       </div>
 
       <div className="border-b border-border bg-surface px-3 pb-2">
-        <div className="flex gap-2 py-2">
+        <div className="grid grid-cols-4 gap-1.5 py-2">
           <Chip
             active={availFilter === "all"}
             onClick={() => setAvailFilter("all")}
@@ -361,7 +361,7 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+      className={`w-full rounded-full px-1.5 py-1.5 text-[11px] font-semibold leading-tight text-center transition-colors ${
         active
           ? "bg-primary text-primary-foreground"
           : "bg-muted text-muted-foreground active:bg-border"
