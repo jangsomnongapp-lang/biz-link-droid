@@ -24,7 +24,7 @@ function topReactions(counts: Record<string, number>): ReactionId[] {
     .slice(0, 3)
     .map(([id]) => id);
 }
-import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play, HardHat, Boxes, Search, BriefcaseBusiness, Gift } from "lucide-react";
+import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefcase, Sparkles, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Play, HardHat, Search, BriefcaseBusiness, Gift } from "lucide-react";
 
 /** Materials icon — user-supplied SVG (stacked blocks), white filled paths. */
 function MaterialsIcon({ className }: { className?: string }) {
