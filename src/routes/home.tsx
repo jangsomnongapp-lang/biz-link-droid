@@ -1284,7 +1284,7 @@ function HomePage() {
         {[
           { to: "/listings" as const, label: lang === "km" ? "រកការងារ" : "Find work", icon: BriefcaseBusiness, tone: "bg-shortcut-blue text-primary-foreground" },
           { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: WorkerIcon, tone: "bg-shortcut-green text-primary-foreground" },
-          { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: Boxes, tone: "bg-shortcut-slate text-primary-foreground", search: { mode: "shops" as const } },
+          { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: Boxes, tone: "bg-shortcut-orange text-primary-foreground", search: { mode: "shops" as const } },
           { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: MachineryIcon, tone: "bg-shortcut-slate text-primary-foreground", search: { mode: "rent" as const } },
           { to: "/rewards" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: Gift, tone: "bg-shortcut-gold text-primary-foreground" },
         ].map((item) => {
