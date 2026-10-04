@@ -1291,17 +1291,17 @@ function HomePage() {
       {/* Five primary shortcuts */}
       <div className="grid grid-cols-5 gap-x-1 border-y border-border bg-surface px-3 py-2.5">
         {[
-          { to: "/listings" as const, label: lang === "km" ? "រកការងារ" : "Find work", icon: BriefcaseBusiness, tone: "bg-shortcut-blue text-primary-foreground" },
-          { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: WorkerIcon, tone: "bg-shortcut-green text-primary-foreground" },
-          { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: MaterialsIcon, tone: "bg-shortcut-orange text-primary-foreground", search: { mode: "shops" as const } },
-          { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: MachineryIcon, tone: "bg-shortcut-slate text-primary-foreground", search: { mode: "rent" as const } },
-          { to: "/rewards" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: Gift, tone: "bg-shortcut-gold text-primary-foreground" },
+          { to: "/listings" as const, label: lang === "km" ? "រកការងារ" : "Find work", icon: BriefcaseBusiness, iconClass: "h-7 w-7", tone: "bg-shortcut-blue text-primary-foreground" },
+          { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: WorkerIcon, iconClass: "h-[26px] w-[26px]", tone: "bg-shortcut-green text-primary-foreground" },
+          { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: MaterialsIcon, iconClass: "h-[26px] w-[26px]", tone: "bg-shortcut-orange text-primary-foreground", search: { mode: "shops" as const } },
+          { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: MachineryIcon, iconClass: "h-[26px] w-[26px]", tone: "bg-shortcut-slate text-primary-foreground", search: { mode: "rent" as const } },
+          { to: "/rewards" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: Gift, iconClass: "h-7 w-7", tone: "bg-shortcut-gold text-primary-foreground" },
         ].map((item) => {
           const Icon = item.icon;
           return (
             <Link key={`${item.to}-${item.label}`} to={item.to} search={item.search} className="tap flex min-w-0 flex-col items-center gap-1 text-center">
-              <span className={`grid h-12 w-[50px] place-items-center rounded-lg ${item.tone} shadow-sm`}>
-                <Icon className="h-6 w-6" strokeWidth={2.2} />
+              <span className={`grid h-14 w-[58px] place-items-center rounded-xl ${item.tone} shadow-sm`}>
+                <Icon className={item.iconClass} strokeWidth={2.2} />
               </span>
               <span className="line-clamp-2 text-[10px] font-semibold leading-3.5 text-foreground">{item.label}</span>
             </Link>
