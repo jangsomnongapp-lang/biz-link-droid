@@ -137,6 +137,43 @@ function SupplierProfilePage() {
 
   const [contacting, setContacting] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
+  const [followers, setFollowers] = useState(0);
+  const [following, setFollowing] = useState(false);
+  const [followBusy, setFollowBusy] = useState(false);
+
+  useEffect(() => {
+    void supabase
+      .rpc("store_follower_counts", { _store_ids: [storeId] })
+      .then(({ data }) => setFollowers(Number(data?.[0]?.follower_count ?? 0)));
+    if (!user) return;
+    void supabase
+      .from("store_followers")
+      .select("id")
+      .eq("store_id", storeId)
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setFollowing(!!data));
+  }, [storeId, user]);
+
+  async function toggleFollow() {
+    if (!user) {
+      nav({ to: "/login" });
+      return;
+    }
+    if (followBusy) return;
+    setFollowBusy(true);
+    const next = !following;
+    setFollowing(next);
+    setFollowers((n) => Math.max(0, n + (next ? 1 : -1)));
+    const { error } = next
+      ? await supabase.from("store_followers").insert({ store_id: storeId, user_id: user.id })
+      : await supabase.from("store_followers").delete().eq("store_id", storeId).eq("user_id", user.id);
+    if (error) {
+      setFollowing(!next);
+      setFollowers((n) => Math.max(0, n + (next ? -1 : 1)));
+    }
+    setFollowBusy(false);
+  }
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -371,8 +408,21 @@ function SupplierProfilePage() {
             </p>
           )}
 
+          {!isOwner && (
+            <button
+              type="button"
+              onClick={() => void toggleFollow()}
+              disabled={followBusy}
+              className={`mt-4 flex h-10 w-full items-center justify-center gap-1.5 rounded-xl text-[13px] font-bold active:scale-[0.98] ${
+                following ? "border border-white/40 bg-white/10" : "bg-shortcut-gold text-primary"
+              }`}
+            >
+              {following ? `✓ ${t("following")}` : `+ ${t("follow")}`}
+            </button>
+          )}
+
           {/* Chat / Call / Location */}
-          <div className="mt-4 grid w-full grid-cols-3 gap-2">
+          <div className="mt-2 grid w-full grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => (isOwner ? undefined : void startConversation())}
@@ -414,10 +464,11 @@ function SupplierProfilePage() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 border-b border-border bg-surface">
-        <Stat value={postsCount} label={t("posts_label")} />
+      <div className="grid grid-cols-4 border-b border-border bg-surface">
+        <Stat value={followers} label={t("followers")} />
+        <Stat value={postsCount} label={t("posts_label")} divider />
         <Stat value={store.view_count ?? 0} label={t("views_label")} divider />
-        <Stat value={store.contact_count ?? 0} label={t("contacts_label")} divider />
+        <Stat value={store.contact_count ?? 0} label={t("inquiries")} divider />
       </div>
 
       {/* Catalogue (public) */}
