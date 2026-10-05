@@ -2051,6 +2051,35 @@ export type Database = {
         }
         Relationships: []
       }
+      store_followers: {
+        Row: {
+          created_at: string
+          id: string
+          store_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          store_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          store_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_followers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stories: {
         Row: {
           caption: string | null
@@ -2665,6 +2694,12 @@ export type Database = {
       }
       ensure_scheduled_draws: { Args: never; Returns: undefined }
       expire_overdue_claims: { Args: never; Returns: number }
+      followed_store_owner_ids: {
+        Args: never
+        Returns: {
+          owner_id: string
+        }[]
+      }
       generate_random_ticket_number: {
         Args: { _draw_period_start: string; _ticket_type: string }
         Returns: number
@@ -2780,6 +2815,13 @@ export type Database = {
       start_product_chat: {
         Args: { _post_id: string; _supplier_id: string }
         Returns: string
+      }
+      store_follower_counts: {
+        Args: { _store_ids: string[] }
+        Returns: {
+          follower_count: number
+          store_id: string
+        }[]
       }
       supplier_can_see_request: {
         Args: { _req_id: string; _uid: string }

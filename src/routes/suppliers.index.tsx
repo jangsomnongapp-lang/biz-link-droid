@@ -377,6 +377,18 @@ export function SuppliersListPage({ page = "suppliers" }: { page?: "suppliers" |
 
   const products = feed?.products ?? [];
   const storeCards = feed?.stores ?? [];
+  const [followerCounts, setFollowerCounts] = useState<Record<string, number>>({});
+  const storeIdsKey = storeCards.map((s) => s.id).join(",");
+  useEffect(() => {
+    if (!storeIdsKey) return;
+    void supabase
+      .rpc("store_follower_counts", { _store_ids: storeIdsKey.split(",") })
+      .then(({ data }) => {
+        const m: Record<string, number> = {};
+        for (const r of data ?? []) m[r.store_id] = Number(r.follower_count);
+        setFollowerCounts(m);
+      });
+  }, [storeIdsKey]);
 
   const { data: rentals = [], isLoading: loadingRent } = useQuery({
     queryKey: ["suppliers:rentals"],
@@ -655,6 +667,9 @@ export function SuppliersListPage({ page = "suppliers" }: { page?: "suppliers" |
                       </div>
                       <div className="flex flex-1 flex-col gap-1 p-2.5">
                         <p className="line-clamp-1 text-sm font-bold text-foreground">{s.name}</p>
+                        <p className="text-[11px] font-semibold text-primary">
+                          👥 {followerCounts[s.id] ?? 0} {t("followers")}
+                        </p>
                         {s.location && (
                           <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
                             <MapPin className="h-3 w-3 shrink-0" />
