@@ -285,6 +285,7 @@ const PostFeedCard = memo(function PostFeedCard({
   like,
   commentCount,
   supplier,
+  followed,
   isAdmin,
   isOwner,
   highlighted,
