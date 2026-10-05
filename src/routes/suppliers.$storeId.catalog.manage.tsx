@@ -92,6 +92,8 @@ function CatalogManagePage() {
   const c = (key: Parameters<typeof catalogCopy>[1]) => catalogCopy(lang, key);
 
   const [storeName, setStoreName] = useState("");
+  const [storeViews, setStoreViews] = useState(0);
+  const [followers, setFollowers] = useState(0);
   const [items, setItems] = useState<PanelItem[]>([]);
   const [cats, setCats] = useState<Array<{ id: string; name_en: string; name_km: string | null }>>([]);
   const [stats, setStats] = useState<PanelStats | null>(null);
@@ -109,7 +111,7 @@ function CatalogManagePage() {
     void (async () => {
       const { data: store } = await supabase
         .from("supplier_stores")
-        .select("user_id,name,location")
+        .select("user_id,name,location,view_count")
         .eq("id", storeId)
         .maybeSingle();
       if (cancelled) return;
