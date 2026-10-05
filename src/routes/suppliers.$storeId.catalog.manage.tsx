@@ -288,6 +288,16 @@ function CatalogManagePage() {
         {/* Metric cards */}
         <div className="grid grid-cols-2 gap-2.5">
           <MetricCard
+            label={c("followers")}
+            value={loading ? "—" : String(followers)}
+            hint={c("followers_hint")}
+          />
+          <MetricCard
+            label={c("total_views")}
+            value={loading ? "—" : String(storeViews)}
+            hint={c("total_views_hint")}
+          />
+          <MetricCard
             label={c("total_products")}
             value={loading ? "—" : String(stats?.total_products ?? 0)}
             hint={c("across_categories").replace("{n}", String(stats?.category_count ?? 0))}
