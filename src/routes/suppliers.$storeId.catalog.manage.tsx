@@ -92,6 +92,8 @@ function CatalogManagePage() {
   const c = (key: Parameters<typeof catalogCopy>[1]) => catalogCopy(lang, key);
 
   const [storeName, setStoreName] = useState("");
+  const [storeViews, setStoreViews] = useState(0);
+  const [followers, setFollowers] = useState(0);
   const [items, setItems] = useState<PanelItem[]>([]);
   const [cats, setCats] = useState<Array<{ id: string; name_en: string; name_km: string | null }>>([]);
   const [stats, setStats] = useState<PanelStats | null>(null);
@@ -109,7 +111,7 @@ function CatalogManagePage() {
     void (async () => {
       const { data: store } = await supabase
         .from("supplier_stores")
-        .select("user_id,name,location")
+        .select("user_id,name,location,view_count")
         .eq("id", storeId)
         .maybeSingle();
       if (cancelled) return;
@@ -118,8 +120,9 @@ function CatalogManagePage() {
         return;
       }
       setStoreName(store?.name ?? "");
+      setStoreViews(store?.view_count ?? 0);
 
-      const [itemsRes, statsRes, marketRes] = await Promise.all([
+      const [itemsRes, statsRes, marketRes, followersRes] = await Promise.all([
         supabase
           .from("supplier_catalog_items")
           .select(
@@ -129,8 +132,10 @@ function CatalogManagePage() {
           .order("created_at", { ascending: false }),
         supabase.rpc("catalog_panel_stats", { _store_id: storeId }),
         supabase.rpc("catalog_market_searches", { _province: store?.location ?? undefined, _limit: 6 }),
+        supabase.rpc("store_follower_counts", { _store_ids: [storeId] }),
       ]);
       if (cancelled) return;
+      setFollowers(Number((followersRes.data as Array<{ follower_count: number }> | null)?.[0]?.follower_count ?? 0));
 
       const s = (statsRes.data as PanelStats | null) ?? null;
       const perItem = new Map(
@@ -282,6 +287,16 @@ function CatalogManagePage() {
       <div className="space-y-3 p-3">
         {/* Metric cards */}
         <div className="grid grid-cols-2 gap-2.5">
+          <MetricCard
+            label={c("followers")}
+            value={loading ? "—" : String(followers)}
+            hint={c("followers_hint")}
+          />
+          <MetricCard
+            label={c("total_views")}
+            value={loading ? "—" : String(storeViews)}
+            hint={c("total_views_hint")}
+          />
           <MetricCard
             label={c("total_products")}
             value={loading ? "—" : String(stats?.total_products ?? 0)}
