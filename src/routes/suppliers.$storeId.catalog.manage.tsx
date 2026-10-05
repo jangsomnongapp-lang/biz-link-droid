@@ -120,8 +120,9 @@ function CatalogManagePage() {
         return;
       }
       setStoreName(store?.name ?? "");
+      setStoreViews(store?.view_count ?? 0);
 
-      const [itemsRes, statsRes, marketRes] = await Promise.all([
+      const [itemsRes, statsRes, marketRes, followersRes] = await Promise.all([
         supabase
           .from("supplier_catalog_items")
           .select(
