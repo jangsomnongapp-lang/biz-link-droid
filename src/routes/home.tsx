@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
@@ -302,6 +302,7 @@ const PostFeedCard = memo(function PostFeedCard({
   like: LikeInfo;
   commentCount: number;
   supplier: SupplierStoreInfo | undefined;
+  followed?: boolean;
   isAdmin: boolean;
   isOwner: boolean;
   highlighted: boolean;
@@ -370,6 +371,11 @@ const PostFeedCard = memo(function PostFeedCard({
               <span className="rounded-md bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
                 {t("supplier_badge")}
               </span>
+              {followed && (
+                <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+                  ✓ {t("following")}
+                </span>
+              )}
             </div>
             <div className="text-xs text-muted-foreground">
               {timeAgo(p.created_at, t)}
@@ -1219,6 +1225,15 @@ function HomePage() {
   }
 
   const focused = !!focusPostId;
+  const followedQuery = useQuery({
+    queryKey: ["followed-store-owners", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.rpc("followed_store_owner_ids");
+      return (data ?? []).map((r: { owner_id: string }) => r.owner_id);
+    },
+  });
+  const followedOwners = useMemo(() => new Set(followedQuery.data ?? []), [followedQuery.data]);
 
   // Merge + block-shuffle only when the data or seed changes — not on every
   // like/comment state update.
@@ -1249,9 +1264,20 @@ function HomePage() {
             items[start + i] = it;
           });
       }
+      // Lift posts from followed shops to the front of each 10-item window.
+      if (followedOwners.size > 0) {
+        const W = 10;
+        for (let start = 0; start < items.length; start += W) {
+          const win = items.slice(start, start + W);
+          const isF = (it: FeedItem) => it.kind === "post" && followedOwners.has(it.data.user_id);
+          [...win.filter(isF), ...win.filter((it) => !isF(it))].forEach((it, i) => {
+            items[start + i] = it;
+          });
+        }
+      }
     }
     return items;
-  }, [posts, rentals, focused, focusPostId, shuffleSeed]);
+  }, [posts, rentals, focused, focusPostId, shuffleSeed, followedOwners]);
 
   return (
     <div>
@@ -1388,6 +1414,7 @@ function HomePage() {
               like={likes[item.data.id] ?? EMPTY_LIKE}
               commentCount={commentCounts[item.data.id] ?? 0}
               supplier={supplierByUser[item.data.user_id]}
+              followed={followedOwners.has(item.data.user_id)}
               isAdmin={isAdmin}
               isOwner={user?.id === item.data.user_id}
               highlighted={highlightId === item.data.id}
