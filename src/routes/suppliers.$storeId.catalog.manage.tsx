@@ -132,8 +132,10 @@ function CatalogManagePage() {
           .order("created_at", { ascending: false }),
         supabase.rpc("catalog_panel_stats", { _store_id: storeId }),
         supabase.rpc("catalog_market_searches", { _province: store?.location ?? undefined, _limit: 6 }),
+        supabase.rpc("store_follower_counts", { _store_ids: [storeId] }),
       ]);
       if (cancelled) return;
+      setFollowers(Number((followersRes.data as Array<{ follower_count: number }> | null)?.[0]?.follower_count ?? 0));
 
       const s = (statsRes.data as PanelStats | null) ?? null;
       const perItem = new Map(
