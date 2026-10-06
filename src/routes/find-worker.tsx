@@ -45,6 +45,8 @@ interface WorkerProfile {
   is_organization: boolean;
 }
 
+const PAGE_SIZE = 40;
+
 interface Category {
   id: string;
   code: string;
@@ -318,6 +320,12 @@ function FindWorkerPage() {
             </Link>
           );
         })}
+        <div ref={sentinelRef} className="h-1" />
+        {loadingMore && (
+          <div className="py-3 text-center text-xs text-muted-foreground">
+            {t("loading")}
+          </div>
+        )}
       </div>
     </div>
   );
