@@ -165,7 +165,7 @@ function AdminPostsPage() {
       supabase
         .from("rental_requests")
         .select(
-          "id, user_id, title, description, category, location, budget_per_day, currency, needed_from, created_at, status, profiles(full_name, avatar_url)",
+          "id, user_id, title, description, category, location, budget_per_day, currency, needed_from, created_at, status",
         )
         .in("status", requestStatuses)
         .order("created_at", { ascending: false }),
@@ -174,7 +174,16 @@ function AdminPostsPage() {
     const nextStories = (storiesResult.data as PendingStory[] | null) ?? [];
     const nextListings = (listingsResult.data as PendingListing[] | null) ?? [];
     const nextRentals = (rentalsResult.data as PendingRental[] | null) ?? [];
-    const nextRequests = (requestsResult.data as PendingRentalRequest[] | null) ?? [];
+    const rawRequests = (requestsResult.data as unknown as PendingRentalRequest[] | null) ?? [];
+    const reqUserIds = [...new Set(rawRequests.map((r) => r.user_id))];
+    const { data: reqProfiles } = reqUserIds.length
+      ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", reqUserIds)
+      : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
+    const profMap = new Map((reqProfiles ?? []).map((p) => [p.id, p]));
+    const nextRequests = rawRequests.map((r) => ({
+      ...r,
+      profiles: profMap.get(r.user_id) ?? null,
+    })) as PendingRentalRequest[];
     setPosts(nextPosts);
     setStories(nextStories);
     setListings(nextListings);
