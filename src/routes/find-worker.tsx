@@ -79,10 +79,10 @@ function FindWorkerPage() {
       .then(({ data }) => setCategories((data ?? []) as Category[]));
   }, []);
 
-  useEffect(() => {
-    setLoading(true);
-    let cancelled = false;
-    (async () => {
+  const loadPage = useCallback(
+    async (page: number, reset: boolean) => {
+      if (reset) setLoading(true);
+      else setLoadingMore(true);
       let userIds: string[] | null = null;
       if (selectedCat) {
         const { data: uc } = await supabase
@@ -91,11 +91,12 @@ function FindWorkerPage() {
           .eq("category_id", selectedCat);
         userIds = (uc ?? []).map((r) => r.user_id);
         if (userIds.length === 0) {
-          if (!cancelled) {
-            setWorkers([]);
-            setWorkerCats({});
-            setLoading(false);
-          }
+          setWorkers([]);
+          setWorkerCats({});
+          setStatusMap({});
+          setHasMore(false);
+          setLoading(false);
+          setLoadingMore(false);
           return;
         }
       }
@@ -104,29 +105,26 @@ function FindWorkerPage() {
         .from("profiles")
         .select("id, full_name, avatar_url, about_me, is_provider, is_coordinator, is_organization")
         .or("is_provider.eq.true,is_coordinator.eq.true,is_organization.eq.true")
-        .limit(100);
+        .order("created_at", { ascending: false })
+        .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
 
       if (userIds) q = q.in("id", userIds);
-
-      const { data } = await q;
-      let list = (data ?? []) as WorkerProfile[];
-      if (query.trim()) {
-        const needle = query.trim().toLowerCase();
-        list = list.filter((w) =>
-          (w.full_name ?? "").toLowerCase().includes(needle) ||
-          (w.about_me ?? "").toLowerCase().includes(needle),
-        );
+      const needle = query.trim();
+      if (needle) {
+        const safe = needle.replace(/[%,()]/g, " ");
+        q = q.or(`full_name.ilike.%${safe}%,about_me.ilike.%${safe}%`);
       }
 
-      if (cancelled) return;
-      setWorkers(list);
+      const { data } = await q;
+      const list = (data ?? []) as WorkerProfile[];
+      setHasMore(list.length === PAGE_SIZE);
+      setWorkers((prev) => (reset ? list : [...prev, ...list]));
 
       if (list.length > 0) {
         const ids = list.map((w) => w.id);
         void supabase
           .rpc("get_today_availability_bulk", { _uids: ids })
           .then(({ data: avail }) => {
-            if (cancelled) return;
             const map: Record<string, string> = {};
             for (const row of (avail ?? []) as {
               user_id: string;
@@ -134,7 +132,7 @@ function FindWorkerPage() {
             }[]) {
               map[row.user_id] = row.status;
             }
-            setStatusMap(map);
+            setStatusMap((prev) => (reset ? map : { ...prev, ...map }));
           });
         const { data: ucs } = await supabase
           .from("user_categories")
@@ -146,16 +144,35 @@ function FindWorkerPage() {
           if (!cat) continue;
           (map[row.user_id] ||= []).push(cat);
         }
-        if (!cancelled) setWorkerCats(map);
-      } else {
+        setWorkerCats((prev) => (reset ? map : { ...prev, ...map }));
+      } else if (reset) {
         setWorkerCats({});
+        setStatusMap({});
       }
       setLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedCat, query]);
+      setLoadingMore(false);
+    },
+    [selectedCat, query],
+  );
+
+  useEffect(() => {
+    pageRef.current = 0;
+    void loadPage(0, true);
+  }, [loadPage]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries[0]?.isIntersecting) return;
+      if (loading || loadingMore || !hasMore) return;
+      const next = pageRef.current + 1;
+      pageRef.current = next;
+      void loadPage(next, false);
+    }, { rootMargin: "600px" });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loading, loadingMore, hasMore, loadPage]);
 
   const roleLabel = (w: WorkerProfile) =>
     [
