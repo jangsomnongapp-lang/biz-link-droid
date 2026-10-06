@@ -70,6 +70,11 @@ function WorkerIcon({ className }: { className?: string }) {
   );
 }
 
+/** Reward icon — lucide gift re-framed so it paints at the same size as the other shortcuts. */
+function RewardIcon({ className }: { className?: string }) {
+  return <Gift className={className} strokeWidth={2.2} viewBox="-0.6 -1.1 25.2 25.2" />;
+}
+
 import { toast } from "sonner";
 import { FeedSkeleton } from "@/components/SkeletonFeed";
 import { FeedVideo, isDirectVideoUrl } from "@/components/FeedVideo";
@@ -1322,7 +1327,7 @@ function HomePage() {
           { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: WorkerIcon, iconClass: "h-7 w-7", tone: "bg-shortcut-green text-primary-foreground" },
           { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: MaterialsIcon, iconClass: "h-7 w-7", tone: "bg-shortcut-orange text-primary-foreground", search: { mode: "shops" as const } },
           { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: MachineryIcon, iconClass: "h-7 w-7", tone: "bg-shortcut-slate text-primary-foreground", search: { mode: "rent" as const } },
-          { to: "/rewards" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: Gift, iconClass: "h-7 w-7", tone: "bg-shortcut-gold text-primary-foreground" },
+          { to: "/rewards" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: RewardIcon, iconClass: "h-7 w-7", tone: "bg-shortcut-gold text-primary-foreground" },
         ].map((item) => {
           const Icon = item.icon;
           return (
