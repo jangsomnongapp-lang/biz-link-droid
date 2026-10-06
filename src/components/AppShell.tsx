@@ -198,9 +198,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             </>
           );
           const onTabClick = () => {
-            // Tapping a tab always pulls fresh data for the page you land on.
-            if (active) void handleRefresh();
-            else pendingTabRefresh.current = true;
+            // First tap navigates; tapping the same tab again refreshes it.
+            if (active) {
+              void handleRefresh();
+            } else if (lastTabTap.current === tab.to) {
+              lastTabTap.current = null;
+              pendingTabRefresh.current = true;
+            } else {
+              lastTabTap.current = tab.to;
+            }
           };
           if (big) {
             // Shop owners keep the post menu here too — the sheet also links to their shop.
