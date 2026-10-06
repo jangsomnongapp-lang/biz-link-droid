@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Avatar } from "@/components/Avatar";
 import { useI18n } from "@/lib/i18n";
