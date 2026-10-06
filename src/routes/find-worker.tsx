@@ -65,6 +65,10 @@ function FindWorkerPage() {
   >("all");
   const [statusMap, setStatusMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const pageRef = useRef(0);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     void supabase
