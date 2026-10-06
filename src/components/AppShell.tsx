@@ -37,6 +37,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // A tab tap marks a refresh; it runs once the destination page has mounted.
   const pendingTabRefresh = useRef(false);
+  // Remembers the last tapped tab so a second tap on it triggers a refresh.
+  const lastTabTap = useRef<string | null>(null);
   useEffect(() => {
     if (!pendingTabRefresh.current) return;
     pendingTabRefresh.current = false;
