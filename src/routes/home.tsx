@@ -29,7 +29,7 @@ import { Plus, ThumbsUp, MessageSquare, Share2, SquarePen, X, BadgeCheck, Briefc
 /** Materials icon — user-supplied SVG (stacked blocks), white filled paths. */
 function MaterialsIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
+    <svg viewBox="19.75 31.7 465.1 465.1" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
       <path fill="currentColor" d="M233.986 85.262l-63.37 21.11L334.32 160.9l63.373-21.11-163.707-54.53zm-82.85 33.593v58.088l174.184 58.02v-58.086l-174.183-58.022zm-18 50.215l-53.71 17.89 162.63 54.175 22.417-7.467-125.18-41.7a9 9 0 0 1-6.156-8.536V169.07zm-73.19 30.375v58.088l122.286 40.733v-30.71a9 9 0 0 1 .018-.357 9 9 0 0 1 .01-.192 9 9 0 0 1 .07-.697 9 9 0 0 1 .03-.205 9 9 0 0 1 .134-.66 9 9 0 0 1 .06-.236 9 9 0 0 1 .19-.616 9 9 0 0 1 .092-.248 9 9 0 0 1 .238-.567 9 9 0 0 1 .135-.282 9 9 0 0 1 .265-.488 9 9 0 0 1 .197-.32 9 9 0 0 1 .28-.41 9 9 0 0 1 .26-.342 9 9 0 0 1 .288-.344 9 9 0 0 1 .318-.342 9 9 0 0 1 .3-.29 9 9 0 0 1 .374-.33 9 9 0 0 1 .3-.237 9 9 0 0 1 .438-.315 9 9 0 0 1 .286-.182 9 9 0 0 1 .502-.29 9 9 0 0 1 .26-.133 9 9 0 0 1 .59-.262 9 9 0 0 1 .21-.082 9 9 0 0 1 .317-.122l25.18-8.387-153.628-51.175zm364.847 27.352l-87.63 29.19a9 9 0 0 1-.247.07 9 9 0 0 1-.355.1 9 9 0 0 1-.443.1 9 9 0 0 1-.47.085 9 9 0 0 1-.4.05 9 9 0 0 1-.49.038 9 9 0 0 1-.423.007 9 9 0 0 1-.48-.01 9 9 0 0 1-.397-.03 9 9 0 0 1-.504-.06 9 9 0 0 1-.38-.07 9 9 0 0 1-.52-.117 9 9 0 0 1-.31-.087 9 9 0 0 1-.268-.077l-38.526-12.834-73.23 24.395 63.368 21.11 163.707-54.532-22.002-7.328zm-224.56 53.242v58.085l73.85 24.602v-36.225l.005.002V304.63l-2.752-.915-.014.004-71.09-23.68zm-85.174 14.82L58.57 313.68l63.373 21.11 56.485-18.817-63.37-21.11zM39.095 326.17v58.088l73.85 24.6v-58.088l-73.85-24.6zm390.207 9.816l-63.375 21.112 36.283 12.086 63.374-21.112-36.28-12.086zM219.03 363.36v21.86l174.183 58.022v-58.088L337.45 366.58l-51.516 17.162a9 9 0 0 1-.19.053 9 9 0 0 1-.467.133 9 9 0 0 1-.332.074 9 9 0 0 1-.588.107 9 9 0 0 1-.253.03 9 9 0 0 1-.674.053 9 9 0 0 1-.196.004 9 9 0 0 1-.693-.013 9 9 0 0 1-.206-.016 9 9 0 0 1-.723-.09 9 9 0 0 1-.122-.02 9 9 0 0 1-.795-.18 9 9 0 0 1-.025-.007 9 9 0 0 1-.432-.122l-61.207-20.39z" />
     </svg>
   );
@@ -38,7 +38,7 @@ function MaterialsIcon({ className }: { className?: string }) {
 /** Machinery & Tools icon — user-supplied SVG (excavator on tracks), white filled paths. */
 function MachineryIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
+    <svg viewBox="-0.8 0.3 47.8 47.8" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
       <path fillRule="evenodd" clipRule="evenodd" fill="currentColor" d="M29.2948 17H31.051L31.4434 24.0637C31.5037 25.15 32.4022 26 33.4902 26H40.051L40.3287 31H19.0571L19.3102 26.4453C19.6046 21.1461 23.9874 17 29.2948 17ZM17.3132 26.3344C17.6665 19.9754 22.926 15 29.2948 15H31.051C32.1124 15 32.989 15.8292 33.0479 16.8891L33.4403 23.9528C33.4418 23.9793 33.4637 24 33.4902 24H40.524C41.3201 24 41.9775 24.6219 42.0216 25.4168L42.4136 32.4723C42.4295 32.7589 42.2014 33 41.9144 33H18C17.4259 33 16.9697 32.5177 17.0016 31.9445L17.3132 26.3344Z" />
       <path fillRule="evenodd" clipRule="evenodd" fill="currentColor" d="M27.6501 20.9957C25.5695 21.5676 23.9603 23.0947 23.3388 25.1273L26.9166 24.263C27.2249 24.1651 27.541 24.0943 27.8608 24.051L27.6501 20.9957ZM27.4623 26.1887C27.8331 26.0637 28.225 25.9998 28.6199 25.9998H29.7321C29.877 25.9998 29.9915 25.8771 29.9816 25.7326L29.5321 19.2154C29.514 18.9532 29.2957 18.7483 29.0332 18.7616C24.7668 18.9779 21.3392 22.1481 21.0759 26.496L21.0409 27.0748C21.0205 27.4103 21.3306 27.6699 21.6574 27.591L27.4623 26.1887Z" />
       <path fillRule="evenodd" clipRule="evenodd" fill="currentColor" d="M9.97943 7.4436C9.151 7.4436 8.47943 8.11518 8.47943 8.9436C8.47943 9.77203 9.151 10.4436 9.97943 10.4436C10.8079 10.4436 11.4794 9.77203 11.4794 8.9436C11.4794 8.11518 10.8079 7.4436 9.97943 7.4436ZM6.47943 8.9436C6.47943 7.01061 8.04643 5.4436 9.97943 5.4436C11.9124 5.4436 13.4794 7.01061 13.4794 8.9436C13.4794 10.8766 11.9124 12.4436 9.97943 12.4436C8.04643 12.4436 6.47943 10.8766 6.47943 8.9436Z" />
@@ -68,6 +68,11 @@ function WorkerIcon({ className }: { className?: string }) {
       <path fillRule="evenodd" clipRule="evenodd" fill="currentColor" d="M17 18C17 21.866 20.134 25 24 25C27.866 25 31 21.866 31 18H33C33 22.9706 28.9706 27 24 27C19.0294 27 15 22.9706 15 18H17Z" />
     </svg>
   );
+}
+
+/** Reward icon — lucide gift re-framed so it paints at the same size as the other shortcuts. */
+function RewardIcon({ className }: { className?: string }) {
+  return <Gift className={className} strokeWidth={2.2} viewBox="-0.6 -1.1 25.2 25.2" />;
 }
 
 import { toast } from "sonner";
@@ -1319,10 +1324,10 @@ function HomePage() {
       <div className="grid grid-cols-5 gap-x-1 border-y border-border bg-surface px-3 py-2.5">
         {[
           { to: "/listings" as const, label: lang === "km" ? "រកការងារ" : "Find work", icon: BriefcaseBusiness, iconClass: "h-7 w-7", tone: "bg-shortcut-blue text-primary-foreground" },
-          { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: WorkerIcon, iconClass: "h-[26px] w-[26px]", tone: "bg-shortcut-green text-primary-foreground" },
-          { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: MaterialsIcon, iconClass: "h-[26px] w-[26px]", tone: "bg-shortcut-orange text-primary-foreground", search: { mode: "shops" as const } },
-          { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: MachineryIcon, iconClass: "h-[26px] w-[26px]", tone: "bg-shortcut-slate text-primary-foreground", search: { mode: "rent" as const } },
-          { to: "/rewards" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: Gift, iconClass: "h-7 w-7", tone: "bg-shortcut-gold text-primary-foreground" },
+          { to: "/find-worker" as const, label: lang === "km" ? "អ្នកជំនាញ" : "Workers", icon: WorkerIcon, iconClass: "h-7 w-7", tone: "bg-shortcut-green text-primary-foreground" },
+          { to: "/suppliers" as const, label: lang === "km" ? "សម្ភារៈ" : "Materials", icon: MaterialsIcon, iconClass: "h-7 w-7", tone: "bg-shortcut-orange text-primary-foreground", search: { mode: "shops" as const } },
+          { to: "/market" as const, label: lang === "km" ? "ម៉ាស៊ីន និងឧបករណ៍" : "Machinery & Tools", icon: MachineryIcon, iconClass: "h-7 w-7", tone: "bg-shortcut-slate text-primary-foreground", search: { mode: "rent" as const } },
+          { to: "/rewards" as const, label: lang === "km" ? "រង្វាន់" : "Reward", icon: RewardIcon, iconClass: "h-7 w-7", tone: "bg-shortcut-gold text-primary-foreground" },
         ].map((item) => {
           const Icon = item.icon;
           return (
