@@ -361,6 +361,7 @@ export function CommentsSheet({
           onCancel={() => setDeleteId(null)}
         />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

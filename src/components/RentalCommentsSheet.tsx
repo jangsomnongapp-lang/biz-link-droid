@@ -355,6 +355,7 @@ export function RentalCommentsSheet({
           onCancel={() => setDeleteId(null)}
         />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
