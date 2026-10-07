@@ -146,6 +146,7 @@ function FindWorkerPage() {
           .from("user_categories")
           .select("user_id, categories(id, name_en, name_km)")
           .in("user_id", ids);
+        if (isStale()) return;
         const map: Record<string, Category[]> = {};
         for (const row of ucs ?? []) {
           const cat = row.categories as Category | null;
