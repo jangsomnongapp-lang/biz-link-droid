@@ -71,6 +71,7 @@ function FindWorkerPage() {
   const [hasMore, setHasMore] = useState(true);
   const pageRef = useRef(0);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const reqSeqRef = useRef(0);
 
   useEffect(() => {
     void supabase
