@@ -30,6 +30,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const nav = useNavigate();
   const [postSheetOpen, setPostSheetOpen] = useState(false);
 
+  // Pages (e.g. the home search pill) can ask for the post sheet with this event.
+  useEffect(() => {
+    const openPostSheet = () => setPostSheetOpen(true);
+    window.addEventListener("buildhub:open-post-sheet", openPostSheet);
+    return () => window.removeEventListener("buildhub:open-post-sheet", openPostSheet);
+  }, []);
+
   async function handleRefresh() {
     // Only refresh what is on screen right now — other pages keep their data.
     await qc.invalidateQueries({ type: "active" });
