@@ -122,6 +122,7 @@ function FindWorkerPage() {
       }
 
       const { data } = await q;
+      if (isStale()) return;
       const list = (data ?? []) as WorkerProfile[];
       setHasMore(list.length === PAGE_SIZE);
       setWorkers((prev) => (reset ? list : [...prev, ...list]));
