@@ -84,6 +84,8 @@ function FindWorkerPage() {
 
   const loadPage = useCallback(
     async (page: number, reset: boolean) => {
+      const reqId = ++reqSeqRef.current;
+      const isStale = () => reqId !== reqSeqRef.current;
       if (reset) setLoading(true);
       else setLoadingMore(true);
       let userIds: string[] | null = null;
@@ -92,6 +94,7 @@ function FindWorkerPage() {
           .from("user_categories")
           .select("user_id")
           .eq("category_id", selectedCat);
+        if (isStale()) return;
         userIds = (uc ?? []).map((r) => r.user_id);
         if (userIds.length === 0) {
           setWorkers([]);
