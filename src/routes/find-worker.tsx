@@ -71,6 +71,7 @@ function FindWorkerPage() {
   const [hasMore, setHasMore] = useState(true);
   const pageRef = useRef(0);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const reqSeqRef = useRef(0);
 
   useEffect(() => {
     void supabase
@@ -83,6 +84,8 @@ function FindWorkerPage() {
 
   const loadPage = useCallback(
     async (page: number, reset: boolean) => {
+      const reqId = ++reqSeqRef.current;
+      const isStale = () => reqId !== reqSeqRef.current;
       if (reset) setLoading(true);
       else setLoadingMore(true);
       let userIds: string[] | null = null;
@@ -91,6 +94,7 @@ function FindWorkerPage() {
           .from("user_categories")
           .select("user_id")
           .eq("category_id", selectedCat);
+        if (isStale()) return;
         userIds = (uc ?? []).map((r) => r.user_id);
         if (userIds.length === 0) {
           setWorkers([]);
@@ -118,6 +122,7 @@ function FindWorkerPage() {
       }
 
       const { data } = await q;
+      if (isStale()) return;
       const list = (data ?? []) as WorkerProfile[];
       setHasMore(list.length === PAGE_SIZE);
       setWorkers((prev) => (reset ? list : [...prev, ...list]));
@@ -127,6 +132,7 @@ function FindWorkerPage() {
         void supabase
           .rpc("get_today_availability_bulk", { _uids: ids })
           .then(({ data: avail }) => {
+            if (isStale()) return;
             const map: Record<string, string> = {};
             for (const row of (avail ?? []) as {
               user_id: string;
@@ -140,6 +146,7 @@ function FindWorkerPage() {
           .from("user_categories")
           .select("user_id, categories(id, name_en, name_km)")
           .in("user_id", ids);
+        if (isStale()) return;
         const map: Record<string, Category[]> = {};
         for (const row of ucs ?? []) {
           const cat = row.categories as Category | null;
