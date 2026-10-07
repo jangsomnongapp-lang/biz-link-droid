@@ -132,6 +132,7 @@ function FindWorkerPage() {
         void supabase
           .rpc("get_today_availability_bulk", { _uids: ids })
           .then(({ data: avail }) => {
+            if (isStale()) return;
             const map: Record<string, string> = {};
             for (const row of (avail ?? []) as {
               user_id: string;
