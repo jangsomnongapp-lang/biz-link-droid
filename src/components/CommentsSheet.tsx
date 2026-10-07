@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { X, Send, Heart, CornerDownRight, Pencil, Trash2, Check } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
