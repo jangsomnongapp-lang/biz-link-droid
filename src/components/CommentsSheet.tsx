@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { X, Send, Heart, CornerDownRight, Pencil, Trash2, Check } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
@@ -276,8 +277,8 @@ export function CommentsSheet({
     );
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50" onClick={onClose}>
+  return createPortal(
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/50" onClick={onClose}>
       <div
         className="flex h-[80vh] flex-col rounded-t-2xl bg-surface"
         onClick={(e) => e.stopPropagation()}
@@ -360,6 +361,7 @@ export function CommentsSheet({
           onCancel={() => setDeleteId(null)}
         />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
