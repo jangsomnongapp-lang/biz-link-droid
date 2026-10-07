@@ -1308,13 +1308,14 @@ function HomePage() {
         <Link to="/profile" className="shrink-0 active:opacity-60" aria-label="My profile">
           <Avatar name={profile?.full_name} url={profile?.avatar_url} size={36} />
         </Link>
-        <Link
-          to="/search"
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("buildhub:open-post-sheet"))}
           className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-surface px-3 text-sm text-muted-foreground shadow-sm active:bg-muted"
         >
-          <Search className="h-4 w-4 shrink-0" />
+          <SquarePen className="h-4 w-4 shrink-0" />
           <span className="truncate">{lang === "km" ? "តើអ្នកត្រូវការអ្វីថ្ងៃនេះ?" : "What do you need today?"}</span>
-        </Link>
+        </button>
         <Link to="/announce" className="tap rounded-md p-2 text-primary active:bg-primary/10" aria-label={t("nav_announce")}>
           <SquarePen className="h-6 w-6" />
         </Link>
