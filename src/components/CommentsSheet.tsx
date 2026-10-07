@@ -277,8 +277,8 @@ export function CommentsSheet({
     );
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50" onClick={onClose}>
+  return createPortal(
+    <div className="fixed inset-0 z-[60] flex flex-col justify-end bg-black/50" onClick={onClose}>
       <div
         className="flex h-[80vh] flex-col rounded-t-2xl bg-surface"
         onClick={(e) => e.stopPropagation()}
