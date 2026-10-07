@@ -1090,13 +1090,23 @@ function RentMode({
     enabled: subMode === "looking_for",
     staleTime: 5 * 60_000,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("rental_requests")
-        .select("id, user_id, title, description, category, location, budget_per_day, currency, needed_from, created_at, profiles(full_name, avatar_url)")
+        .select("id, user_id, title, description, category, location, budget_per_day, currency, needed_from, created_at")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(40);
-      return (data as RentalRequestRow[] | null) ?? [];
+      if (error) throw error;
+      const rows = data ?? [];
+      const ids = [...new Set(rows.map((r) => r.user_id))];
+      const { data: profs } = ids.length
+        ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", ids)
+        : { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] };
+      const map = new Map((profs ?? []).map((p) => [p.id, p]));
+      return rows.map((r) => {
+        const p = map.get(r.user_id);
+        return { ...r, profiles: p ? { full_name: p.full_name, avatar_url: p.avatar_url } : null };
+      }) as unknown as RentalRequestRow[];
     },
   });
 
