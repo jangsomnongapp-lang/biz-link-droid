@@ -1310,6 +1310,7 @@ function HomePage() {
         </Link>
         <Link
           to="/posts/new"
+          search={{ type: "general" }}
           className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-surface px-3 text-sm text-muted-foreground shadow-sm active:bg-muted"
         >
           <SquarePen className="h-4 w-4 shrink-0" />
