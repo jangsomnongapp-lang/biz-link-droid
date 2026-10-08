@@ -192,7 +192,12 @@ function FindWorkerPage() {
       .filter(Boolean)
       .join(" · ");
 
-  const visibleCats = useMemo(() => categories.slice(0, 30), [categories]);
+  const visibleCats = useMemo(() => {
+    const list = categories.slice(0, 30);
+    const others = list.filter((c) => c.code === "D4");
+    const rest = list.filter((c) => c.code !== "D4");
+    return [...rest, ...others];
+  }, [categories]);
 
   const visibleWorkers = useMemo(
     () =>
