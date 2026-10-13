@@ -292,7 +292,7 @@ export function SuppliersListPage({ page = "suppliers" }: { page?: "suppliers" |
         photosByStore.set(p.store_id, arr);
       }
 
-      const storeList: StoreCardRow[] = ((allStores ?? []) as Array<{ id: string; user_id: string; name: string; description: string | null; location: string | null; logo_url: string | null; created_at: string }>).map((s) => ({
+      const storeList: StoreCardRow[] = uniqueStores.map((s) => ({
         ...s,
         categories: catsByStore.get(s.id) ?? [],
         photos: (photosByStore.get(s.id) ?? []).slice(0, 3),
@@ -352,7 +352,7 @@ export function SuppliersListPage({ page = "suppliers" }: { page?: "suppliers" |
           created_at: string;
         }>).map((i) => {
           const st = storeByUser.get(
-            ((allStores ?? []) as Array<{ id: string; user_id: string }>).find((s) => s.id === i.store_id)?.user_id ?? ""
+            uniqueStores.find((s) => s.id === i.store_id)?.user_id ?? ""
           );
           const offer = (i.offer_active ?? false) && i.offer_price != null;
           return {
