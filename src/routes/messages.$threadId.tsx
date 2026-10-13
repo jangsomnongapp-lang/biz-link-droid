@@ -167,6 +167,7 @@ function ConversationPage() {
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [other, setOther] = useState<OtherProfile | null>(null);
+  const [storeHeader, setStoreHeader] = useState<{ id: string; name: string; logo_url: string | null } | null>(null);
   const [text, setText] = useState(prefill ?? "");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -215,6 +216,7 @@ function ConversationPage() {
           .maybeSingle();
         if (s) {
           const ss = s as unknown as { id: string; name: string; description: string | null; logo_url: string | null };
+          setStoreHeader({ id: ss.id, name: ss.name, logo_url: ss.logo_url });
           nextPinned = {
             id: ss.id,
             kind: "store",
