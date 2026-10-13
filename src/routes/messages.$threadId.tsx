@@ -201,6 +201,19 @@ function ConversationPage() {
         .maybeSingle();
       setOther(profile);
 
+      // If the other participant owns a shop, show the shop identity in the header
+      const { data: ownedStore } = await supabase
+        .from("supplier_stores")
+        .select("id, name, logo_url")
+        .eq("user_id", otherId)
+        .eq("status", "approved")
+        .limit(1)
+        .maybeSingle();
+      if (ownedStore) {
+        const os = ownedStore as unknown as { id: string; name: string; logo_url: string | null };
+        setStoreHeader({ id: os.id, name: os.name, logo_url: os.logo_url });
+      }
+
       // Pin priority: explicit search param wins, otherwise fall back to thread.pinned_post_id (post only)
       const parsed = pin?.includes(":") ? (pin.split(":") as [string, string]) : null;
       const pinKind = parsed?.[0] as "post" | "rental" | "listing" | "store" | undefined;
