@@ -167,6 +167,7 @@ function ConversationPage() {
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [other, setOther] = useState<OtherProfile | null>(null);
+  const [storeHeader, setStoreHeader] = useState<{ id: string; name: string; logo_url: string | null } | null>(null);
   const [text, setText] = useState(prefill ?? "");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -200,6 +201,19 @@ function ConversationPage() {
         .maybeSingle();
       setOther(profile);
 
+      // If the other participant owns a shop, show the shop identity in the header
+      const { data: ownedStore } = await supabase
+        .from("supplier_stores")
+        .select("id, name, logo_url")
+        .eq("user_id", otherId)
+        .eq("status", "approved")
+        .limit(1)
+        .maybeSingle();
+      if (ownedStore) {
+        const os = ownedStore as unknown as { id: string; name: string; logo_url: string | null };
+        setStoreHeader({ id: os.id, name: os.name, logo_url: os.logo_url });
+      }
+
       // Pin priority: explicit search param wins, otherwise fall back to thread.pinned_post_id (post only)
       const parsed = pin?.includes(":") ? (pin.split(":") as [string, string]) : null;
       const pinKind = parsed?.[0] as "post" | "rental" | "listing" | "store" | undefined;
@@ -215,6 +229,7 @@ function ConversationPage() {
           .maybeSingle();
         if (s) {
           const ss = s as unknown as { id: string; name: string; description: string | null; logo_url: string | null };
+          setStoreHeader({ id: ss.id, name: ss.name, logo_url: ss.logo_url });
           nextPinned = {
             id: ss.id,
             kind: "store",
@@ -611,7 +626,24 @@ function ConversationPage() {
         <Link to="/messages" className="rounded-full p-2 active:bg-white/10">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        {other?.id ? (
+        {storeHeader ? (
+          <Link
+            to="/suppliers/$storeId"
+            params={{ storeId: storeHeader.id }}
+            className="flex flex-1 min-w-0 items-center gap-2 rounded-lg p-1 -m-1 active:bg-white/10"
+          >
+            <Avatar name={storeHeader.name} url={storeHeader.logo_url} size={36} />
+            <div className="flex-1 min-w-0">
+              <div className="truncate text-sm font-semibold">{storeHeader.name}</div>
+              <div className="flex items-center gap-1 text-[11px] text-white/80">
+                <span
+                  className={`inline-block h-1.5 w-1.5 rounded-full ${otherOnline ? "bg-emerald-400" : "bg-white/40"}`}
+                />
+                {otherOnline ? t("online") : t("offline")}
+              </div>
+            </div>
+          </Link>
+        ) : other?.id ? (
           <Link
             to="/users/$userId"
             params={{ userId: other.id }}
