@@ -249,12 +249,20 @@ export function SuppliersListPage({ page = "suppliers" }: { page?: "suppliers" |
           .select("id, code, name_en, name_km"),
       ]);
 
+      // One store per owner: some owners have duplicate store rows; keep the newest (list is ordered created_at desc)
+      const seenOwners = new Set<string>();
+      const uniqueStores = ((allStores ?? []) as Array<{ id: string; user_id: string; name: string; description: string | null; location: string | null; logo_url: string | null; created_at: string }>).filter((s) => {
+        if (seenOwners.has(s.user_id)) return false;
+        seenOwners.add(s.user_id);
+        return true;
+      });
+
       const storeByUser = new Map<string, { id: string; name: string; location: string | null; logo_url: string | null }>();
-      for (const s of (allStores ?? []) as Array<{ id: string; user_id: string; name: string; location: string | null; logo_url: string | null }>) {
+      for (const s of uniqueStores) {
         storeByUser.set(s.user_id, { id: s.id, name: s.name, location: s.location, logo_url: s.logo_url });
       }
 
-      const storeIds = ((allStores ?? []) as Array<{ id: string }>).map((s) => s.id);
+      const storeIds = uniqueStores.map((s) => s.id);
       const [{ data: scs2 }, { data: storePhotos }] = await Promise.all([
         storeIds.length
           ? supabase
