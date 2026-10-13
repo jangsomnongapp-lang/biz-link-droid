@@ -613,7 +613,24 @@ function ConversationPage() {
         <Link to="/messages" className="rounded-full p-2 active:bg-white/10">
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        {other?.id ? (
+        {storeHeader ? (
+          <Link
+            to="/suppliers/$storeId"
+            params={{ storeId: storeHeader.id }}
+            className="flex flex-1 min-w-0 items-center gap-2 rounded-lg p-1 -m-1 active:bg-white/10"
+          >
+            <Avatar name={storeHeader.name} url={storeHeader.logo_url} size={36} />
+            <div className="flex-1 min-w-0">
+              <div className="truncate text-sm font-semibold">{storeHeader.name}</div>
+              <div className="flex items-center gap-1 text-[11px] text-white/80">
+                <span
+                  className={`inline-block h-1.5 w-1.5 rounded-full ${otherOnline ? "bg-emerald-400" : "bg-white/40"}`}
+                />
+                {otherOnline ? t("online") : t("offline")}
+              </div>
+            </div>
+          </Link>
+        ) : other?.id ? (
           <Link
             to="/users/$userId"
             params={{ userId: other.id }}
