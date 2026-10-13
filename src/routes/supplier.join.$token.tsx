@@ -7,9 +7,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Camera, Eye, EyeOff, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { ProvinceSelect } from "@/components/ProvinceSelect";
+import { AvatarCropper } from "@/components/AvatarCropper";
+import { createPortal } from "react-dom";
 
 
 export const Route = createFileRoute("/supplier/join/$token")({
+  head: () => ({ meta: [
+    { title: "Register Your Shop | BuildHub" },
+    { name: "description", content: "Create your BuildHub supplier shop profile with your invitation." },
+    { property: "og:title", content: "Register Your Shop | BuildHub" },
+    { property: "og:description", content: "Create your BuildHub supplier shop profile with your invitation." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: SupplierJoinPage,
 });
 
@@ -55,6 +65,8 @@ function SupplierJoinPage() {
   const [selectedCats, setSelectedCats] = useState<Set<string>>(new Set());
 
   const [logoData, setLogoData] = useState<string | null>(null);
+  const [cropSource, setCropSource] = useState<string | null>(null);
+  const [logoSaving, setLogoSaving] = useState(false);
   const [storeName, setStoreName] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
@@ -66,6 +78,10 @@ function SupplierJoinPage() {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    return () => { if (cropSource) URL.revokeObjectURL(cropSource); };
+  }, [cropSource]);
 
   // Validate invite + redirect already-signed-in users
   useEffect(() => {
@@ -112,7 +128,20 @@ function SupplierJoinPage() {
     if (!f) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(f)) return;
-    setLogoData(await fileToDataUrl(f));
+    setCropSource(URL.createObjectURL(f));
+  }
+
+  async function confirmLogo(dataUrl: string) {
+    setLogoSaving(true);
+    try {
+      const { resizeDataUrl } = await import("@/lib/image-resize");
+      setLogoData(await resizeDataUrl(dataUrl, { maxEdge: 800, quality: 0.7, maxBytes: 250_000 }));
+      setCropSource(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not prepare photo");
+    } finally {
+      setLogoSaving(false);
+    }
   }
 
   async function onPickProductPhoto(e: React.ChangeEvent<HTMLInputElement>) {
@@ -344,6 +373,7 @@ function SupplierJoinPage() {
               />
               <button
                 onClick={() => logoRef.current?.click()}
+                aria-label={t("add_store_logo")}
                 className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5"
               >
                 {logoData ? (
@@ -496,6 +526,18 @@ function SupplierJoinPage() {
           </button>
         )}
       </div>
+      {cropSource && createPortal(
+        <div className="fixed inset-0 z-[70]">
+          <AvatarCropper
+            src={cropSource}
+            cropShape="rect"
+            aspect={1}
+            saving={logoSaving}
+            onCancel={() => setCropSource(null)}
+            onConfirm={(dataUrl) => void confirmLogo(dataUrl)}
+          />
+        </div>, document.body,
+      )}
     </div>
   );
 }

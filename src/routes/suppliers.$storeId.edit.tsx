@@ -7,9 +7,19 @@ import { useAuth } from "@/lib/auth";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ProvinceSelect } from "@/components/ProvinceSelect";
+import { AvatarCropper } from "@/components/AvatarCropper";
+import { createPortal } from "react-dom";
 
 
 export const Route = createFileRoute("/suppliers/$storeId/edit")({
+  head: () => ({ meta: [
+    { title: "Edit Shop | BuildHub" },
+    { name: "description", content: "Update your BuildHub shop profile, photo and product details." },
+    { property: "og:title", content: "Edit Shop | BuildHub" },
+    { property: "og:description", content: "Update your BuildHub shop profile, photo and product details." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: () => (
     <RequireAuth>
       <SupplierEditPage />
@@ -39,11 +49,17 @@ function SupplierEditPage() {
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
   const [logo, setLogo] = useState<string | null>(null);
+  const [cropSource, setCropSource] = useState<string | null>(null);
+  const [logoSaving, setLogoSaving] = useState(false);
   const [photos, setPhotos] = useState<{ id?: string; url: string }[]>([]);
   const [removedPhotoIds, setRemovedPhotoIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [denied, setDenied] = useState(false);
+
+  useEffect(() => {
+    return () => { if (cropSource) URL.revokeObjectURL(cropSource); };
+  }, [cropSource]);
 
   useEffect(() => {
     if (!user) return;
@@ -94,11 +110,20 @@ function SupplierEditPage() {
     if (!f || !user) return;
     const { validateImageFile } = await import("@/lib/upload-validation");
     if (!validateImageFile(f)) return;
+    setCropSource(URL.createObjectURL(f));
+  }
+
+  async function confirmLogo(dataUrl: string) {
+    if (!user) return;
+    setLogoSaving(true);
     try {
-      const { uploadImage } = await import("@/lib/media-upload");
-      setLogo(await uploadImage(user.id, "stores", f, { maxEdge: 600 }));
+      const { uploadDataUrl } = await import("@/lib/media-upload");
+      setLogo(await uploadDataUrl(user.id, "stores", dataUrl, { maxEdge: 600 }));
+      setCropSource(null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setLogoSaving(false);
     }
   }
 
@@ -218,6 +243,7 @@ function SupplierEditPage() {
           <button
             type="button"
             onClick={() => logoInput.current?.click()}
+            aria-label={t("add_store_logo")}
             className="relative h-24 w-24 overflow-hidden rounded-2xl border-2 border-dashed border-border bg-surface"
           >
             {logo ? (
@@ -331,6 +357,18 @@ function SupplierEditPage() {
           {saving ? "..." : t("save_changes")}
         </button>
       </div>
+      {cropSource && createPortal(
+        <div className="fixed inset-0 z-[70]">
+          <AvatarCropper
+            src={cropSource}
+            cropShape="rect"
+            aspect={1}
+            saving={logoSaving}
+            onCancel={() => setCropSource(null)}
+            onConfirm={(dataUrl) => void confirmLogo(dataUrl)}
+          />
+        </div>, document.body,
+      )}
     </div>
   );
 }
