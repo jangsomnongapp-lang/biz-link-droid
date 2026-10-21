@@ -64,6 +64,20 @@
       "when": 1791161478078,
       "tag": "0008_store_followers",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792570630904,
+      "tag": "0009_add_rental_request_photos",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792570737770,
+      "tag": "0010_fix_request_photos_read_policy",
+      "breakpoints": true
     }
   ]
 }

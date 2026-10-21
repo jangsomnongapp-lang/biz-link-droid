@@ -1069,6 +1069,7 @@ interface RentalRequestRow {
   currency: string;
   needed_from: string | null;
   created_at: string;
+  rental_request_photos: { photo_url: string }[];
   profiles?: { full_name: string | null; avatar_url: string | null } | null;
 }
 
@@ -1124,7 +1125,7 @@ function RentMode({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rental_requests")
-        .select("id, user_id, title, description, category, location, budget_per_day, currency, needed_from, created_at")
+        .select("id, user_id, title, description, category, location, budget_per_day, currency, needed_from, created_at, rental_request_photos(photo_url)")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(40);
@@ -1296,6 +1297,18 @@ function RentMode({
                   <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
                 </div>
               </div>
+              {r.rental_request_photos.length > 0 && (
+                <div className="mt-3 flex gap-2 overflow-x-auto">
+                  {r.rental_request_photos.slice(0, 4).map((p, i) => (
+                    <img
+                      key={i}
+                      src={p.photo_url}
+                      alt={`${r.title} — photo ${i + 1}`}
+                      className="h-20 w-20 shrink-0 rounded-md bg-muted object-cover"
+                    />
+                  ))}
+                </div>
+              )}
               <div className="mt-2 flex items-center justify-between gap-3">
                 <div className="flex min-w-0 flex-col gap-1">
                   <span className="self-start rounded-pill bg-[#fff8e1] px-2 py-0.5 text-[10px] font-semibold text-[#b07d00]">

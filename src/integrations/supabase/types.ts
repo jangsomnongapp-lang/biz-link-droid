@@ -1973,6 +1973,38 @@ export type Database = {
           },
         ]
       }
+      rental_request_photos: {
+        Row: {
+          created_at: string
+          id: string
+          photo_url: string
+          request_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          photo_url: string
+          request_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          photo_url?: string
+          request_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_request_photos_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "rental_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rental_requests: {
         Row: {
           budget_per_day: number | null
