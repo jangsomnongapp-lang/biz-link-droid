@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { RequireAuth } from "@/components/RequireAuth";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, MapPin, Truck, HardHat, Wrench, Hammer, Warehouse } from "lucide-react";
+import { uploadImage } from "@/lib/media-upload";
+import { ArrowLeft, MapPin, Truck, HardHat, Wrench, Hammer, Warehouse, X, Plus } from "lucide-react";
 import { ProvinceSelect } from "@/components/ProvinceSelect";
 import { toast } from "sonner";
 
@@ -29,7 +30,7 @@ const CATS: { id: Cat; icon: typeof Truck; titleKey: "cat_vehicles" | "cat_heavy
 ];
 
 function NewRentalRequestPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
   const nav = useNavigate();
   const [title, setTitle] = useState("");
@@ -39,7 +40,31 @@ function NewRentalRequestPage() {
   const [currency, setCurrency] = useState<"USD" | "KHR">("USD");
   const [neededFrom, setNeededFrom] = useState("");
   const [location, setLocation] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  const km = lang === "km";
+
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    if (photos.length >= 4) {
+      toast.error(t("max_4_photos"));
+      return;
+    }
+    setPhotoBusy(true);
+    try {
+      const url = await uploadImage(user.id, "rental-requests", file, { maxEdge: 1280, quality: 0.78 });
+      setPhotos((p) => [...p, url]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("upload_failed"));
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
 
   async function submit() {
     if (!user) return;
@@ -49,17 +74,26 @@ function NewRentalRequestPage() {
     }
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("rental_requests").insert({
-        user_id: user.id,
-        title: title.trim().slice(0, 120),
-        description: description.trim().slice(0, 1000) || null,
-        category,
-        location: location.trim().slice(0, 120),
-        budget_per_day: budget ? Number(budget) : null,
-        currency,
-        needed_from: neededFrom || null,
-      });
+      const { data: created, error } = await supabase
+        .from("rental_requests")
+        .insert({
+          user_id: user.id,
+          title: title.trim().slice(0, 120),
+          description: description.trim().slice(0, 1000) || null,
+          category,
+          location: location.trim().slice(0, 120),
+          budget_per_day: budget ? Number(budget) : null,
+          currency,
+          needed_from: neededFrom || null,
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      if (photos.length) {
+        await supabase
+          .from("rental_request_photos")
+          .insert(photos.map((url, i) => ({ request_id: created.id, photo_url: url, sort_order: i })));
+      }
       toast.success(t("rental_request_posted"));
       nav({ to: "/suppliers" });
     } catch (e) {
@@ -126,6 +160,35 @@ function NewRentalRequestPage() {
               })}
             </div>
           </div>
+        </Card>
+
+        <Card>
+          <Label>{km ? "រូបភាព (អតិបរមា 4)" : "Photos (max 4)"}</Label>
+          <div className="grid grid-cols-4 gap-2">
+            {photos.map((url) => (
+              <div key={url} className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+                <img src={url} alt="" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setPhotos((p) => p.filter((u) => u !== url))}
+                  className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+            {photos.length < 4 && (
+              <button
+                type="button"
+                onClick={() => fileInput.current?.click()}
+                disabled={photoBusy}
+                className="flex aspect-square items-center justify-center rounded-lg border-2 border-dashed border-border text-muted-foreground active:scale-[0.98] disabled:opacity-50"
+              >
+                <Plus className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+          <input ref={fileInput} type="file" accept="image/*" className="hidden" onChange={onPickFile} />
         </Card>
 
         <Card>
