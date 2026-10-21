@@ -1093,6 +1093,30 @@ function RentMode({
 }) {
   void lang;
   const [subMode, setSubMode] = useState<RentSubMode>("for_rent");
+  const { user } = useAuth();
+  const nav = useNavigate();
+  const [contacting, setContacting] = useState<string | null>(null);
+  async function contactRequester(otherId: string) {
+    if (!user) return;
+    setContacting(otherId);
+    try {
+      const [a, b] = [user.id, otherId].sort();
+      const { data: existing } = await supabase
+        .from("message_threads").select("id").eq("participant_a", a).eq("participant_b", b).maybeSingle();
+      let threadId = existing?.id;
+      if (!threadId) {
+        const { data: created, error } = await supabase
+          .from("message_threads").insert({ participant_a: a, participant_b: b }).select("id").single();
+        if (error) throw error;
+        threadId = created.id;
+      }
+      nav({ to: "/messages/$threadId", params: { threadId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setContacting(null);
+    }
+  }
   const { data: requests = [], isLoading: loadingReq } = useQuery({
     queryKey: ["suppliers:rental-requests"],
     enabled: subMode === "looking_for",
@@ -1250,16 +1274,13 @@ function RentMode({
             <p className="py-10 text-center text-sm text-muted-foreground">{t("no_rental_requests")}</p>
           )}
           {filteredRequests.map((r) => (
-            <div key={r.id} className="rounded-2xl border border-dashed border-[#7F77DD] bg-surface p-3 shadow-card">
+            <div key={r.id} className="block rounded-2xl border border-[#7F77DD] bg-surface p-3 shadow-card">
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate text-sm font-bold text-foreground">{r.title}</p>
                     <span className="rounded-pill bg-[#EEEDFE] px-2 py-0.5 text-[10px] font-semibold text-[#26215C]">
                       {catLabel(r.category)}
-                    </span>
-                    <span className="rounded-pill bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
-                      Looking
                     </span>
                   </div>
                   <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -1268,19 +1289,32 @@ function RentMode({
                     {r.profiles?.full_name && <span className="truncate"> · {r.profiles.full_name}</span>}
                   </div>
                 </div>
-                {r.budget_per_day != null && (
-                  <div className="text-right">
-                    <div className="text-base font-bold text-[#534AB7]">≤ {formatPrice(r.budget_per_day, r.currency)}</div>
-                    <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
+                <div className="text-right">
+                  <div className="text-base font-bold text-[#534AB7]">
+                    {r.budget_per_day != null ? `≤ ${formatPrice(r.budget_per_day, r.currency)}` : "—"}
                   </div>
+                  <div className="text-[10px] text-muted-foreground">{t("per_day")}</div>
+                </div>
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <div className="flex min-w-0 flex-col gap-1">
+                  <span className="self-start rounded-pill bg-[#fff8e1] px-2 py-0.5 text-[10px] font-semibold text-[#b07d00]">
+                    {t("looking_for")}{r.needed_from ? ` · ${r.needed_from}` : ""}
+                  </span>
+                  {r.description && (
+                    <p className="line-clamp-1 text-xs text-muted-foreground">{r.description}</p>
+                  )}
+                </div>
+                {user?.id !== r.user_id && (
+                  <button
+                    onClick={() => contactRequester(r.user_id)}
+                    disabled={contacting === r.user_id}
+                    className="shrink-0 rounded-lg bg-[#534AB7] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+                  >
+                    {t("contact")}
+                  </button>
                 )}
               </div>
-              {r.description && (
-                <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{r.description}</p>
-              )}
-              {r.needed_from && (
-                <p className="mt-1 text-[11px] text-muted-foreground">Needed from {r.needed_from}</p>
-              )}
             </div>
           ))}
         </div>
